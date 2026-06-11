@@ -2,17 +2,22 @@ import React, { useState } from "react";
 import { Pressable, View, Text, TextInput, Modal } from "react-native";
 import { useThemeStore } from "@/lib/theme-store";
 import { getThemeColors } from "@/lib/theme-colors";
+import type { WorkoutGoal } from "@/lib/types";
 
 type AddExerciseModalProps = {
   visible: boolean;
   onClose: () => void;
   onAdd: (exerciseType: string, dailyGoal: number, caloriesPerRep: number) => void;
+  disabledGoals: WorkoutGoal[];
+  onReinstate: (goalId: string) => void;
 };
 
 export function AddExerciseModal({
   visible,
   onClose,
   onAdd,
+  disabledGoals,
+  onReinstate,
 }: AddExerciseModalProps) {
   const { theme } = useThemeStore();
   const c = getThemeColors(theme);
@@ -55,6 +60,43 @@ export function AddExerciseModal({
             </Text>
             <View className="w-12" />
           </View>
+
+          {/* Recently Removed */}
+          {disabledGoals.length > 0 && (
+            <View className="mb-5">
+              <Text style={{ color: c.textSecondary }} className="text-xs font-medium mb-3">
+                Recently Removed
+              </Text>
+              <View className="gap-2">
+                {disabledGoals.map((goal) => (
+                  <View
+                    key={goal.id}
+                    className="flex-row items-center justify-between rounded-xl px-4 py-3"
+                    style={{ backgroundColor: c.inputBg, borderWidth: 1, borderColor: c.cardBorder }}
+                  >
+                    <View>
+                      <Text style={{ color: c.text }} className="font-semibold capitalize">
+                        {goal.exercise_type}
+                      </Text>
+                      <Text style={{ color: c.textMuted }} className="text-xs">
+                        {goal.daily_goal} reps/day · {goal.calories_per_rep} cal/rep
+                      </Text>
+                    </View>
+                    <Pressable
+                      onPress={() => onReinstate(goal.id)}
+                      className="rounded-lg px-3 py-1.5"
+                      style={{ backgroundColor: "#10B981" }}
+                    >
+                      <Text style={{ color: "#FFFFFF" }} className="text-xs font-semibold">
+                        Reinstate
+                      </Text>
+                    </Pressable>
+                  </View>
+                ))}
+              </View>
+              <View className="my-4" style={{ height: 1, backgroundColor: c.cardBorder }} />
+            </View>
+          )}
 
           {/* Exercise Name */}
           <Text style={{ color: c.textSecondary }} className="text-xs mb-2">

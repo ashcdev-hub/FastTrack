@@ -36,6 +36,7 @@ export function ExercisePanel({
   const [editingGoal, setEditingGoal] = useState(false);
   const [goalInput, setGoalInput] = useState(String(goal.daily_goal));
   const [customMode, setCustomMode] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const reps = todayTotal?.reps ?? 0;
   const sets = todayTotal?.sets ?? 0;
@@ -84,7 +85,7 @@ export function ExercisePanel({
             />
           </Pressable>
           <Pressable
-            onPress={() => onToggleEnabled(goal.id, false)}
+            onPress={() => setShowDeleteConfirm(true)}
             className="p-1"
           >
             <HugeiconsIcon
@@ -151,6 +152,40 @@ export function ExercisePanel({
           </Text>
         </View>
       </View>
+
+      {/* Delete Confirmation */}
+      {showDeleteConfirm && (
+        <View
+          className="rounded-xl p-4 mb-3"
+          style={{ backgroundColor: "rgba(239,68,68,0.1)", borderWidth: 1, borderColor: "rgba(239,68,68,0.3)" }}
+        >
+          <Text style={{ color: c.text }} className="font-bold mb-1">
+            Remove this exercise?
+          </Text>
+          <Text style={{ color: c.textSecondary }} className="text-sm mb-3">
+            You can re-add it later from the Add Exercise menu.
+          </Text>
+          <View className="flex-row gap-3">
+            <Pressable
+              onPress={() => setShowDeleteConfirm(false)}
+              className="flex-1 rounded-xl py-3"
+              style={{ backgroundColor: c.buttonBg }}
+            >
+              <Text style={{ color: c.text }} className="text-center font-semibold">Cancel</Text>
+            </Pressable>
+            <Pressable
+              onPress={() => {
+                onToggleEnabled(goal.id, false);
+                setShowDeleteConfirm(false);
+              }}
+              className="flex-1 rounded-xl py-3"
+              style={{ backgroundColor: "#EF4444" }}
+            >
+              <Text style={{ color: "#FFFFFF" }} className="text-center font-semibold">Remove</Text>
+            </Pressable>
+          </View>
+        </View>
+      )}
 
       {/* Goal Edit Card */}
       {editingGoal && (

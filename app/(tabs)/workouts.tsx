@@ -30,6 +30,7 @@ export default function WorkoutsScreen() {
   const [showAddModal, setShowAddModal] = useState(false);
 
   const enabledGoals = goals.filter((g) => g.enabled);
+  const disabledGoals = goals.filter((g) => !g.enabled);
 
   const handleLogSet = (goal: WorkoutGoal) => {
     setSelectedGoal(goal);
@@ -60,6 +61,10 @@ export default function WorkoutsScreen() {
     caloriesPerRep: number
   ) => {
     await addCustomExercise(exerciseType, dailyGoal, caloriesPerRep);
+  };
+
+  const handleReinstate = async (goalId: string) => {
+    await toggleEnabled(goalId, true);
   };
 
   return (
@@ -158,6 +163,8 @@ export default function WorkoutsScreen() {
         visible={showAddModal}
         onClose={() => setShowAddModal(false)}
         onAdd={handleAddExercise}
+        disabledGoals={disabledGoals}
+        onReinstate={handleReinstate}
       />
     </SafeAreaView>
   );
