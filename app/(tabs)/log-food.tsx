@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Pressable, View, Text, ScrollView } from "react-native";
+import { Pressable, View, Text, ScrollView, Modal } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useAuth } from "@/hooks/useAuth";
 import { useFoodLog } from "@/hooks/useFoodLog";
@@ -194,20 +194,18 @@ export default function LogFoodScreen() {
       </ScrollView>
 
       {/* Custom Item Modal */}
-      {showCustomItemModal && (
-        <View className="absolute inset-0 justify-end" style={{ backgroundColor: "rgba(0,0,0,0.5)", zIndex: 50 }}>
-          <Pressable className="absolute inset-0" onPress={() => setShowCustomItemModal(false)} />
-          <Pressable className="rounded-t-3xl" style={{ backgroundColor: c.elevated, zIndex: 51 }} onStartShouldSetResponder={() => true}>
+      <Modal visible={showCustomItemModal} transparent animationType="slide" onRequestClose={() => setShowCustomItemModal(false)}>
+        <Pressable className="flex-1 justify-end" style={{ backgroundColor: "rgba(0,0,0,0.5)" }} onPress={() => setShowCustomItemModal(false)}>
+          <Pressable className="rounded-t-3xl" style={{ backgroundColor: c.elevated }} onStartShouldSetResponder={() => true}>
             <MealForm onSubmit={handleAddCustomItem} onCancel={() => setShowCustomItemModal(false)} />
           </Pressable>
-        </View>
-      )}
+        </Pressable>
+      </Modal>
 
       {/* Date/Time Picker Modal */}
-      {showDateTimePicker && (
-        <View className="absolute inset-0 justify-end" style={{ backgroundColor: "rgba(0,0,0,0.5)", zIndex: 50 }}>
-          <Pressable className="absolute inset-0" onPress={() => setShowDateTimePicker(false)} />
-          <Pressable className="rounded-t-3xl p-6" style={{ backgroundColor: c.elevated, zIndex: 51 }} onStartShouldSetResponder={() => true}>
+      <Modal visible={showDateTimePicker} transparent animationType="slide" onRequestClose={() => setShowDateTimePicker(false)}>
+        <Pressable className="flex-1 justify-end" style={{ backgroundColor: "rgba(0,0,0,0.5)" }} onPress={() => setShowDateTimePicker(false)}>
+          <Pressable className="rounded-t-3xl p-6" style={{ backgroundColor: c.elevated }} onStartShouldSetResponder={() => true}>
             <View className="flex-row justify-between items-center mb-4">
               <Pressable onPress={() => setShowDateTimePicker(false)}>
                 <Text style={{ color: c.textSecondary, fontFamily: "PlusJakartaSans_500Medium" }}>Cancel</Text>
@@ -267,8 +265,8 @@ export default function LogFoodScreen() {
               {pickerDate.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" })}
             </Text>
           </Pressable>
-        </View>
-      )}
+        </Pressable>
+      </Modal>
     </SafeAreaView>
   );
 }

@@ -12,20 +12,23 @@ npx expo start --ios                 # native
 
 Test account: `test@fasttrack.app` / `test1234`
 
-## Git Workflow (CRITICAL)
+## Git Workflow (CRITICAL — READ THIS FIRST)
 
-**Always commit before making changes.** This creates a safe snapshot we can revert to.
+### The Development Cycle (MANDATORY ORDER):
 
-### Before starting any work:
-```bash
-git commit -am "Pre-change: [describe what you're about to do]"
-```
+1. **Plan** — Present changes to the user. Explain what will change and why.
+2. **Wait for greenlight** — Do NOT start building until the user explicitly approves (e.g., "yes", "go ahead", "proceed").
+3. **Build** — Implement the approved changes. Make code changes only.
+4. **Ask for feedback** — Do NOT commit. Present the result to the user and ask if they're happy.
+5. **Wait for commit approval** — The user must explicitly say "commit", "push", "greenlight", or similar.
+6. **Commit and push** — Only then commit and push to GitHub.
 
-### After finishing work:
-```bash
-git commit -am "Post-change: [describe what you did]"
-git push
-```
+### Rules:
+1. NEVER commit or push without the user's explicit approval
+2. NEVER skip the feedback step — always ask before committing
+3. ALWAYS wait for greenlight before building
+4. NEVER build changes that haven't been approved
+5. If the user is unhappy, go back to step 1 (Plan)
 
 ### If something breaks:
 ```bash
@@ -33,12 +36,6 @@ git revert HEAD          # Undo the last commit
 git checkout .           # Discard all uncommitted changes
 git log --oneline        # See history of snapshots
 ```
-
-### Rules:
-1. NEVER make changes without committing first
-2. ALWAYS push after committing (backup to GitHub)
-3. Commit messages should be clear: "Pre-change: adding haptic feedback" / "Post-change: haptic feedback complete"
-4. If the user reports a problem, check `git log --oneline` to find the last good state
 
 **Repo:** https://github.com/ashcdev-hub/FastTrack
 
