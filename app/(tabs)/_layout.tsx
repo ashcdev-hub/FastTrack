@@ -20,9 +20,10 @@ export default function TabLayout() {
         tabBarStyle: {
           backgroundColor: "transparent",
           borderTopColor: "transparent",
-          height: 88,
-          paddingTop: 8,
-          paddingBottom: 30,
+          height: 80,
+          paddingTop: 0,
+          paddingBottom: 0,
+          justifyContent: "center",
           position: "absolute",
           elevation: 0,
         },
@@ -31,9 +32,9 @@ export default function TabLayout() {
             style={[
               styles.tabBarContainer,
               {
-                backgroundColor: theme === "dark" ? "rgba(22,22,24,0.92)" : "rgba(255,255,255,0.92)",
+                backgroundColor: theme === "dark" ? "rgba(22,22,24,0.95)" : "rgba(255,255,255,0.95)",
                 borderColor: c.cardBorder,
-                shadowColor: theme === "dark" ? "#000" : "#000",
+                shadowColor: "#000",
               },
             ]}
           />
@@ -101,16 +102,17 @@ export default function TabLayout() {
 const styles = StyleSheet.create({
   tabBarContainer: {
     position: "absolute",
-    bottom: 12,
-    left: 20,
-    right: 20,
-    height: 64,
-    borderRadius: 32,
+    bottom: 16,
+    left: 24,
+    right: 24,
+    height: 62,
+    borderRadius: 31,
     borderWidth: 1,
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "center",
     shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.15,
+    shadowOpacity: 0.2,
     shadowRadius: 24,
     elevation: 12,
   },

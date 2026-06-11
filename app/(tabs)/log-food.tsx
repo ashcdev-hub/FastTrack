@@ -195,17 +195,19 @@ export default function LogFoodScreen() {
 
       {/* Custom Item Modal */}
       {showCustomItemModal && (
-        <View className="absolute inset-0 justify-end" style={{ backgroundColor: "rgba(0,0,0,0.5)" }}>
-          <View className="rounded-t-3xl" style={{ backgroundColor: c.elevated }}>
+        <View className="absolute inset-0 justify-end" style={{ backgroundColor: "rgba(0,0,0,0.5)", zIndex: 50 }}>
+          <Pressable className="absolute inset-0" onPress={() => setShowCustomItemModal(false)} />
+          <Pressable className="rounded-t-3xl" style={{ backgroundColor: c.elevated, zIndex: 51 }} onStartShouldSetResponder={() => true}>
             <MealForm onSubmit={handleAddCustomItem} onCancel={() => setShowCustomItemModal(false)} />
-          </View>
+          </Pressable>
         </View>
       )}
 
       {/* Date/Time Picker Modal */}
       {showDateTimePicker && (
-        <View className="absolute inset-0 justify-end" style={{ backgroundColor: "rgba(0,0,0,0.5)" }}>
-          <View className="rounded-t-3xl p-6" style={{ backgroundColor: c.elevated }}>
+        <View className="absolute inset-0 justify-end" style={{ backgroundColor: "rgba(0,0,0,0.5)", zIndex: 50 }}>
+          <Pressable className="absolute inset-0" onPress={() => setShowDateTimePicker(false)} />
+          <Pressable className="rounded-t-3xl p-6" style={{ backgroundColor: c.elevated, zIndex: 51 }} onStartShouldSetResponder={() => true}>
             <View className="flex-row justify-between items-center mb-4">
               <Pressable onPress={() => setShowDateTimePicker(false)}>
                 <Text style={{ color: c.textSecondary, fontFamily: "PlusJakartaSans_500Medium" }}>Cancel</Text>
@@ -264,7 +266,7 @@ export default function LogFoodScreen() {
             <Text style={{ color: c.textMuted, fontFamily: "PlusJakartaSans_400Regular" }} className="text-center text-sm">
               {pickerDate.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" })}
             </Text>
-          </View>
+          </Pressable>
         </View>
       )}
     </SafeAreaView>
