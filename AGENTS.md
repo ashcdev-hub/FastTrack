@@ -278,17 +278,54 @@ EXPO_PUBLIC_SUPABASE_ANON_KEY=eyJ...
 - [x] Log Set modal stepper controls (no keyboard)
 - [x] Weight tracking (log weight, progress chart, goal weight)
 - [x] Database: 8 migrations (schema + profile settings + workouts + weight log)
+- [x] UI redesign: Plus Jakarta Sans, warm neutrals, mint/coral/rose/sky palette
+- [x] Mood icons: Hugeicons (Sad01, Frown, Meh, Smile, Happy01) with per-mood colors
+- [x] Responsive charts (MoodChart, WeightChart) via onLayout
+- [x] Floating pill tab bar → reverted to solid bar per feedback
+- [x] Native Modal component for web-compatible modals
+- [x] Workouts tab: stat cards, exercise-specific icons, grey buttons
+- [x] Bug fixes: loading screen, splash, idle timer, Alert.alert removal
+- [x] Theme tokens: textOnAccent, textOnDark, overlay, shared MEAL_COLORS
+- [x] Streak notifications: fast reminders, check-ins, water, milestones
+- [x] Notification preferences: configurable time, water interval, per-type toggles
 
 ## Next Steps
 
-| # | Direction | Effort |
-|---|-----------|--------|
-| 1 | **Testing** — No tests exist yet. Unit tests for hooks, component tests, E2E | Medium |
-| 2 | **App Store deployment** — Build profiles, screenshots, store listings, submit to iOS/Android | Medium |
-| 3 | **Barcode scanner** — Scan food packaging for instant logging via camera | Medium |
-| 4 | **Apple Health / Google Fit** — Sync workouts, weight, and water | Medium |
-| 5 | **Streak notifications** — Reminders to start fast, check in, drink water | Small |
-| 6 | **Export / reports** — PDF or CSV export of fasting history, nutrition, workouts | Small |
-| 7 | **Social features** — Share progress, friend challenges | Large |
-| 8 | **Widget support** — iOS/Android home screen widget showing fasting timer | Medium |
-| 9 | **Bug fixes / polish** — Review and improve existing UX | Ongoing |
+### Completed
+| # | Feature | Status |
+|---|---------|--------|
+| 1 | **UI redesign** — Fresh palette, Plus Jakarta Sans, mood icons, responsive charts | Done |
+| 2 | **Bug fixes / polish** — Theme tokens, hardcoded colors, web compat | Done |
+| 3 | **Streak notifications** — Fast reminders, check-ins, water, milestones | Done |
+
+### High Impact (Core Value)
+| # | Feature | Effort | Description |
+|---|---------|--------|-------------|
+| 4 | **Onboarding flow** | Medium | 3-step wizard: set goals, choose schedule, pick reminder times |
+| 5 | **Barcode scanner** | Medium | Scan food packaging for instant logging via camera |
+| 6 | **Apple Health / Google Fit** | Medium | Sync weight, workouts, water |
+| 7 | **Export / reports** | Small | PDF or CSV export of fasting history, nutrition, workouts |
+| 8 | **Weekly/monthly insights** | Medium | Charts showing calorie trends, fasting consistency, weight trajectory |
+
+### Medium Impact (Engagement & Retention)
+| # | Feature | Effort | Description |
+|---|---------|--------|-------------|
+| 9 | **Recent foods** | Small | Quick re-log previously eaten foods without searching again |
+| 10 | **Home screen widget** | Medium | iOS/Android widget showing fasting timer + time remaining |
+| 11 | **Fasting journal** | Small | Add notes/reflections to each fast session |
+| 12 | **Nutritional insights** | Small | Proactive guidance ("You're low on protein today") |
+| 13 | **Meal photos** | Small | Attach a photo to food log entries |
+
+### Lower Impact (Polish & Completeness)
+| # | Feature | Effort | Description |
+|---|---------|--------|-------------|
+| 14 | **Accessibility** | Medium | Dynamic type, VoiceOver/TalkBack labels, high contrast |
+| 15 | **Offline support** | Medium | Cache data for offline food logging and timer |
+| 16 | **Custom meal templates** | Small | Save frequent meals for one-tap logging |
+| 17 | **Fasting schedule presets** | Small | Auto-suggest schedules based on user history |
+| 18 | **Dark mode improvements** | Small | AMOLED true-black, scheduled dark mode (auto at sunset) |
+| 19 | **Animated achievements** | Small | Unlock animations when hitting milestones |
+| 20 | **Multi-language support** | Large | i18n for broader audience |
+| 21 | **Social features** | Large | Share progress, friend challenges |
+| 22 | **Testing** | Medium | Unit tests for hooks, component tests, E2E |
+| 23 | **App Store deployment** | Medium | Build profiles, screenshots, store listings, submit to iOS/Android |
