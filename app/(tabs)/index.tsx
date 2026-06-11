@@ -22,7 +22,7 @@ import { ScheduleSelector } from "@/components/ScheduleSelector";
 import { AppHeader } from "@/components/AppHeader";
 import { useThemeStore } from "@/lib/theme-store";
 import { getThemeColors, ACCENT } from "@/lib/theme-colors";
-import { scheduleFastingReminder, cancelAllNotifications } from "@/lib/notifications";
+import { scheduleFastingReminder, cancelAllNotifications, scheduleDailyFastReminder, scheduleCheckInReminder, scheduleWaterReminders, checkAndNotifyStreakMilestone } from "@/lib/notifications";
 import { format, addHours } from "date-fns";
 
 function useCountdown(endTime: string | null) {
@@ -110,7 +110,9 @@ export default function HomeScreen() {
   const [showEndConfirm, setShowEndConfirm] = useState(false);
   const [selectedSchedule, setSelectedSchedule] = useState<string | null>(null);
   const { checkIns, addCheckIn } = useFastCheckIns(user?.id, session?.id ?? null);
-  const { updateFastingSchedule } = useProfile(user?.id ?? null);
+  const { profile, updateFastingSchedule } = useProfile(user?.id ?? null);
+
+  const notifPrefs = profile?.notification_preferences;
 
   const phase: Phase = !session ? "idle" : (session.status as Phase);
 
@@ -142,21 +144,41 @@ export default function HomeScreen() {
     if (data && !error) {
       setSessionId(data.id);
       setStartTime(data.start_time);
+
+      // Always schedule the fast complete reminder
       await scheduleFastingReminder("Fast Complete!", `Your fast is done. Time to eat!`, fastingHours * 3600);
+
+      // Schedule additional notifications based on preferences
+      if (notifPrefs?.checkin_reminders) {
+        await scheduleCheckInReminder(fastingHours / 2);
+      }
+      if (notifPrefs?.water_reminders && notifPrefs?.water_interval_hours) {
+        await scheduleWaterReminders(notifPrefs.water_interval_hours);
+      }
     }
   };
 
   const handleBreakFast = async () => {
     if (!session) return;
     const { error } = await breakFast(session.id);
-    if (!error) await cancelAllNotifications();
+    if (!error) {
+      await cancelAllNotifications();
+      if (notifPrefs?.streak_reminders) {
+        await checkAndNotifyStreakMilestone(completedFasts + 1);
+      }
+    }
   };
 
   const confirmEndSession = async () => {
     setShowEndConfirm(false);
     if (!session) return;
     const { error } = await endFast(session.id);
-    if (!error) await cancelAllNotifications();
+    if (!error) {
+      await cancelAllNotifications();
+      if (notifPrefs?.streak_reminders) {
+        await checkAndNotifyStreakMilestone(completedFasts + 1);
+      }
+    }
   };
 
   const headerTitle = phase === "fasting" ? "Keep Going!" : phase === "eating" ? "Eat Window" : "FastTrack";

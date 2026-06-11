@@ -16,6 +16,7 @@ import { useProfile } from "@/hooks/useProfile";
 import { useThemeStore } from "@/lib/theme-store";
 import { applyTheme } from "@/lib/dark-mode";
 import { getThemeColors, ACCENT } from "@/lib/theme-colors";
+import { setupNotifications } from "@/lib/notifications";
 import { View, ActivityIndicator } from "react-native";
 
 const queryClient = new QueryClient();
@@ -38,6 +39,7 @@ export default function RootLayout() {
   useEffect(() => {
     loadGoals();
     loadTheme();
+    setupNotifications();
   }, []);
 
   useEffect(() => {

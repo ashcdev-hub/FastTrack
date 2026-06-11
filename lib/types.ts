@@ -58,6 +58,11 @@ export type Profile = {
     fasting_reminders: boolean;
     eating_reminders: boolean;
     daily_digest: boolean;
+    streak_reminders: boolean;
+    water_reminders: boolean;
+    checkin_reminders: boolean;
+    reminder_time: string;
+    water_interval_hours: number;
   };
   daily_calorie_goal: number;
   daily_protein_goal: number;
