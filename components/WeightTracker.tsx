@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { Pressable, View, Text, TextInput, Alert } from "react-native";
 import { useThemeStore } from "@/lib/theme-store";
 import { getThemeColors } from "@/lib/theme-colors";
+import { useToast } from "@/hooks/useToast";
+import { Toast } from "@/components/Toast";
 import type { WeightLogEntry } from "@/lib/types";
 
 type WeightTrackerProps = {
@@ -23,6 +25,7 @@ export function WeightTracker({
 }: WeightTrackerProps) {
   const { theme } = useThemeStore();
   const c = getThemeColors(theme);
+  const { toast, success, error: toastError } = useToast();
   const [inputValue, setInputValue] = useState("");
   const [saving, setSaving] = useState(false);
 
@@ -31,8 +34,13 @@ export function WeightTracker({
     if (isNaN(weight) || weight <= 0 || weight > 500) return;
 
     setSaving(true);
-    await onAddWeight(weight);
-    setInputValue("");
+    const { error } = await onAddWeight(weight);
+    if (error) {
+      toastError("Failed to log weight");
+    } else {
+      success("Weight logged");
+      setInputValue("");
+    }
     setSaving(false);
   };
 
@@ -53,6 +61,7 @@ export function WeightTracker({
 
   return (
     <View>
+      <Toast visible={toast.visible} message={toast.message} type={toast.type} />
       <View className="flex-row items-center justify-between mb-4">
         <View>
           <Text style={{ color: c.text }} className="text-3xl font-bold">

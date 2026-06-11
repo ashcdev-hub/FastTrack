@@ -38,14 +38,16 @@ export function useWeightLog(userId: string | undefined) {
     if (!userId) return { error: new Error("No user") };
 
     const today = new Date().toISOString().split("T")[0];
+    const startOfDay = `${today}T00:00:00Z`;
+    const endOfDay = `${today}T23:59:59Z`;
 
     const { data: existing } = await supabase
       .from("weight_log")
       .select("id")
       .eq("user_id", userId)
-      .gte("logged_at", `${today}T00:00:00Z`)
-      .lte("logged_at", `${today}T23:59:59Z`)
-      .single();
+      .gte("logged_at", startOfDay)
+      .lte("logged_at", endOfDay)
+      .maybeSingle();
 
     if (existing) {
       const { data, error } = await supabase

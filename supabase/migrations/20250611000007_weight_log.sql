@@ -14,8 +14,7 @@ CREATE TABLE IF NOT EXISTS weight_log (
 CREATE INDEX IF NOT EXISTS idx_weight_log_user_id ON weight_log(user_id);
 CREATE INDEX IF NOT EXISTS idx_weight_log_logged_at ON weight_log(logged_at);
 
--- Unique constraint: one entry per user per day
-CREATE UNIQUE INDEX IF NOT EXISTS idx_weight_log_user_date ON weight_log(user_id, DATE(logged_at));
+-- Note: one-entry-per-day is enforced via upsert logic in useWeightLog hook
 
 -- Add goal_weight_kg to profiles
 ALTER TABLE profiles ADD COLUMN IF NOT EXISTS goal_weight_kg NUMERIC(10,2);
