@@ -65,21 +65,23 @@ export function useProfile(userId: string | null) {
   };
 
   const updateProfile = async (updates: Partial<Pick<Profile,
-    "display_name" | "gender" | "age" | "weight_kg" | "height_cm"
+    "display_name" | "gender" | "age" | "weight_kg" | "height_cm" | "goal_weight_kg"
   >>) => {
     if (!userId) return { error: new Error("No user") };
 
-    const { error } = await supabase
+    const { data, error } = await supabase
       .from("profiles")
       .update(updates)
-      .eq("id", userId);
+      .eq("id", userId)
+      .select()
+      .single();
 
     if (error) {
       console.error("Error updating profile:", error);
       return { error };
     }
 
-    setProfile((prev) => (prev ? { ...prev, ...updates } : prev));
+    if (data) setProfile(data);
     return { error: null };
   };
 
@@ -97,6 +99,23 @@ export function useProfile(userId: string | null) {
     }
 
     setProfile((prev) => (prev ? { ...prev, notification_preferences: preferences } : prev));
+    return { error: null };
+  };
+
+  const updateUnitPreferences = async (preferences: Profile["unit_preferences"]) => {
+    if (!userId) return { error: new Error("No user") };
+
+    const { error } = await supabase
+      .from("profiles")
+      .update({ unit_preferences: preferences })
+      .eq("id", userId);
+
+    if (error) {
+      console.error("Error updating unit preferences:", error);
+      return { error };
+    }
+
+    setProfile((prev) => (prev ? { ...prev, unit_preferences: preferences } : prev));
     return { error: null };
   };
 
@@ -125,6 +144,7 @@ export function useProfile(userId: string | null) {
     updateGoals,
     updateProfile,
     updateNotificationPreferences,
+    updateUnitPreferences,
     updatePassword,
     updateEmail,
     refetch: fetchProfile,

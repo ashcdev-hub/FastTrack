@@ -9,14 +9,17 @@ import Dumbbell01Icon from "@hugeicons/core-free-icons/dist/esm/Dumbbell01Icon";
 import FireIcon from "@hugeicons/core-free-icons/dist/esm/FireIcon";
 import { useThemeStore } from "@/lib/theme-store";
 import { getThemeColors, ACCENT } from "@/lib/theme-colors";
+import { displayWater, DEFAULT_UNITS } from "@/lib/units";
 import type { WeeklyFastingStats } from "@/hooks/useWeeklyFastingStats";
 import type { WeeklyWaterStats } from "@/hooks/useWeeklyWaterStats";
 import type { WeeklyStats as WorkoutWeeklyStats } from "@/hooks/useWorkoutLog";
+import type { UnitPreferences } from "@/lib/units";
 
 type WeeklyStatsProps = {
   fasting: WeeklyFastingStats;
   water: WeeklyWaterStats;
   workouts?: WorkoutWeeklyStats;
+  unitPrefs?: UnitPreferences;
 };
 
 function formatDuration(min: number): string {
@@ -27,7 +30,7 @@ function formatDuration(min: number): string {
   return `${h}h ${m}m`;
 }
 
-export function WeeklyStats({ fasting, water, workouts }: WeeklyStatsProps) {
+export function WeeklyStats({ fasting, water, workouts, unitPrefs = DEFAULT_UNITS }: WeeklyStatsProps) {
   const { theme } = useThemeStore();
   const c = getThemeColors(theme);
 
@@ -75,9 +78,7 @@ export function WeeklyStats({ fasting, water, workouts }: WeeklyStatsProps) {
         <View className="flex-1 rounded-xl p-4 items-center" style={{ backgroundColor: c.cardBg, borderWidth: 1, borderColor: c.cardBorder }}>
           <HugeiconsIcon icon={DropletIcon} size={24} color={ACCENT.sky} strokeWidth={1.5} />
           <Text style={{ color: ACCENT.sky, fontFamily: "PlusJakartaSans_700Bold" }} className="text-xl mt-1">
-            {water.dailyAverageMl >= 1000
-              ? `${(water.dailyAverageMl / 1000).toFixed(1)}L`
-              : `${water.dailyAverageMl}ml`}
+            {displayWater(water.dailyAverageMl, unitPrefs)}
           </Text>
           <Text style={{ color: c.textMuted, fontFamily: "PlusJakartaSans_400Regular" }} className="text-xs mt-1 text-center">
             Daily Avg

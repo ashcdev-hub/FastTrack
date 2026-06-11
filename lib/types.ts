@@ -64,6 +64,11 @@ export type Profile = {
     reminder_time: string;
     water_interval_hours: number;
   };
+  unit_preferences: {
+    weight: "kg" | "lbs";
+    height: "cm" | "ft";
+    water: "ml" | "floz";
+  };
   daily_calorie_goal: number;
   daily_protein_goal: number;
   daily_carbs_goal: number;

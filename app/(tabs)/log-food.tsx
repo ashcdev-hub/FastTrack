@@ -5,6 +5,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useFoodLog } from "@/hooks/useFoodLog";
 import { useWaterLog } from "@/hooks/useWaterLog";
 import { useGoalStore } from "@/store/useGoalStore";
+import { useProfile } from "@/hooks/useProfile";
 import { MealForm } from "@/components/MealForm";
 import { FoodSearch } from "@/components/FoodSearch";
 import { WaterTracker } from "@/components/WaterTracker";
@@ -14,6 +15,7 @@ import { AppHeader } from "@/components/AppHeader";
 import { LogFoodSkeleton } from "@/components/Skeleton";
 import { useThemeStore } from "@/lib/theme-store";
 import { getThemeColors, ACCENT, MEAL_COLORS } from "@/lib/theme-colors";
+import { DEFAULT_UNITS } from "@/lib/units";
 import SpoonAndForkIcon from "@hugeicons/core-free-icons/dist/esm/SpoonAndForkIcon";
 
 type MealType = "breakfast" | "lunch" | "dinner" | "snack";
@@ -48,6 +50,8 @@ function isFutureTime(date: Date, hour: number, minute: number): boolean {
 
 export default function LogFoodScreen() {
   const { user } = useAuth();
+  const { profile } = useProfile(user?.id ?? null);
+  const unitPrefs = profile?.unit_preferences ?? DEFAULT_UNITS;
   const { entries, totals, addEntries, deleteEntry, loading: foodLoading } = useFoodLog(user?.id);
   const { totalMl, addWater } = useWaterLog(user?.id);
   const goals = useGoalStore();
@@ -183,7 +187,7 @@ export default function LogFoodScreen() {
         </View>
 
         <View className="mb-6">
-          <WaterTracker currentMl={totalMl} goalMl={goals.waterGoalMl} onAdd={addWater} />
+          <WaterTracker currentMl={totalMl} goalMl={goals.waterGoalMl} onAdd={addWater} unitPrefs={unitPrefs} />
         </View>
       </ScrollView>
 

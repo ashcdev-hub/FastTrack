@@ -6,12 +6,12 @@ import { HugeiconsIcon } from "@hugeicons/react-native";
 import ArrowLeft01Icon from "@hugeicons/core-free-icons/dist/esm/ArrowLeft01Icon";
 import { useAuth } from "@/hooks/useAuth";
 import { useThemeStore } from "@/lib/theme-store";
-import { getThemeColors } from "@/lib/theme-colors";
+import { getThemeColors, ACCENT } from "@/lib/theme-colors";
 import { SettingsPanel } from "@/components/SettingsPanel";
 
 export default function SettingsScreen() {
   const router = useRouter();
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
   const { theme } = useThemeStore();
   const c = getThemeColors(theme);
 
@@ -31,6 +31,16 @@ export default function SettingsScreen() {
           </Text>
         </View>
         <SettingsPanel userId={user?.id ?? null} />
+
+        <Pressable
+          onPress={() => signOut()}
+          className="rounded-xl py-4 mt-4"
+          style={{ backgroundColor: ACCENT.roseBg, borderWidth: 1, borderColor: ACCENT.roseBorder }}
+        >
+          <Text style={{ color: ACCENT.rose, fontFamily: "PlusJakartaSans_600SemiBold" }} className="text-center">
+            Sign Out
+          </Text>
+        </Pressable>
       </ScrollView>
     </SafeAreaView>
   );

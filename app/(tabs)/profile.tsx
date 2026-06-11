@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { Pressable, View, Text, ScrollView } from "react-native";
+import { View, Text, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
@@ -13,7 +13,8 @@ import { useWorkoutLog } from "@/hooks/useWorkoutLog";
 import { useWorkoutGoals } from "@/hooks/useWorkoutGoals";
 import { useWeightLog } from "@/hooks/useWeightLog";
 import { useThemeStore } from "@/lib/theme-store";
-import { getThemeColors, ACCENT } from "@/lib/theme-colors";
+import { getThemeColors } from "@/lib/theme-colors";
+import { DEFAULT_UNITS } from "@/lib/units";
 import { useToast } from "@/hooks/useToast";
 import { Toast } from "@/components/Toast";
 import { AppHeader } from "@/components/AppHeader";
@@ -41,15 +42,11 @@ export default function ProfileScreen() {
   const { goals: workoutGoals } = useWorkoutGoals(user?.id);
   const { entries: weightEntries, loading: weightLoading, addWeight, deleteWeight, currentWeight, weightChange } = useWeightLog(user?.id);
   const { toast, error: toastError } = useToast();
+  const unitPrefs = profile?.unit_preferences ?? DEFAULT_UNITS;
 
   useEffect(() => {
     if (workoutGoals.length > 0) fetchStreaks(workoutGoals);
   }, [workoutGoals, fetchStreaks]);
-
-  const handleSignOut = async () => {
-    const { error } = await signOut();
-    if (error) toastError(error.message);
-  };
 
   const getFirstName = (): string => {
     if (profile?.display_name) return profile.display_name.split(" ")[0];
@@ -93,22 +90,13 @@ export default function ProfileScreen() {
                 onAddWeight={addWeight}
                 onDeleteWeight={deleteWeight}
                 loading={weightLoading}
+                unitPrefs={unitPrefs}
               />
             </View>
 
-            <WeeklyStats fasting={weeklyFasting} water={weeklyWater} workouts={weeklyWorkouts} />
+            <WeeklyStats fasting={weeklyFasting} water={weeklyWater} workouts={weeklyWorkouts} unitPrefs={unitPrefs} />
           </>
         )}
-
-        <Pressable
-          onPress={handleSignOut}
-          className="rounded-xl py-4"
-          style={{ backgroundColor: ACCENT.roseBg, borderWidth: 1, borderColor: ACCENT.roseBorder }}
-        >
-          <Text style={{ color: ACCENT.rose, fontFamily: "PlusJakartaSans_600SemiBold" }} className="text-center">
-            Sign Out
-          </Text>
-        </Pressable>
       </ScrollView>
     </SafeAreaView>
   );

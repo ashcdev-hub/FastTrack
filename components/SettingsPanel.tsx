@@ -6,7 +6,9 @@ import { useToast } from "@/hooks/useToast";
 import { Toast } from "@/components/Toast";
 import { getThemeColors, ACCENT } from "@/lib/theme-colors";
 import { cancelAllNotifications, scheduleDailyFastReminder } from "@/lib/notifications";
+import { DEFAULT_UNITS, displayWeight, displayHeight, weightUnitLabel, heightUnitLabel, parseWeightInput, parseHeightInput } from "@/lib/units";
 import type { Profile } from "@/lib/types";
+import type { UnitPreferences } from "@/lib/units";
 
 type SettingsPanelProps = {
   userId: string | null;
@@ -17,6 +19,7 @@ export function SettingsPanel({ userId }: SettingsPanelProps) {
     profile,
     updateProfile,
     updateNotificationPreferences,
+    updateUnitPreferences,
     updatePassword,
     updateEmail,
   } = useProfile(userId);
@@ -28,9 +31,9 @@ export function SettingsPanel({ userId }: SettingsPanelProps) {
   const [displayName, setDisplayName] = useState(profile?.display_name ?? "");
   const [gender, setGender] = useState<Profile["gender"]>(profile?.gender ?? null);
   const [age, setAge] = useState(profile?.age ? String(profile.age) : "");
-  const [weight, setWeight] = useState(profile?.weight_kg ? String(profile.weight_kg) : "");
-  const [goalWeight, setGoalWeight] = useState(profile?.goal_weight_kg ? String(profile.goal_weight_kg) : "");
-  const [height, setHeight] = useState(profile?.height_cm ? String(profile.height_cm) : "");
+  const [weight, setWeight] = useState("");
+  const [goalWeight, setGoalWeight] = useState("");
+  const [height, setHeight] = useState("");
   const [newEmail, setNewEmail] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -44,15 +47,17 @@ export function SettingsPanel({ userId }: SettingsPanelProps) {
     reminder_time: "20:00",
     water_interval_hours: 2,
   });
+  const [unitPrefs, setUnitPrefs] = useState<UnitPreferences>(profile?.unit_preferences ?? DEFAULT_UNITS);
 
   useEffect(() => {
     if (profile) {
       setDisplayName(profile.display_name ?? "");
       setGender(profile.gender ?? null);
       setAge(profile.age ? String(profile.age) : "");
-      setWeight(profile.weight_kg ? String(profile.weight_kg) : "");
-      setGoalWeight(profile.goal_weight_kg ? String(profile.goal_weight_kg) : "");
-      setHeight(profile.height_cm ? String(profile.height_cm) : "");
+      const prefs = profile.unit_preferences ?? DEFAULT_UNITS;
+      setWeight(profile.weight_kg ? displayWeight(profile.weight_kg, prefs) : "");
+      setGoalWeight(profile.goal_weight_kg ? displayWeight(profile.goal_weight_kg, prefs) : "");
+      setHeight(profile.height_cm ? displayHeight(profile.height_cm, prefs) : "");
       setNotifications(profile.notification_preferences ?? {
         fasting_reminders: true,
         eating_reminders: true,
@@ -63,6 +68,7 @@ export function SettingsPanel({ userId }: SettingsPanelProps) {
         reminder_time: "20:00",
         water_interval_hours: 2,
       });
+      setUnitPrefs(profile.unit_preferences ?? DEFAULT_UNITS);
     }
   }, [profile]);
 
@@ -71,9 +77,9 @@ export function SettingsPanel({ userId }: SettingsPanelProps) {
       display_name: displayName.trim() || null,
       gender,
       age: age ? parseInt(age) : null,
-      weight_kg: weight ? parseFloat(weight) : null,
-      goal_weight_kg: goalWeight ? parseFloat(goalWeight) : null,
-      height_cm: height ? parseFloat(height) : null,
+      weight_kg: weight ? parseWeightInput(weight, unitPrefs) : null,
+      goal_weight_kg: goalWeight ? parseWeightInput(goalWeight, unitPrefs) : null,
+      height_cm: height ? parseHeightInput(height, unitPrefs) : null,
     };
     const { error } = await updateProfile(updates);
     if (error) toastError("Failed to save profile");
@@ -117,6 +123,14 @@ export function SettingsPanel({ userId }: SettingsPanelProps) {
   const bmi = profile?.bmi;
   const bmiCategory = bmi
     ? bmi < 18.5 ? "Underweight" : bmi < 25 ? "Normal" : bmi < 30 ? "Overweight" : "Obese"
+    : null;
+
+  const bmiColors = bmiCategory
+    ? bmiCategory === "Normal"
+      ? { bg: ACCENT.mintBg, text: ACCENT.mint }
+      : bmiCategory === "Overweight"
+        ? { bg: ACCENT.amberBg, text: ACCENT.amber }
+        : { bg: ACCENT.roseBg, text: ACCENT.rose }
     : null;
 
   const inputStyle = {
@@ -171,25 +185,25 @@ export function SettingsPanel({ userId }: SettingsPanelProps) {
                 <TextInput value={age} onChangeText={setAge} placeholder="25" placeholderTextColor={c.placeholder} keyboardType="numeric" className="rounded-xl px-4 py-3" style={inputStyle} />
               </View>
               <View className="flex-1">
-                <Text style={{ color: c.textSecondary, fontFamily: "PlusJakartaSans_400Regular" }} className="text-xs mb-1">Weight (kg)</Text>
-                <TextInput value={weight} onChangeText={setWeight} placeholder="70" placeholderTextColor={c.placeholder} keyboardType="numeric" className="rounded-xl px-4 py-3" style={inputStyle} />
+                <Text style={{ color: c.textSecondary, fontFamily: "PlusJakartaSans_400Regular" }} className="text-xs mb-1">Weight ({weightUnitLabel(unitPrefs)})</Text>
+                <TextInput value={weight} onChangeText={setWeight} placeholder={unitPrefs.weight === "lbs" ? "154" : "70"} placeholderTextColor={c.placeholder} keyboardType="numeric" className="rounded-xl px-4 py-3" style={inputStyle} />
               </View>
             </View>
 
             <View className="flex-row gap-2 mb-3">
               <View className="flex-1">
-                <Text style={{ color: c.textSecondary, fontFamily: "PlusJakartaSans_400Regular" }} className="text-xs mb-1">Goal Weight (kg)</Text>
-                <TextInput value={goalWeight} onChangeText={setGoalWeight} placeholder="75" placeholderTextColor={c.placeholder} keyboardType="numeric" className="rounded-xl px-4 py-3" style={inputStyle} />
+                <Text style={{ color: c.textSecondary, fontFamily: "PlusJakartaSans_400Regular" }} className="text-xs mb-1">Goal Weight ({weightUnitLabel(unitPrefs)})</Text>
+                <TextInput value={goalWeight} onChangeText={setGoalWeight} placeholder={unitPrefs.weight === "lbs" ? "143" : "75"} placeholderTextColor={c.placeholder} keyboardType="numeric" className="rounded-xl px-4 py-3" style={inputStyle} />
               </View>
               <View className="flex-1">
-                <Text style={{ color: c.textSecondary, fontFamily: "PlusJakartaSans_400Regular" }} className="text-xs mb-1">Height (cm)</Text>
-                <TextInput value={height} onChangeText={setHeight} placeholder="175" placeholderTextColor={c.placeholder} keyboardType="numeric" className="rounded-xl px-4 py-3" style={inputStyle} />
+                <Text style={{ color: c.textSecondary, fontFamily: "PlusJakartaSans_400Regular" }} className="text-xs mb-1">Height ({heightUnitLabel(unitPrefs)})</Text>
+                <TextInput value={height} onChangeText={setHeight} placeholder={unitPrefs.height === "ft" ? "5'9\"" : "175"} placeholderTextColor={c.placeholder} keyboardType={unitPrefs.height === "ft" ? "default" : "numeric"} className="rounded-xl px-4 py-3" style={inputStyle} />
               </View>
             </View>
 
-            {bmi && (
-              <View className="rounded-xl p-3 mb-3" style={{ backgroundColor: ACCENT.mintBg }}>
-                <Text style={{ color: ACCENT.mint, fontFamily: "PlusJakartaSans_600SemiBold" }} className="text-sm">
+            {bmi && bmiColors && (
+              <View className="rounded-xl p-3 mb-3" style={{ backgroundColor: bmiColors.bg }}>
+                <Text style={{ color: bmiColors.text, fontFamily: "PlusJakartaSans_600SemiBold" }} className="text-sm">
                   BMI: {bmi} ({bmiCategory})
                 </Text>
               </View>
@@ -337,6 +351,99 @@ export function SettingsPanel({ userId }: SettingsPanelProps) {
             </View>
 
             <Pressable onPress={handleSaveNotifications} className="rounded-xl py-3 mt-3" style={{ backgroundColor: ACCENT.mint }}>
+              <Text style={{ color: c.textOnAccent, fontFamily: "PlusJakartaSans_600SemiBold" }} className="text-center">Save Preferences</Text>
+            </Pressable>
+          </View>
+        )}
+      </View>
+
+      {/* Preferences Section */}
+      <View className="rounded-2xl mb-3 overflow-hidden" style={{ backgroundColor: c.cardBg, borderWidth: 1, borderColor: c.cardBorder }}>
+        <Pressable onPress={() => toggleSection("preferences")} className="p-4 flex-row justify-between items-center">
+          <Text style={{ color: c.text, fontFamily: "PlusJakartaSans_600SemiBold" }}>Preferences</Text>
+          <Text style={{ color: c.textMuted }}>{expandedSection === "preferences" ? "−" : "+"}</Text>
+        </Pressable>
+
+        {expandedSection === "preferences" && (
+          <View className="px-4 pb-4">
+            {/* Weight Unit */}
+            <Text style={{ color: c.textSecondary, fontFamily: "PlusJakartaSans_400Regular" }} className="text-xs mb-2">Weight Unit</Text>
+            <View className="flex-row gap-2 mb-4">
+              {(["kg", "lbs"] as const).map((unit) => (
+                <Pressable
+                  key={unit}
+                  onPress={() => setUnitPrefs({ ...unitPrefs, weight: unit })}
+                  className="flex-1 py-3 rounded-xl items-center"
+                  style={{ backgroundColor: unitPrefs.weight === unit ? ACCENT.mint : c.buttonBg }}
+                >
+                  <Text
+                    className="text-sm"
+                    style={{
+                      color: unitPrefs.weight === unit ? c.textOnAccent : c.textSecondary,
+                      fontFamily: "PlusJakartaSans_600SemiBold",
+                    }}
+                  >
+                    {unit === "kg" ? "Kilograms (kg)" : "Pounds (lbs)"}
+                  </Text>
+                </Pressable>
+              ))}
+            </View>
+
+            {/* Height Unit */}
+            <Text style={{ color: c.textSecondary, fontFamily: "PlusJakartaSans_400Regular" }} className="text-xs mb-2">Height Unit</Text>
+            <View className="flex-row gap-2 mb-4">
+              {(["cm", "ft"] as const).map((unit) => (
+                <Pressable
+                  key={unit}
+                  onPress={() => setUnitPrefs({ ...unitPrefs, height: unit })}
+                  className="flex-1 py-3 rounded-xl items-center"
+                  style={{ backgroundColor: unitPrefs.height === unit ? ACCENT.mint : c.buttonBg }}
+                >
+                  <Text
+                    className="text-sm"
+                    style={{
+                      color: unitPrefs.height === unit ? c.textOnAccent : c.textSecondary,
+                      fontFamily: "PlusJakartaSans_600SemiBold",
+                    }}
+                  >
+                    {unit === "cm" ? "Centimeters (cm)" : "Feet/Inches (ft)"}
+                  </Text>
+                </Pressable>
+              ))}
+            </View>
+
+            {/* Water Unit */}
+            <Text style={{ color: c.textSecondary, fontFamily: "PlusJakartaSans_400Regular" }} className="text-xs mb-2">Water Unit</Text>
+            <View className="flex-row gap-2 mb-4">
+              {(["ml", "floz"] as const).map((unit) => (
+                <Pressable
+                  key={unit}
+                  onPress={() => setUnitPrefs({ ...unitPrefs, water: unit })}
+                  className="flex-1 py-3 rounded-xl items-center"
+                  style={{ backgroundColor: unitPrefs.water === unit ? ACCENT.mint : c.buttonBg }}
+                >
+                  <Text
+                    className="text-sm"
+                    style={{
+                      color: unitPrefs.water === unit ? c.textOnAccent : c.textSecondary,
+                      fontFamily: "PlusJakartaSans_600SemiBold",
+                    }}
+                  >
+                    {unit === "ml" ? "Milliliters (ml)" : "Fluid Ounces (fl oz)"}
+                  </Text>
+                </Pressable>
+              ))}
+            </View>
+
+            <Pressable
+              onPress={async () => {
+                const { error } = await updateUnitPreferences(unitPrefs);
+                if (error) toastError("Failed to save preferences");
+                else success("Preferences updated");
+              }}
+              className="rounded-xl py-3"
+              style={{ backgroundColor: ACCENT.mint }}
+            >
               <Text style={{ color: c.textOnAccent, fontFamily: "PlusJakartaSans_600SemiBold" }} className="text-center">Save Preferences</Text>
             </Pressable>
           </View>

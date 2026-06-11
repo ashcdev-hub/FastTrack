@@ -5,20 +5,23 @@ import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
 import { useThemeStore } from "@/lib/theme-store";
 import { getThemeColors, ACCENT } from "@/lib/theme-colors";
+import { DEFAULT_UNITS, weightUnitLabel, heightUnitLabel, parseWeightInput, parseHeightInput, displayWeight, displayHeight } from "@/lib/units";
+import type { UnitPreferences } from "@/lib/units";
 
 export default function ProfileScreen() {
   const router = useRouter();
   const { user } = useAuth();
-  const { profile, updateProfile } = useProfile(user?.id ?? null);
+  const { profile, updateProfile, updateUnitPreferences } = useProfile(user?.id ?? null);
   const { theme } = useThemeStore();
   const c = getThemeColors(theme);
 
   const [displayName, setDisplayName] = useState("");
   const [age, setAge] = useState("");
   const [gender, setGender] = useState<"male" | "female" | "other" | null>(null);
-  const [weight, setWeight] = useState("");
-  const [height, setHeight] = useState("");
-  const [goalWeight, setGoalWeight] = useState("");
+  const [weightInput, setWeightInput] = useState("");
+  const [heightInput, setHeightInput] = useState("");
+  const [goalWeightInput, setGoalWeightInput] = useState("");
+  const [unitPrefs, setUnitPrefs] = useState<UnitPreferences>(DEFAULT_UNITS);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -26,25 +29,38 @@ export default function ProfileScreen() {
       setDisplayName(profile.display_name ?? "");
       setAge(profile.age ? String(profile.age) : "");
       setGender(profile.gender ?? null);
-      setWeight(profile.weight_kg ? String(profile.weight_kg) : "");
-      setHeight(profile.height_cm ? String(profile.height_cm) : "");
-      setGoalWeight(profile.goal_weight_kg ? String(profile.goal_weight_kg) : "");
+      setUnitPrefs(profile.unit_preferences ?? DEFAULT_UNITS);
+      if (profile.unit_preferences) {
+        setWeightInput(profile.weight_kg ? displayWeight(profile.weight_kg, profile.unit_preferences) : "");
+        setHeightInput(profile.height_cm ? displayHeight(profile.height_cm, profile.unit_preferences) : "");
+        setGoalWeightInput(profile.goal_weight_kg ? displayWeight(profile.goal_weight_kg, profile.unit_preferences) : "");
+      } else {
+        setWeightInput(profile.weight_kg ? String(profile.weight_kg) : "");
+        setHeightInput(profile.height_cm ? String(profile.height_cm) : "");
+        setGoalWeightInput(profile.goal_weight_kg ? String(profile.goal_weight_kg) : "");
+      }
     }
   }, [profile]);
 
   const inputStyle = { backgroundColor: c.inputBg, color: c.text, fontFamily: "PlusJakartaSans_500Medium" as const };
+  const wUnit = weightUnitLabel(unitPrefs);
+  const hUnit = heightUnitLabel(unitPrefs);
 
   const handleContinue = async () => {
     setSaving(true);
+    const weightKg = parseWeightInput(weightInput, unitPrefs);
+    const heightCm = parseHeightInput(heightInput, unitPrefs);
+    const goalWeightKg = parseWeightInput(goalWeightInput, unitPrefs);
     const updates: any = {
       display_name: displayName.trim() || null,
       gender,
       age: age ? parseInt(age) : null,
-      weight_kg: weight ? parseFloat(weight) : null,
-      height_cm: height ? parseFloat(height) : null,
-      goal_weight_kg: goalWeight ? parseFloat(goalWeight) : null,
+      weight_kg: weightKg,
+      height_cm: heightCm,
+      goal_weight_kg: goalWeightKg,
     };
     await updateProfile(updates);
+    await updateUnitPreferences(unitPrefs);
     setSaving(false);
     router.push("/(onboarding)/schedule");
   };
@@ -107,33 +123,70 @@ export default function ProfileScreen() {
         ))}
       </View>
 
+      {/* Preferred Units */}
+      <Text style={{ color: c.textSecondary, fontFamily: "PlusJakartaSans_400Regular" }} className="text-xs mb-1.5">
+        Preferred Units
+      </Text>
+      <View className="flex-row gap-2 mb-2">
+        {(["kg", "lbs"] as const).map((unit) => (
+          <Pressable
+            key={unit}
+            onPress={() => setUnitPrefs({ ...unitPrefs, weight: unit })}
+            className="flex-1 py-3 rounded-xl items-center"
+            style={{ backgroundColor: unitPrefs.weight === unit ? ACCENT.mint : c.buttonBg }}
+          >
+            <Text className="text-sm" style={{ color: unitPrefs.weight === unit ? c.textOnAccent : c.textSecondary, fontFamily: "PlusJakartaSans_600SemiBold" }}>
+              {unit === "kg" ? "Kilograms" : "Pounds"}
+            </Text>
+          </Pressable>
+        ))}
+      </View>
+      <View className="flex-row gap-2 mb-6">
+        {(["cm", "ft"] as const).map((unit) => (
+          <Pressable
+            key={unit}
+            onPress={() => setUnitPrefs({ ...unitPrefs, height: unit })}
+            className="flex-1 py-3 rounded-xl items-center"
+            style={{ backgroundColor: unitPrefs.height === unit ? ACCENT.mint : c.buttonBg }}
+          >
+            <Text className="text-sm" style={{ color: unitPrefs.height === unit ? c.textOnAccent : c.textSecondary, fontFamily: "PlusJakartaSans_600SemiBold" }}>
+              {unit === "cm" ? "Centimeters" : "Feet/Inches"}
+            </Text>
+          </Pressable>
+        ))}
+      </View>
+
       {/* Weight */}
       <Text style={{ color: c.textSecondary, fontFamily: "PlusJakartaSans_400Regular" }} className="text-xs mb-1.5">
-        Current weight (kg)
+        Current weight ({wUnit})
       </Text>
       <TextInput
-        value={weight} onChangeText={setWeight}
-        placeholder="70" placeholderTextColor={c.placeholder}
+        value={weightInput} onChangeText={setWeightInput}
+        placeholder={unitPrefs.weight === "lbs" ? "154" : "70"}
+        placeholderTextColor={c.placeholder}
         keyboardType="numeric" className="rounded-xl px-4 py-3.5 mb-4" style={inputStyle}
       />
 
       {/* Height */}
       <Text style={{ color: c.textSecondary, fontFamily: "PlusJakartaSans_400Regular" }} className="text-xs mb-1.5">
-        Height (cm)
+        Height ({hUnit})
       </Text>
       <TextInput
-        value={height} onChangeText={setHeight}
-        placeholder="175" placeholderTextColor={c.placeholder}
-        keyboardType="numeric" className="rounded-xl px-4 py-3.5 mb-4" style={inputStyle}
+        value={heightInput} onChangeText={setHeightInput}
+        placeholder={unitPrefs.height === "ft" ? "5'9\"" : "175"}
+        placeholderTextColor={c.placeholder}
+        keyboardType={unitPrefs.height === "ft" ? "default" : "numeric"}
+        className="rounded-xl px-4 py-3.5 mb-4" style={inputStyle}
       />
 
       {/* Goal Weight */}
       <Text style={{ color: c.textSecondary, fontFamily: "PlusJakartaSans_400Regular" }} className="text-xs mb-1.5">
-        Goal weight (kg)
+        Goal weight ({wUnit})
       </Text>
       <TextInput
-        value={goalWeight} onChangeText={setGoalWeight}
-        placeholder="75" placeholderTextColor={c.placeholder}
+        value={goalWeightInput} onChangeText={setGoalWeightInput}
+        placeholder={unitPrefs.weight === "lbs" ? "143" : "75"}
+        placeholderTextColor={c.placeholder}
         keyboardType="numeric" className="rounded-xl px-4 py-3.5 mb-8" style={inputStyle}
       />
 

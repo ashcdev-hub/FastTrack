@@ -6,7 +6,9 @@ import { useThemeStore } from "@/lib/theme-store";
 import { getThemeColors, ACCENT } from "@/lib/theme-colors";
 import { useToast } from "@/hooks/useToast";
 import { Toast } from "@/components/Toast";
+import { displayWeight, displayWeightChange, weightUnitLabel, parseWeightInput, DEFAULT_UNITS } from "@/lib/units";
 import type { WeightLogEntry } from "@/lib/types";
+import type { UnitPreferences } from "@/lib/units";
 
 type WeightTrackerProps = {
   entries: WeightLogEntry[];
@@ -15,9 +17,10 @@ type WeightTrackerProps = {
   onAddWeight: (kg: number) => Promise<{ error: Error | null }>;
   onDeleteWeight: (id: string) => Promise<{ error: Error | null }>;
   loading: boolean;
+  unitPrefs?: UnitPreferences;
 };
 
-export function WeightTracker({ entries, currentWeight, weightChange, onAddWeight, onDeleteWeight, loading }: WeightTrackerProps) {
+export function WeightTracker({ entries, currentWeight, weightChange, onAddWeight, onDeleteWeight, loading, unitPrefs = DEFAULT_UNITS }: WeightTrackerProps) {
   const { theme } = useThemeStore();
   const c = getThemeColors(theme);
   const { toast, success, error: toastError } = useToast();
@@ -25,11 +28,13 @@ export function WeightTracker({ entries, currentWeight, weightChange, onAddWeigh
   const [saving, setSaving] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
 
+  const unitLabel = weightUnitLabel(unitPrefs);
+
   const handleLog = async () => {
-    const weight = parseFloat(inputValue);
-    if (isNaN(weight) || weight <= 0 || weight > 500) return;
+    const weightKg = parseWeightInput(inputValue, unitPrefs);
+    if (weightKg === null || weightKg > 500) return;
     setSaving(true);
-    const { error } = await onAddWeight(weight);
+    const { error } = await onAddWeight(weightKg);
     if (error) toastError("Failed to log weight");
     else { success("Weight logged"); setInputValue(""); }
     setSaving(false);
@@ -47,16 +52,16 @@ export function WeightTracker({ entries, currentWeight, weightChange, onAddWeigh
     <View>
       <Toast visible={toast.visible} message={toast.message} type={toast.type} />
       <View className="flex-row items-center justify-between mb-4">
-        <View>
+        <View style={{ flexDirection: "row", alignItems: "baseline" }}>
           <Text style={{ color: c.text, fontFamily: "PlusJakartaSans_700Bold" }} className="text-3xl">
-            {currentWeight !== null ? `${currentWeight.toFixed(1)}` : "—"}
+            {displayWeight(currentWeight, unitPrefs)}
           </Text>
-          <Text style={{ color: c.textSecondary, fontFamily: "PlusJakartaSans_400Regular" }} className="text-sm">kg</Text>
+          <Text style={{ color: c.textSecondary, fontFamily: "PlusJakartaSans_400Regular" }} className="text-sm ml-1">{unitLabel}</Text>
         </View>
         {weightChange !== null && weightChange !== 0 && (
           <View className="items-end">
             <Text style={{ color: weightChange < 0 ? ACCENT.mint : ACCENT.rose, fontFamily: "PlusJakartaSans_600SemiBold" }} className="text-lg">
-              {weightChange < 0 ? "↓" : "↑"} {Math.abs(weightChange).toFixed(1)} kg
+              {weightChange < 0 ? "↓" : "↑"} {displayWeightChange(weightChange, unitPrefs)} {unitLabel}
             </Text>
             <Text style={{ color: c.textMuted, fontFamily: "PlusJakartaSans_400Regular" }} className="text-xs">this month</Text>
           </View>
@@ -70,12 +75,12 @@ export function WeightTracker({ entries, currentWeight, weightChange, onAddWeigh
         <View className="flex-1 relative">
           <TextInput
             value={inputValue} onChangeText={setInputValue}
-            placeholder={currentWeight !== null ? `${currentWeight.toFixed(1)}` : "Enter weight"}
+            placeholder={currentWeight !== null ? displayWeight(currentWeight, unitPrefs) : "Enter weight"}
             placeholderTextColor={c.placeholder} keyboardType="numeric"
             className="rounded-xl px-4 py-3 pr-10"
             style={{ backgroundColor: c.inputBg, color: c.text, fontFamily: "PlusJakartaSans_500Medium" }}
           />
-          <Text className="absolute text-sm" style={{ right: 12, top: 12, color: c.textMuted, fontFamily: "PlusJakartaSans_400Regular" }}>kg</Text>
+          <Text className="absolute text-sm" style={{ right: 12, top: 12, color: c.textMuted, fontFamily: "PlusJakartaSans_400Regular" }}>{unitLabel}</Text>
         </View>
         <Pressable
           onPress={handleLog} disabled={!inputValue || parseFloat(inputValue) <= 0 || saving}
@@ -108,7 +113,7 @@ export function WeightTracker({ entries, currentWeight, weightChange, onAddWeigh
                   </Text>
                   <View className="flex-row items-center gap-3">
                     <Text style={{ color: c.text, fontFamily: "PlusJakartaSans_500Medium" }} className="text-sm">
-                      {entry.weight_kg.toFixed(1)} kg
+                      {displayWeight(entry.weight_kg, unitPrefs)} {unitLabel}
                     </Text>
                     <Pressable onPress={() => setDeleteTarget(entry.id)} hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}>
                       <HugeiconsIcon icon={Delete02Icon} size={18} color={c.textMuted} strokeWidth={1.5} />
