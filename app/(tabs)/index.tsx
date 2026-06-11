@@ -186,7 +186,7 @@ export default function HomeScreen() {
   return (
     <SafeAreaView className="flex-1" style={{ backgroundColor: c.bg }}>
       <ScrollView contentContainerClassName="px-6" style={{ paddingTop: 32, paddingBottom: 120 }}>
-        <AppHeader title={headerTitle} />
+        <AppHeader title="Fast" showLogo logoIcon={Timer01Icon} />
 
         {/* TIMER */}
         <View className="items-center mb-6">

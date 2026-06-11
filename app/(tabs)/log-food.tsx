@@ -14,6 +14,7 @@ import { AppHeader } from "@/components/AppHeader";
 import { LogFoodSkeleton } from "@/components/Skeleton";
 import { useThemeStore } from "@/lib/theme-store";
 import { getThemeColors, ACCENT, MEAL_COLORS } from "@/lib/theme-colors";
+import SaladIcon from "@hugeicons/core-free-icons/dist/esm/SaladIcon";
 
 type MealType = "breakfast" | "lunch" | "dinner" | "snack";
 
@@ -106,7 +107,7 @@ export default function LogFoodScreen() {
   return (
     <SafeAreaView className="flex-1" style={{ backgroundColor: c.bg }}>
       <ScrollView contentContainerClassName="px-6" style={{ paddingTop: 32, paddingBottom: 120 }}>
-        <AppHeader title="Log Food" />
+        <AppHeader title="Log Food" showLogo logoIcon={SaladIcon} />
 
         <Text style={{ color: c.textMuted, fontFamily: "PlusJakartaSans_600SemiBold" }} className="text-xs mb-2 tracking-widest">MEAL TYPE</Text>
         <View className="flex-row gap-2 mb-6">

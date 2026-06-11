@@ -23,6 +23,7 @@ import { WeeklyStats } from "@/components/WeeklyStats";
 import { WeightChart } from "@/components/WeightChart";
 import { WeightTracker } from "@/components/WeightTracker";
 import { ProfileSkeleton } from "@/components/Skeleton";
+import UserCircleIcon from "@hugeicons/core-free-icons/dist/esm/UserCircleIcon";
 
 export default function ProfileScreen() {
   const { user, signOut } = useAuth();
@@ -62,7 +63,7 @@ export default function ProfileScreen() {
     <SafeAreaView className="flex-1" style={{ backgroundColor: c.bg }}>
       <Toast visible={toast.visible} message={toast.message} type={toast.type} />
       <ScrollView contentContainerClassName="px-6" style={{ paddingTop: 32, paddingBottom: 120 }}>
-        <AppHeader title={getFirstName()} />
+        <AppHeader title={getFirstName()} showLogo logoIcon={UserCircleIcon} />
 
         {isLoading ? (
           <ProfileSkeleton />
