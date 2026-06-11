@@ -279,3 +279,18 @@ EXPO_PUBLIC_SUPABASE_ANON_KEY=eyJ...
 - [x] Fixed total fasts achievement (counts all non-broken sessions)
 - [x] Workout goal edit stepper + presets + custom input
 - [x] Log Set modal stepper controls (no keyboard)
+
+## Next Steps
+
+| # | Direction | Effort |
+|---|-----------|--------|
+| 1 | **Testing** — No tests exist yet. Unit tests for hooks, component tests, E2E | Medium |
+| 2 | **App Store deployment** — Build profiles, screenshots, store listings, submit to iOS/Android | Medium |
+| 3 | **Weight tracking** — Log weight over time, show progress chart on Me tab | Small |
+| 4 | **Barcode scanner** — Scan food packaging for instant logging via camera | Medium |
+| 5 | **Apple Health / Google Fit** — Sync workouts, weight, and water | Medium |
+| 6 | **Streak notifications** — Reminders to start fast, check in, drink water | Small |
+| 7 | **Export / reports** — PDF or CSV export of fasting history, nutrition, workouts | Small |
+| 8 | **Social features** — Share progress, friend challenges | Large |
+| 9 | **Widget support** — iOS/Android home screen widget showing fasting timer | Medium |
+| 10 | **Bug fixes / polish** — Review and improve existing UX | Ongoing |
