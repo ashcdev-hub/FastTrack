@@ -12,6 +12,36 @@ npx expo start --ios                 # native
 
 Test account: `test@fasttrack.app` / `test1234`
 
+## Git Workflow (CRITICAL)
+
+**Always commit before making changes.** This creates a safe snapshot we can revert to.
+
+### Before starting any work:
+```bash
+git commit -am "Pre-change: [describe what you're about to do]"
+```
+
+### After finishing work:
+```bash
+git commit -am "Post-change: [describe what you did]"
+git push
+```
+
+### If something breaks:
+```bash
+git revert HEAD          # Undo the last commit
+git checkout .           # Discard all uncommitted changes
+git log --oneline        # See history of snapshots
+```
+
+### Rules:
+1. NEVER make changes without committing first
+2. ALWAYS push after committing (backup to GitHub)
+3. Commit messages should be clear: "Pre-change: adding haptic feedback" / "Post-change: haptic feedback complete"
+4. If the user reports a problem, check `git log --oneline` to find the last good state
+
+**Repo:** https://github.com/ashcdev-hub/FastTrack
+
 ## Tech Stack
 
 | Layer | Technology |
