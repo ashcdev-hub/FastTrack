@@ -65,6 +65,7 @@ export type Profile = {
   daily_fat_goal: number;
   fasting_hours: number;
   eating_hours: number;
+  goal_weight_kg: number | null;
   created_at: string;
   updated_at: string;
 };
@@ -96,4 +97,12 @@ export type WorkoutLogEntry = {
   sets: number;
   calories_burned: number | null;
   logged_at: string;
+};
+
+export type WeightLogEntry = {
+  id: string;
+  user_id: string;
+  weight_kg: number;
+  logged_at: string;
+  created_at: string;
 };

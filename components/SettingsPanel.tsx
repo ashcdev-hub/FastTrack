@@ -32,6 +32,7 @@ export function SettingsPanel({ userId }: SettingsPanelProps) {
   const [gender, setGender] = useState<Profile["gender"]>(profile?.gender ?? null);
   const [age, setAge] = useState(profile?.age ? String(profile.age) : "");
   const [weight, setWeight] = useState(profile?.weight_kg ? String(profile.weight_kg) : "");
+  const [goalWeight, setGoalWeight] = useState(profile?.goal_weight_kg ? String(profile.goal_weight_kg) : "");
   const [height, setHeight] = useState(profile?.height_cm ? String(profile.height_cm) : "");
   const [newEmail, setNewEmail] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -49,6 +50,7 @@ export function SettingsPanel({ userId }: SettingsPanelProps) {
       setGender(profile.gender ?? null);
       setAge(profile.age ? String(profile.age) : "");
       setWeight(profile.weight_kg ? String(profile.weight_kg) : "");
+      setGoalWeight(profile.goal_weight_kg ? String(profile.goal_weight_kg) : "");
       setHeight(profile.height_cm ? String(profile.height_cm) : "");
       setNotifications(profile.notification_preferences ?? {
         fasting_reminders: true,
@@ -64,6 +66,7 @@ export function SettingsPanel({ userId }: SettingsPanelProps) {
       gender,
       age: age ? parseInt(age) : null,
       weight_kg: weight ? parseFloat(weight) : null,
+      goal_weight_kg: goalWeight ? parseFloat(goalWeight) : null,
       height_cm: height ? parseFloat(height) : null,
     };
 
@@ -220,6 +223,26 @@ export function SettingsPanel({ userId }: SettingsPanelProps) {
                   value={weight}
                   onChangeText={setWeight}
                   placeholder="70"
+                  placeholderTextColor={theme === "dark" ? "#ffffff40" : "#9CA3AF"}
+                  keyboardType="numeric"
+                  className="rounded-xl px-4 py-3"
+                  style={{
+                    backgroundColor: theme === "dark" ? "rgba(255,255,255,0.1)" : "#F3F4F6",
+                    color: theme === "dark" ? "#FFFFFF" : "#111827",
+                  }}
+                />
+              </View>
+            </View>
+
+            <View className="flex-row gap-2 mb-3">
+              <View className="flex-1">
+                <Text style={{ color: theme === "dark" ? "rgba(255,255,255,0.6)" : "#6B7280" }} className="text-xs mb-1">
+                  Goal Weight (kg)
+                </Text>
+                <TextInput
+                  value={goalWeight}
+                  onChangeText={setGoalWeight}
+                  placeholder="75"
                   placeholderTextColor={theme === "dark" ? "#ffffff40" : "#9CA3AF"}
                   keyboardType="numeric"
                   className="rounded-xl px-4 py-3"

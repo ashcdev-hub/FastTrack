@@ -98,6 +98,7 @@ export function ProfileSkeleton() {
           <Skeleton height={12} />
         </View>
       </SkeletonCard>
+      <WeightChartSkeleton />
       <SkeletonCard>
         <Skeleton width={80} height={20} />
         <View className="mt-3 flex-row gap-3">
@@ -180,5 +181,24 @@ export function LogFoodSkeleton() {
         </View>
       </SkeletonCard>
     </View>
+  );
+}
+
+export function WeightChartSkeleton() {
+  return (
+    <SkeletonCard>
+      <Skeleton width={140} height={20} />
+      <View className="mt-3">
+        <Skeleton height={180} borderRadius={16} />
+      </View>
+      <View className="mt-4">
+        <Skeleton width={60} height={32} />
+        <Skeleton width={80} height={12} style={{ marginTop: 4 }} />
+      </View>
+      <View className="mt-4 flex-row gap-2">
+        <Skeleton height={44} borderRadius={12} />
+        <Skeleton width={60} height={44} borderRadius={12} />
+      </View>
+    </SkeletonCard>
   );
 }
