@@ -4,18 +4,23 @@ import { HugeiconsIcon } from "@hugeicons/react-native";
 import Edit01Icon from "@hugeicons/core-free-icons/dist/esm/Edit01Icon";
 import Delete02Icon from "@hugeicons/core-free-icons/dist/esm/Delete02Icon";
 import PlusSignIcon from "@hugeicons/core-free-icons/dist/esm/PlusSignIcon";
-import Dumbbell01Icon from "@hugeicons/core-free-icons/dist/esm/Dumbbell01Icon";
+import PushUpBarIcon from "@hugeicons/core-free-icons/dist/esm/PushUpBarIcon";
+import BodyPartSixPackIcon from "@hugeicons/core-free-icons/dist/esm/BodyPartSixPackIcon";
+import WorkoutSquatsIcon from "@hugeicons/core-free-icons/dist/esm/WorkoutSquatsIcon";
+import BodyPartMuscleIcon from "@hugeicons/core-free-icons/dist/esm/BodyPartMuscleIcon";
 import { useThemeStore } from "@/lib/theme-store";
 import { getThemeColors, ACCENT } from "@/lib/theme-colors";
 import type { WorkoutGoal } from "@/lib/types";
 import type { TodayTotals } from "@/hooks/useWorkoutLog";
 
-const EXERCISE_ICONS: Record<string, any> = {
-  pushups: Dumbbell01Icon,
-  crunches: Dumbbell01Icon,
-  situps: Dumbbell01Icon,
-  squats: Dumbbell01Icon,
+const EXERCISE_CONFIG: Record<string, { icon: any }> = {
+  pushups: { icon: PushUpBarIcon },
+  crunches: { icon: BodyPartSixPackIcon },
+  situps: { icon: BodyPartSixPackIcon },
+  squats: { icon: WorkoutSquatsIcon },
 };
+
+const DEFAULT_CONFIG = { icon: BodyPartMuscleIcon };
 
 type ExercisePanelProps = {
   goal: WorkoutGoal;
@@ -43,7 +48,8 @@ export function ExercisePanel({
   const sets = todayTotal?.sets ?? 0;
   const calories = todayTotal?.calories ?? 0;
   const progress = Math.min(reps / goal.daily_goal, 1);
-  const IconComponent = EXERCISE_ICONS[goal.exercise_type] ?? Dumbbell01Icon;
+  const config = EXERCISE_CONFIG[goal.exercise_type] ?? DEFAULT_CONFIG;
+  const IconComponent = config.icon;
   const isGoalMet = reps >= goal.daily_goal;
 
   const handleSaveGoal = () => {
@@ -69,13 +75,13 @@ export function ExercisePanel({
               width: 36,
               height: 36,
               borderRadius: 10,
-              backgroundColor: ACCENT.mintBg,
+              backgroundColor: c.cardBgAlt,
               alignItems: "center",
               justifyContent: "center",
               marginRight: 10,
             }}
           >
-            <HugeiconsIcon icon={IconComponent} size={18} color={ACCENT.mint} strokeWidth={1.5} />
+            <HugeiconsIcon icon={IconComponent} size={18} color={c.textSecondary} strokeWidth={1.5} />
           </View>
           <Text style={{ color: c.text, fontFamily: "PlusJakartaSans_700Bold" }} className="text-lg capitalize">
             {goal.exercise_type}
@@ -105,7 +111,7 @@ export function ExercisePanel({
       <View className="mb-3">
         <View className="flex-row justify-between mb-1">
           <Text style={{ color: c.textSecondary, fontFamily: "PlusJakartaSans_500Medium" }} className="text-sm">
-            Today's Progress
+            Today&apos;s Progress
           </Text>
           <Text
             style={{ color: isGoalMet ? ACCENT.mint : c.text, fontFamily: "PlusJakartaSans_700Bold" }}
@@ -122,7 +128,7 @@ export function ExercisePanel({
             className="h-full rounded-full"
             style={{
               width: `${progress * 100}%`,
-              backgroundColor: isGoalMet ? ACCENT.mint : ACCENT.coral,
+              backgroundColor: isGoalMet ? ACCENT.mint : c.textMuted,
             }}
           />
         </View>
@@ -291,10 +297,10 @@ export function ExercisePanel({
       <Pressable
         onPress={onLogSet}
         className="rounded-xl py-3 flex-row items-center justify-center"
-        style={{ backgroundColor: ACCENT.mint }}
+        style={{ backgroundColor: c.buttonBg }}
       >
-        <HugeiconsIcon icon={PlusSignIcon} size={18} color="#0C0C0E" strokeWidth={2} />
-        <Text style={{ color: "#0C0C0E", fontFamily: "PlusJakartaSans_700Bold" }} className="ml-2">Log Set</Text>
+        <HugeiconsIcon icon={PlusSignIcon} size={18} color={c.text} strokeWidth={2} />
+        <Text style={{ color: c.text, fontFamily: "PlusJakartaSans_700Bold" }} className="ml-2">Log Set</Text>
       </Pressable>
     </View>
   );

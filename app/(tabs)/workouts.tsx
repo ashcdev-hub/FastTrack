@@ -14,6 +14,9 @@ import { AddExerciseModal } from "@/components/AddExerciseModal";
 import { WorkoutsSkeleton } from "@/components/Skeleton";
 import { HugeiconsIcon } from "@hugeicons/react-native";
 import PlusSignIcon from "@hugeicons/core-free-icons/dist/esm/PlusSignIcon";
+import RepeatIcon from "@hugeicons/core-free-icons/dist/esm/RepeatIcon";
+import FlameIcon from "@hugeicons/core-free-icons/dist/esm/FlameIcon";
+import Target01Icon from "@hugeicons/core-free-icons/dist/esm/Target01Icon";
 import type { WorkoutGoal } from "@/lib/types";
 
 export default function WorkoutsScreen() {
@@ -41,33 +44,48 @@ export default function WorkoutsScreen() {
   const handleAddExercise = async (exerciseType: string, dailyGoal: number, caloriesPerRep: number) => { await addCustomExercise(exerciseType, dailyGoal, caloriesPerRep); };
   const handleReinstate = async (goalId: string) => { await toggleEnabled(goalId, true); };
 
+  const totalReps = Object.values(todayTotals).reduce((sum, t) => sum + t.reps, 0);
+  const totalCalories = Math.round(Object.values(todayTotals).reduce((sum, t) => sum + t.calories, 0));
+  const goalsAchieved = enabledGoals.filter((g) => {
+    const total = todayTotals[g.exercise_type];
+    return total && total.reps >= g.daily_goal;
+  }).length;
+
   return (
     <SafeAreaView className="flex-1" style={{ backgroundColor: c.bg }}>
       <ScrollView contentContainerClassName="px-6" style={{ paddingTop: 32, paddingBottom: 120 }}>
         <AppHeader title="Workouts" />
 
         {/* Today's Summary */}
-        <View className="rounded-2xl p-5 mb-6" style={{ backgroundColor: c.cardBg, borderWidth: 1, borderColor: c.cardBorder }}>
-          <Text style={{ color: c.text, fontFamily: "PlusJakartaSans_700Bold" }} className="text-lg mb-3">Today&apos;s Summary</Text>
-          <View className="flex-row justify-between">
-            <View className="items-center">
-              <Text style={{ color: c.text, fontFamily: "PlusJakartaSans_700Bold" }} className="text-2xl">
-                {Object.values(todayTotals).reduce((sum, t) => sum + t.reps, 0)}
-              </Text>
-              <Text style={{ color: c.textMuted, fontFamily: "PlusJakartaSans_400Regular" }} className="text-xs">Total Reps</Text>
-            </View>
-            <View className="items-center">
-              <Text style={{ color: c.text, fontFamily: "PlusJakartaSans_700Bold" }} className="text-2xl">
-                {Object.values(todayTotals).reduce((sum, t) => sum + t.sets, 0)}
-              </Text>
-              <Text style={{ color: c.textMuted, fontFamily: "PlusJakartaSans_400Regular" }} className="text-xs">Total Sets</Text>
-            </View>
-            <View className="items-center">
-              <Text style={{ color: c.text, fontFamily: "PlusJakartaSans_700Bold" }} className="text-2xl">
-                {Math.round(Object.values(todayTotals).reduce((sum, t) => sum + t.calories, 0))}
-              </Text>
-              <Text style={{ color: c.textMuted, fontFamily: "PlusJakartaSans_400Regular" }} className="text-xs">Calories</Text>
-            </View>
+        <View className="flex-row gap-3 mb-6">
+          <View className="flex-1 rounded-xl p-4 items-center" style={{ backgroundColor: c.cardBg, borderWidth: 1, borderColor: c.cardBorder }}>
+            <HugeiconsIcon icon={RepeatIcon} size={28} color={ACCENT.mint} strokeWidth={1.5} />
+            <Text style={{ color: ACCENT.mint, fontFamily: "PlusJakartaSans_700Bold" }} className="text-2xl mt-1">
+              {totalReps}
+            </Text>
+            <Text style={{ color: c.textSecondary, fontFamily: "PlusJakartaSans_400Regular" }} className="text-xs mt-1 text-center">
+              Total Reps
+            </Text>
+          </View>
+
+          <View className="flex-1 rounded-xl p-4 items-center" style={{ backgroundColor: c.cardBg, borderWidth: 1, borderColor: c.cardBorder }}>
+            <HugeiconsIcon icon={FlameIcon} size={28} color={ACCENT.coral} strokeWidth={1.5} />
+            <Text style={{ color: ACCENT.coral, fontFamily: "PlusJakartaSans_700Bold" }} className="text-2xl mt-1">
+              {totalCalories}
+            </Text>
+            <Text style={{ color: c.textSecondary, fontFamily: "PlusJakartaSans_400Regular" }} className="text-xs mt-1 text-center">
+              Calories Burned
+            </Text>
+          </View>
+
+          <View className="flex-1 rounded-xl p-4 items-center" style={{ backgroundColor: c.cardBg, borderWidth: 1, borderColor: c.cardBorder }}>
+            <HugeiconsIcon icon={Target01Icon} size={28} color={ACCENT.sky} strokeWidth={1.5} />
+            <Text style={{ color: ACCENT.sky, fontFamily: "PlusJakartaSans_700Bold" }} className="text-2xl mt-1">
+              {goalsAchieved}/{enabledGoals.length}
+            </Text>
+            <Text style={{ color: c.textSecondary, fontFamily: "PlusJakartaSans_400Regular" }} className="text-xs mt-1 text-center">
+              Goals Achieved
+            </Text>
           </View>
         </View>
 
