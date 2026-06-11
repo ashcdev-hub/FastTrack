@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Animated, Text, Platform } from "react-native";
+import { ACCENT } from "@/lib/theme-colors";
 import type { ToastType } from "@/hooks/useToast";
 
 type ToastProps = {
@@ -25,7 +26,8 @@ export function Toast({ visible, message, type }: ToastProps) {
 
   if (!rendered) return null;
 
-  const bgColor = type === "success" ? "#16A34A" : "#DC2626";
+  const bgColor = type === "success" ? ACCENT.mint : ACCENT.rose;
+  const textColor = type === "success" ? "#0C0C0E" : "#FFFFFF";
 
   return (
     <Animated.View
@@ -43,13 +45,13 @@ export function Toast({ visible, message, type }: ToastProps) {
       <Text
         style={{
           backgroundColor: bgColor,
-          color: "#FFFFFF",
+          color: textColor,
           textAlign: "center",
           paddingVertical: 12,
           paddingHorizontal: 16,
           borderRadius: 12,
           fontSize: 14,
-          fontWeight: "600",
+          fontFamily: "PlusJakartaSans_600SemiBold",
           overflow: "hidden",
           ...(Platform.OS === "web" ? { boxShadow: "0 4px 12px rgba(0,0,0,0.25)" } : {}),
         }}

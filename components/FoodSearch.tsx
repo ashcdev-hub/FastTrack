@@ -1,27 +1,15 @@
 import React, { useState } from "react";
-import { Pressable,
-  View,
-  Text,
-  TextInput,
-  ScrollView,
-  ActivityIndicator,
-  Modal,
-} from "react-native";
+import { Pressable, View, Text, TextInput, ScrollView, ActivityIndicator, Modal } from "react-native";
 import { supabase } from "@/lib/supabase";
 import { useThemeStore } from "@/lib/theme-store";
-import { getThemeColors } from "@/lib/theme-colors";
+import { getThemeColors, ACCENT } from "@/lib/theme-colors";
 
 type FoodSearchResult = {
   id: string;
   name: string;
   brand: string;
   serving_size?: string;
-  nutrition: {
-    calories: number;
-    protein: number;
-    carbs: number;
-    fat: number;
-  };
+  nutrition: { calories: number; protein: number; carbs: number; fat: number };
 };
 
 type FoodSearchProps = {
@@ -70,35 +58,17 @@ export function FoodSearch({ onAdd }: FoodSearchProps) {
       const { data, error } = await supabase.functions.invoke("food-search", {
         body: { query: query.trim() },
       });
-
-      if (error) {
-        throw new Error(error.message ?? "Search failed");
-      }
-
-      // Handle graceful error from Edge Function
-      if (data?.error) {
-        setError(data.error);
-        setResults([]);
-        return;
-      }
-
+      if (error) throw new Error(error.message ?? "Search failed");
+      if (data?.error) { setError(data.error); setResults([]); return; }
       const items: FoodSearchResult[] = (data?.products ?? []).map((p: any) => ({
         id: p.id,
         name: p.name,
         brand: p.brand ?? "",
         serving_size: p.serving_size ?? undefined,
-        nutrition: {
-          calories: p.nutrition.calories,
-          protein: p.nutrition.protein,
-          carbs: p.nutrition.carbs,
-          fat: p.nutrition.fat,
-        },
+        nutrition: { calories: p.nutrition.calories, protein: p.nutrition.protein, carbs: p.nutrition.carbs, fat: p.nutrition.fat },
       }));
-
       setResults(items);
-      if (items.length === 0) {
-        setError("No results found. Try 'Add Custom Item' instead.");
-      }
+      if (items.length === 0) setError("No results found. Try 'Add Custom Item' instead.");
     } catch (e: any) {
       console.error("Search failed:", e);
       setError("Search failed. Please try again or use 'Add Custom Item'.");
@@ -109,39 +79,21 @@ export function FoodSearch({ onAdd }: FoodSearchProps) {
   };
 
   const handleAddCommonFood = (food: typeof COMMON_FOODS[0]) => {
-    onAdd({
-      name: food.name,
-      brand: "",
-      calories: food.calories,
-      protein_g: food.protein,
-      carbs_g: food.carbs,
-      fat_g: food.fat,
-      serving_size: food.serving_size,
-      quantity: 1,
-    });
+    onAdd({ name: food.name, brand: "", calories: food.calories, protein_g: food.protein, carbs_g: food.carbs, fat_g: food.fat, serving_size: food.serving_size, quantity: 1 });
   };
 
   const handleAddToMeal = () => {
     if (!selectedItem) return;
     const qty = Number(quantity) || 1;
-    onAdd({
-      name: selectedItem.name,
-      brand: selectedItem.brand,
-      calories: selectedItem.nutrition.calories,
-      protein_g: selectedItem.nutrition.protein,
-      carbs_g: selectedItem.nutrition.carbs,
-      fat_g: selectedItem.nutrition.fat,
-      serving_size: selectedItem.serving_size,
-      quantity: qty,
-    });
+    onAdd({ name: selectedItem.name, brand: selectedItem.brand, calories: selectedItem.nutrition.calories, protein_g: selectedItem.nutrition.protein, carbs_g: selectedItem.nutrition.carbs, fat_g: selectedItem.nutrition.fat, serving_size: selectedItem.serving_size, quantity: qty });
     setSelectedItem(null);
     setQuantity("1");
   };
 
   return (
     <View className="rounded-2xl p-5" style={{ backgroundColor: c.cardBg, borderWidth: 1, borderColor: c.cardBorder }}>
-      <Text style={{ color: c.text }} className="text-lg font-bold mb-3">Search Food</Text>
-      <Text style={{ color: c.textMuted }} className="text-xs mb-3">
+      <Text style={{ color: c.text, fontFamily: "PlusJakartaSans_700Bold" }} className="text-lg mb-3">Search Food</Text>
+      <Text style={{ color: c.textMuted, fontFamily: "PlusJakartaSans_400Regular" }} className="text-xs mb-3">
         Search packaged foods, or use quick-add below for common items
       </Text>
       <View className="flex-row gap-2 mb-3">
@@ -151,25 +103,25 @@ export function FoodSearch({ onAdd }: FoodSearchProps) {
           placeholder="Search OpenFoodFacts..."
           placeholderTextColor={c.placeholder}
           className="flex-1 rounded-xl px-4 py-3"
-          style={{ backgroundColor: c.inputBg, color: c.text }}
+          style={{ backgroundColor: c.inputBg, color: c.text, fontFamily: "PlusJakartaSans_500Medium" }}
           onSubmitEditing={search}
           returnKeyType="search"
         />
         <Pressable
           onPress={search}
           disabled={loading}
-          className="bg-blue-500 rounded-xl px-4 py-3"
-          style={loading ? { opacity: 0.5 } : undefined}
+          className="rounded-xl px-4 py-3"
+          style={{ backgroundColor: ACCENT.mint, opacity: loading ? 0.5 : 1 }}
         >
-          <Text className="text-white font-semibold">Search</Text>
+          <Text style={{ color: "#0C0C0E", fontFamily: "PlusJakartaSans_600SemiBold" }}>Search</Text>
         </Pressable>
       </View>
 
-      {loading && <ActivityIndicator color="#3B82F6" />}
+      {loading && <ActivityIndicator color={ACCENT.mint} />}
 
       {error && (
-        <View className="bg-red-500/10 rounded-xl p-3 mb-3">
-          <Text className="text-red-400 text-sm">{error}</Text>
+        <View className="rounded-xl p-3 mb-3" style={{ backgroundColor: ACCENT.roseBg }}>
+          <Text style={{ color: ACCENT.rose, fontFamily: "PlusJakartaSans_500Medium" }} className="text-sm">{error}</Text>
         </View>
       )}
 
@@ -183,21 +135,21 @@ export function FoodSearch({ onAdd }: FoodSearchProps) {
                 className="rounded-xl p-3 mb-2"
                 style={{ backgroundColor: c.cardBgAlt }}
               >
-                <Text style={{ color: c.text }} className="font-medium">{item.name}</Text>
+                <Text style={{ color: c.text, fontFamily: "PlusJakartaSans_500Medium" }}>{item.name}</Text>
                 {item.brand ? (
-                  <Text style={{ color: c.textMuted }} className="text-xs">{item.brand}</Text>
+                  <Text style={{ color: c.textMuted, fontFamily: "PlusJakartaSans_400Regular" }} className="text-xs">{item.brand}</Text>
                 ) : null}
-                <Text style={{ color: c.textSecondary }} className="text-xs mt-1">
+                <Text style={{ color: c.textSecondary, fontFamily: "PlusJakartaSans_400Regular" }} className="text-xs mt-1">
                   {item.nutrition.calories} kcal · P{item.nutrition.protein}g · C{item.nutrition.carbs}g · F{item.nutrition.fat}g
                   {item.serving_size ? ` · ${item.serving_size}` : ""}
                 </Text>
-                </Pressable>
+              </Pressable>
             ))}
           </ScrollView>
         </View>
       )}
 
-      <Text style={{ color: c.textSecondary }} className="text-xs font-bold mb-2 tracking-wider">
+      <Text style={{ color: c.textMuted, fontFamily: "PlusJakartaSans_600SemiBold" }} className="text-xs mb-2 tracking-widest">
         QUICK ADD
       </Text>
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
@@ -205,45 +157,39 @@ export function FoodSearch({ onAdd }: FoodSearchProps) {
           <Pressable
             key={food.name}
             onPress={() => handleAddCommonFood(food)}
-            className="bg-emerald-500/20 border border-emerald-500/40 rounded-xl px-4 py-2.5 mr-2"
+            className="rounded-xl px-4 py-2.5 mr-2"
+            style={{ backgroundColor: ACCENT.mintBg, borderWidth: 1, borderColor: ACCENT.mintBorder }}
           >
-            <Text className="text-emerald-400 font-semibold text-sm">
+            <Text style={{ color: ACCENT.mint, fontFamily: "PlusJakartaSans_600SemiBold" }} className="text-sm">
               {food.name}
             </Text>
-            <Text className="text-emerald-400/60 text-xs">
+            <Text style={{ color: "rgba(45,212,168,0.6)", fontFamily: "PlusJakartaSans_400Regular" }} className="text-xs">
               {food.calories} kcal
             </Text>
           </Pressable>
         ))}
       </ScrollView>
 
-      <Modal
-        visible={selectedItem !== null}
-        transparent
-        animationType="slide"
-        onRequestClose={() => setSelectedItem(null)}
-      >
-        <View className="flex-1 justify-end bg-black/50">
-          <View className="rounded-t-3xl p-6" style={{ backgroundColor: theme === "dark" ? "#1E293B" : "#FFFFFF" }}>
+      <Modal visible={selectedItem !== null} transparent animationType="slide" onRequestClose={() => setSelectedItem(null)}>
+        <View className="flex-1 justify-end" style={{ backgroundColor: "rgba(0,0,0,0.5)" }}>
+          <View className="rounded-t-3xl p-6" style={{ backgroundColor: c.elevated }}>
             <View className="flex-row justify-between items-center mb-4">
               <Pressable onPress={() => setSelectedItem(null)}>
-                <Text style={{ color: c.textSecondary }} className="text-base">Cancel</Text>
+                <Text style={{ color: c.textSecondary, fontFamily: "PlusJakartaSans_500Medium" }}>Cancel</Text>
               </Pressable>
-              <Text style={{ color: c.text }} className="text-lg font-bold">Add to Meal</Text>
+              <Text style={{ color: c.text, fontFamily: "PlusJakartaSans_700Bold" }} className="text-lg">Add to Meal</Text>
               <View className="w-12" />
             </View>
 
             {selectedItem && (
               <>
                 <View className="mb-4">
-                  <Text style={{ color: c.text }} className="font-medium text-base">
-                    {selectedItem.name}
-                  </Text>
+                  <Text style={{ color: c.text, fontFamily: "PlusJakartaSans_500Medium" }}>{selectedItem.name}</Text>
                   {selectedItem.brand ? (
-                    <Text style={{ color: c.textMuted }} className="text-sm">{selectedItem.brand}</Text>
+                    <Text style={{ color: c.textMuted, fontFamily: "PlusJakartaSans_400Regular" }} className="text-sm">{selectedItem.brand}</Text>
                   ) : null}
                   {selectedItem.serving_size ? (
-                    <Text style={{ color: c.textSecondary }} className="text-xs mt-1">
+                    <Text style={{ color: c.textSecondary, fontFamily: "PlusJakartaSans_400Regular" }} className="text-xs mt-1">
                       Per serving: {selectedItem.serving_size}
                     </Text>
                   ) : null}
@@ -251,20 +197,20 @@ export function FoodSearch({ onAdd }: FoodSearchProps) {
 
                 <View className="rounded-xl p-4 mb-4" style={{ backgroundColor: c.cardBgAlt }}>
                   <View className="flex-row justify-between mb-2">
-                    <Text style={{ color: c.textSecondary }} className="text-sm">Calories</Text>
-                    <Text style={{ color: c.text }} className="font-semibold">
+                    <Text style={{ color: c.textSecondary, fontFamily: "PlusJakartaSans_500Medium" }} className="text-sm">Calories</Text>
+                    <Text style={{ color: c.text, fontFamily: "PlusJakartaSans_600SemiBold" }}>
                       {selectedItem.nutrition.calories} kcal
                     </Text>
                   </View>
                   <View className="flex-row justify-between">
-                    <Text style={{ color: c.textSecondary }} className="text-sm">Macros</Text>
-                    <Text style={{ color: c.textSecondary }} className="text-sm">
+                    <Text style={{ color: c.textSecondary, fontFamily: "PlusJakartaSans_500Medium" }} className="text-sm">Macros</Text>
+                    <Text style={{ color: c.textSecondary, fontFamily: "PlusJakartaSans_400Regular" }} className="text-sm">
                       P{selectedItem.nutrition.protein}g · C{selectedItem.nutrition.carbs}g · F{selectedItem.nutrition.fat}g
                     </Text>
                   </View>
                 </View>
 
-                <Text style={{ color: c.textSecondary }} className="text-xs mb-2">Quantity (servings)</Text>
+                <Text style={{ color: c.textSecondary, fontFamily: "PlusJakartaSans_500Medium" }} className="text-xs mb-2">Quantity (servings)</Text>
                 <TextInput
                   value={quantity}
                   onChangeText={setQuantity}
@@ -272,17 +218,18 @@ export function FoodSearch({ onAdd }: FoodSearchProps) {
                   placeholderTextColor={c.placeholder}
                   keyboardType="numeric"
                   className="rounded-xl px-4 py-3 mb-4"
-                  style={{ backgroundColor: c.inputBg, color: c.text }}
+                  style={{ backgroundColor: c.inputBg, color: c.text, fontFamily: "PlusJakartaSans_500Medium" }}
                 />
 
                 <Pressable
                   onPress={handleAddToMeal}
-                  className="bg-blue-500 rounded-xl py-3"
+                  className="rounded-xl py-3"
+                  style={{ backgroundColor: ACCENT.mint }}
                 >
-                  <Text className="text-white text-center font-bold">
+                  <Text style={{ color: "#0C0C0E", fontFamily: "PlusJakartaSans_700Bold" }} className="text-center">
                     Add to Meal
                   </Text>
-              </Pressable>
+                </Pressable>
               </>
             )}
           </View>

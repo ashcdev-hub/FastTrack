@@ -1,10 +1,5 @@
 import React, { useEffect } from "react";
-import { Pressable,
-  View,
-  Text,
-  ScrollView,
-  ActivityIndicator,
-} from "react-native";
+import { Pressable, View, Text, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
@@ -18,7 +13,7 @@ import { useWorkoutLog } from "@/hooks/useWorkoutLog";
 import { useWorkoutGoals } from "@/hooks/useWorkoutGoals";
 import { useWeightLog } from "@/hooks/useWeightLog";
 import { useThemeStore } from "@/lib/theme-store";
-import { getThemeColors } from "@/lib/theme-colors";
+import { getThemeColors, ACCENT } from "@/lib/theme-colors";
 import { useToast } from "@/hooks/useToast";
 import { Toast } from "@/components/Toast";
 import { AppHeader } from "@/components/AppHeader";
@@ -43,20 +38,11 @@ export default function ProfileScreen() {
   const { weeklyStats: weeklyWorkouts, streaks: workoutStreaks, fetchStreaks, loading: workoutLoading } =
     useWorkoutLog(user?.id, profile?.weight_kg ?? null);
   const { goals: workoutGoals } = useWorkoutGoals(user?.id);
-  const {
-    entries: weightEntries,
-    loading: weightLoading,
-    addWeight,
-    deleteWeight,
-    currentWeight,
-    weightChange,
-  } = useWeightLog(user?.id);
+  const { entries: weightEntries, loading: weightLoading, addWeight, deleteWeight, currentWeight, weightChange } = useWeightLog(user?.id);
   const { toast, error: toastError } = useToast();
 
   useEffect(() => {
-    if (workoutGoals.length > 0) {
-      fetchStreaks(workoutGoals);
-    }
+    if (workoutGoals.length > 0) fetchStreaks(workoutGoals);
   }, [workoutGoals, fetchStreaks]);
 
   const handleSignOut = async () => {
@@ -65,21 +51,17 @@ export default function ProfileScreen() {
   };
 
   const getFirstName = (): string => {
-    if (profile?.display_name) {
-      return profile.display_name.split(" ")[0];
-    }
-    if (user?.email) {
-      return user.email.split("@")[0];
-    }
+    if (profile?.display_name) return profile.display_name.split(" ")[0];
+    if (user?.email) return user.email.split("@")[0];
     return "User";
   };
 
   const isLoading = profileLoading || sessionLoading;
 
   return (
-    <SafeAreaView className="flex-1" style={{ backgroundColor: theme === "dark" ? "#0F172A" : "#F9FAFB" }}>
+    <SafeAreaView className="flex-1" style={{ backgroundColor: c.bg }}>
       <Toast visible={toast.visible} message={toast.message} type={toast.type} />
-      <ScrollView contentContainerClassName="px-6 py-8">
+      <ScrollView contentContainerClassName="px-6" style={{ paddingTop: 32, paddingBottom: 120 }}>
         <AppHeader title={getFirstName()} />
 
         {isLoading ? (
@@ -101,10 +83,7 @@ export default function ProfileScreen() {
               fat={{ current: totals.fat_g, goal: goals.dailyFat }}
             />
 
-            <View
-              style={{ backgroundColor: c.cardBg, borderWidth: 1, borderColor: c.cardBorder }}
-              className="rounded-2xl p-5 mb-4"
-            >
+            <View className="rounded-2xl p-5 mb-4" style={{ backgroundColor: c.cardBg, borderWidth: 1, borderColor: c.cardBorder }}>
               <WeightChart entries={weightEntries} goalWeightKg={profile?.goal_weight_kg ?? null} />
               <WeightTracker
                 entries={weightEntries}
@@ -123,9 +102,9 @@ export default function ProfileScreen() {
         <Pressable
           onPress={handleSignOut}
           className="rounded-xl py-4"
-          style={{ backgroundColor: "rgba(239,68,68,0.1)", borderWidth: 1, borderColor: "rgba(239,68,68,0.3)" }}
+          style={{ backgroundColor: ACCENT.roseBg, borderWidth: 1, borderColor: ACCENT.roseBorder }}
         >
-          <Text style={{ color: "#EF4444" }} className="text-center font-semibold">
+          <Text style={{ color: ACCENT.rose, fontFamily: "PlusJakartaSans_600SemiBold" }} className="text-center">
             Sign Out
           </Text>
         </Pressable>

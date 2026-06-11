@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, Pressable } from "react-native";
-import Svg, { Circle } from "react-native-svg";
+import Svg, { Circle, Defs, LinearGradient, Stop } from "react-native-svg";
 import Animated, {
   useSharedValue,
   useAnimatedProps,
@@ -13,6 +13,7 @@ import { HugeiconsIcon } from "@hugeicons/react-native";
 import Exchange01Icon from "@hugeicons/core-free-icons/dist/esm/Exchange01Icon";
 import { useThemeStore } from "@/lib/theme-store";
 import { getThemeColors } from "@/lib/theme-colors";
+import { ACCENT } from "@/lib/theme-colors";
 
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
@@ -31,22 +32,28 @@ type FastingTimerProps = {
 
 const COLORS = {
   idle: {
-    stroke: "#94A3B8",
-    bg: "rgba(255,255,255,0.08)",
-    glow: "rgba(255,255,255,0.08)",
-    dot: "#94A3B8",
+    stroke: "#6B6E73",
+    bg: "rgba(255,255,255,0.05)",
+    glow: "#6B6E73",
+    dot: "#6B6E73",
+    gradientStart: "#6B6E73",
+    gradientEnd: "#8B8E93",
   },
   fasting: {
-    stroke: "#10B981",
-    bg: "#064E3B",
-    glow: "#10B981",
-    dot: "#10B981",
+    stroke: ACCENT.mint,
+    bg: ACCENT.mintBg,
+    glow: ACCENT.mint,
+    dot: ACCENT.mint,
+    gradientStart: ACCENT.mint,
+    gradientEnd: ACCENT.mintLight,
   },
   eating: {
-    stroke: "#F59E0B",
-    bg: "#78350F",
-    glow: "#F59E0B",
-    dot: "#F59E0B",
+    stroke: ACCENT.coral,
+    bg: ACCENT.coralBg,
+    glow: ACCENT.coral,
+    dot: ACCENT.coral,
+    gradientStart: ACCENT.coral,
+    gradientEnd: ACCENT.coralLight,
   },
 };
 
@@ -65,8 +72,8 @@ export function FastingTimer({
   const { theme } = useThemeStore();
   const c = getThemeColors(theme);
   const [showElapsed, setShowElapsed] = useState(false);
-  const size = 280;
-  const strokeWidth = 12;
+  const size = 310;
+  const strokeWidth = 14;
   const radius = (size - strokeWidth) / 2;
   const circumference = 2 * Math.PI * radius;
 
@@ -75,11 +82,10 @@ export function FastingTimer({
 
   const colors = COLORS[status];
 
-  // Smooth progress animation - no sweep
   useEffect(() => {
     const pct = totalMinutes > 0 ? elapsedMinutes / totalMinutes : 0;
     const target = Math.min(pct, 1);
-    
+
     if (status === "idle") {
       progress.value = withTiming(0, { duration: 300, easing: Easing.out(Easing.cubic) });
     } else {
@@ -87,14 +93,13 @@ export function FastingTimer({
     }
   }, [elapsedMinutes, totalMinutes, status]);
 
-  // Glow pulse effect
   useEffect(() => {
     if (status === "idle") {
       glowOpacity.value = withTiming(0, { duration: 300 });
       return;
     }
     glowOpacity.value = withRepeat(
-      withTiming(1, { duration: 2000, easing: Easing.inOut(Easing.sin) }),
+      withTiming(1, { duration: 3000, easing: Easing.inOut(Easing.sin) }),
       -1,
       true
     );
@@ -105,7 +110,7 @@ export function FastingTimer({
   }));
 
   const glowAnimatedProps = useAnimatedProps(() => ({
-    opacity: 0.04 + glowOpacity.value * 0.06,
+    opacity: 0.03 + glowOpacity.value * 0.07,
   }));
 
   const dotAnimatedProps = useAnimatedProps(() => {
@@ -126,6 +131,12 @@ export function FastingTimer({
         style={{ width: size, height: size }}
       >
         <Svg width={size} height={size}>
+          <Defs>
+            <LinearGradient id="progressGrad" x1="0" y1="0" x2="1" y2="1">
+              <Stop offset="0" stopColor={colors.gradientStart} />
+              <Stop offset="1" stopColor={colors.gradientEnd} />
+            </LinearGradient>
+          </Defs>
           <Circle
             cx={size / 2}
             cy={size / 2}
@@ -138,9 +149,8 @@ export function FastingTimer({
             cx={size / 2}
             cy={size / 2}
             r={radius}
-            strokeWidth={strokeWidth + 2}
+            strokeWidth={strokeWidth + 4}
             fill="none"
-            strokeLinecap="round"
             stroke={colors.glow}
             animatedProps={glowAnimatedProps}
           />
@@ -150,7 +160,7 @@ export function FastingTimer({
             r={radius}
             strokeWidth={strokeWidth}
             fill="none"
-            stroke={colors.stroke}
+            stroke="url(#progressGrad)"
             strokeDasharray={circumference}
             strokeLinecap="round"
             animatedProps={progressAnimatedProps}
@@ -159,7 +169,7 @@ export function FastingTimer({
           <AnimatedCircle
             cx={size / 2}
             cy={size / 2}
-            r={6}
+            r={7}
             fill={colors.dot}
             animatedProps={dotAnimatedProps}
           />
@@ -168,19 +178,25 @@ export function FastingTimer({
         <View className="absolute items-center justify-center">
           {status === "idle" ? (
             <>
-              <Text style={{ color: c.textSecondary }} className="text-lg font-semibold mb-1">
+              <Text
+                style={{ color: c.text, fontFamily: "PlusJakartaSans_700Bold" }}
+                className="text-2xl mb-1"
+              >
                 Ready to Fast?
               </Text>
-              <Text style={{ color: c.textMuted }} className="text-xs">
+              <Text style={{ color: c.textMuted }} className="text-sm">
                 Tap below to begin
               </Text>
             </>
           ) : (
             <>
-              <Text style={{ color: c.textSecondary }} className="text-sm font-medium mb-1">
+              <Text
+                style={{ color: c.textSecondary, fontFamily: "PlusJakartaSans_600SemiBold" }}
+                className="text-xs tracking-widest mb-2"
+              >
                 {status === "fasting"
-                  ? `FASTING${schedule ? ` — ${schedule}` : ""}`
-                  : `EATING${schedule ? ` — ${schedule}` : ""}`}
+                  ? `FASTING${schedule ? `  ·  ${schedule}` : ""}`
+                  : `EATING${schedule ? `  ·  ${schedule}` : ""}`}
               </Text>
               <Pressable
                 onPress={() => setShowElapsed((prev) => !prev)}
@@ -190,19 +206,20 @@ export function FastingTimer({
                 <Text
                   style={{
                     color: c.text,
+                    fontFamily: "PlusJakartaSans_700Bold",
                     borderBottomWidth: 1,
                     borderBottomColor: showElapsed ? colors.stroke : "transparent",
                     paddingBottom: 2,
                   }}
-                  className="text-5xl font-bold tracking-wider"
+                  className="text-5xl tracking-tight"
                 >
                   {showElapsed
                     ? `${pad(elapsedHours)}:${pad(elapsedMinutesPart)}:${pad(elapsedSeconds)}`
                     : `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`}
                 </Text>
-                <View className="flex-row items-center mt-1.5">
+                <View className="flex-row items-center mt-2">
                   <HugeiconsIcon icon={Exchange01Icon} size={12} color={c.textMuted} strokeWidth={1.5} />
-                  <Text style={{ color: c.textMuted }} className="text-xs ml-1">
+                  <Text style={{ color: c.textMuted, fontFamily: "PlusJakartaSans_400Regular" }} className="text-xs ml-1">
                     {showElapsed ? "elapsed" : "remaining"}
                   </Text>
                 </View>

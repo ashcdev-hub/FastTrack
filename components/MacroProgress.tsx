@@ -1,7 +1,7 @@
 import React from "react";
 import { View, Text } from "react-native";
 import { useThemeStore } from "@/lib/theme-store";
-import { getThemeColors } from "@/lib/theme-colors";
+import { getThemeColors, ACCENT } from "@/lib/theme-colors";
 
 type MacroBarProps = {
   label: string;
@@ -19,12 +19,12 @@ function MacroBar({ label, current, goal, unit, color }: MacroBarProps) {
   return (
     <View className="mb-4">
       <View className="flex-row justify-between mb-1">
-        <Text style={{ color: theme === "dark" ? "rgba(255,255,255,0.8)" : "#374151" }} className="text-sm font-medium">{label}</Text>
-        <Text style={{ color: c.textSecondary }} className="text-sm">
+        <Text style={{ color: c.text, fontFamily: "PlusJakartaSans_500Medium" }} className="text-sm">{label}</Text>
+        <Text style={{ color: c.textSecondary, fontFamily: "PlusJakartaSans_400Regular" }} className="text-sm">
           {Math.round(current)}{unit} / {goal}{unit}
         </Text>
       </View>
-      <View className="h-3 rounded-full overflow-hidden" style={{ backgroundColor: theme === "dark" ? "rgba(255,255,255,0.1)" : "#E5E7EB" }}>
+      <View className="h-2.5 rounded-full overflow-hidden" style={{ backgroundColor: c.cardBgAlt }}>
         <View
           className="h-full rounded-full"
           style={{
@@ -55,35 +55,11 @@ export function MacroProgress({
 
   return (
     <View className="rounded-2xl p-5 mb-6" style={{ backgroundColor: c.cardBg, borderWidth: 1, borderColor: c.cardBorder }}>
-      <Text style={{ color: c.text }} className="text-lg font-bold mb-4">Today&apos;s Progress</Text>
-      <MacroBar
-        label="Calories"
-        current={calories.current}
-        goal={calories.goal}
-        unit=" kcal"
-        color="#F59E0B"
-      />
-      <MacroBar
-        label="Protein"
-        current={protein.current}
-        goal={protein.goal}
-        unit="g"
-        color="#10B981"
-      />
-      <MacroBar
-        label="Carbs"
-        current={carbs.current}
-        goal={carbs.goal}
-        unit="g"
-        color="#3B82F6"
-      />
-      <MacroBar
-        label="Fat"
-        current={fat.current}
-        goal={fat.goal}
-        unit="g"
-        color="#EF4444"
-      />
+      <Text style={{ color: c.text, fontFamily: "PlusJakartaSans_700Bold" }} className="text-lg mb-4">Today&apos;s Progress</Text>
+      <MacroBar label="Calories" current={calories.current} goal={calories.goal} unit=" kcal" color={ACCENT.coral} />
+      <MacroBar label="Protein" current={protein.current} goal={protein.goal} unit="g" color={ACCENT.mint} />
+      <MacroBar label="Carbs" current={carbs.current} goal={carbs.goal} unit="g" color={ACCENT.sky} />
+      <MacroBar label="Fat" current={fat.current} goal={fat.goal} unit="g" color={ACCENT.rose} />
     </View>
   );
 }

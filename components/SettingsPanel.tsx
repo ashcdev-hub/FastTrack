@@ -1,15 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { Pressable,
-  View,
-  Text,
-  TextInput,
-  ScrollView,
-  Switch,
-} from "react-native";
+import { Pressable, View, Text, TextInput, ScrollView, Switch } from "react-native";
 import { useProfile } from "@/hooks/useProfile";
 import { useThemeStore } from "@/lib/theme-store";
 import { useToast } from "@/hooks/useToast";
 import { Toast } from "@/components/Toast";
+import { getThemeColors, ACCENT } from "@/lib/theme-colors";
 import type { Profile } from "@/lib/types";
 
 type SettingsPanelProps = {
@@ -25,6 +20,7 @@ export function SettingsPanel({ userId }: SettingsPanelProps) {
     updateEmail,
   } = useProfile(userId);
   const { theme, toggleTheme } = useThemeStore();
+  const c = getThemeColors(theme);
   const { toast, success, error: toastError } = useToast();
 
   const [expandedSection, setExpandedSection] = useState<string | null>("profile");
@@ -43,7 +39,6 @@ export function SettingsPanel({ userId }: SettingsPanelProps) {
     daily_digest: true,
   });
 
-  // Sync profile data into local state when it loads
   useEffect(() => {
     if (profile) {
       setDisplayName(profile.display_name ?? "");
@@ -69,52 +64,30 @@ export function SettingsPanel({ userId }: SettingsPanelProps) {
       goal_weight_kg: goalWeight ? parseFloat(goalWeight) : null,
       height_cm: height ? parseFloat(height) : null,
     };
-
     const { error } = await updateProfile(updates);
-    if (error) {
-      toastError("Failed to save profile");
-    } else {
-      success("Profile updated");
-    }
+    if (error) toastError("Failed to save profile");
+    else success("Profile updated");
   };
 
   const handleSaveNotifications = async () => {
     const { error } = await updateNotificationPreferences(notifications);
-    if (error) {
-      toastError("Failed to save notification preferences");
-    } else {
-      success("Notification preferences updated");
-    }
+    if (error) toastError("Failed to save notification preferences");
+    else success("Notification preferences updated");
   };
 
   const handleChangeEmail = async () => {
     if (!newEmail.trim()) return;
     const { error } = await updateEmail(newEmail.trim());
-    if (error) {
-      toastError(error.message);
-    } else {
-      success("Confirmation email sent. Please check your inbox.");
-      setNewEmail("");
-    }
+    if (error) toastError(error.message);
+    else { success("Confirmation email sent. Please check your inbox."); setNewEmail(""); }
   };
 
   const handleChangePassword = async () => {
-    if (newPassword.length < 6) {
-      toastError("Password must be at least 6 characters");
-      return;
-    }
-    if (newPassword !== confirmPassword) {
-      toastError("Passwords do not match");
-      return;
-    }
+    if (newPassword.length < 6) { toastError("Password must be at least 6 characters"); return; }
+    if (newPassword !== confirmPassword) { toastError("Passwords do not match"); return; }
     const { error } = await updatePassword(newPassword);
-    if (error) {
-      toastError(error.message);
-    } else {
-      success("Password updated");
-      setNewPassword("");
-      setConfirmPassword("");
-    }
+    if (error) toastError(error.message);
+    else { success("Password updated"); setNewPassword(""); setConfirmPassword(""); }
   };
 
   const toggleSection = (section: string) => {
@@ -123,56 +96,32 @@ export function SettingsPanel({ userId }: SettingsPanelProps) {
 
   const bmi = profile?.bmi;
   const bmiCategory = bmi
-    ? bmi < 18.5
-      ? "Underweight"
-      : bmi < 25
-      ? "Normal"
-      : bmi < 30
-      ? "Overweight"
-      : "Obese"
+    ? bmi < 18.5 ? "Underweight" : bmi < 25 ? "Normal" : bmi < 30 ? "Overweight" : "Obese"
     : null;
+
+  const inputStyle = {
+    backgroundColor: c.inputBg,
+    color: c.text,
+    fontFamily: "PlusJakartaSans_500Medium" as const,
+  };
 
   return (
     <View className="mb-6">
       <Toast visible={toast.visible} message={toast.message} type={toast.type} />
-      <Text style={{ color: theme === "dark" ? "#FFFFFF" : "#111827" }} className="text-lg font-bold mb-4">
-        Settings
-      </Text>
 
       {/* Profile Details Section */}
-      <View className="rounded-2xl mb-3 overflow-hidden" style={{ backgroundColor: theme === "dark" ? "rgba(255,255,255,0.05)" : "#FFFFFF", borderWidth: 1, borderColor: theme === "dark" ? "rgba(255,255,255,0.1)" : "#E5E7EB" }}>
-        <Pressable
-          onPress={() => toggleSection("profile")}
-          className="p-4 flex-row justify-between items-center"
-        >
-          <Text style={{ color: theme === "dark" ? "#FFFFFF" : "#111827" }} className="font-semibold">
-            Profile Details
-          </Text>
-          <Text style={{ color: theme === "dark" ? "rgba(255,255,255,0.5)" : "#6B7280" }}>
-            {expandedSection === "profile" ? "−" : "+"}
-          </Text>
+      <View className="rounded-2xl mb-3 overflow-hidden" style={{ backgroundColor: c.cardBg, borderWidth: 1, borderColor: c.cardBorder }}>
+        <Pressable onPress={() => toggleSection("profile")} className="p-4 flex-row justify-between items-center">
+          <Text style={{ color: c.text, fontFamily: "PlusJakartaSans_600SemiBold" }}>Profile Details</Text>
+          <Text style={{ color: c.textMuted }}>{expandedSection === "profile" ? "−" : "+"}</Text>
         </Pressable>
 
         {expandedSection === "profile" && (
           <View className="px-4 pb-4">
-            <Text style={{ color: theme === "dark" ? "rgba(255,255,255,0.6)" : "#6B7280" }} className="text-xs mb-1">
-              Display Name
-            </Text>
-            <TextInput
-              value={displayName}
-              onChangeText={setDisplayName}
-              placeholder="Your name"
-              placeholderTextColor={theme === "dark" ? "#ffffff40" : "#9CA3AF"}
-              className="rounded-xl px-4 py-3 mb-3"
-              style={{
-                backgroundColor: theme === "dark" ? "rgba(255,255,255,0.1)" : "#F3F4F6",
-                color: theme === "dark" ? "#FFFFFF" : "#111827",
-              }}
-            />
+            <Text style={{ color: c.textSecondary, fontFamily: "PlusJakartaSans_400Regular" }} className="text-xs mb-1">Display Name</Text>
+            <TextInput value={displayName} onChangeText={setDisplayName} placeholder="Your name" placeholderTextColor={c.placeholder} className="rounded-xl px-4 py-3 mb-3" style={inputStyle} />
 
-            <Text style={{ color: theme === "dark" ? "rgba(255,255,255,0.6)" : "#6B7280" }} className="text-xs mb-1">
-              Gender
-            </Text>
+            <Text style={{ color: c.textSecondary, fontFamily: "PlusJakartaSans_400Regular" }} className="text-xs mb-1">Gender</Text>
             <View className="flex-row gap-2 mb-3">
               {(["male", "female", "other"] as const).map((g) => (
                 <Pressable
@@ -180,16 +129,15 @@ export function SettingsPanel({ userId }: SettingsPanelProps) {
                   onPress={() => setGender(gender === g ? null : g)}
                   className="flex-1 py-3 rounded-xl items-center"
                   style={{
-                    backgroundColor: gender === g
-                      ? "#3B82F6"
-                      : theme === "dark"
-                      ? "rgba(255,255,255,0.1)"
-                      : "#F3F4F6",
+                    backgroundColor: gender === g ? ACCENT.mint : c.buttonBg,
                   }}
                 >
                   <Text
-                    className="text-sm capitalize font-medium"
-                    style={{ color: gender === g ? "#FFFFFF" : theme === "dark" ? "rgba(255,255,255,0.6)" : "#6B7280" }}
+                    className="text-sm capitalize"
+                    style={{
+                      color: gender === g ? "#0C0C0E" : c.textSecondary,
+                      fontFamily: "PlusJakartaSans_600SemiBold",
+                    }}
                   >
                     {g}
                   </Text>
@@ -199,265 +147,124 @@ export function SettingsPanel({ userId }: SettingsPanelProps) {
 
             <View className="flex-row gap-2 mb-3">
               <View className="flex-1">
-                <Text style={{ color: theme === "dark" ? "rgba(255,255,255,0.6)" : "#6B7280" }} className="text-xs mb-1">
-                  Age
-                </Text>
-                <TextInput
-                  value={age}
-                  onChangeText={setAge}
-                  placeholder="25"
-                  placeholderTextColor={theme === "dark" ? "#ffffff40" : "#9CA3AF"}
-                  keyboardType="numeric"
-                  className="rounded-xl px-4 py-3"
-                  style={{
-                    backgroundColor: theme === "dark" ? "rgba(255,255,255,0.1)" : "#F3F4F6",
-                    color: theme === "dark" ? "#FFFFFF" : "#111827",
-                  }}
-                />
+                <Text style={{ color: c.textSecondary, fontFamily: "PlusJakartaSans_400Regular" }} className="text-xs mb-1">Age</Text>
+                <TextInput value={age} onChangeText={setAge} placeholder="25" placeholderTextColor={c.placeholder} keyboardType="numeric" className="rounded-xl px-4 py-3" style={inputStyle} />
               </View>
               <View className="flex-1">
-                <Text style={{ color: theme === "dark" ? "rgba(255,255,255,0.6)" : "#6B7280" }} className="text-xs mb-1">
-                  Weight (kg)
-                </Text>
-                <TextInput
-                  value={weight}
-                  onChangeText={setWeight}
-                  placeholder="70"
-                  placeholderTextColor={theme === "dark" ? "#ffffff40" : "#9CA3AF"}
-                  keyboardType="numeric"
-                  className="rounded-xl px-4 py-3"
-                  style={{
-                    backgroundColor: theme === "dark" ? "rgba(255,255,255,0.1)" : "#F3F4F6",
-                    color: theme === "dark" ? "#FFFFFF" : "#111827",
-                  }}
-                />
+                <Text style={{ color: c.textSecondary, fontFamily: "PlusJakartaSans_400Regular" }} className="text-xs mb-1">Weight (kg)</Text>
+                <TextInput value={weight} onChangeText={setWeight} placeholder="70" placeholderTextColor={c.placeholder} keyboardType="numeric" className="rounded-xl px-4 py-3" style={inputStyle} />
               </View>
             </View>
 
             <View className="flex-row gap-2 mb-3">
               <View className="flex-1">
-                <Text style={{ color: theme === "dark" ? "rgba(255,255,255,0.6)" : "#6B7280" }} className="text-xs mb-1">
-                  Goal Weight (kg)
-                </Text>
-                <TextInput
-                  value={goalWeight}
-                  onChangeText={setGoalWeight}
-                  placeholder="75"
-                  placeholderTextColor={theme === "dark" ? "#ffffff40" : "#9CA3AF"}
-                  keyboardType="numeric"
-                  className="rounded-xl px-4 py-3"
-                  style={{
-                    backgroundColor: theme === "dark" ? "rgba(255,255,255,0.1)" : "#F3F4F6",
-                    color: theme === "dark" ? "#FFFFFF" : "#111827",
-                  }}
-                />
+                <Text style={{ color: c.textSecondary, fontFamily: "PlusJakartaSans_400Regular" }} className="text-xs mb-1">Goal Weight (kg)</Text>
+                <TextInput value={goalWeight} onChangeText={setGoalWeight} placeholder="75" placeholderTextColor={c.placeholder} keyboardType="numeric" className="rounded-xl px-4 py-3" style={inputStyle} />
               </View>
               <View className="flex-1">
-                <Text style={{ color: theme === "dark" ? "rgba(255,255,255,0.6)" : "#6B7280" }} className="text-xs mb-1">
-                  Height (cm)
-                </Text>
-                <TextInput
-                  value={height}
-                  onChangeText={setHeight}
-                  placeholder="175"
-                  placeholderTextColor={theme === "dark" ? "#ffffff40" : "#9CA3AF"}
-                  keyboardType="numeric"
-                  className="rounded-xl px-4 py-3"
-                  style={{
-                    backgroundColor: theme === "dark" ? "rgba(255,255,255,0.1)" : "#F3F4F6",
-                    color: theme === "dark" ? "#FFFFFF" : "#111827",
-                  }}
-                />
+                <Text style={{ color: c.textSecondary, fontFamily: "PlusJakartaSans_400Regular" }} className="text-xs mb-1">Height (cm)</Text>
+                <TextInput value={height} onChangeText={setHeight} placeholder="175" placeholderTextColor={c.placeholder} keyboardType="numeric" className="rounded-xl px-4 py-3" style={inputStyle} />
               </View>
             </View>
 
             {bmi && (
-              <View className="rounded-xl p-3 mb-3" style={{ backgroundColor: theme === "dark" ? "rgba(59,130,246,0.1)" : "#EFF6FF" }}>
-                <Text style={{ color: theme === "dark" ? "#60A5FA" : "#2563EB" }} className="text-sm font-semibold">
+              <View className="rounded-xl p-3 mb-3" style={{ backgroundColor: ACCENT.mintBg }}>
+                <Text style={{ color: ACCENT.mint, fontFamily: "PlusJakartaSans_600SemiBold" }} className="text-sm">
                   BMI: {bmi} ({bmiCategory})
                 </Text>
               </View>
             )}
 
-            <Pressable
-              onPress={handleSaveProfile}
-              className="rounded-xl py-3 bg-blue-500"
-            >
-              <Text className="text-white text-center font-semibold">
-                Save Profile
-              </Text>
+            <Pressable onPress={handleSaveProfile} className="rounded-xl py-3" style={{ backgroundColor: ACCENT.mint }}>
+              <Text style={{ color: "#0C0C0E", fontFamily: "PlusJakartaSans_600SemiBold" }} className="text-center">Save Profile</Text>
             </Pressable>
           </View>
         )}
       </View>
 
       {/* Account Section */}
-      <View className="rounded-2xl mb-3 overflow-hidden" style={{ backgroundColor: theme === "dark" ? "rgba(255,255,255,0.05)" : "#FFFFFF", borderWidth: 1, borderColor: theme === "dark" ? "rgba(255,255,255,0.1)" : "#E5E7EB" }}>
-        <Pressable
-          onPress={() => toggleSection("account")}
-          className="p-4 flex-row justify-between items-center"
-        >
-          <Text style={{ color: theme === "dark" ? "#FFFFFF" : "#111827" }} className="font-semibold">
-            Account
-          </Text>
-          <Text style={{ color: theme === "dark" ? "rgba(255,255,255,0.5)" : "#6B7280" }}>
-            {expandedSection === "account" ? "−" : "+"}
-          </Text>
+      <View className="rounded-2xl mb-3 overflow-hidden" style={{ backgroundColor: c.cardBg, borderWidth: 1, borderColor: c.cardBorder }}>
+        <Pressable onPress={() => toggleSection("account")} className="p-4 flex-row justify-between items-center">
+          <Text style={{ color: c.text, fontFamily: "PlusJakartaSans_600SemiBold" }}>Account</Text>
+          <Text style={{ color: c.textMuted }}>{expandedSection === "account" ? "−" : "+"}</Text>
         </Pressable>
 
         {expandedSection === "account" && (
           <View className="px-4 pb-4">
-            <Text style={{ color: theme === "dark" ? "rgba(255,255,255,0.6)" : "#6B7280" }} className="text-xs mb-1">
-              Change Email
-            </Text>
-            <TextInput
-              value={newEmail}
-              onChangeText={setNewEmail}
-              placeholder="new@email.com"
-              placeholderTextColor={theme === "dark" ? "#ffffff40" : "#9CA3AF"}
-              keyboardType="email-address"
-              autoCapitalize="none"
-              className="rounded-xl px-4 py-3 mb-3"
-              style={{
-                backgroundColor: theme === "dark" ? "rgba(255,255,255,0.1)" : "#F3F4F6",
-                color: theme === "dark" ? "#FFFFFF" : "#111827",
-              }}
-            />
-            <Pressable
-              onPress={handleChangeEmail}
-              className="rounded-xl py-3 mb-4"
-              style={{ backgroundColor: theme === "dark" ? "rgba(255,255,255,0.1)" : "#E5E7EB" }}
-            >
-              <Text style={{ color: theme === "dark" ? "#FFFFFF" : "#111827" }} className="text-center font-semibold">
-                Update Email
-              </Text>
+            <Text style={{ color: c.textSecondary, fontFamily: "PlusJakartaSans_400Regular" }} className="text-xs mb-1">Change Email</Text>
+            <TextInput value={newEmail} onChangeText={setNewEmail} placeholder="new@email.com" placeholderTextColor={c.placeholder} keyboardType="email-address" autoCapitalize="none" className="rounded-xl px-4 py-3 mb-3" style={inputStyle} />
+            <Pressable onPress={handleChangeEmail} className="rounded-xl py-3 mb-4" style={{ backgroundColor: c.buttonBg }}>
+              <Text style={{ color: c.text, fontFamily: "PlusJakartaSans_600SemiBold" }} className="text-center">Update Email</Text>
             </Pressable>
 
-            <Text style={{ color: theme === "dark" ? "rgba(255,255,255,0.6)" : "#6B7280" }} className="text-xs mb-1">
-              Change Password
-            </Text>
-            <TextInput
-              value={newPassword}
-              onChangeText={setNewPassword}
-              placeholder="New password"
-              placeholderTextColor={theme === "dark" ? "#ffffff40" : "#9CA3AF"}
-              secureTextEntry
-              className="rounded-xl px-4 py-3 mb-2"
-              style={{
-                backgroundColor: theme === "dark" ? "rgba(255,255,255,0.1)" : "#F3F4F6",
-                color: theme === "dark" ? "#FFFFFF" : "#111827",
-              }}
-            />
-            <TextInput
-              value={confirmPassword}
-              onChangeText={setConfirmPassword}
-              placeholder="Confirm password"
-              placeholderTextColor={theme === "dark" ? "#ffffff40" : "#9CA3AF"}
-              secureTextEntry
-              className="rounded-xl px-4 py-3 mb-3"
-              style={{
-                backgroundColor: theme === "dark" ? "rgba(255,255,255,0.1)" : "#F3F4F6",
-                color: theme === "dark" ? "#FFFFFF" : "#111827",
-              }}
-            />
-            <Pressable
-              onPress={handleChangePassword}
-              className="rounded-xl py-3"
-              style={{ backgroundColor: theme === "dark" ? "rgba(255,255,255,0.1)" : "#E5E7EB" }}
-            >
-              <Text style={{ color: theme === "dark" ? "#FFFFFF" : "#111827" }} className="text-center font-semibold">
-                Update Password
-              </Text>
+            <Text style={{ color: c.textSecondary, fontFamily: "PlusJakartaSans_400Regular" }} className="text-xs mb-1">Change Password</Text>
+            <TextInput value={newPassword} onChangeText={setNewPassword} placeholder="New password" placeholderTextColor={c.placeholder} secureTextEntry className="rounded-xl px-4 py-3 mb-2" style={inputStyle} />
+            <TextInput value={confirmPassword} onChangeText={setConfirmPassword} placeholder="Confirm password" placeholderTextColor={c.placeholder} secureTextEntry className="rounded-xl px-4 py-3 mb-3" style={inputStyle} />
+            <Pressable onPress={handleChangePassword} className="rounded-xl py-3" style={{ backgroundColor: c.buttonBg }}>
+              <Text style={{ color: c.text, fontFamily: "PlusJakartaSans_600SemiBold" }} className="text-center">Update Password</Text>
             </Pressable>
           </View>
         )}
       </View>
 
       {/* Notifications Section */}
-      <View className="rounded-2xl mb-3 overflow-hidden" style={{ backgroundColor: theme === "dark" ? "rgba(255,255,255,0.05)" : "#FFFFFF", borderWidth: 1, borderColor: theme === "dark" ? "rgba(255,255,255,0.1)" : "#E5E7EB" }}>
-        <Pressable
-          onPress={() => toggleSection("notifications")}
-          className="p-4 flex-row justify-between items-center"
-        >
-          <Text style={{ color: theme === "dark" ? "#FFFFFF" : "#111827" }} className="font-semibold">
-            Notifications
-          </Text>
-          <Text style={{ color: theme === "dark" ? "rgba(255,255,255,0.5)" : "#6B7280" }}>
-            {expandedSection === "notifications" ? "−" : "+"}
-          </Text>
+      <View className="rounded-2xl mb-3 overflow-hidden" style={{ backgroundColor: c.cardBg, borderWidth: 1, borderColor: c.cardBorder }}>
+        <Pressable onPress={() => toggleSection("notifications")} className="p-4 flex-row justify-between items-center">
+          <Text style={{ color: c.text, fontFamily: "PlusJakartaSans_600SemiBold" }}>Notifications</Text>
+          <Text style={{ color: c.textMuted }}>{expandedSection === "notifications" ? "−" : "+"}</Text>
         </Pressable>
 
         {expandedSection === "notifications" && (
           <View className="px-4 pb-4">
-            <View className="flex-row justify-between items-center py-3 border-b" style={{ borderColor: theme === "dark" ? "rgba(255,255,255,0.1)" : "#E5E7EB" }}>
-              <Text style={{ color: theme === "dark" ? "rgba(255,255,255,0.8)" : "#374151" }} className="text-sm">
-                Fasting Reminders
-              </Text>
+            <View className="flex-row justify-between items-center py-3" style={{ borderBottomWidth: 1, borderBottomColor: c.divider }}>
+              <Text style={{ color: c.text, fontFamily: "PlusJakartaSans_500Medium" }} className="text-sm">Fasting Reminders</Text>
               <Switch
                 value={notifications.fasting_reminders}
                 onValueChange={(value) => setNotifications({ ...notifications, fasting_reminders: value })}
-                trackColor={{ false: "#767577", true: "#3B82F6" }}
+                trackColor={{ false: c.buttonBg, true: ACCENT.mint }}
                 thumbColor="#FFFFFF"
               />
             </View>
-            <View className="flex-row justify-between items-center py-3 border-b" style={{ borderColor: theme === "dark" ? "rgba(255,255,255,0.1)" : "#E5E7EB" }}>
-              <Text style={{ color: theme === "dark" ? "rgba(255,255,255,0.8)" : "#374151" }} className="text-sm">
-                Eating Reminders
-              </Text>
+            <View className="flex-row justify-between items-center py-3" style={{ borderBottomWidth: 1, borderBottomColor: c.divider }}>
+              <Text style={{ color: c.text, fontFamily: "PlusJakartaSans_500Medium" }} className="text-sm">Eating Reminders</Text>
               <Switch
                 value={notifications.eating_reminders}
                 onValueChange={(value) => setNotifications({ ...notifications, eating_reminders: value })}
-                trackColor={{ false: "#767577", true: "#3B82F6" }}
+                trackColor={{ false: c.buttonBg, true: ACCENT.mint }}
                 thumbColor="#FFFFFF"
               />
             </View>
             <View className="flex-row justify-between items-center py-3">
-              <Text style={{ color: theme === "dark" ? "rgba(255,255,255,0.8)" : "#374151" }} className="text-sm">
-                Daily Digest Email
-              </Text>
+              <Text style={{ color: c.text, fontFamily: "PlusJakartaSans_500Medium" }} className="text-sm">Daily Digest Email</Text>
               <Switch
                 value={notifications.daily_digest}
                 onValueChange={(value) => setNotifications({ ...notifications, daily_digest: value })}
-                trackColor={{ false: "#767577", true: "#3B82F6" }}
+                trackColor={{ false: c.buttonBg, true: ACCENT.mint }}
                 thumbColor="#FFFFFF"
               />
             </View>
-            <Pressable
-              onPress={handleSaveNotifications}
-              className="rounded-xl py-3 mt-3 bg-blue-500"
-            >
-              <Text className="text-white text-center font-semibold">
-                Save Preferences
-              </Text>
+            <Pressable onPress={handleSaveNotifications} className="rounded-xl py-3 mt-3" style={{ backgroundColor: ACCENT.mint }}>
+              <Text style={{ color: "#0C0C0E", fontFamily: "PlusJakartaSans_600SemiBold" }} className="text-center">Save Preferences</Text>
             </Pressable>
           </View>
         )}
       </View>
 
       {/* Appearance Section */}
-      <View className="rounded-2xl mb-3 overflow-hidden" style={{ backgroundColor: theme === "dark" ? "rgba(255,255,255,0.05)" : "#FFFFFF", borderWidth: 1, borderColor: theme === "dark" ? "rgba(255,255,255,0.1)" : "#E5E7EB" }}>
-        <Pressable
-          onPress={() => toggleSection("appearance")}
-          className="p-4 flex-row justify-between items-center"
-        >
-          <Text style={{ color: theme === "dark" ? "#FFFFFF" : "#111827" }} className="font-semibold">
-            Appearance
-          </Text>
-          <Text style={{ color: theme === "dark" ? "rgba(255,255,255,0.5)" : "#6B7280" }}>
-            {expandedSection === "appearance" ? "−" : "+"}
-          </Text>
+      <View className="rounded-2xl mb-3 overflow-hidden" style={{ backgroundColor: c.cardBg, borderWidth: 1, borderColor: c.cardBorder }}>
+        <Pressable onPress={() => toggleSection("appearance")} className="p-4 flex-row justify-between items-center">
+          <Text style={{ color: c.text, fontFamily: "PlusJakartaSans_600SemiBold" }}>Appearance</Text>
+          <Text style={{ color: c.textMuted }}>{expandedSection === "appearance" ? "−" : "+"}</Text>
         </Pressable>
 
         {expandedSection === "appearance" && (
           <View className="px-4 pb-4">
             <View className="flex-row justify-between items-center py-3">
-              <Text style={{ color: theme === "dark" ? "rgba(255,255,255,0.8)" : "#374151" }} className="text-sm">
-                Dark Mode
-              </Text>
+              <Text style={{ color: c.text, fontFamily: "PlusJakartaSans_500Medium" }} className="text-sm">Dark Mode</Text>
               <Switch
                 value={theme === "dark"}
                 onValueChange={toggleTheme}
-                trackColor={{ false: "#767577", true: "#3B82F6" }}
+                trackColor={{ false: c.buttonBg, true: ACCENT.mint }}
                 thumbColor="#FFFFFF"
               />
             </View>

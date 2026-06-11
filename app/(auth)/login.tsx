@@ -1,17 +1,14 @@
 import React, { useState } from "react";
-import { Pressable,
-  View,
-  Text,
-  TextInput,
-  KeyboardAvoidingView,
-  Platform,
-  ActivityIndicator,
-} from "react-native";
+import { Pressable, View, Text, TextInput, KeyboardAvoidingView, Platform, ActivityIndicator } from "react-native";
 import { Link } from "expo-router";
 import { useAuth } from "@/hooks/useAuth";
+import { getThemeColors, ACCENT } from "@/lib/theme-colors";
+import { useThemeStore } from "@/lib/theme-store";
 
 export default function LoginScreen() {
   const { signIn } = useAuth();
+  const { theme } = useThemeStore();
+  const c = getThemeColors(theme);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -20,10 +17,7 @@ export default function LoginScreen() {
   const handleLogin = async (e?: string, p?: string) => {
     const loginEmail = e ?? email;
     const loginPass = p ?? password;
-    if (!loginEmail || !loginPass) {
-      setError("Please fill in all fields");
-      return;
-    }
+    if (!loginEmail || !loginPass) { setError("Please fill in all fields"); return; }
     setLoading(true);
     setError("");
     const { error } = await signIn(loginEmail, loginPass);
@@ -31,78 +25,60 @@ export default function LoginScreen() {
     setLoading(false);
   };
 
+  const inputStyle = { backgroundColor: c.inputBg, color: c.text, fontFamily: "PlusJakartaSans_500Medium" as const };
+
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-      className="flex-1"
-      style={{ backgroundColor: "#0F172A" }}
-    >
+    <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} className="flex-1" style={{ backgroundColor: c.bg }}>
       <View className="flex-1 justify-center px-8">
-        <Text style={{ color: "#FFFFFF" }} className="text-4xl font-bold text-center mb-2">
+        <Text style={{ color: c.text, fontFamily: "PlusJakartaSans_700Bold" }} className="text-4xl text-center mb-2">
           FastTrack
         </Text>
-        <Text style={{ color: "rgba(255,255,255,0.5)" }} className="text-center mb-10">
+        <Text style={{ color: c.textMuted, fontFamily: "PlusJakartaSans_400Regular" }} className="text-center mb-10">
           Intermittent Fasting & Macro Tracker
         </Text>
 
         {error ? (
-          <View style={{ backgroundColor: "rgba(239,68,68,0.1)", borderWidth: 1, borderColor: "rgba(239,68,68,0.3)" }} className="rounded-xl p-3 mb-4">
-            <Text style={{ color: "#EF4444" }} className="text-sm text-center">{error}</Text>
+          <View className="rounded-xl p-3 mb-4" style={{ backgroundColor: ACCENT.roseBg, borderWidth: 1, borderColor: ACCENT.roseBorder }}>
+            <Text style={{ color: ACCENT.rose, fontFamily: "PlusJakartaSans_500Medium" }} className="text-sm text-center">{error}</Text>
           </View>
         ) : null}
 
         <TextInput
-          value={email}
-          onChangeText={setEmail}
-          placeholder="Email"
-          placeholderTextColor="rgba(255,255,255,0.4)"
-          autoCapitalize="none"
-          keyboardType="email-address"
-          style={{ backgroundColor: "rgba(255,255,255,0.1)", color: "#FFFFFF" }}
-          className="rounded-xl px-4 py-4 mb-3"
+          value={email} onChangeText={setEmail} placeholder="Email" placeholderTextColor={c.placeholder}
+          autoCapitalize="none" keyboardType="email-address" className="rounded-xl px-4 py-4 mb-3" style={inputStyle}
         />
         <TextInput
-          value={password}
-          onChangeText={setPassword}
-          placeholder="Password"
-          placeholderTextColor="rgba(255,255,255,0.4)"
-          secureTextEntry
-          style={{ backgroundColor: "rgba(255,255,255,0.1)", color: "#FFFFFF" }}
-          className="rounded-xl px-4 py-4 mb-6"
+          value={password} onChangeText={setPassword} placeholder="Password" placeholderTextColor={c.placeholder}
+          secureTextEntry className="rounded-xl px-4 py-4 mb-6" style={inputStyle}
         />
 
         <Pressable
-          onPress={() => handleLogin()}
-          disabled={loading}
-          style={{ backgroundColor: "#3B82F6" }}
-          className="rounded-xl py-4 mb-4"
+          onPress={() => handleLogin()} disabled={loading}
+          className="rounded-xl py-4 mb-4" style={{ backgroundColor: ACCENT.mint }}
         >
           {loading ? (
-            <ActivityIndicator color="#fff" />
+            <ActivityIndicator color="#0C0C0E" />
           ) : (
-            <Text style={{ color: "#FFFFFF" }} className="text-center font-semibold text-lg">
+            <Text style={{ color: "#0C0C0E", fontFamily: "PlusJakartaSans_700Bold" }} className="text-center text-lg">
               Sign In
             </Text>
           )}
         </Pressable>
 
-        {/* Quick test login */}
         <Pressable
-          onPress={() => handleLogin("test@fasttrack.app", "test1234")}
-          disabled={loading}
-          style={{ backgroundColor: "rgba(255,255,255,0.08)", borderWidth: 1, borderColor: "rgba(255,255,255,0.15)" }}
-          className="rounded-xl py-4 mb-6"
+          onPress={() => handleLogin("test@fasttrack.app", "test1234")} disabled={loading}
+          className="rounded-xl py-4 mb-6" style={{ backgroundColor: c.buttonBg, borderWidth: 1, borderColor: c.cardBorder }}
         >
-          <Text style={{ color: "rgba(255,255,255,0.7)" }} className="text-center font-medium">
+          <Text style={{ color: c.textSecondary, fontFamily: "PlusJakartaSans_500Medium" }} className="text-center">
             Quick Test Login
           </Text>
         </Pressable>
 
         <Link href="/(auth)/signup" asChild>
           <Pressable>
-            <Text style={{ color: "rgba(255,255,255,0.5)" }} className="text-center">
+            <Text style={{ color: c.textMuted, fontFamily: "PlusJakartaSans_400Regular" }} className="text-center">
               Don&apos;t have an account?{" "}
-              <Text style={{ color: "#60A5FA" }} className="font-medium">Sign Up</Text>
+              <Text style={{ color: ACCENT.mint, fontFamily: "PlusJakartaSans_600SemiBold" }}>Sign Up</Text>
             </Text>
           </Pressable>
         </Link>

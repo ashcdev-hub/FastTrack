@@ -6,7 +6,7 @@ import { useProfile } from "@/hooks/useProfile";
 import { useWorkoutGoals } from "@/hooks/useWorkoutGoals";
 import { useWorkoutLog } from "@/hooks/useWorkoutLog";
 import { useThemeStore } from "@/lib/theme-store";
-import { getThemeColors } from "@/lib/theme-colors";
+import { getThemeColors, ACCENT } from "@/lib/theme-colors";
 import { AppHeader } from "@/components/AppHeader";
 import { ExercisePanel } from "@/components/ExercisePanel";
 import { LogSetModal } from "@/components/LogSetModal";
@@ -19,8 +19,7 @@ import type { WorkoutGoal } from "@/lib/types";
 export default function WorkoutsScreen() {
   const { user } = useAuth();
   const { profile } = useProfile(user?.id ?? null);
-  const { goals, loading, updateGoal, toggleEnabled, addCustomExercise } =
-    useWorkoutGoals(user?.id);
+  const { goals, loading, updateGoal, toggleEnabled, addCustomExercise } = useWorkoutGoals(user?.id);
   const { todayTotals, logSet } = useWorkoutLog(user?.id, profile?.weight_kg ?? null);
   const { theme } = useThemeStore();
   const c = getThemeColors(theme);
@@ -32,96 +31,51 @@ export default function WorkoutsScreen() {
   const enabledGoals = goals.filter((g) => g.enabled);
   const disabledGoals = goals.filter((g) => !g.enabled);
 
-  const handleLogSet = (goal: WorkoutGoal) => {
-    setSelectedGoal(goal);
-    setShowLogModal(true);
-  };
-
+  const handleLogSet = (goal: WorkoutGoal) => { setSelectedGoal(goal); setShowLogModal(true); };
   const handleLog = async (reps: number, sets: number) => {
     if (!selectedGoal) return;
-    await logSet(
-      selectedGoal.exercise_type,
-      reps,
-      sets,
-      selectedGoal.calories_per_rep
-    );
+    await logSet(selectedGoal.exercise_type, reps, sets, selectedGoal.calories_per_rep);
   };
-
-  const handleUpdateGoal = async (goalId: string, dailyGoal: number) => {
-    await updateGoal(goalId, { daily_goal: dailyGoal });
-  };
-
-  const handleToggleEnabled = async (goalId: string, enabled: boolean) => {
-    await toggleEnabled(goalId, enabled);
-  };
-
-  const handleAddExercise = async (
-    exerciseType: string,
-    dailyGoal: number,
-    caloriesPerRep: number
-  ) => {
-    await addCustomExercise(exerciseType, dailyGoal, caloriesPerRep);
-  };
-
-  const handleReinstate = async (goalId: string) => {
-    await toggleEnabled(goalId, true);
-  };
+  const handleUpdateGoal = async (goalId: string, dailyGoal: number) => { await updateGoal(goalId, { daily_goal: dailyGoal }); };
+  const handleToggleEnabled = async (goalId: string, enabled: boolean) => { await toggleEnabled(goalId, enabled); };
+  const handleAddExercise = async (exerciseType: string, dailyGoal: number, caloriesPerRep: number) => { await addCustomExercise(exerciseType, dailyGoal, caloriesPerRep); };
+  const handleReinstate = async (goalId: string) => { await toggleEnabled(goalId, true); };
 
   return (
-    <SafeAreaView
-      className="flex-1"
-      style={{ backgroundColor: theme === "dark" ? "#0F172A" : "#F9FAFB" }}
-    >
-      <ScrollView contentContainerClassName="px-6 py-8">
+    <SafeAreaView className="flex-1" style={{ backgroundColor: c.bg }}>
+      <ScrollView contentContainerClassName="px-6" style={{ paddingTop: 32, paddingBottom: 120 }}>
         <AppHeader title="Workouts" />
 
         {/* Today's Summary */}
-        <View
-          className="rounded-2xl p-5 mb-6"
-          style={{ backgroundColor: c.cardBg, borderWidth: 1, borderColor: c.cardBorder }}
-        >
-          <Text style={{ color: c.text }} className="text-lg font-bold mb-3">
-            Today's Summary
-          </Text>
+        <View className="rounded-2xl p-5 mb-6" style={{ backgroundColor: c.cardBg, borderWidth: 1, borderColor: c.cardBorder }}>
+          <Text style={{ color: c.text, fontFamily: "PlusJakartaSans_700Bold" }} className="text-lg mb-3">Today&apos;s Summary</Text>
           <View className="flex-row justify-between">
             <View className="items-center">
-              <Text style={{ color: c.text }} className="text-2xl font-bold">
+              <Text style={{ color: c.text, fontFamily: "PlusJakartaSans_700Bold" }} className="text-2xl">
                 {Object.values(todayTotals).reduce((sum, t) => sum + t.reps, 0)}
               </Text>
-              <Text style={{ color: c.textMuted }} className="text-xs">
-                Total Reps
-              </Text>
+              <Text style={{ color: c.textMuted, fontFamily: "PlusJakartaSans_400Regular" }} className="text-xs">Total Reps</Text>
             </View>
             <View className="items-center">
-              <Text style={{ color: c.text }} className="text-2xl font-bold">
+              <Text style={{ color: c.text, fontFamily: "PlusJakartaSans_700Bold" }} className="text-2xl">
                 {Object.values(todayTotals).reduce((sum, t) => sum + t.sets, 0)}
               </Text>
-              <Text style={{ color: c.textMuted }} className="text-xs">
-                Total Sets
-              </Text>
+              <Text style={{ color: c.textMuted, fontFamily: "PlusJakartaSans_400Regular" }} className="text-xs">Total Sets</Text>
             </View>
             <View className="items-center">
-              <Text style={{ color: c.text }} className="text-2xl font-bold">
-                {Math.round(
-                  Object.values(todayTotals).reduce((sum, t) => sum + t.calories, 0)
-                )}
+              <Text style={{ color: c.text, fontFamily: "PlusJakartaSans_700Bold" }} className="text-2xl">
+                {Math.round(Object.values(todayTotals).reduce((sum, t) => sum + t.calories, 0))}
               </Text>
-              <Text style={{ color: c.textMuted }} className="text-xs">
-                Calories
-              </Text>
+              <Text style={{ color: c.textMuted, fontFamily: "PlusJakartaSans_400Regular" }} className="text-xs">Calories</Text>
             </View>
           </View>
         </View>
 
-        {/* Exercise Panels */}
         {loading ? (
           <WorkoutsSkeleton />
         ) : enabledGoals.length === 0 ? (
-          <View
-            className="rounded-2xl p-6 items-center"
-            style={{ backgroundColor: c.cardBg, borderWidth: 1, borderColor: c.cardBorder }}
-          >
-            <Text style={{ color: c.textMuted }} className="text-center mb-4">
+          <View className="rounded-2xl p-6 items-center" style={{ backgroundColor: c.cardBg, borderWidth: 1, borderColor: c.cardBorder }}>
+            <Text style={{ color: c.textMuted, fontFamily: "PlusJakartaSans_400Regular" }} className="text-center mb-4">
               No exercises enabled. Add one to get started!
             </Text>
           </View>
@@ -138,34 +92,18 @@ export default function WorkoutsScreen() {
           ))
         )}
 
-        {/* Add Exercise Button */}
         <Pressable
           onPress={() => setShowAddModal(true)}
           className="rounded-2xl py-4 flex-row items-center justify-center"
           style={{ backgroundColor: c.cardBg, borderWidth: 1, borderColor: c.cardBorder }}
         >
-          <HugeiconsIcon icon={PlusSignIcon} size={20} color="#3B82F6" strokeWidth={2} />
-          <Text className="text-blue-500 font-bold ml-2">Add Exercise</Text>
+          <HugeiconsIcon icon={PlusSignIcon} size={20} color={ACCENT.mint} strokeWidth={2} />
+          <Text style={{ color: ACCENT.mint, fontFamily: "PlusJakartaSans_700Bold" }} className="ml-2">Add Exercise</Text>
         </Pressable>
       </ScrollView>
 
-      {/* Log Set Modal */}
-      <LogSetModal
-        visible={showLogModal}
-        goal={selectedGoal}
-        weightKg={profile?.weight_kg ?? null}
-        onClose={() => setShowLogModal(false)}
-        onLog={handleLog}
-      />
-
-      {/* Add Exercise Modal */}
-      <AddExerciseModal
-        visible={showAddModal}
-        onClose={() => setShowAddModal(false)}
-        onAdd={handleAddExercise}
-        disabledGoals={disabledGoals}
-        onReinstate={handleReinstate}
-      />
+      <LogSetModal visible={showLogModal} goal={selectedGoal} weightKg={profile?.weight_kg ?? null} onClose={() => setShowLogModal(false)} onLog={handleLog} />
+      <AddExerciseModal visible={showAddModal} onClose={() => setShowAddModal(false)} onAdd={handleAddExercise} disabledGoals={disabledGoals} onReinstate={handleReinstate} />
     </SafeAreaView>
   );
 }

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Pressable, View, Text, TextInput } from "react-native";
 import { useThemeStore } from "@/lib/theme-store";
-import { getThemeColors } from "@/lib/theme-colors";
+import { getThemeColors, ACCENT } from "@/lib/theme-colors";
 
 const PRESETS = [
   { label: "14:10", fasting: 14, eating: 10 },
@@ -25,7 +25,7 @@ export function ScheduleSelector({ selected, onSelect }: ScheduleSelectorProps) 
 
   return (
     <View className="rounded-2xl p-5 mb-6" style={{ backgroundColor: c.cardBg, borderWidth: 1, borderColor: c.cardBorder }}>
-      <Text style={{ color: c.textSecondary }} className="text-xs font-bold mb-4 tracking-wider">
+      <Text style={{ color: c.textMuted, fontFamily: "PlusJakartaSans_600SemiBold" }} className="text-xs mb-4 tracking-widest">
         FASTING SCHEDULE
       </Text>
 
@@ -41,19 +41,25 @@ export function ScheduleSelector({ selected, onSelect }: ScheduleSelectorProps) 
               }}
               className="flex-1 rounded-xl py-4 items-center"
               style={{
-                backgroundColor: isActive ? "#3B82F6" : c.cardBgAlt,
+                backgroundColor: isActive ? ACCENT.mint : c.cardBgAlt,
                 borderWidth: 1,
-                borderColor: isActive ? "#3B82F6" : c.cardBorder,
+                borderColor: isActive ? ACCENT.mint : c.cardBorder,
               }}
             >
               <Text
-                style={{ color: isActive ? "#FFFFFF" : c.text }}
-                className="font-bold text-base"
+                style={{
+                  color: isActive ? "#0C0C0E" : c.text,
+                  fontFamily: "PlusJakartaSans_700Bold",
+                }}
+                className="text-base"
               >
                 {p.label}
               </Text>
               <Text
-                style={{ color: isActive ? "rgba(255,255,255,0.7)" : c.textMuted }}
+                style={{
+                  color: isActive ? "rgba(12,12,14,0.6)" : c.textMuted,
+                  fontFamily: "PlusJakartaSans_400Regular",
+                }}
                 className="text-[10px] mt-1"
               >
                 {p.fasting}h · {p.eating}h
@@ -63,34 +69,37 @@ export function ScheduleSelector({ selected, onSelect }: ScheduleSelectorProps) 
         })}
       </View>
 
-        <Pressable
-          onPress={() => {
-            const newCustomMode = !customMode;
-            setCustomMode(newCustomMode);
-            if (newCustomMode) {
-              onSelect("", 0, 0);
-            }
-          }}
-          className="rounded-xl items-center"
-          style={{
-            backgroundColor: customMode ? "#3B82F6" : c.cardBgAlt,
-            borderWidth: 1,
-            borderColor: customMode ? "#3B82F6" : c.cardBorder,
-            paddingVertical: 10,
-          }}
+      <Pressable
+        onPress={() => {
+          const newCustomMode = !customMode;
+          setCustomMode(newCustomMode);
+          if (newCustomMode) {
+            onSelect("", 0, 0);
+          }
+        }}
+        className="rounded-xl items-center"
+        style={{
+          backgroundColor: customMode ? ACCENT.mint : c.cardBgAlt,
+          borderWidth: 1,
+          borderColor: customMode ? ACCENT.mint : c.cardBorder,
+          paddingVertical: 10,
+        }}
       >
         <Text
-          style={{ color: customMode ? "#FFFFFF" : c.textSecondary }}
-          className="font-semibold text-base"
+          style={{
+            color: customMode ? "#0C0C0E" : c.textSecondary,
+            fontFamily: "PlusJakartaSans_600SemiBold",
+          }}
+          className="text-base"
         >
           {customMode ? `Custom: ${customFasting}:${customEating}` : "Custom Schedule"}
         </Text>
-          </Pressable>
+      </Pressable>
 
       {customMode && (
         <View className="flex-row items-center gap-3 mt-4">
           <View className="flex-1">
-            <Text style={{ color: c.textMuted }} className="text-xs mb-1">
+            <Text style={{ color: c.textMuted, fontFamily: "PlusJakartaSans_400Regular" }} className="text-xs mb-1">
               Fasting
             </Text>
             <TextInput
@@ -106,14 +115,14 @@ export function ScheduleSelector({ selected, onSelect }: ScheduleSelectorProps) 
               placeholder="16"
               placeholderTextColor={c.placeholder}
               className="rounded-xl px-4 py-3.5 text-center font-bold text-xl"
-              style={{ backgroundColor: c.inputBg, color: c.text }}
+              style={{ backgroundColor: c.inputBg, color: c.text, fontFamily: "PlusJakartaSans_700Bold" }}
             />
           </View>
-          <Text style={{ color: c.textMuted }} className="text-xl font-bold mt-5">
+          <Text style={{ color: c.textMuted, fontFamily: "PlusJakartaSans_700Bold" }} className="text-xl mt-5">
             :
           </Text>
           <View className="flex-1">
-            <Text style={{ color: c.textMuted }} className="text-xs mb-1">
+            <Text style={{ color: c.textMuted, fontFamily: "PlusJakartaSans_400Regular" }} className="text-xs mb-1">
               Eating
             </Text>
             <TextInput
@@ -129,7 +138,7 @@ export function ScheduleSelector({ selected, onSelect }: ScheduleSelectorProps) 
               placeholder="8"
               placeholderTextColor={c.placeholder}
               className="rounded-xl px-4 py-3.5 text-center font-bold text-xl"
-              style={{ backgroundColor: c.inputBg, color: c.text }}
+              style={{ backgroundColor: c.inputBg, color: c.text, fontFamily: "PlusJakartaSans_700Bold" }}
             />
           </View>
           <Pressable
@@ -139,12 +148,12 @@ export function ScheduleSelector({ selected, onSelect }: ScheduleSelectorProps) 
               onSelect(`${f}:${e}`, f, e);
             }}
             className="rounded-xl px-6 py-3.5 mt-5"
-            style={{ backgroundColor: "#3B82F6" }}
+            style={{ backgroundColor: ACCENT.mint }}
           >
-            <Text style={{ color: "#FFFFFF" }} className="font-bold text-sm">
+            <Text style={{ color: "#0C0C0E", fontFamily: "PlusJakartaSans_700Bold" }} className="text-sm">
               Set
             </Text>
-      </Pressable>
+          </Pressable>
         </View>
       )}
     </View>

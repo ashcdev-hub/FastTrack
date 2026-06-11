@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Pressable, View, Text, TextInput, Modal } from "react-native";
 import { useThemeStore } from "@/lib/theme-store";
-import { getThemeColors } from "@/lib/theme-colors";
+import { getThemeColors, ACCENT } from "@/lib/theme-colors";
 import type { WorkoutGoal } from "@/lib/types";
 
 type AddExerciseModalProps = {
@@ -12,13 +12,7 @@ type AddExerciseModalProps = {
   onReinstate: (goalId: string) => void;
 };
 
-export function AddExerciseModal({
-  visible,
-  onClose,
-  onAdd,
-  disabledGoals,
-  onReinstate,
-}: AddExerciseModalProps) {
+export function AddExerciseModal({ visible, onClose, onAdd, disabledGoals, onReinstate }: AddExerciseModalProps) {
   const { theme } = useThemeStore();
   const c = getThemeColors(theme);
   const [exerciseType, setExerciseType] = useState("");
@@ -27,133 +21,61 @@ export function AddExerciseModal({
 
   const handleAdd = () => {
     if (!exerciseType.trim()) return;
-    const goal = parseInt(dailyGoal) || 100;
-    const calPerRep = parseFloat(caloriesPerRep) || 0.5;
-    onAdd(exerciseType.trim().toLowerCase(), goal, calPerRep);
-    setExerciseType("");
-    setDailyGoal("100");
-    setCaloriesPerRep("0.5");
-    onClose();
+    onAdd(exerciseType.trim().toLowerCase(), parseInt(dailyGoal) || 100, parseFloat(caloriesPerRep) || 0.5);
+    setExerciseType(""); setDailyGoal("100"); setCaloriesPerRep("0.5"); onClose();
   };
 
+  const inputStyle = { backgroundColor: c.inputBg, color: c.text, fontFamily: "PlusJakartaSans_500Medium" as const };
+
   return (
-    <Modal
-      visible={visible}
-      transparent
-      animationType="slide"
-      onRequestClose={onClose}
-    >
-      <View className="flex-1 justify-end bg-black/50">
-        <View
-          className="rounded-t-3xl p-6"
-          style={{ backgroundColor: theme === "dark" ? "#1E293B" : "#FFFFFF" }}
-        >
-          {/* Header */}
+    <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
+      <View className="flex-1 justify-end" style={{ backgroundColor: "rgba(0,0,0,0.5)" }}>
+        <View className="rounded-t-3xl p-6" style={{ backgroundColor: c.elevated }}>
           <View className="flex-row justify-between items-center mb-6">
             <Pressable onPress={onClose}>
-              <Text style={{ color: c.textSecondary }} className="text-base">
-                Cancel
-              </Text>
-              </Pressable>
-            <Text style={{ color: c.text }} className="text-lg font-bold">
-              Add Exercise
-            </Text>
+              <Text style={{ color: c.textSecondary, fontFamily: "PlusJakartaSans_500Medium" }}>Cancel</Text>
+            </Pressable>
+            <Text style={{ color: c.text, fontFamily: "PlusJakartaSans_700Bold" }} className="text-lg">Add Exercise</Text>
             <View className="w-12" />
           </View>
 
-          {/* Recently Removed */}
           {disabledGoals.length > 0 && (
             <View className="mb-5">
-              <Text style={{ color: c.textSecondary }} className="text-xs font-medium mb-3">
-                Recently Removed
-              </Text>
+              <Text style={{ color: c.textSecondary, fontFamily: "PlusJakartaSans_500Medium" }} className="text-xs mb-3">Recently Removed</Text>
               <View className="gap-2">
                 {disabledGoals.map((goal) => (
-                  <View
-                    key={goal.id}
-                    className="flex-row items-center justify-between rounded-xl px-4 py-3"
-                    style={{ backgroundColor: c.inputBg, borderWidth: 1, borderColor: c.cardBorder }}
-                  >
+                  <View key={goal.id} className="flex-row items-center justify-between rounded-xl px-4 py-3" style={{ backgroundColor: c.inputBg, borderWidth: 1, borderColor: c.cardBorder }}>
                     <View>
-                      <Text style={{ color: c.text }} className="font-semibold capitalize">
-                        {goal.exercise_type}
-                      </Text>
-                      <Text style={{ color: c.textMuted }} className="text-xs">
+                      <Text style={{ color: c.text, fontFamily: "PlusJakartaSans_600SemiBold" }} className="capitalize">{goal.exercise_type}</Text>
+                      <Text style={{ color: c.textMuted, fontFamily: "PlusJakartaSans_400Regular" }} className="text-xs">
                         {goal.daily_goal} reps/day · {goal.calories_per_rep} cal/rep
                       </Text>
                     </View>
-                    <Pressable
-                      onPress={() => onReinstate(goal.id)}
-                      className="rounded-lg px-3 py-1.5"
-                      style={{ backgroundColor: "#10B981" }}
-                    >
-                      <Text style={{ color: "#FFFFFF" }} className="text-xs font-semibold">
-                        Reinstate
-                      </Text>
+                    <Pressable onPress={() => onReinstate(goal.id)} className="rounded-lg px-3 py-1.5" style={{ backgroundColor: ACCENT.mint }}>
+                      <Text style={{ color: "#0C0C0E", fontFamily: "PlusJakartaSans_600SemiBold" }} className="text-xs">Reinstate</Text>
                     </Pressable>
                   </View>
                 ))}
               </View>
-              <View className="my-4" style={{ height: 1, backgroundColor: c.cardBorder }} />
+              <View className="my-4" style={{ height: 1, backgroundColor: c.divider }} />
             </View>
           )}
 
-          {/* Exercise Name */}
-          <Text style={{ color: c.textSecondary }} className="text-xs mb-2">
-            Exercise Name
-          </Text>
-          <TextInput
-            value={exerciseType}
-            onChangeText={setExerciseType}
-            placeholder="e.g., lunges, planks"
-            placeholderTextColor={c.placeholder}
-            className="rounded-xl px-4 py-3 mb-4"
-            style={{ backgroundColor: c.inputBg, color: c.text }}
-          />
+          <Text style={{ color: c.textSecondary, fontFamily: "PlusJakartaSans_400Regular" }} className="text-xs mb-2">Exercise Name</Text>
+          <TextInput value={exerciseType} onChangeText={setExerciseType} placeholder="e.g., lunges, planks" placeholderTextColor={c.placeholder}
+            className="rounded-xl px-4 py-3 mb-4" style={inputStyle} />
 
-          {/* Daily Goal */}
-          <Text style={{ color: c.textSecondary }} className="text-xs mb-2">
-            Daily Goal (reps)
-          </Text>
-          <TextInput
-            value={dailyGoal}
-            onChangeText={setDailyGoal}
-            placeholder="100"
-            placeholderTextColor={c.placeholder}
-            keyboardType="numeric"
-            className="rounded-xl px-4 py-3 mb-4"
-            style={{ backgroundColor: c.inputBg, color: c.text }}
-          />
+          <Text style={{ color: c.textSecondary, fontFamily: "PlusJakartaSans_400Regular" }} className="text-xs mb-2">Daily Goal (reps)</Text>
+          <TextInput value={dailyGoal} onChangeText={setDailyGoal} placeholder="100" placeholderTextColor={c.placeholder} keyboardType="numeric"
+            className="rounded-xl px-4 py-3 mb-4" style={inputStyle} />
 
-          {/* Calories Per Rep */}
-          <Text style={{ color: c.textSecondary }} className="text-xs mb-2">
-            Calories Per Rep
-          </Text>
-          <TextInput
-            value={caloriesPerRep}
-            onChangeText={setCaloriesPerRep}
-            placeholder="0.5"
-            placeholderTextColor={c.placeholder}
-            keyboardType="numeric"
-            className="rounded-xl px-4 py-3 mb-4"
-            style={{ backgroundColor: c.inputBg, color: c.text }}
-          />
+          <Text style={{ color: c.textSecondary, fontFamily: "PlusJakartaSans_400Regular" }} className="text-xs mb-2">Calories Per Rep</Text>
+          <TextInput value={caloriesPerRep} onChangeText={setCaloriesPerRep} placeholder="0.5" placeholderTextColor={c.placeholder} keyboardType="numeric"
+            className="rounded-xl px-4 py-3 mb-4" style={inputStyle} />
 
-          {/* Add Button */}
-          <Pressable
-            onPress={handleAdd}
-            disabled={!exerciseType.trim()}
-            className="rounded-xl py-3"
-            style={{
-              backgroundColor: exerciseType.trim() ? "#3B82F6" : c.buttonBg,
-            }}
-          >
-            <Text
-              className="text-center font-bold"
-              style={{
-                color: exerciseType.trim() ? "#FFFFFF" : c.textMuted,
-              }}
-            >
+          <Pressable onPress={handleAdd} disabled={!exerciseType.trim()} className="rounded-xl py-3"
+            style={{ backgroundColor: exerciseType.trim() ? ACCENT.mint : c.buttonBg }}>
+            <Text style={{ color: exerciseType.trim() ? "#0C0C0E" : c.textMuted, fontFamily: "PlusJakartaSans_700Bold" }} className="text-center">
               Add Exercise
             </Text>
           </Pressable>

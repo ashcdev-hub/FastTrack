@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from "react";
 import { View, Animated } from "react-native";
 import { useThemeStore } from "@/lib/theme-store";
+import { getThemeColors } from "@/lib/theme-colors";
 
 type SkeletonProps = {
   width?: number | `${number}%`;
@@ -16,6 +17,7 @@ export function Skeleton({
   style,
 }: SkeletonProps) {
   const { theme } = useThemeStore();
+  const c = getThemeColors(theme);
   const opacity = useRef(new Animated.Value(0.3)).current;
 
   useEffect(() => {
@@ -35,15 +37,13 @@ export function Skeleton({
     ).start();
   }, [opacity]);
 
-  const bgColor = theme === "dark" ? "rgba(255,255,255,0.1)" : "#E5E7EB";
-
   return (
     <Animated.View
       style={{
         width,
         height,
         borderRadius,
-        backgroundColor: bgColor,
+        backgroundColor: c.cardBgAlt,
         opacity,
         ...style,
       }}
@@ -57,14 +57,11 @@ type SkeletonCardProps = {
 
 export function SkeletonCard({ children }: SkeletonCardProps) {
   const { theme } = useThemeStore();
+  const c = getThemeColors(theme);
   return (
     <View
       className="rounded-2xl p-5 mb-3"
-      style={{
-        backgroundColor: theme === "dark" ? "rgba(255,255,255,0.05)" : "#FFFFFF",
-        borderWidth: 1,
-        borderColor: theme === "dark" ? "rgba(255,255,255,0.1)" : "#E5E7EB",
-      }}
+      style={{ backgroundColor: c.cardBg, borderWidth: 1, borderColor: c.cardBorder }}
     >
       {children}
     </View>
@@ -77,15 +74,9 @@ export function ProfileSkeleton() {
       <SkeletonCard>
         <Skeleton width={120} height={24} />
         <View className="mt-4 flex-row gap-3">
-          <View className="flex-1">
-            <Skeleton height={40} />
-          </View>
-          <View className="flex-1">
-            <Skeleton height={40} />
-          </View>
-          <View className="flex-1">
-            <Skeleton height={40} />
-          </View>
+          <View className="flex-1"><Skeleton height={40} /></View>
+          <View className="flex-1"><Skeleton height={40} /></View>
+          <View className="flex-1"><Skeleton height={40} /></View>
         </View>
       </SkeletonCard>
       <SkeletonCard>
@@ -102,15 +93,9 @@ export function ProfileSkeleton() {
       <SkeletonCard>
         <Skeleton width={80} height={20} />
         <View className="mt-3 flex-row gap-3">
-          <View className="flex-1">
-            <Skeleton height={60} />
-          </View>
-          <View className="flex-1">
-            <Skeleton height={60} />
-          </View>
-          <View className="flex-1">
-            <Skeleton height={60} />
-          </View>
+          <View className="flex-1"><Skeleton height={60} /></View>
+          <View className="flex-1"><Skeleton height={60} /></View>
+          <View className="flex-1"><Skeleton height={60} /></View>
         </View>
       </SkeletonCard>
     </View>

@@ -6,7 +6,7 @@ import ChampionIcon from "@hugeicons/core-free-icons/dist/esm/ChampionIcon";
 import Target01Icon from "@hugeicons/core-free-icons/dist/esm/Target01Icon";
 import Dumbbell01Icon from "@hugeicons/core-free-icons/dist/esm/Dumbbell01Icon";
 import { useThemeStore } from "@/lib/theme-store";
-import { getThemeColors } from "@/lib/theme-colors";
+import { getThemeColors, ACCENT } from "@/lib/theme-colors";
 
 type FastingAchievementsProps = {
   streak: number;
@@ -55,47 +55,38 @@ export function FastingAchievements({
 
   return (
     <View className="mb-6">
-      <Text style={{ color: c.text }} className="text-lg font-bold mb-4">
+      <Text style={{ color: c.text, fontFamily: "PlusJakartaSans_700Bold" }} className="text-lg mb-4">
         Achievements
       </Text>
 
       {/* Stats row */}
       <View className="flex-row gap-3 mb-4">
-        <View
-          className="flex-1 rounded-xl p-4 items-center"
-          style={{ backgroundColor: c.cardBg, borderWidth: 1, borderColor: c.cardBorder }}
-        >
-          <HugeiconsIcon icon={FireIcon} size={28} color="#34D399" strokeWidth={1.5} />
-          <Text style={{ color: "#34D399" }} className="text-2xl font-bold mt-1">
+        <View className="flex-1 rounded-xl p-4 items-center" style={{ backgroundColor: c.cardBg, borderWidth: 1, borderColor: c.cardBorder }}>
+          <HugeiconsIcon icon={FireIcon} size={28} color={ACCENT.mint} strokeWidth={1.5} />
+          <Text style={{ color: ACCENT.mint, fontFamily: "PlusJakartaSans_700Bold" }} className="text-2xl mt-1">
             {streak}
           </Text>
-          <Text style={{ color: c.textSecondary }} className="text-xs mt-1">
+          <Text style={{ color: c.textSecondary, fontFamily: "PlusJakartaSans_400Regular" }} className="text-xs mt-1">
             Day Streak
           </Text>
         </View>
 
-        <View
-          className="flex-1 rounded-xl p-4 items-center"
-          style={{ backgroundColor: c.cardBg, borderWidth: 1, borderColor: c.cardBorder }}
-        >
-          <HugeiconsIcon icon={ChampionIcon} size={28} color="#60A5FA" strokeWidth={1.5} />
-          <Text style={{ color: "#60A5FA" }} className="text-2xl font-bold mt-1">
+        <View className="flex-1 rounded-xl p-4 items-center" style={{ backgroundColor: c.cardBg, borderWidth: 1, borderColor: c.cardBorder }}>
+          <HugeiconsIcon icon={ChampionIcon} size={28} color={ACCENT.sky} strokeWidth={1.5} />
+          <Text style={{ color: ACCENT.sky, fontFamily: "PlusJakartaSans_700Bold" }} className="text-2xl mt-1">
             {completedFasts}
           </Text>
-          <Text style={{ color: c.textSecondary }} className="text-xs mt-1">
+          <Text style={{ color: c.textSecondary, fontFamily: "PlusJakartaSans_400Regular" }} className="text-xs mt-1">
             Total Fasts
           </Text>
         </View>
 
-        <View
-          className="flex-1 rounded-xl p-4 items-center"
-          style={{ backgroundColor: c.cardBg, borderWidth: 1, borderColor: c.cardBorder }}
-        >
-          <HugeiconsIcon icon={Dumbbell01Icon} size={28} color="#F59E0B" strokeWidth={1.5} />
-          <Text style={{ color: "#F59E0B" }} className="text-2xl font-bold mt-1">
+        <View className="flex-1 rounded-xl p-4 items-center" style={{ backgroundColor: c.cardBg, borderWidth: 1, borderColor: c.cardBorder }}>
+          <HugeiconsIcon icon={Dumbbell01Icon} size={28} color={ACCENT.coral} strokeWidth={1.5} />
+          <Text style={{ color: ACCENT.coral, fontFamily: "PlusJakartaSans_700Bold" }} className="text-2xl mt-1">
             {pushupStreak}
           </Text>
-          <Text style={{ color: c.textSecondary }} className="text-xs mt-1">
+          <Text style={{ color: c.textSecondary, fontFamily: "PlusJakartaSans_400Regular" }} className="text-xs mt-1">
             Pushup Streak
           </Text>
         </View>
@@ -104,20 +95,17 @@ export function FastingAchievements({
       {/* Fasting milestone */}
       <View className="rounded-xl p-4 mb-3" style={{ backgroundColor: c.cardBg, borderWidth: 1, borderColor: c.cardBorder }}>
         <View className="flex-row justify-between items-center mb-2">
-          <Text style={{ color: theme === "dark" ? "rgba(255,255,255,0.8)" : "#374151" }} className="text-sm">
+          <Text style={{ color: c.text, fontFamily: "PlusJakartaSans_500Medium" }} className="text-sm">
             Next Fast: {nextFastingMilestone.label}
           </Text>
-          <Text style={{ color: c.textSecondary }} className="text-xs">
+          <Text style={{ color: c.textSecondary, fontFamily: "PlusJakartaSans_400Regular" }} className="text-xs">
             {completedFasts}/{nextFastingMilestone.count}
           </Text>
         </View>
-        <View
-          className="h-2 rounded-full overflow-hidden"
-          style={{ backgroundColor: theme === "dark" ? "rgba(255,255,255,0.1)" : "#E5E7EB" }}
-        >
+        <View className="h-2 rounded-full overflow-hidden" style={{ backgroundColor: c.cardBgAlt }}>
           <View
             className="h-full rounded-full"
-            style={{ width: `${fastingProgress * 100}%`, backgroundColor: "#10B981" }}
+            style={{ width: `${fastingProgress * 100}%`, backgroundColor: ACCENT.mint }}
           />
         </View>
       </View>
@@ -125,20 +113,17 @@ export function FastingAchievements({
       {/* Pushup milestone */}
       <View className="rounded-xl p-4" style={{ backgroundColor: c.cardBg, borderWidth: 1, borderColor: c.cardBorder }}>
         <View className="flex-row justify-between items-center mb-2">
-          <Text style={{ color: theme === "dark" ? "rgba(255,255,255,0.8)" : "#374151" }} className="text-sm">
+          <Text style={{ color: c.text, fontFamily: "PlusJakartaSans_500Medium" }} className="text-sm">
             Next Pushup: {nextPushupMilestone.label}
           </Text>
-          <Text style={{ color: c.textSecondary }} className="text-xs">
+          <Text style={{ color: c.textSecondary, fontFamily: "PlusJakartaSans_400Regular" }} className="text-xs">
             {weeklyPushups}/{nextPushupMilestone.count}
           </Text>
         </View>
-        <View
-          className="h-2 rounded-full overflow-hidden"
-          style={{ backgroundColor: theme === "dark" ? "rgba(255,255,255,0.1)" : "#E5E7EB" }}
-        >
+        <View className="h-2 rounded-full overflow-hidden" style={{ backgroundColor: c.cardBgAlt }}>
           <View
             className="h-full rounded-full"
-            style={{ width: `${pushupProgress * 100}%`, backgroundColor: "#3B82F6" }}
+            style={{ width: `${pushupProgress * 100}%`, backgroundColor: ACCENT.mint }}
           />
         </View>
       </View>
