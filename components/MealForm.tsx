@@ -1,0 +1,174 @@
+import React, { useState } from "react";
+import { Pressable,
+  View,
+  Text,
+  TextInput,
+  Modal,
+} from "react-native";
+import { useThemeStore } from "@/lib/theme-store";
+import { getThemeColors } from "@/lib/theme-colors";
+
+type MealFormProps = {
+  onSubmit: (meal: {
+    name: string;
+    brand: string;
+    calories: number;
+    protein_g: number;
+    carbs_g: number;
+    fat_g: number;
+    serving_size?: string;
+    quantity: number;
+  }) => void;
+  onCancel?: () => void;
+};
+
+export function MealForm({ onSubmit, onCancel }: MealFormProps) {
+  const { theme } = useThemeStore();
+  const c = getThemeColors(theme);
+  const [name, setName] = useState("");
+  const [brand, setBrand] = useState("");
+  const [servingSize, setServingSize] = useState("");
+  const [calories, setCalories] = useState("");
+  const [protein, setProtein] = useState("");
+  const [carbs, setCarbs] = useState("");
+  const [fat, setFat] = useState("");
+  const [quantity, setQuantity] = useState("1");
+
+  const handleSubmit = () => {
+    if (!name.trim()) return;
+    onSubmit({
+      name: name.trim(),
+      brand: brand.trim(),
+      calories: Number(calories) || 0,
+      protein_g: Number(protein) || 0,
+      carbs_g: Number(carbs) || 0,
+      fat_g: Number(fat) || 0,
+      serving_size: servingSize.trim() || undefined,
+      quantity: Number(quantity) || 1,
+    });
+    setName("");
+    setBrand("");
+    setServingSize("");
+    setCalories("");
+    setProtein("");
+    setCarbs("");
+    setFat("");
+    setQuantity("1");
+  };
+
+  return (
+    <View className="rounded-2xl p-5" style={{ backgroundColor: c.cardBg, borderWidth: 1, borderColor: c.cardBorder }}>
+      <Text style={{ color: c.text }} className="text-lg font-bold mb-4">Add Custom Item</Text>
+
+      <TextInput
+        value={name}
+        onChangeText={setName}
+        placeholder="Food name"
+        placeholderTextColor={c.placeholder}
+        className="rounded-xl px-4 py-3 mb-3"
+        style={{ backgroundColor: c.inputBg, color: c.text }}
+      />
+
+      <TextInput
+        value={brand}
+        onChangeText={setBrand}
+        placeholder="Brand (optional)"
+        placeholderTextColor={c.placeholder}
+        className="rounded-xl px-4 py-3 mb-3"
+        style={{ backgroundColor: c.inputBg, color: c.text }}
+      />
+
+      <TextInput
+        value={servingSize}
+        onChangeText={setServingSize}
+        placeholder="Serving size (e.g., 1 slice, 100g)"
+        placeholderTextColor={c.placeholder}
+        className="rounded-xl px-4 py-3 mb-3"
+        style={{ backgroundColor: c.inputBg, color: c.text }}
+      />
+
+      <View className="flex-row gap-2 mb-3">
+        <View className="flex-1">
+          <Text style={{ color: c.textSecondary }} className="text-xs mb-1">Calories</Text>
+          <TextInput
+            value={calories}
+            onChangeText={setCalories}
+            placeholder="0"
+            placeholderTextColor={c.placeholder}
+            keyboardType="numeric"
+            className="rounded-xl px-4 py-3"
+            style={{ backgroundColor: c.inputBg, color: c.text }}
+          />
+        </View>
+        <View className="flex-1">
+          <Text style={{ color: c.textSecondary }} className="text-xs mb-1">Protein (g)</Text>
+          <TextInput
+            value={protein}
+            onChangeText={setProtein}
+            placeholder="0"
+            placeholderTextColor={c.placeholder}
+            keyboardType="numeric"
+            className="rounded-xl px-4 py-3"
+            style={{ backgroundColor: c.inputBg, color: c.text }}
+          />
+        </View>
+      </View>
+
+      <View className="flex-row gap-2 mb-3">
+        <View className="flex-1">
+          <Text style={{ color: c.textSecondary }} className="text-xs mb-1">Carbs (g)</Text>
+          <TextInput
+            value={carbs}
+            onChangeText={setCarbs}
+            placeholder="0"
+            placeholderTextColor={c.placeholder}
+            keyboardType="numeric"
+            className="rounded-xl px-4 py-3"
+            style={{ backgroundColor: c.inputBg, color: c.text }}
+          />
+        </View>
+        <View className="flex-1">
+          <Text style={{ color: c.textSecondary }} className="text-xs mb-1">Fat (g)</Text>
+          <TextInput
+            value={fat}
+            onChangeText={setFat}
+            placeholder="0"
+            placeholderTextColor={c.placeholder}
+            keyboardType="numeric"
+            className="rounded-xl px-4 py-3"
+            style={{ backgroundColor: c.inputBg, color: c.text }}
+          />
+        </View>
+      </View>
+
+      <Text style={{ color: c.textSecondary }} className="text-xs mb-2">Quantity</Text>
+      <TextInput
+        value={quantity}
+        onChangeText={setQuantity}
+        placeholder="1"
+        placeholderTextColor={c.placeholder}
+        keyboardType="numeric"
+        className="rounded-xl px-4 py-3 mb-4"
+        style={{ backgroundColor: c.inputBg, color: c.text }}
+      />
+
+      <View className="flex-row gap-3">
+        {onCancel && (
+          <Pressable
+            onPress={onCancel}
+            className="flex-1 rounded-xl py-3"
+            style={{ backgroundColor: c.buttonBg }}
+          >
+            <Text style={{ color: c.text }} className="text-center font-semibold">Cancel</Text>
+          </Pressable>
+        )}
+        <Pressable
+          onPress={handleSubmit}
+          className="flex-1 bg-blue-500 rounded-xl py-3"
+        >
+          <Text className="text-white text-center font-semibold">Add to Meal</Text>
+        </Pressable>
+      </View>
+    </View>
+  );
+}

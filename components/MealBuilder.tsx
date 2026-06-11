@@ -1,0 +1,123 @@
+import React from "react";
+import { Pressable, View, Text } from "react-native";
+import Delete02Icon from "@hugeicons/core-free-icons/dist/esm/Delete02Icon";
+import { HugeiconsIcon } from "@hugeicons/react-native";
+import { useThemeStore } from "@/lib/theme-store";
+import { getThemeColors } from "@/lib/theme-colors";
+
+export type StagedItem = {
+  id: string;
+  name: string;
+  brand?: string;
+  calories: number;
+  protein_g: number;
+  carbs_g: number;
+  fat_g: number;
+  serving_size?: string;
+  quantity: number;
+};
+
+type MealBuilderProps = {
+  items: StagedItem[];
+  mealType: string;
+  onRemove: (id: string) => void;
+  onLog: () => void;
+};
+
+const mealColors: Record<string, string> = {
+  breakfast: "#F59E0B",
+  lunch: "#10B981",
+  dinner: "#3B82F6",
+  snack: "#8B5CF6",
+  other: "#6B7280",
+};
+
+export function MealBuilder({ items, mealType, onRemove, onLog }: MealBuilderProps) {
+  const { theme } = useThemeStore();
+  const c = getThemeColors(theme);
+  const totals = items.reduce(
+    (acc, item) => ({
+      calories: acc.calories + item.calories * item.quantity,
+      protein_g: acc.protein_g + item.protein_g * item.quantity,
+      carbs_g: acc.carbs_g + item.carbs_g * item.quantity,
+      fat_g: acc.fat_g + item.fat_g * item.quantity,
+    }),
+    { calories: 0, protein_g: 0, carbs_g: 0, fat_g: 0 }
+  );
+
+  const color = mealColors[mealType] ?? "#6B7280";
+
+  if (items.length === 0) {
+    return (
+      <View className="rounded-2xl p-6 items-center" style={{ backgroundColor: c.cardBg, borderWidth: 1, borderColor: c.cardBorder }}>
+        <Text style={{ color: c.textMuted }} className="text-sm text-center">
+          Search for food or add custom items to build your meal
+        </Text>
+      </View>
+    );
+  }
+
+  return (
+    <View className="rounded-2xl p-5" style={{ backgroundColor: c.cardBg, borderWidth: 1, borderColor: c.cardBorder }}>
+      <View className="flex-row items-center mb-4">
+        <View className="w-2 h-2 rounded-full mr-2" style={{ backgroundColor: color }} />
+        <Text style={{ color: c.text }} className="text-lg font-bold">
+          {mealType.charAt(0).toUpperCase() + mealType.slice(1)} ({items.length} {items.length === 1 ? "item" : "items"})
+        </Text>
+      </View>
+
+      {items.map((item) => (
+        <View key={item.id} className="flex-row items-center py-3" style={{ borderBottomWidth: 1, borderBottomColor: c.divider }}>
+          <View className="flex-1">
+            <Text style={{ color: c.text }} className="font-medium text-sm">{item.name}</Text>
+            {item.brand ? (
+              <Text style={{ color: c.textMuted }} className="text-xs">{item.brand}</Text>
+            ) : null}
+            <Text style={{ color: c.textSecondary }} className="text-xs mt-0.5">
+              {item.quantity > 1 ? `${item.quantity}× ` : ""}
+              {item.calories} kcal · P{item.protein_g}g · C{item.carbs_g}g · F{item.fat_g}g
+              {item.serving_size ? ` · ${item.serving_size}` : ""}
+            </Text>
+          </View>
+          <Pressable onPress={() => onRemove(item.id)} className="p-2">
+            <HugeiconsIcon
+              icon={Delete02Icon}
+              size={18}
+              color={c.textMuted}
+              strokeWidth={1.5}
+            />
+          </Pressable>
+        </View>
+      ))}
+
+      <View className="mt-4 pt-4" style={{ borderTopWidth: 1, borderTopColor: c.divider }}>
+        <View className="flex-row justify-between mb-3">
+          <Text style={{ color: c.textSecondary }} className="text-sm">Total</Text>
+          <Text style={{ color: c.text }} className="font-bold">
+            {Math.round(totals.calories)} kcal
+          </Text>
+        </View>
+        <View className="flex-row justify-between mb-4">
+          <Text style={{ color: c.textMuted }} className="text-xs">
+            P: {Math.round(totals.protein_g)}g
+          </Text>
+          <Text style={{ color: c.textMuted }} className="text-xs">
+            C: {Math.round(totals.carbs_g)}g
+          </Text>
+          <Text style={{ color: c.textMuted }} className="text-xs">
+            F: {Math.round(totals.fat_g)}g
+          </Text>
+        </View>
+        <Pressable
+          onPress={onLog}
+          className="rounded-xl py-3"
+          style={{ backgroundColor: color }}
+        >
+          <Text className="text-white text-center font-bold">
+            Log {mealType.charAt(0).toUpperCase() + mealType.slice(1)}
+          </Text>
+        </Pressable>
+      </View>
+    </View>
+  );
+}
