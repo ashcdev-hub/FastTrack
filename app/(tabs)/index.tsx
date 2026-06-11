@@ -78,6 +78,31 @@ function useElapsedMinutes(startTime: string | null) {
   return totalMinutes;
 }
 
+function useElapsed(startTime: string | null) {
+  const [elapsed, setElapsed] = useState({ hours: 0, minutes: 0, seconds: 0 });
+
+  useEffect(() => {
+    if (!startTime) {
+      setElapsed({ hours: 0, minutes: 0, seconds: 0 });
+      return;
+    }
+
+    const tick = () => {
+      const diff = Math.max(0, Math.floor((Date.now() - new Date(startTime).getTime()) / 1000));
+      const hours = Math.floor(diff / 3600);
+      const minutes = Math.floor((diff % 3600) / 60);
+      const seconds = diff % 60;
+      setElapsed({ hours, minutes, seconds });
+    };
+
+    tick();
+    const interval = setInterval(tick, 1000);
+    return () => clearInterval(interval);
+  }, [startTime]);
+
+  return elapsed;
+}
+
 function useCountdownSeconds(endTime: Date | null, totalDurationSec: number) {
   const [remaining, setRemaining] = useState(totalDurationSec);
 
@@ -140,6 +165,10 @@ export default function HomeScreen() {
   const eatingWindowEndStr = breakTimeStr ? addHours(new Date(breakTimeStr), eatingHours).toISOString() : null;
   const eatingCountdown = useCountdown(eatingWindowEndStr);
 
+  // Elapsed time (for toggle display)
+  const fastElapsed = useElapsed(fastStartStr);
+  const eatingElapsed = useElapsed(breakTimeStr);
+
   // Schedule
   const fastStartDate = session?.start_time ? new Date(session.start_time) : null;
   const eatWindowOpens = fastStartDate ? addHours(fastStartDate, fastingHours) : null;
@@ -183,8 +212,6 @@ export default function HomeScreen() {
     if (!error) await cancelAllNotifications();
   };
 
-  const fmt = (d: Date) => format(d, "h:mm a · MMM d");
-
   const headerTitle = phase === "fasting"
     ? "Keep Going!"
     : phase === "eating"
@@ -211,6 +238,9 @@ export default function HomeScreen() {
             hours={phase === "eating" ? eatingCountdown.hours : phase === "fasting" ? fastCountdown.hours : 0}
             minutes={phase === "eating" ? eatingCountdown.minutes : phase === "fasting" ? fastCountdown.minutes : 0}
             seconds={phase === "eating" ? eatingCountdown.seconds : phase === "fasting" ? fastCountdown.seconds : 0}
+            elapsedHours={phase === "fasting" ? fastElapsed.hours : phase === "eating" ? eatingElapsed.hours : 0}
+            elapsedMinutesPart={phase === "fasting" ? fastElapsed.minutes : phase === "eating" ? eatingElapsed.minutes : 0}
+            elapsedSeconds={phase === "fasting" ? fastElapsed.seconds : phase === "eating" ? eatingElapsed.seconds : 0}
             schedule={session?.fasting_schedule}
           />
         </View>
@@ -283,83 +313,89 @@ export default function HomeScreen() {
             <View className="rounded-2xl p-5 w-full mb-6" style={{ backgroundColor: theme === "dark" ? "rgba(255,255,255,0.05)" : "#FFFFFF", borderWidth: 1, borderColor: theme === "dark" ? "rgba(255,255,255,0.1)" : "#E5E7EB" }}>
               {phase === "idle" && (
                 <>
-                  <Text style={{ color: c.textMuted }} className="text-xs font-bold mb-3 tracking-wider">
+                  <Text style={{ color: c.textMuted }} className="text-xs font-bold mb-4 tracking-wider">
                     IF YOU START NOW
                   </Text>
-                  <ScheduleRow
-                    icon={Clock01Icon}
-                    dotColor="#10B981"
-                    label="Fast will start"
-                    value={fmt(new Date())}
-                  />
-                  <ScheduleRow
-                    icon={SunriseIcon}
-                    dotColor="#60A5FA"
-                    label="Eat window will open"
-                    value={fmt(addHours(new Date(), fastingHours))}
-                  />
-                  <ScheduleRow
-                    icon={Moon01Icon}
-                    dotColor="#FBBF24"
-                    label="Eat window will close"
-                    value={fmt(addHours(addHours(new Date(), fastingHours), eatingHours))}
-                  />
+                  <View className="flex-row">
+                    <ScheduleColumn
+                      icon={Clock01Icon}
+                      dotColor="#10B981"
+                      label="Fast starts"
+                      value={format(new Date(), "h:mm a")}
+                    />
+                    <ScheduleColumn
+                      icon={SunriseIcon}
+                      dotColor="#60A5FA"
+                      label="Eat window"
+                      value={format(addHours(new Date(), fastingHours), "h:mm a")}
+                    />
+                    <ScheduleColumn
+                      icon={Moon01Icon}
+                      dotColor="#FBBF24"
+                      label="Window closes"
+                      value={format(addHours(addHours(new Date(), fastingHours), eatingHours), "h:mm a")}
+                    />
+                  </View>
                 </>
               )}
 
               {phase === "fasting" && fastStartDate && eatWindowOpens && (
                 <>
-                  <Text style={{ color: "#34D399" }} className="text-xs font-bold mb-3 tracking-wider">
+                  <Text style={{ color: "#34D399" }} className="text-xs font-bold mb-4 tracking-wider">
                     YOUR FAST{session?.fasting_schedule ? ` — ${session.fasting_schedule}` : ""}
                   </Text>
-                  <ScheduleRow
-                    icon={Clock01Icon}
-                    dotColor="#10B981"
-                    label="Fast started"
-                    value={fmt(fastStartDate)}
-                  />
-                  <ScheduleRow
-                    icon={SunriseIcon}
-                    dotColor="#60A5FA"
-                    label="Eat window will open"
-                    value={fmt(eatWindowOpens)}
-                  />
-                  <ScheduleRow
-                    icon={Moon01Icon}
-                    dotColor="#FBBF24"
-                    label="Eat window will close"
-                    value={eatWindowCloses ? fmt(eatWindowCloses) : ""}
-                  />
+                  <View className="flex-row">
+                    <ScheduleColumn
+                      icon={Clock01Icon}
+                      dotColor="#10B981"
+                      label="Fast started"
+                      value={format(fastStartDate, "h:mm a")}
+                    />
+                    <ScheduleColumn
+                      icon={SunriseIcon}
+                      dotColor="#60A5FA"
+                      label="Eat window"
+                      value={format(eatWindowOpens, "h:mm a")}
+                    />
+                    <ScheduleColumn
+                      icon={Moon01Icon}
+                      dotColor="#FBBF24"
+                      label="Window closes"
+                      value={eatWindowCloses ? format(eatWindowCloses, "h:mm a") : ""}
+                    />
+                  </View>
                 </>
               )}
 
               {phase === "eating" && (
                 <>
-                  <Text style={{ color: "#FBBF24" }} className="text-xs font-bold mb-3 tracking-wider">
+                  <Text style={{ color: "#FBBF24" }} className="text-xs font-bold mb-4 tracking-wider">
                     EATING WINDOW{session?.fasting_schedule ? ` — ${session.fasting_schedule}` : ""}
                   </Text>
-                  <ScheduleRow
-                    icon={Clock01Icon}
-                    dotColor="#10B981"
-                    label="Fast started"
-                    value={fastStartDate ? fmt(fastStartDate) : ""}
-                  />
-                  {session?.end_time && (
-                    <ScheduleRow
-                      icon={AlarmClockIcon}
-                      dotColor="#FBBF24"
-                      label="You broke your fast at"
-                      value={fmt(new Date(session.end_time))}
+                  <View className="flex-row">
+                    <ScheduleColumn
+                      icon={Clock01Icon}
+                      dotColor="#10B981"
+                      label="Fast started"
+                      value={fastStartDate ? format(fastStartDate, "h:mm a") : ""}
                     />
-                  )}
-                  {eatWindowCloses && (
-                    <ScheduleRow
-                      icon={Moon01Icon}
-                      dotColor="#EF4444"
-                      label="Eat window closes"
-                      value={fmt(eatWindowCloses)}
-                    />
-                  )}
+                    {session?.end_time && (
+                      <ScheduleColumn
+                        icon={AlarmClockIcon}
+                        dotColor="#FBBF24"
+                        label="Broke fast"
+                        value={format(new Date(session.end_time), "h:mm a")}
+                      />
+                    )}
+                    {eatWindowCloses && (
+                      <ScheduleColumn
+                        icon={Moon01Icon}
+                        dotColor="#EF4444"
+                        label="Window closes"
+                        value={format(eatWindowCloses, "h:mm a")}
+                      />
+                    )}
+                  </View>
                 </>
               )}
             </View>
@@ -416,7 +452,7 @@ export default function HomeScreen() {
   );
 }
 
-function ScheduleRow({
+function ScheduleColumn({
   dotColor,
   label,
   value,
@@ -430,11 +466,9 @@ function ScheduleRow({
   const { theme } = useThemeStore();
   const c = getThemeColors(theme);
   return (
-    <View className="flex-row items-center mb-3 last:mb-0">
+    <View className="flex-1 items-center">
       {icon ? (
-        <View style={{ marginRight: 10 }}>
-          <HugeiconsIcon icon={icon} size={18} color={dotColor} strokeWidth={1.5} />
-        </View>
+        <HugeiconsIcon icon={icon} size={18} color={dotColor} strokeWidth={1.5} />
       ) : (
         <View
           style={{
@@ -442,14 +476,15 @@ function ScheduleRow({
             height: 8,
             borderRadius: 4,
             backgroundColor: dotColor,
-            marginRight: 12,
           }}
         />
       )}
-      <View className="flex-1">
-        <Text style={{ color: c.textSecondary }} className="text-xs">{label}</Text>
-        <Text style={{ color: c.text }} className="text-sm font-medium">{value}</Text>
-      </View>
+      <Text style={{ color: c.textSecondary }} className="text-xs text-center mt-1.5" numberOfLines={1}>
+        {label}
+      </Text>
+      <Text style={{ color: c.text }} className="text-sm font-medium text-center mt-0.5" numberOfLines={1}>
+        {value}
+      </Text>
     </View>
   );
 }

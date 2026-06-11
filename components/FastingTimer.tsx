@@ -1,5 +1,5 @@
-import React, { useEffect } from "react";
-import { View, Text } from "react-native";
+import React, { useEffect, useState } from "react";
+import { View, Text, Pressable } from "react-native";
 import Svg, { Circle } from "react-native-svg";
 import Animated, {
   useSharedValue,
@@ -9,6 +9,8 @@ import Animated, {
   withRepeat,
   Easing,
 } from "react-native-reanimated";
+import { HugeiconsIcon } from "@hugeicons/react-native";
+import Exchange01Icon from "@hugeicons/core-free-icons/dist/esm/Exchange01Icon";
 import { useThemeStore } from "@/lib/theme-store";
 import { getThemeColors } from "@/lib/theme-colors";
 
@@ -21,6 +23,9 @@ type FastingTimerProps = {
   hours: number;
   minutes: number;
   seconds: number;
+  elapsedHours: number;
+  elapsedMinutesPart: number;
+  elapsedSeconds: number;
   schedule?: string | null;
 };
 
@@ -52,10 +57,14 @@ export function FastingTimer({
   hours,
   minutes,
   seconds,
+  elapsedHours,
+  elapsedMinutesPart,
+  elapsedSeconds,
   schedule,
 }: FastingTimerProps) {
   const { theme } = useThemeStore();
   const c = getThemeColors(theme);
+  const [showElapsed, setShowElapsed] = useState(false);
   const size = 280;
   const strokeWidth = 12;
   const radius = (size - strokeWidth) / 2;
@@ -173,12 +182,31 @@ export function FastingTimer({
                   ? `FASTING${schedule ? ` — ${schedule}` : ""}`
                   : `EATING${schedule ? ` — ${schedule}` : ""}`}
               </Text>
-              <Text style={{ color: c.text }} className="text-5xl font-bold tracking-wider">
-                {pad(hours)}:{pad(minutes)}:{pad(seconds)}
-              </Text>
-              <Text style={{ color: c.textMuted }} className="text-xs mt-1">
-                {status === "fasting" ? "until eat window" : "remaining in window"}
-              </Text>
+              <Pressable
+                onPress={() => setShowElapsed((prev) => !prev)}
+                hitSlop={{ top: 12, bottom: 12, left: 20, right: 20 }}
+                className="items-center"
+              >
+                <Text
+                  style={{
+                    color: c.text,
+                    borderBottomWidth: 1,
+                    borderBottomColor: showElapsed ? colors.stroke : "transparent",
+                    paddingBottom: 2,
+                  }}
+                  className="text-5xl font-bold tracking-wider"
+                >
+                  {showElapsed
+                    ? `${pad(elapsedHours)}:${pad(elapsedMinutesPart)}:${pad(elapsedSeconds)}`
+                    : `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`}
+                </Text>
+                <View className="flex-row items-center mt-1.5">
+                  <HugeiconsIcon icon={Exchange01Icon} size={12} color={c.textMuted} strokeWidth={1.5} />
+                  <Text style={{ color: c.textMuted }} className="text-xs ml-1">
+                    {showElapsed ? "elapsed" : "remaining"}
+                  </Text>
+                </View>
+              </Pressable>
             </>
           )}
         </View>
