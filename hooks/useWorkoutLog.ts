@@ -51,7 +51,7 @@ export function useWorkoutLog(userId: string | undefined, weightKg: number | nul
       if (!totals[entry.exercise_type]) {
         totals[entry.exercise_type] = { reps: 0, sets: 0, calories: 0 };
       }
-      totals[entry.exercise_type].reps += entry.reps;
+      totals[entry.exercise_type].reps += entry.reps * entry.sets;
       totals[entry.exercise_type].sets += entry.sets;
       totals[entry.exercise_type].calories += entry.calories_burned ?? 0;
     }
@@ -77,7 +77,7 @@ export function useWorkoutLog(userId: string | undefined, weightKg: number | nul
       return;
     }
 
-    const totalReps = (data ?? []).reduce((sum, e) => sum + e.reps, 0);
+    const totalReps = (data ?? []).reduce((sum, e) => sum + e.reps * e.sets, 0);
     const totalSets = (data ?? []).reduce((sum, e) => sum + e.sets, 0);
     const totalCalories = (data ?? []).reduce(
       (sum, e) => sum + (e.calories_burned ?? 0),
@@ -97,7 +97,7 @@ export function useWorkoutLog(userId: string | undefined, weightKg: number | nul
 
     const { data, error } = await supabase
       .from("workout_log")
-      .select("exercise_type, reps, logged_at")
+      .select("exercise_type, reps, sets, logged_at")
       .eq("user_id", userId)
       .gte("logged_at", thirtyDaysAgo.toISOString())
       .order("logged_at", { ascending: false });
@@ -115,7 +115,7 @@ export function useWorkoutLog(userId: string | undefined, weightKg: number | nul
       }
       const day = new Date(entry.logged_at).toISOString().split("T")[0];
       byExerciseDay[entry.exercise_type][day] =
-        (byExerciseDay[entry.exercise_type][day] ?? 0) + entry.reps;
+        (byExerciseDay[entry.exercise_type][day] ?? 0) + entry.reps * entry.sets;
     }
 
     // Calculate streak for each exercise with a goal
@@ -184,7 +184,7 @@ export function useWorkoutLog(userId: string | undefined, weightKg: number | nul
       return {
         ...prev,
         [exerciseType]: {
-          reps: current.reps + reps,
+          reps: current.reps + reps * sets,
           sets: current.sets + sets,
           calories: current.calories + (data.calories_burned ?? 0),
         },
@@ -192,7 +192,7 @@ export function useWorkoutLog(userId: string | undefined, weightKg: number | nul
     });
 
     setWeeklyStats((prev) => ({
-      totalReps: prev.totalReps + reps,
+      totalReps: prev.totalReps + reps * sets,
       totalCalories: prev.totalCalories + (data.calories_burned ?? 0),
       totalSets: prev.totalSets + sets,
     }));

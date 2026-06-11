@@ -56,7 +56,7 @@ export function useFastingSession(userId: string | undefined) {
     if (data) {
       const completed = data.filter((s) => s.status === "completed");
       setCompletedFasts(completed.length);
-      calculateStreak(data);
+      calculateStreak(completed);
     }
   }, [userId]);
 
@@ -66,13 +66,16 @@ export function useFastingSession(userId: string | undefined) {
       return;
     }
 
-    // Deduplicate: keep only one session per day (the latest)
+    // Deduplicate: keep only one session per day, preferring "completed" status
     const byDay = new Map<string, FastingSession>();
     for (const s of sessions) {
       if (!s.end_time) continue;
       const d = new Date(s.end_time);
       const key = `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
-      if (!byDay.has(key)) byDay.set(key, s);
+      const existing = byDay.get(key);
+      if (!existing || (s.status === "completed" && existing.status !== "completed")) {
+        byDay.set(key, s);
+      }
     }
 
     const uniqueDays = [...byDay.values()].sort(
