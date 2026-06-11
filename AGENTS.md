@@ -268,7 +268,7 @@ EXPO_PUBLIC_SUPABASE_ANON_KEY=eyJ...
 - [x] Dark/light mode across all components
 - [x] Me tab: first name, unified achievements, weekly stats
 - [x] Signup includes display_name field
-- [x] Database: 7 migrations (schema + profile settings + workouts)
+- [x] Database: 8 migrations (schema + profile settings + workouts + weight log)
 - [x] Edge Functions: food-search proxy + daily-summary
 - [x] All components theme-aware (no hardcoded colors)
 - [x] Deploy Edge Functions to production
@@ -279,6 +279,8 @@ EXPO_PUBLIC_SUPABASE_ANON_KEY=eyJ...
 - [x] Fixed total fasts achievement (counts all non-broken sessions)
 - [x] Workout goal edit stepper + presets + custom input
 - [x] Log Set modal stepper controls (no keyboard)
+- [x] Weight tracking (log weight, progress chart, goal weight)
+- [x] Database: 8 migrations (schema + profile settings + workouts + weight log)
 
 ## Next Steps
 
@@ -286,11 +288,10 @@ EXPO_PUBLIC_SUPABASE_ANON_KEY=eyJ...
 |---|-----------|--------|
 | 1 | **Testing** — No tests exist yet. Unit tests for hooks, component tests, E2E | Medium |
 | 2 | **App Store deployment** — Build profiles, screenshots, store listings, submit to iOS/Android | Medium |
-| 3 | **Weight tracking** — Log weight over time, show progress chart on Me tab | Small |
-| 4 | **Barcode scanner** — Scan food packaging for instant logging via camera | Medium |
-| 5 | **Apple Health / Google Fit** — Sync workouts, weight, and water | Medium |
-| 6 | **Streak notifications** — Reminders to start fast, check in, drink water | Small |
-| 7 | **Export / reports** — PDF or CSV export of fasting history, nutrition, workouts | Small |
-| 8 | **Social features** — Share progress, friend challenges | Large |
-| 9 | **Widget support** — iOS/Android home screen widget showing fasting timer | Medium |
-| 10 | **Bug fixes / polish** — Review and improve existing UX | Ongoing |
+| 3 | **Barcode scanner** — Scan food packaging for instant logging via camera | Medium |
+| 4 | **Apple Health / Google Fit** — Sync workouts, weight, and water | Medium |
+| 5 | **Streak notifications** — Reminders to start fast, check in, drink water | Small |
+| 6 | **Export / reports** — PDF or CSV export of fasting history, nutrition, workouts | Small |
+| 7 | **Social features** — Share progress, friend challenges | Large |
+| 8 | **Widget support** — iOS/Android home screen widget showing fasting timer | Medium |
+| 9 | **Bug fixes / polish** — Review and improve existing UX | Ongoing |
