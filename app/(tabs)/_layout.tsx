@@ -3,7 +3,7 @@ import { Tabs } from "expo-router";
 import { HugeiconsIcon } from "@hugeicons/react-native";
 import Timer01Icon from "@hugeicons/core-free-icons/dist/esm/Timer01Icon";
 import Dumbbell01Icon from "@hugeicons/core-free-icons/dist/esm/Dumbbell01Icon";
-import SaladIcon from "@hugeicons/core-free-icons/dist/esm/SaladIcon";
+import SpoonAndForkIcon from "@hugeicons/core-free-icons/dist/esm/SpoonAndForkIcon";
 import UserCircleIcon from "@hugeicons/core-free-icons/dist/esm/UserCircleIcon";
 import { useThemeStore } from "@/lib/theme-store";
 import { getThemeColors, ACCENT } from "@/lib/theme-colors";
@@ -57,9 +57,9 @@ export default function TabLayout() {
       <Tabs.Screen
         name="log-food"
         options={{
-          title: "Log Food",
+          title: "Log",
           tabBarIcon: ({ color }) => (
-            <HugeiconsIcon icon={SaladIcon} size={22} color={color} strokeWidth={1.5} />
+            <HugeiconsIcon icon={SpoonAndForkIcon} size={22} color={color} strokeWidth={1.5} />
           ),
           tabBarLabelStyle: {
             fontFamily: "PlusJakartaSans_600SemiBold",
