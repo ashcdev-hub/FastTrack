@@ -13,18 +13,11 @@ import { FoodLogItem } from "@/components/FoodLogItem";
 import { AppHeader } from "@/components/AppHeader";
 import { LogFoodSkeleton } from "@/components/Skeleton";
 import { useThemeStore } from "@/lib/theme-store";
-import { getThemeColors, ACCENT } from "@/lib/theme-colors";
+import { getThemeColors, ACCENT, MEAL_COLORS } from "@/lib/theme-colors";
 
 type MealType = "breakfast" | "lunch" | "dinner" | "snack";
 
 const mealTypes: MealType[] = ["breakfast", "lunch", "dinner", "snack"];
-
-const MEAL_COLORS: Record<string, string> = {
-  breakfast: ACCENT.coral,
-  lunch: ACCENT.mint,
-  dinner: ACCENT.sky,
-  snack: "rgba(255,107,82,0.7)",
-};
 
 const getDefaultMealType = (): MealType => {
   const hour = new Date().getHours();
@@ -126,7 +119,7 @@ export default function LogFoodScreen() {
             >
               <Text
                 className="text-center capitalize"
-                style={{ color: mealType === type ? "#FFFFFF" : c.textSecondary, fontFamily: "PlusJakartaSans_600SemiBold" }}
+                style={{ color: mealType === type ? c.textOnDark : c.textSecondary, fontFamily: "PlusJakartaSans_600SemiBold" }}
               >
                 {type}
               </Text>
@@ -195,7 +188,7 @@ export default function LogFoodScreen() {
 
       {/* Custom Item Modal */}
       <Modal visible={showCustomItemModal} transparent animationType="slide" onRequestClose={() => setShowCustomItemModal(false)}>
-        <Pressable className="flex-1 justify-end" style={{ backgroundColor: "rgba(0,0,0,0.5)" }} onPress={() => setShowCustomItemModal(false)}>
+        <Pressable className="flex-1 justify-end" style={{ backgroundColor: c.overlay }} onPress={() => setShowCustomItemModal(false)}>
           <Pressable className="rounded-t-3xl" style={{ backgroundColor: c.elevated }} onStartShouldSetResponder={() => true}>
             <MealForm onSubmit={handleAddCustomItem} onCancel={() => setShowCustomItemModal(false)} />
           </Pressable>
@@ -204,7 +197,7 @@ export default function LogFoodScreen() {
 
       {/* Date/Time Picker Modal */}
       <Modal visible={showDateTimePicker} transparent animationType="slide" onRequestClose={() => setShowDateTimePicker(false)}>
-        <Pressable className="flex-1 justify-end" style={{ backgroundColor: "rgba(0,0,0,0.5)" }} onPress={() => setShowDateTimePicker(false)}>
+        <Pressable className="flex-1 justify-end" style={{ backgroundColor: c.overlay }} onPress={() => setShowDateTimePicker(false)}>
           <Pressable className="rounded-t-3xl p-6" style={{ backgroundColor: c.elevated }} onStartShouldSetResponder={() => true}>
             <View className="flex-row justify-between items-center mb-4">
               <Pressable onPress={() => setShowDateTimePicker(false)}>

@@ -135,7 +135,7 @@ export function SettingsPanel({ userId }: SettingsPanelProps) {
                   <Text
                     className="text-sm capitalize"
                     style={{
-                      color: gender === g ? "#0C0C0E" : c.textSecondary,
+                      color: gender === g ? c.textOnAccent : c.textSecondary,
                       fontFamily: "PlusJakartaSans_600SemiBold",
                     }}
                   >
@@ -176,7 +176,7 @@ export function SettingsPanel({ userId }: SettingsPanelProps) {
             )}
 
             <Pressable onPress={handleSaveProfile} className="rounded-xl py-3" style={{ backgroundColor: ACCENT.mint }}>
-              <Text style={{ color: "#0C0C0E", fontFamily: "PlusJakartaSans_600SemiBold" }} className="text-center">Save Profile</Text>
+              <Text style={{ color: c.textOnAccent, fontFamily: "PlusJakartaSans_600SemiBold" }} className="text-center">Save Profile</Text>
             </Pressable>
           </View>
         )}
@@ -244,7 +244,7 @@ export function SettingsPanel({ userId }: SettingsPanelProps) {
               />
             </View>
             <Pressable onPress={handleSaveNotifications} className="rounded-xl py-3 mt-3" style={{ backgroundColor: ACCENT.mint }}>
-              <Text style={{ color: "#0C0C0E", fontFamily: "PlusJakartaSans_600SemiBold" }} className="text-center">Save Preferences</Text>
+              <Text style={{ color: c.textOnAccent, fontFamily: "PlusJakartaSans_600SemiBold" }} className="text-center">Save Preferences</Text>
             </Pressable>
           </View>
         )}

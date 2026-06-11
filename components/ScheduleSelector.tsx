@@ -48,7 +48,7 @@ export function ScheduleSelector({ selected, onSelect }: ScheduleSelectorProps) 
             >
               <Text
                 style={{
-                  color: isActive ? "#0C0C0E" : c.text,
+                  color: isActive ? c.textOnAccent : c.text,
                   fontFamily: "PlusJakartaSans_700Bold",
                 }}
                 className="text-base"
@@ -87,7 +87,7 @@ export function ScheduleSelector({ selected, onSelect }: ScheduleSelectorProps) 
       >
         <Text
           style={{
-            color: customMode ? "#0C0C0E" : c.textSecondary,
+            color: customMode ? c.textOnAccent : c.textSecondary,
             fontFamily: "PlusJakartaSans_600SemiBold",
           }}
           className="text-base"
@@ -114,7 +114,7 @@ export function ScheduleSelector({ selected, onSelect }: ScheduleSelectorProps) 
               keyboardType="numeric"
               placeholder="16"
               placeholderTextColor={c.placeholder}
-              className="rounded-xl px-4 py-3.5 text-center font-bold text-xl"
+              className="rounded-xl px-4 py-3.5 text-center text-xl"
               style={{ backgroundColor: c.inputBg, color: c.text, fontFamily: "PlusJakartaSans_700Bold" }}
             />
           </View>
@@ -137,7 +137,7 @@ export function ScheduleSelector({ selected, onSelect }: ScheduleSelectorProps) 
               keyboardType="numeric"
               placeholder="8"
               placeholderTextColor={c.placeholder}
-              className="rounded-xl px-4 py-3.5 text-center font-bold text-xl"
+              className="rounded-xl px-4 py-3.5 text-center text-xl"
               style={{ backgroundColor: c.inputBg, color: c.text, fontFamily: "PlusJakartaSans_700Bold" }}
             />
           </View>
@@ -150,7 +150,7 @@ export function ScheduleSelector({ selected, onSelect }: ScheduleSelectorProps) 
             className="rounded-xl px-6 py-3.5 mt-5"
             style={{ backgroundColor: ACCENT.mint }}
           >
-            <Text style={{ color: "#0C0C0E", fontFamily: "PlusJakartaSans_700Bold" }} className="text-sm">
+            <Text style={{ color: c.textOnAccent, fontFamily: "PlusJakartaSans_700Bold" }} className="text-sm">
               Set
             </Text>
           </Pressable>

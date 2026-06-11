@@ -202,7 +202,7 @@ export default function HomeScreen() {
                 <Text style={{ color: c.text, fontFamily: "PlusJakartaSans_600SemiBold" }} className="text-center">Keep Eating</Text>
               </Pressable>
               <Pressable onPress={confirmEndSession} className="flex-1 rounded-xl py-3" style={{ backgroundColor: ACCENT.mint }}>
-                <Text style={{ color: "#0C0C0E", fontFamily: "PlusJakartaSans_600SemiBold" }} className="text-center">End Session</Text>
+                <Text style={{ color: c.textOnAccent, fontFamily: "PlusJakartaSans_600SemiBold" }} className="text-center">End Session</Text>
               </Pressable>
             </View>
           </View>
@@ -214,8 +214,8 @@ export default function HomeScreen() {
                 className="rounded-2xl py-4 w-full flex-row items-center justify-center mb-6"
                 style={{ backgroundColor: ACCENT.mint }}
               >
-                <HugeiconsIcon icon={Timer01Icon} size={22} color="#0C0C0E" strokeWidth={2} />
-                <Text style={{ color: "#0C0C0E", fontFamily: "PlusJakartaSans_700Bold" }} className="text-lg ml-2">
+                <HugeiconsIcon icon={Timer01Icon} size={22} color={c.textOnAccent} strokeWidth={2} />
+                <Text style={{ color: c.textOnAccent, fontFamily: "PlusJakartaSans_700Bold" }} className="text-lg ml-2">
                   Start {selectedSchedule ?? `${fastingHours}:${eatingHours}`} Fast
                 </Text>
               </Pressable>
@@ -281,7 +281,7 @@ export default function HomeScreen() {
 
             {phase === "fasting" && (
               <Pressable onPress={handleBreakFast} className="rounded-2xl py-4 w-full" style={{ backgroundColor: ACCENT.coral }}>
-                <Text style={{ color: "#FFFFFF", fontFamily: "PlusJakartaSans_700Bold" }} className="text-center text-lg">
+                <Text style={{ color: c.textOnDark, fontFamily: "PlusJakartaSans_700Bold" }} className="text-center text-lg">
                   Break Fast
                 </Text>
               </Pressable>

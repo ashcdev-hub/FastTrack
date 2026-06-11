@@ -122,7 +122,7 @@ export function CheckInPanel({ phase, onSubmit }: CheckInPanelProps) {
           <HugeiconsIcon
             icon={ArrowRight01Icon}
             size={18}
-            color={selectedMood !== null ? "#0C0C0E" : c.textMuted}
+            color={selectedMood !== null ? c.textOnAccent : c.textMuted}
             strokeWidth={1.5}
           />
         </Pressable>

@@ -26,7 +26,7 @@ export function LogSetModal({ visible, goal, weightKg, onClose, onLog }: LogSetM
 
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
-      <View className="flex-1 justify-end" style={{ backgroundColor: "rgba(0,0,0,0.5)" }}>
+      <View className="flex-1 justify-end" style={{ backgroundColor: c.overlay }}>
         <View className="rounded-t-3xl p-6" style={{ backgroundColor: c.elevated }}>
           <View className="flex-row justify-between items-center mb-6">
             <Pressable onPress={onClose}>
@@ -53,7 +53,7 @@ export function LogSetModal({ visible, goal, weightKg, onClose, onLog }: LogSetM
             {[5, 10, 15, 20, 25].map((preset) => (
               <Pressable key={preset} onPress={() => setReps(preset)} className="flex-1 py-2 rounded-lg items-center"
                 style={{ backgroundColor: reps === preset ? ACCENT.mint : c.buttonBg }}>
-                <Text className="text-xs" style={{ color: reps === preset ? "#0C0C0E" : c.textSecondary, fontFamily: "PlusJakartaSans_600SemiBold" }}>
+                <Text className="text-xs" style={{ color: reps === preset ? c.textOnAccent : c.textSecondary, fontFamily: "PlusJakartaSans_600SemiBold" }}>
                   {preset}
                 </Text>
               </Pressable>
@@ -75,7 +75,7 @@ export function LogSetModal({ visible, goal, weightKg, onClose, onLog }: LogSetM
             {[1, 2, 3, 4, 5].map((preset) => (
               <Pressable key={preset} onPress={() => setSets(preset)} className="flex-1 py-2 rounded-lg items-center"
                 style={{ backgroundColor: sets === preset ? ACCENT.mint : c.buttonBg }}>
-                <Text className="text-xs" style={{ color: sets === preset ? "#0C0C0E" : c.textSecondary, fontFamily: "PlusJakartaSans_600SemiBold" }}>
+                <Text className="text-xs" style={{ color: sets === preset ? c.textOnAccent : c.textSecondary, fontFamily: "PlusJakartaSans_600SemiBold" }}>
                   {preset}
                 </Text>
               </Pressable>
@@ -91,7 +91,7 @@ export function LogSetModal({ visible, goal, weightKg, onClose, onLog }: LogSetM
           )}
 
           <Pressable onPress={handleLog} className="rounded-xl py-3" style={{ backgroundColor: ACCENT.mint }}>
-            <Text style={{ color: "#0C0C0E", fontFamily: "PlusJakartaSans_700Bold" }} className="text-center">Log Set</Text>
+            <Text style={{ color: c.textOnAccent, fontFamily: "PlusJakartaSans_700Bold" }} className="text-center">Log Set</Text>
           </Pressable>
         </View>
       </View>

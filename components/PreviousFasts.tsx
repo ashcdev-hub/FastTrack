@@ -118,7 +118,7 @@ export function PreviousFasts({ sessions, fastingHours, onDelete }: PreviousFast
                     className="flex-1 rounded-xl py-3"
                     style={{ backgroundColor: ACCENT.rose }}
                   >
-                    <Text style={{ color: "#FFFFFF", fontFamily: "PlusJakartaSans_600SemiBold" }} className="text-center">Delete</Text>
+                    <Text style={{ color: c.textOnDark, fontFamily: "PlusJakartaSans_600SemiBold" }} className="text-center">Delete</Text>
                   </Pressable>
                 </View>
               </View>

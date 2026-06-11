@@ -29,7 +29,7 @@ export function AddExerciseModal({ visible, onClose, onAdd, disabledGoals, onRei
 
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
-      <View className="flex-1 justify-end" style={{ backgroundColor: "rgba(0,0,0,0.5)" }}>
+      <View className="flex-1 justify-end" style={{ backgroundColor: c.overlay }}>
         <View className="rounded-t-3xl p-6" style={{ backgroundColor: c.elevated }}>
           <View className="flex-row justify-between items-center mb-6">
             <Pressable onPress={onClose}>
@@ -52,7 +52,7 @@ export function AddExerciseModal({ visible, onClose, onAdd, disabledGoals, onRei
                       </Text>
                     </View>
                     <Pressable onPress={() => onReinstate(goal.id)} className="rounded-lg px-3 py-1.5" style={{ backgroundColor: ACCENT.mint }}>
-                      <Text style={{ color: "#0C0C0E", fontFamily: "PlusJakartaSans_600SemiBold" }} className="text-xs">Reinstate</Text>
+                      <Text style={{ color: c.textOnAccent, fontFamily: "PlusJakartaSans_600SemiBold" }} className="text-xs">Reinstate</Text>
                     </Pressable>
                   </View>
                 ))}
@@ -75,7 +75,7 @@ export function AddExerciseModal({ visible, onClose, onAdd, disabledGoals, onRei
 
           <Pressable onPress={handleAdd} disabled={!exerciseType.trim()} className="rounded-xl py-3"
             style={{ backgroundColor: exerciseType.trim() ? ACCENT.mint : c.buttonBg }}>
-            <Text style={{ color: exerciseType.trim() ? "#0C0C0E" : c.textMuted, fontFamily: "PlusJakartaSans_700Bold" }} className="text-center">
+            <Text style={{ color: exerciseType.trim() ? c.textOnAccent : c.textMuted, fontFamily: "PlusJakartaSans_700Bold" }} className="text-center">
               Add Exercise
             </Text>
           </Pressable>

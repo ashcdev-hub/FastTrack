@@ -9,6 +9,8 @@ export function getThemeColors(theme: Theme) {
     textSecondary: theme === "dark" ? "rgba(240,237,232,0.55)" : "rgba(26,24,22,0.5)",
     textMuted: theme === "dark" ? "rgba(240,237,232,0.35)" : "rgba(26,24,22,0.3)",
     textFaint: theme === "dark" ? "rgba(240,237,232,0.2)" : "rgba(26,24,22,0.15)",
+    textOnAccent: "#0C0C0E",
+    textOnDark: "#FFFFFF",
     cardBg: theme === "dark" ? "#161618" : "#FFFFFF",
     cardBgAlt: theme === "dark" ? "#1E1E21" : "#F0EDE8",
     cardBorder: theme === "dark" ? "rgba(255,255,255,0.07)" : "rgba(0,0,0,0.06)",
@@ -20,6 +22,7 @@ export function getThemeColors(theme: Theme) {
     tabBarBorder: theme === "dark" ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)",
     tabBarInactive: theme === "dark" ? "rgba(240,237,232,0.3)" : "rgba(26,24,22,0.35)",
     placeholder: theme === "dark" ? "rgba(240,237,232,0.35)" : "rgba(26,24,22,0.35)",
+    overlay: "rgba(0,0,0,0.5)",
   };
 }
 
@@ -43,5 +46,13 @@ export const ACCENT = {
   amberBg: "rgba(251,191,36,0.12)",
   amberBorder: "rgba(251,191,36,0.3)",
 } as const;
+
+export const MEAL_COLORS: Record<string, string> = {
+  breakfast: ACCENT.coral,
+  lunch: ACCENT.mint,
+  dinner: ACCENT.sky,
+  snack: ACCENT.coralLight,
+  other: "rgba(128,128,128,0.5)",
+};
 
 export type ThemeColors = ReturnType<typeof getThemeColors>;

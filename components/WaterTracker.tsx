@@ -107,7 +107,7 @@ export function WaterTracker({ currentMl, goalMl, onAdd }: WaterTrackerProps) {
           <Text
             style={{
               fontFamily: "PlusJakartaSans_600SemiBold",
-              color: customMl && Number(customMl) > 0 ? "#FFFFFF" : c.textMuted,
+              color: customMl && Number(customMl) > 0 ? c.textOnDark : c.textMuted,
             }}
           >
             Add

@@ -29,7 +29,7 @@ export default function LoginScreen() {
 
   return (
     <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} className="flex-1" style={{ backgroundColor: c.bg }}>
-      <View className="flex-1 justify-center px-8">
+      <View className="flex-1 justify-center px-6">
         <Text style={{ color: c.text, fontFamily: "PlusJakartaSans_700Bold" }} className="text-4xl text-center mb-2">
           FastTrack
         </Text>
@@ -57,9 +57,9 @@ export default function LoginScreen() {
           className="rounded-xl py-4 mb-4" style={{ backgroundColor: ACCENT.mint }}
         >
           {loading ? (
-            <ActivityIndicator color="#0C0C0E" />
+            <ActivityIndicator color={c.textOnAccent} />
           ) : (
-            <Text style={{ color: "#0C0C0E", fontFamily: "PlusJakartaSans_700Bold" }} className="text-center text-lg">
+            <Text style={{ color: c.textOnAccent, fontFamily: "PlusJakartaSans_700Bold" }} className="text-center text-lg">
               Sign In
             </Text>
           )}

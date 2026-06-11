@@ -72,7 +72,7 @@ export function MealForm({ onSubmit, onCancel }: MealFormProps) {
           </Pressable>
         )}
         <Pressable onPress={handleSubmit} className="flex-1 rounded-xl py-3" style={{ backgroundColor: ACCENT.mint }}>
-          <Text style={{ color: "#0C0C0E", fontFamily: "PlusJakartaSans_600SemiBold" }} className="text-center">Add to Meal</Text>
+          <Text style={{ color: c.textOnAccent, fontFamily: "PlusJakartaSans_600SemiBold" }} className="text-center">Add to Meal</Text>
         </Pressable>
       </View>
     </View>

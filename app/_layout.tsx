@@ -15,7 +15,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
 import { useThemeStore } from "@/lib/theme-store";
 import { applyTheme } from "@/lib/dark-mode";
-import { getThemeColors } from "@/lib/theme-colors";
+import { getThemeColors, ACCENT } from "@/lib/theme-colors";
 import { View, ActivityIndicator } from "react-native";
 
 const queryClient = new QueryClient();
@@ -56,8 +56,8 @@ export default function RootLayout() {
 
   if (!fontsLoaded) {
     return (
-      <View style={{ flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: "#0C0C0E" }}>
-        <ActivityIndicator size="large" color="#2DD4A8" />
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: theme === "dark" ? "#0C0C0E" : "#F6F4EF" }}>
+        <ActivityIndicator size="large" color={ACCENT.mint} />
       </View>
     );
   }

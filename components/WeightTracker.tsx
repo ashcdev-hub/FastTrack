@@ -1,5 +1,7 @@
 import React, { useState } from "react";
-import { Pressable, View, Text, TextInput, Alert } from "react-native";
+import { Pressable, View, Text, TextInput } from "react-native";
+import { HugeiconsIcon } from "@hugeicons/react-native";
+import Delete02Icon from "@hugeicons/core-free-icons/dist/esm/Delete02Icon";
 import { useThemeStore } from "@/lib/theme-store";
 import { getThemeColors, ACCENT } from "@/lib/theme-colors";
 import { useToast } from "@/hooks/useToast";
@@ -21,6 +23,7 @@ export function WeightTracker({ entries, currentWeight, weightChange, onAddWeigh
   const { toast, success, error: toastError } = useToast();
   const [inputValue, setInputValue] = useState("");
   const [saving, setSaving] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
 
   const handleLog = async () => {
     const weight = parseFloat(inputValue);
@@ -32,11 +35,10 @@ export function WeightTracker({ entries, currentWeight, weightChange, onAddWeigh
     setSaving(false);
   };
 
-  const handleDelete = (id: string) => {
-    Alert.alert("Delete Entry", "Remove this weight entry?", [
-      { text: "Cancel", style: "cancel" },
-      { text: "Delete", style: "destructive", onPress: async () => { await onDeleteWeight(id); } },
-    ]);
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
+    await onDeleteWeight(deleteTarget);
+    setDeleteTarget(null);
   };
 
   const recentEntries = entries.slice(0, 5);
@@ -82,7 +84,7 @@ export function WeightTracker({ entries, currentWeight, weightChange, onAddWeigh
         >
           <Text style={{
             fontFamily: "PlusJakartaSans_600SemiBold",
-            color: inputValue && parseFloat(inputValue) > 0 && !saving ? "#0C0C0E" : c.textMuted,
+            color: inputValue && parseFloat(inputValue) > 0 && !saving ? c.textOnAccent : c.textMuted,
           }}>
             {saving ? "..." : "Log"}
           </Text>
@@ -99,18 +101,34 @@ export function WeightTracker({ entries, currentWeight, weightChange, onAddWeigh
             const dateStr = date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
             const isToday = new Date().toDateString() === date.toDateString();
             return (
-              <View key={entry.id} className="flex-row items-center justify-between py-2" style={{ borderBottomWidth: 1, borderBottomColor: c.divider }}>
-                <Text style={{ color: c.textSecondary, fontFamily: "PlusJakartaSans_400Regular" }} className="text-sm">
-                  {isToday ? "Today" : dateStr}
-                </Text>
-                <View className="flex-row items-center gap-3">
-                  <Text style={{ color: c.text, fontFamily: "PlusJakartaSans_500Medium" }} className="text-sm">
-                    {entry.weight_kg.toFixed(1)} kg
+              <View key={entry.id}>
+                <View className="flex-row items-center justify-between py-2" style={{ borderBottomWidth: 1, borderBottomColor: c.divider }}>
+                  <Text style={{ color: c.textSecondary, fontFamily: "PlusJakartaSans_400Regular" }} className="text-sm">
+                    {isToday ? "Today" : dateStr}
                   </Text>
-                  <Pressable onPress={() => handleDelete(entry.id)}>
-                    <Text style={{ color: c.textMuted }} className="text-xs">✕</Text>
-                  </Pressable>
+                  <View className="flex-row items-center gap-3">
+                    <Text style={{ color: c.text, fontFamily: "PlusJakartaSans_500Medium" }} className="text-sm">
+                      {entry.weight_kg.toFixed(1)} kg
+                    </Text>
+                    <Pressable onPress={() => setDeleteTarget(entry.id)} hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}>
+                      <HugeiconsIcon icon={Delete02Icon} size={18} color={c.textMuted} strokeWidth={1.5} />
+                    </Pressable>
+                  </View>
                 </View>
+                {deleteTarget === entry.id && (
+                  <View className="rounded-xl p-4 mt-2 mb-2" style={{ backgroundColor: ACCENT.roseBg, borderWidth: 1, borderColor: ACCENT.roseBorder }}>
+                    <Text style={{ color: c.text, fontFamily: "PlusJakartaSans_700Bold" }} className="mb-1">Delete this entry?</Text>
+                    <Text style={{ color: c.textSecondary, fontFamily: "PlusJakartaSans_400Regular" }} className="text-sm mb-3">This record will be permanently removed.</Text>
+                    <View className="flex-row gap-3">
+                      <Pressable onPress={() => setDeleteTarget(null)} className="flex-1 rounded-xl py-3" style={{ backgroundColor: c.buttonBg }}>
+                        <Text style={{ color: c.text, fontFamily: "PlusJakartaSans_600SemiBold" }} className="text-center">Cancel</Text>
+                      </Pressable>
+                      <Pressable onPress={confirmDelete} className="flex-1 rounded-xl py-3" style={{ backgroundColor: ACCENT.rose }}>
+                        <Text style={{ color: c.textOnDark, fontFamily: "PlusJakartaSans_600SemiBold" }} className="text-center">Delete</Text>
+                      </Pressable>
+                    </View>
+                  </View>
+                )}
               </View>
             );
           })}

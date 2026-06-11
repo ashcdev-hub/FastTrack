@@ -3,7 +3,7 @@ import { Pressable, View, Text } from "react-native";
 import Delete02Icon from "@hugeicons/core-free-icons/dist/esm/Delete02Icon";
 import { HugeiconsIcon } from "@hugeicons/react-native";
 import { useThemeStore } from "@/lib/theme-store";
-import { getThemeColors, ACCENT } from "@/lib/theme-colors";
+import { getThemeColors, MEAL_COLORS } from "@/lib/theme-colors";
 
 export type StagedItem = {
   id: string;
@@ -22,14 +22,6 @@ type MealBuilderProps = {
   mealType: string;
   onRemove: (id: string) => void;
   onLog: () => void;
-};
-
-const MEAL_COLORS: Record<string, string> = {
-  breakfast: ACCENT.coral,
-  lunch: ACCENT.mint,
-  dinner: ACCENT.sky,
-  snack: "rgba(255,107,82,0.7)",
-  other: "rgba(240,237,232,0.35)",
 };
 
 export function MealBuilder({ items, mealType, onRemove, onLog }: MealBuilderProps) {
@@ -108,7 +100,7 @@ export function MealBuilder({ items, mealType, onRemove, onLog }: MealBuilderPro
           className="rounded-xl py-3"
           style={{ backgroundColor: color }}
         >
-          <Text style={{ color: "#FFFFFF", fontFamily: "PlusJakartaSans_700Bold" }} className="text-center">
+          <Text style={{ color: c.textOnDark, fontFamily: "PlusJakartaSans_700Bold" }} className="text-center">
             Log {mealType.charAt(0).toUpperCase() + mealType.slice(1)}
           </Text>
         </Pressable>

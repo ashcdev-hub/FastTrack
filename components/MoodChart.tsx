@@ -44,7 +44,7 @@ export function MoodChart({ checkIns }: MoodChartProps) {
   const lineColor = avgMood >= 4 ? ACCENT.mint : avgMood >= 3 ? ACCENT.amber : ACCENT.rose;
   const gridColor = theme === "dark" ? "rgba(240,237,232,0.05)" : "rgba(26,24,22,0.05)";
   const labelColor = theme === "dark" ? "rgba(240,237,232,0.25)" : "rgba(26,24,22,0.25)";
-  const dotStroke = theme === "dark" ? "#0C0C0E" : "#F6F4EF";
+  const dotStroke = c.bg;
 
   return (
     <View className="mb-4" onLayout={(e) => setContainerWidth(e.nativeEvent.layout.width)}>

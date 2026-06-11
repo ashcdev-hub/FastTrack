@@ -113,7 +113,7 @@ export function FoodSearch({ onAdd }: FoodSearchProps) {
           className="rounded-xl px-4 py-3"
           style={{ backgroundColor: ACCENT.mint, opacity: loading ? 0.5 : 1 }}
         >
-          <Text style={{ color: "#0C0C0E", fontFamily: "PlusJakartaSans_600SemiBold" }}>Search</Text>
+          <Text style={{ color: c.textOnAccent, fontFamily: "PlusJakartaSans_600SemiBold" }}>Search</Text>
         </Pressable>
       </View>
 
@@ -171,7 +171,7 @@ export function FoodSearch({ onAdd }: FoodSearchProps) {
       </ScrollView>
 
       <Modal visible={selectedItem !== null} transparent animationType="slide" onRequestClose={() => setSelectedItem(null)}>
-        <View className="flex-1 justify-end" style={{ backgroundColor: "rgba(0,0,0,0.5)" }}>
+        <View className="flex-1 justify-end" style={{ backgroundColor: c.overlay }}>
           <View className="rounded-t-3xl p-6" style={{ backgroundColor: c.elevated }}>
             <View className="flex-row justify-between items-center mb-4">
               <Pressable onPress={() => setSelectedItem(null)}>
@@ -226,7 +226,7 @@ export function FoodSearch({ onAdd }: FoodSearchProps) {
                   className="rounded-xl py-3"
                   style={{ backgroundColor: ACCENT.mint }}
                 >
-                  <Text style={{ color: "#0C0C0E", fontFamily: "PlusJakartaSans_700Bold" }} className="text-center">
+                  <Text style={{ color: c.textOnAccent, fontFamily: "PlusJakartaSans_700Bold" }} className="text-center">
                     Add to Meal
                   </Text>
                 </Pressable>

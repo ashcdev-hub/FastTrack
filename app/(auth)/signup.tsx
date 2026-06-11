@@ -33,7 +33,7 @@ export default function SignupScreen() {
 
   if (success) {
     return (
-      <View className="flex-1 justify-center px-8" style={{ backgroundColor: c.bg }}>
+      <View className="flex-1 justify-center px-6" style={{ backgroundColor: c.bg }}>
         <Text style={{ color: c.text, fontFamily: "PlusJakartaSans_700Bold" }} className="text-3xl text-center mb-4">
           Check Your Email
         </Text>
@@ -42,7 +42,7 @@ export default function SignupScreen() {
         </Text>
         <Link href="/(auth)/login" asChild>
           <Pressable className="rounded-xl py-4" style={{ backgroundColor: ACCENT.mint }}>
-            <Text style={{ color: "#0C0C0E", fontFamily: "PlusJakartaSans_700Bold" }} className="text-center text-lg">
+            <Text style={{ color: c.textOnAccent, fontFamily: "PlusJakartaSans_700Bold" }} className="text-center text-lg">
               Back to Sign In
             </Text>
           </Pressable>
@@ -53,7 +53,7 @@ export default function SignupScreen() {
 
   return (
     <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} className="flex-1" style={{ backgroundColor: c.bg }}>
-      <View className="flex-1 justify-center px-8">
+      <View className="flex-1 justify-center px-6">
         <Text style={{ color: c.text, fontFamily: "PlusJakartaSans_700Bold" }} className="text-4xl text-center mb-2">
           Create Account
         </Text>
@@ -78,9 +78,9 @@ export default function SignupScreen() {
 
         <Pressable onPress={handleSignup} disabled={loading} className="rounded-xl py-4 mb-4" style={{ backgroundColor: ACCENT.mint }}>
           {loading ? (
-            <ActivityIndicator color="#0C0C0E" />
+            <ActivityIndicator color={c.textOnAccent} />
           ) : (
-            <Text style={{ color: "#0C0C0E", fontFamily: "PlusJakartaSans_700Bold" }} className="text-center text-lg">
+            <Text style={{ color: c.textOnAccent, fontFamily: "PlusJakartaSans_700Bold" }} className="text-center text-lg">
               Sign Up
             </Text>
           )}

@@ -45,7 +45,7 @@ export function WeightChart({ entries, goalWeightKg }: WeightChartProps) {
   const fillColor = theme === "dark" ? "rgba(45,212,168,0.15)" : "rgba(45,212,168,0.1)";
   const gridColor = theme === "dark" ? "rgba(240,237,232,0.05)" : "rgba(26,24,22,0.05)";
   const labelColor = theme === "dark" ? "rgba(240,237,232,0.25)" : "rgba(26,24,22,0.25)";
-  const dotStroke = theme === "dark" ? "#0C0C0E" : "#F6F4EF";
+  const dotStroke = c.bg;
 
   const goalY = goalWeightKg !== null ? padding.top + chartH - ((goalWeightKg - yMin) / yRange) * chartH : null;
   const gridLines = 4;

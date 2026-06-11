@@ -175,7 +175,7 @@ export function ExercisePanel({
               className="flex-1 rounded-xl py-3"
               style={{ backgroundColor: ACCENT.rose }}
             >
-              <Text style={{ color: "#FFFFFF", fontFamily: "PlusJakartaSans_600SemiBold" }} className="text-center">Remove</Text>
+              <Text style={{ color: c.textOnDark, fontFamily: "PlusJakartaSans_600SemiBold" }} className="text-center">Remove</Text>
             </Pressable>
           </View>
         </View>
@@ -230,9 +230,9 @@ export function ExercisePanel({
                   }}
                 >
                   <Text
-                    className="text-xs font-medium"
+                    className="text-xs"
                     style={{
-                      color: isActive ? "#0C0C0E" : c.textSecondary,
+                      color: isActive ? c.textOnAccent : c.textSecondary,
                       fontFamily: "PlusJakartaSans_600SemiBold",
                     }}
                   >
@@ -251,7 +251,7 @@ export function ExercisePanel({
               <Text
                 className="text-xs font-medium"
                 style={{
-                  color: customMode ? "#0C0C0E" : c.textSecondary,
+                  color: customMode ? c.textOnAccent : c.textSecondary,
                   fontFamily: "PlusJakartaSans_600SemiBold",
                 }}
               >
@@ -287,7 +287,7 @@ export function ExercisePanel({
               className="flex-1 rounded-xl py-2.5"
               style={{ backgroundColor: ACCENT.mint }}
             >
-              <Text style={{ color: "#0C0C0E", fontFamily: "PlusJakartaSans_600SemiBold" }} className="text-center">Save</Text>
+              <Text style={{ color: c.textOnAccent, fontFamily: "PlusJakartaSans_600SemiBold" }} className="text-center">Save</Text>
             </Pressable>
           </View>
         </View>

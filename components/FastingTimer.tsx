@@ -33,7 +33,7 @@ type FastingTimerProps = {
 const COLORS = {
   idle: {
     stroke: "#6B6E73",
-    bg: "rgba(255,255,255,0.05)",
+    bg: "rgba(128,128,128,0.15)",
     glow: "#6B6E73",
     dot: "#6B6E73",
     gradientStart: "#6B6E73",

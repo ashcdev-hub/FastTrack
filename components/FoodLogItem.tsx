@@ -3,15 +3,7 @@ import { View, Text, Pressable } from "react-native";
 import { HugeiconsIcon } from "@hugeicons/react-native";
 import Delete02Icon from "@hugeicons/core-free-icons/dist/esm/Delete02Icon";
 import { useThemeStore } from "@/lib/theme-store";
-import { getThemeColors, ACCENT } from "@/lib/theme-colors";
-
-const MEAL_COLORS: Record<string, string> = {
-  breakfast: ACCENT.coral,
-  lunch: ACCENT.mint,
-  dinner: ACCENT.sky,
-  snack: "rgba(255,107,82,0.7)",
-  other: "rgba(240,237,232,0.35)",
-};
+import { getThemeColors, MEAL_COLORS } from "@/lib/theme-colors";
 
 type FoodLogEntry = {
   id: string;
