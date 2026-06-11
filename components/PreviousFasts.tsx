@@ -6,8 +6,11 @@ import { format } from "date-fns";
 import { useSessionCheckIns } from "@/hooks/useFastCheckIns";
 import { CheckInTimeline } from "@/components/CheckInTimeline";
 import { MoodChart } from "@/components/MoodChart";
+import { WeeklyCalendar } from "@/components/WeeklyCalendar";
+import { FastCalendar } from "@/components/FastCalendar";
 import { useThemeStore } from "@/lib/theme-store";
 import { getThemeColors, ACCENT } from "@/lib/theme-colors";
+import { useAuth } from "@/hooks/useAuth";
 import type { FastingSession } from "@/lib/types";
 
 type PreviousFastsProps = {
@@ -16,20 +19,37 @@ type PreviousFastsProps = {
   onDelete: (sessionId: string) => void;
 };
 
+const DEFAULT_LIMIT = 5;
+
 export function PreviousFasts({ sessions, fastingHours, onDelete }: PreviousFastsProps) {
   const { theme } = useThemeStore();
   const c = getThemeColors(theme);
+  const { user } = useAuth();
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<FastingSession | null>(null);
+  const [showAll, setShowAll] = useState(false);
+  const [showCalendar, setShowCalendar] = useState(false);
 
   if (sessions.length === 0) return null;
+
+  const visibleSessions = showAll ? sessions : sessions.slice(0, DEFAULT_LIMIT);
+  const hasMore = sessions.length > DEFAULT_LIMIT;
 
   return (
     <View className="mb-6">
       <Text style={{ color: c.text, fontFamily: "PlusJakartaSans_700Bold" }} className="text-lg mb-4">
         Previous Fasts
       </Text>
-      {sessions.slice(0, 10).map((s) => {
+
+      {/* Weekly Calendar */}
+      <WeeklyCalendar
+        pastSessions={sessions}
+        fastingHours={fastingHours}
+        onViewCalendar={() => setShowCalendar(true)}
+      />
+
+      {/* Session list */}
+      {visibleSessions.map((s) => {
         const start = new Date(s.start_time);
         const end = s.end_time ? new Date(s.end_time) : null;
         const durationMin =
@@ -126,6 +146,23 @@ export function PreviousFasts({ sessions, fastingHours, onDelete }: PreviousFast
           </View>
         );
       })}
+
+      {/* Show All / Show Less toggle */}
+      {hasMore && (
+        <Pressable onPress={() => setShowAll(!showAll)} className="mt-2 items-center py-2">
+          <Text style={{ color: ACCENT.mint, fontFamily: "PlusJakartaSans_600SemiBold" }} className="text-sm">
+            {showAll ? "← Show Less" : `Show All ${sessions.length} Fasts →`}
+          </Text>
+        </Pressable>
+      )}
+
+      {/* Full Calendar Modal */}
+      <FastCalendar
+        visible={showCalendar}
+        userId={user?.id ?? null}
+        fastingHours={fastingHours}
+        onClose={() => setShowCalendar(false)}
+      />
     </View>
   );
 }
