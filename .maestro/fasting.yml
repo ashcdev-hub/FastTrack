@@ -1,0 +1,42 @@
+appId: com.ashcdev.fasttrack
+---
+- launchApp
+# Should be on Fast tab after launch
+- assertVisible:
+    text: "Fast"
+    timeout: 5000
+
+# Start a fast
+- tapOn:
+    text: "Start.*Fast"
+    timeout: 3000
+
+# Verify timer is running (look for the schedule card)
+- assertVisible:
+    text: "YOUR FAST"
+    timeout: 5000
+
+# Verify Break Fast button appears
+- assertVisible:
+    text: "Break Fast"
+    timeout: 3000
+
+# Break the fast
+- tapOn:
+    text: "Break Fast"
+    timeout: 3000
+
+# Verify eating window appears
+- assertVisible:
+    text: "EATING WINDOW"
+    timeout: 5000
+
+# End session
+- tapOn:
+    text: "End Session"
+    timeout: 3000
+
+# Confirm end
+- tapOn:
+    text: "End Session"
+    timeout: 3000

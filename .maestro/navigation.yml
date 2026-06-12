@@ -1,0 +1,50 @@
+appId: com.ashcdev.fasttrack
+---
+- launchApp
+
+# Navigate to Log tab
+- tapOn:
+    text: "Log"
+    timeout: 5000
+
+# Verify meal type selector is visible
+- assertVisible:
+    text: "MEAL TYPE"
+    timeout: 3000
+
+# Search for food
+- tapOn:
+    placeholder: "Search OpenFoodFacts..."
+- inputText: "egg"
+- tapOn:
+    text: "Search"
+
+# Wait for results to load
+- extendedWaitUntil:
+    visible:
+        text: "Scrambled Eggs"
+    timeout: 10000
+
+# Quick-add a food item
+- tapOn:
+    text: "Boiled Egg"
+
+# Verify meal builder shows the item
+- assertVisible:
+    text: "Breakfast"
+    timeout: 5000
+
+# Navigate to Fast tab
+- tapOn:
+    text: "Fast"
+    timeout: 3000
+
+# Navigate to Workouts tab
+- tapOn:
+    text: "Workouts"
+    timeout: 3000
+
+# Verify workouts loaded
+- assertVisible:
+    text: "Workouts"
+    timeout: 3000

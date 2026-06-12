@@ -1,0 +1,31 @@
+appId: com.ashcdev.fasttrack
+---
+- launchApp
+
+# Open settings via header gear icon
+- tapOn:
+    # The gear icon is in the header - tap the settings button
+    # In Expo Router, the gear icon navigates to /settings
+    id: "settings-button"
+    optional: true
+- tapOn: "Settings"
+    optional: true
+
+# Wait for settings to load
+- assertVisible:
+    text: "Profile Details"
+    timeout: 5000
+
+# Expand Preferences section
+- tapOn:
+    text: "Preferences"
+    timeout: 3000
+
+# Verify weight unit options are visible
+- assertVisible:
+    text: "Kilograms (kg)"
+    timeout: 3000
+
+- assertVisible:
+    text: "Pounds (lbs)"
+    timeout: 3000

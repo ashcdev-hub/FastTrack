@@ -1,0 +1,12 @@
+appId: com.ashcdev.fasttrack
+---
+- clearState
+- launchApp
+- tapOn: "Email"
+- inputText: "test@fasttrack.app"
+- tapOn: "Password"
+- inputText: "test1234"
+- tapOn: "Sign In"
+- assertVisible:
+    text: "Fast"
+    timeout: 10000

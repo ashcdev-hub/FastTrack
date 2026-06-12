@@ -1,0 +1,30 @@
+appId: com.ashcdev.fasttrack
+---
+- launchApp
+
+# Navigate to Log tab
+- tapOn:
+    text: "Log"
+    timeout: 5000
+
+# Scroll down to water tracker
+- scrollUntilVisible:
+    element:
+        text: "Water"
+    direction: DOWN
+    timeout: 5000
+
+# Verify water tracker is visible
+- assertVisible:
+    text: "Water"
+    timeout: 3000
+
+# Tap a bottle preset
+- tapOn:
+    text: "+500ml"
+    timeout: 3000
+
+# Verify the progress updated (water added)
+- assertVisible:
+    text: "ml remaining"
+    timeout: 3000

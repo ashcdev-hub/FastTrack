@@ -9,7 +9,8 @@
     },
     "types": [
       "@hugeicons/core-free-icons",
-      "@hugeicons/react-native"
+      "@hugeicons/react-native",
+      "jest"
     ]
   },
   "include": [
