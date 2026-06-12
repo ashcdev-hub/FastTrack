@@ -1,6 +1,6 @@
 # FastTrack — Intermittent Fasting, Macro & Workout Tracker
 
-Expo SDK 54 (React Native 0.76) + Supabase + NativeWind + Zustand + TanStack Query.
+Expo SDK 54 (React Native 0.81) + Supabase + NativeWind + Zustand + TanStack Query.
 
 ## Quick Start
 
@@ -99,6 +99,7 @@ Correct: `REFERENCES auth.users(id) ON DELETE CASCADE ON UPDATE CASCADE`
 - `daily_calorie_goal` (2000), `daily_protein_goal` (150), `daily_carbs_goal` (200), `daily_fat_goal` (65)
 - `fasting_hours` (16), `eating_hours` (8)
 - `notification_preferences` (JSONB)
+- `unit_preferences` (JSONB) — weight: kg/lbs, height: cm/ft, water: ml/floz
 
 **fasting_sessions** — `id`, `user_id`, `start_time`, `end_time`, `status`, `fasting_duration_minutes`, `fasting_schedule`, `created_at`
 
@@ -122,6 +123,8 @@ Correct: `REFERENCES auth.users(id) ON DELETE CASCADE ON UPDATE CASCADE`
 - `20250610000004_profile_settings.sql` — gender, age, height, BMI, notifications
 - `20250610000005_update_profile_trigger.sql` — trigger copies display_name
 - `20250610000006_workouts.sql` — workout_goals + workout_log
+- `20250611000007_weight_log.sql` — weight tracking
+- `20250611000008_unit_preferences.sql` — unit preferences (kg/lbs, cm/ft, ml/floz)
 
 ### RLS
 All tables have RLS enabled. Policies use `auth.uid() = user_id`.
@@ -139,10 +142,10 @@ FastTrack/
 │   │   ├── login.tsx            # Email/password login
 │   │   └── signup.tsx           # Sign up with display name
 │   └── (tabs)/
-│       ├── _layout.tsx          # Bottom tabs: Fast | Workouts | Log Food | Me
-│       ├── index.tsx            # Fast tab: timer, schedule, check-ins, previous fasts
+│       ├── _layout.tsx          # Bottom tabs: Fast | Workouts | Log | Me
+│       ├── index.tsx            # Fast tab: timer, schedule, check-ins, weekly calendar, previous fasts
 │       ├── workouts.tsx         # Workouts tab: exercise panels, log sets
-│       ├── log-food.tsx         # Log Food tab: food search, meal builder, water
+│       ├── log-food.tsx         # Log tab: food search, meal builder, water
 │       └── profile.tsx          # Me tab: achievements, weekly stats, macro progress
 ├── components/
 │   ├── AppHeader.tsx            # Header with title + settings cog
@@ -152,19 +155,24 @@ FastTrack/
 │   ├── FoodSearch.tsx           # OpenFoodFacts search + quick-add presets
 │   ├── MealBuilder.tsx          # Meal staging area
 │   ├── MealForm.tsx             # Manual entry with date/time picker
-│   ├── WaterTracker.tsx         # Bottle presets + custom ml
-│   ├── PreviousFasts.tsx        # Expandable list + delete
+│   ├── WaterTracker.tsx         # Bottle presets + custom ml (supports unit prefs)
+│   ├── PreviousFasts.tsx        # Expandable list + delete + weekly calendar
+│   ├── WeeklyCalendar.tsx       # 7-day circle calendar (Mon–Sun)
+│   ├── FastCalendar.tsx         # Full month calendar modal
 │   ├── FastingAchievements.tsx  # Unified fasting + workout achievements
 │   ├── WeeklyStats.tsx          # Fasting + water + workout weekly stats
 │   ├── CheckInPanel.tsx         # Mood + note (theme-aware)
 │   ├── CheckInTimeline.tsx      # Timeline (theme-aware)
 │   ├── MoodChart.tsx            # SVG mood graph (theme-aware)
-│   ├── SettingsPanel.tsx        # Profile, account, notifications, appearance
-│   ├── ExercisePanel.tsx        # Exercise card: progress, log, edit goal (stepper + presets + custom)
-│   ├── LogSetModal.tsx          # Log reps + sets (stepper controls, no keyboard)
+│   ├── SettingsPanel.tsx        # Profile, account, notifications, preferences, appearance
+│   ├── ExercisePanel.tsx        # Exercise card: progress, log, edit goal
+│   ├── LogSetModal.tsx          # Log reps + sets (stepper controls)
 │   ├── AddExerciseModal.tsx     # Add custom exercise modal
+│   ├── BarcodeScanner.tsx       # Camera barcode scanner
+│   ├── WeightTracker.tsx        # Weight logging + recent entries (supports unit prefs)
+│   ├── WeightChart.tsx          # SVG weight line chart
 │   ├── Toast.tsx                # Animated toast notification overlay
-│   ├── Skeleton.tsx             # Reusable loading skeleton (theme-aware)
+│   ├── Skeleton.tsx             # Reusable loading skeleton with shimmer
 │   └── FoodLogItem.tsx          # Meal entry card (theme-aware)
 ├── hooks/
 │   ├── useAuth.ts               # Auth (signup accepts displayName)
@@ -172,12 +180,14 @@ FastTrack/
 │   ├── useFastCheckIns.ts       # Check-in CRUD
 │   ├── useFoodLog.ts            # Food entries + batch add
 │   ├── useWaterLog.ts           # Water tracking
-│   ├── useProfile.ts            # Profile CRUD + password + email + notifications
+│   ├── useProfile.ts            # Profile CRUD + password + email + notifications + unit prefs
 │   ├── useWeeklyFastingStats.ts # Weekly fasting stats
 │   ├── useWeeklyWaterStats.ts   # Weekly water stats
 │   ├── useWorkoutGoals.ts       # Workout goals CRUD + seed defaults
 │   ├── useWorkoutLog.ts         # Log sets, today totals, weekly stats, calorie calc, streaks
-│   └── useToast.ts              # Toast notification state (success/error, auto-dismiss)
+│   ├── useWeightLog.ts          # Weight logging + stats
+│   ├── useFastCalendar.ts       # Monthly session fetch for calendar
+│   └── useToast.ts              # Toast notification state
 ├── store/
 │   ├── useFastingStore.ts
 │   └── useGoalStore.ts
@@ -187,13 +197,16 @@ FastTrack/
 │   ├── theme-store.ts           # Theme preference (dark/light) persisted
 │   ├── theme-colors.ts          # Theme-aware color palette
 │   ├── dark-mode.ts             # applyTheme() CSS class toggle
-│   └── notifications.ts
+│   ├── notifications.ts
+│   └── units.ts                 # Unit conversion (kg↔lbs, cm↔ft, ml↔floz)
 ├── supabase/
 │   ├── schema.sql
-│   ├── migrations/              # 7 migrations
+│   ├── migrations/              # 9 migrations
 │   └── functions/
 │       ├── daily-summary/
 │       └── food-search/         # OpenFoodFacts proxy + retry logic
+├── assets/
+│   └── screenshots/             # App screenshots for README
 └── [config files]
 ```
 
@@ -210,7 +223,9 @@ FastTrack/
 - Start/break/end fast with inline confirmations
 - Timer counts DOWN, progress ring fills UP
 - Check-ins with mood chart + timeline
-- Previous fasts with expandable detail + delete
+- Weekly calendar (7-day circle view)
+- Full month calendar modal (tap day for details)
+- Previous fasts with limit (5 default) + Show All toggle, expandable detail + delete
 
 ### Workouts Tab
 - Exercise panels: pushups, crunches, sit-ups, squats + custom
@@ -219,21 +234,25 @@ FastTrack/
 - Remove exercises
 - Default exercises seeded on first use
 
-### Log Food Tab
+### Log Tab
 - Meal type selector at top, date/time picker
 - OpenFoodFacts search via Edge Function proxy
 - Quick-add common foods
+- Barcode scanner for food packaging
 - Meal builder staging area
-- Water tracker with bottle presets
+- Water tracker with bottle presets + unit preferences
 
 ### Me Tab
 - First name display, unified achievements, weekly stats, macro progress
+- Weight tracking with chart, goal weight, unit preferences
 
 ### Settings
-- Profile details (name, gender, age, weight, height, BMI)
+- Profile details (name, gender, age, weight, height, BMI with color coding)
 - Account (change email/password)
 - Notifications preferences
+- Preferences (weight/height/water unit selectors)
 - Dark/light mode toggle
+- Sign Out
 
 ## Environment Variables
 
@@ -277,7 +296,14 @@ EXPO_PUBLIC_SUPABASE_ANON_KEY=eyJ...
 - [x] Workout goal edit stepper + presets + custom input
 - [x] Log Set modal stepper controls (no keyboard)
 - [x] Weight tracking (log weight, progress chart, goal weight)
-- [x] Database: 8 migrations (schema + profile settings + workouts + weight log)
+- [x] Database: 9 migrations (schema + profile settings + workouts + weight log + unit prefs)
+- [x] Unit preferences (kg/lbs, cm/ft, ml/floz)
+- [x] BMI instant update + color coding
+- [x] Weekly calendar view (Zero-style circles)
+- [x] Full month calendar modal
+- [x] Previous fasts limit with Show All toggle
+- [x] Sign Out moved to Settings
+- [x] Tab rename: "Log Food" → "Log" + SpoonAndFork icon
 - [x] UI redesign: Plus Jakarta Sans, warm neutrals, mint/coral/rose/sky palette
 - [x] Mood icons: Hugeicons (Sad01, Frown, Meh, Smile, Happy01) with per-mood colors
 - [x] Responsive charts (MoodChart, WeightChart) via onLayout
@@ -288,6 +314,25 @@ EXPO_PUBLIC_SUPABASE_ANON_KEY=eyJ...
 - [x] Theme tokens: textOnAccent, textOnDark, overlay, shared MEAL_COLORS
 - [x] Streak notifications: fast reminders, check-ins, water, milestones
 - [x] Notification preferences: configurable time, water interval, per-type toggles
+- [x] Onboarding flow: 4-step wizard for new users
+- [x] Barcode scanner: scan food packaging for instant logging
+- [x] Apple Health / Google Fit integration
+- [x] Export / reports (CSV fasting history)
+- [x] Weekly/monthly insights charts
+- [x] Recent foods quick re-log
+- [x] Fasting journal (notes per session)
+- [x] Nutritional insights (low protein alerts)
+- [x] Custom meal templates
+- [x] Fasting schedule presets (auto-suggest from history)
+- [x] Dark mode improvements (AMOLED true-black)
+- [x] Animated achievements (unlock animations)
+- [x] Unit preferences (kg/lbs, cm/ft, ml/floz)
+- [x] Weekly calendar view (Zero-style circles)
+- [x] Full month calendar modal
+- [x] Previous fasts limit with Show All toggle
+- [x] BMI instant update + color coding
+- [x] Sign Out moved to Settings
+- [x] Tab rename: "Log Food" → "Log" + SpoonAndFork icon
 
 ## Next Steps
 
@@ -297,35 +342,29 @@ EXPO_PUBLIC_SUPABASE_ANON_KEY=eyJ...
 | 1 | **UI redesign** — Fresh palette, Plus Jakarta Sans, mood icons, responsive charts | Done |
 | 2 | **Bug fixes / polish** — Theme tokens, hardcoded colors, web compat | Done |
 | 3 | **Streak notifications** — Fast reminders, check-ins, water, milestones | Done |
+| 4 | **Onboarding flow** — 4-step wizard | Done |
+| 5 | **Barcode scanner** — Camera food scanning | Done |
+| 6 | **Apple Health / Google Fit** — Weight, workouts, water sync | Done |
+| 7 | **Export / reports** — CSV fasting history | Done |
+| 8 | **Weekly/monthly insights** — Calorie trends, fasting consistency | Done |
+| 9 | **Recent foods** — Quick re-log | Done |
+| 10 | **Fasting journal** — Notes per session | Done |
+| 11 | **Nutritional insights** — Proactive guidance | Done |
+| 12 | **Custom meal templates** — One-tap logging | Done |
+| 13 | **Fasting schedule presets** — Auto-suggest from history | Done |
+| 14 | **Dark mode improvements** — AMOLED true-black | Done |
+| 15 | **Animated achievements** — Unlock animations | Done |
+| 16 | **Unit preferences** — kg/lbs, cm/ft, ml/floz | Done |
+| 17 | **Weekly calendar** — Zero-style circle calendar | Done |
+| 18 | **Full month calendar** — Tap day for fast details | Done |
 
-### High Impact (Core Value)
+### Remaining
 | # | Feature | Effort | Description |
 |---|---------|--------|-------------|
-| 4 | **Onboarding flow** | Medium | 3-step wizard: set goals, choose schedule, pick reminder times |
-| 5 | **Barcode scanner** | Medium | Scan food packaging for instant logging via camera |
-| 6 | **Apple Health / Google Fit** | Medium | Sync weight, workouts, water |
-| 7 | **Export / reports** | Small | PDF or CSV export of fasting history, nutrition, workouts |
-| 8 | **Weekly/monthly insights** | Medium | Charts showing calorie trends, fasting consistency, weight trajectory |
-
-### Medium Impact (Engagement & Retention)
-| # | Feature | Effort | Description |
-|---|---------|--------|-------------|
-| 9 | **Recent foods** | Small | Quick re-log previously eaten foods without searching again |
-| 10 | **Home screen widget** | Medium | iOS/Android widget showing fasting timer + time remaining |
-| 11 | **Fasting journal** | Small | Add notes/reflections to each fast session |
-| 12 | **Nutritional insights** | Small | Proactive guidance ("You're low on protein today") |
-| 13 | **Meal photos** | Small | Attach a photo to food log entries |
-
-### Lower Impact (Polish & Completeness)
-| # | Feature | Effort | Description |
-|---|---------|--------|-------------|
-| 14 | **Accessibility** | Medium | Dynamic type, VoiceOver/TalkBack labels, high contrast |
-| 15 | **Offline support** | Medium | Cache data for offline food logging and timer |
-| 16 | **Custom meal templates** | Small | Save frequent meals for one-tap logging |
-| 17 | **Fasting schedule presets** | Small | Auto-suggest schedules based on user history |
-| 18 | **Dark mode improvements** | Small | AMOLED true-black, scheduled dark mode (auto at sunset) |
-| 19 | **Animated achievements** | Small | Unlock animations when hitting milestones |
-| 20 | **Multi-language support** | Large | i18n for broader audience |
-| 21 | **Social features** | Large | Share progress, friend challenges |
-| 22 | **Testing** | Medium | Unit tests for hooks, component tests, E2E |
-| 23 | **App Store deployment** | Medium | Build profiles, screenshots, store listings, submit to iOS/Android |
+| 1 | **Home screen widget** | Medium | iOS/Android widget showing fasting timer + time remaining |
+| 2 | **Accessibility** | Medium | Dynamic type, VoiceOver/TalkBack labels, high contrast |
+| 3 | **Offline support** | Medium | Cache data for offline food logging and timer |
+| 4 | **Multi-language support** | Large | i18n for broader audience |
+| 5 | **Social features** | Large | Share progress, friend challenges |
+| 6 | **Testing** | Medium | Unit tests for hooks, component tests, E2E |
+| 7 | **App Store deployment** | Medium | Build profiles, screenshots, store listings, submit to iOS/Android |
