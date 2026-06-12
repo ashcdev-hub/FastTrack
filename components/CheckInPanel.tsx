@@ -66,6 +66,9 @@ export function CheckInPanel({ phase, onSubmit }: CheckInPanelProps) {
               onPress={() => setSelectedMood(m.value)}
               className="items-center"
               style={{ minWidth: 52 }}
+              accessibilityRole="button"
+              accessibilityLabel={`${m.label} mood`}
+              accessibilityState={{ selected: isSelected }}
             >
               <View
                 style={{
@@ -118,6 +121,9 @@ export function CheckInPanel({ phase, onSubmit }: CheckInPanelProps) {
             borderRadius: 12,
             backgroundColor: selectedMood !== null ? selectedMoodData?.color ?? ACCENT.mint : c.cardBgAlt,
           }}
+          accessibilityRole="button"
+          accessibilityLabel="Submit check-in"
+          accessibilityState={{ disabled: selectedMood === null }}
         >
           <HugeiconsIcon
             icon={ArrowRight01Icon}

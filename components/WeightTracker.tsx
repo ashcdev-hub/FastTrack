@@ -115,7 +115,8 @@ export function WeightTracker({ entries, currentWeight, weightChange, onAddWeigh
                     <Text style={{ color: c.text, fontFamily: "PlusJakartaSans_500Medium" }} className="text-sm">
                       {displayWeight(entry.weight_kg, unitPrefs)} {unitLabel}
                     </Text>
-                    <Pressable onPress={() => setDeleteTarget(entry.id)} hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}>
+                    <Pressable onPress={() => setDeleteTarget(entry.id)} hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+                      accessibilityRole="button" accessibilityLabel="Delete weight entry">
                       <HugeiconsIcon icon={Delete02Icon} size={18} color={c.textMuted} strokeWidth={1.5} />
                     </Pressable>
                   </View>

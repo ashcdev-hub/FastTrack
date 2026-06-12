@@ -202,6 +202,8 @@ export function FastingTimer({
                 onPress={() => setShowElapsed((prev) => !prev)}
                 hitSlop={{ top: 12, bottom: 12, left: 20, right: 20 }}
                 className="items-center"
+                accessibilityRole="button"
+                accessibilityLabel={`Switch to ${showElapsed ? "remaining" : "elapsed"} time`}
               >
                 <Text
                   style={{

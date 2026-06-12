@@ -65,7 +65,8 @@ export function FoodLogItem({ entry, onDelete }: FoodLogItemProps) {
         </View>
       </View>
       {onDelete && (
-        <Pressable onPress={() => onDelete(entry.id)} hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }} style={{ padding: 8 }}>
+        <Pressable onPress={() => onDelete(entry.id)} hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }} style={{ padding: 8 }}
+          accessibilityRole="button" accessibilityLabel={`Delete ${entry.name}`}>
           <HugeiconsIcon icon={Delete02Icon} size={18} color={c.textMuted} strokeWidth={1.5} />
         </Pressable>
       )}

@@ -35,6 +35,8 @@ export function Toast({ visible, message, type }: ToastProps) {
   return (
     <Animated.View
       pointerEvents="none"
+      accessibilityLiveRegion="polite"
+      accessibilityRole="alert"
       style={{
         opacity,
         position: "absolute",

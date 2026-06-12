@@ -95,12 +95,16 @@ export function ExercisePanel({
               setEditingGoal(true);
             }}
             className="p-1"
+            accessibilityRole="button"
+            accessibilityLabel="Edit exercise goal"
           >
             <HugeiconsIcon icon={Edit01Icon} size={18} color={c.textMuted} strokeWidth={1.5} />
           </Pressable>
           <Pressable
             onPress={() => setShowDeleteConfirm(true)}
             className="p-1"
+            accessibilityRole="button"
+            accessibilityLabel="Remove exercise"
           >
             <HugeiconsIcon icon={Delete02Icon} size={18} color={c.textMuted} strokeWidth={1.5} />
           </Pressable>
@@ -123,6 +127,13 @@ export function ExercisePanel({
         <View
           className="h-2.5 rounded-full overflow-hidden"
           style={{ backgroundColor: c.cardBgAlt }}
+          accessibilityRole="progressbar"
+          accessibilityValue={{
+            min: 0,
+            max: goal.daily_goal,
+            now: reps,
+            text: `${reps} of ${goal.daily_goal} reps`,
+          }}
         >
           <View
             className="h-full rounded-full"
@@ -189,13 +200,15 @@ export function ExercisePanel({
           </Text>
 
           <View className="flex-row items-center justify-center gap-4 mb-3">
-            <Pressable
+              <Pressable
               onPress={() => {
                 const v = parseInt(goalInput);
                 if (!isNaN(v) && v > 10) setGoalInput(String(v - 10));
               }}
               className="w-10 h-10 rounded-full items-center justify-center"
               style={{ backgroundColor: c.buttonBg }}
+              accessibilityRole="button"
+              accessibilityLabel="Decrease goal by 10"
             >
               <Text style={{ color: c.text, fontFamily: "PlusJakartaSans_700Bold" }} className="text-lg">−</Text>
             </Pressable>
@@ -209,6 +222,8 @@ export function ExercisePanel({
               }}
               className="w-10 h-10 rounded-full items-center justify-center"
               style={{ backgroundColor: c.buttonBg }}
+              accessibilityRole="button"
+              accessibilityLabel="Increase goal by 10"
             >
               <Text style={{ color: c.text, fontFamily: "PlusJakartaSans_700Bold" }} className="text-lg">+</Text>
             </Pressable>

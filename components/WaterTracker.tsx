@@ -40,7 +40,17 @@ export function WaterTracker({ currentMl, goalMl, onAdd, unitPrefs = DEFAULT_UNI
         </Text>
       </View>
 
-      <View className="h-2.5 rounded-full overflow-hidden mb-2" style={{ backgroundColor: c.cardBgAlt }}>
+      <View
+        className="h-2.5 rounded-full overflow-hidden mb-2"
+        style={{ backgroundColor: c.cardBgAlt }}
+        accessibilityRole="progressbar"
+        accessibilityValue={{
+          min: 0,
+          max: goalMl,
+          now: currentMl,
+          text: `${displayWater(currentMl, unitPrefs)} of ${displayWater(goalMl, unitPrefs)}`,
+        }}
+      >
         <View
           className="h-full rounded-full"
           style={{ width: `${pct}%`, backgroundColor: ACCENT.sky }}
@@ -67,6 +77,8 @@ export function WaterTracker({ currentMl, goalMl, onAdd, unitPrefs = DEFAULT_UNI
             onPress={() => onAdd(ml)}
             style={{ backgroundColor: ACCENT.skyBg, borderWidth: 1, borderColor: ACCENT.skyBorder }}
             className="rounded-xl px-4 py-2.5"
+            accessibilityRole="button"
+            accessibilityLabel={`Add ${displayWaterBottle(ml, unitPrefs)} of water`}
           >
             <Text style={{ color: ACCENT.sky, fontFamily: "PlusJakartaSans_600SemiBold" }} className="text-sm">
               +{displayWaterBottle(ml, unitPrefs)}

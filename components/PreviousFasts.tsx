@@ -110,6 +110,8 @@ export function PreviousFasts({ sessions, fastingHours, onDelete }: PreviousFast
                 onPress={(e) => { e.stopPropagation(); setDeleteTarget(s); }}
                 hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
                 style={{ padding: 8 }}
+                accessibilityRole="button"
+                accessibilityLabel="Delete fast"
               >
                 <HugeiconsIcon icon={Delete02Icon} size={20} color={c.textMuted} strokeWidth={1.5} />
               </Pressable>

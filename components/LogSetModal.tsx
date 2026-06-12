@@ -41,11 +41,13 @@ export function LogSetModal({ visible, goal, weightKg, onClose, onLog }: LogSetM
           {/* Reps Stepper */}
           <Text style={{ color: c.textSecondary, fontFamily: "PlusJakartaSans_500Medium" }} className="text-xs mb-2">Reps</Text>
           <View className="flex-row items-center justify-center gap-4 mb-2">
-            <Pressable onPress={() => setReps((r) => Math.max(5, r - 5))} className="w-12 h-12 rounded-full items-center justify-center" style={{ backgroundColor: c.buttonBg }}>
+            <Pressable onPress={() => setReps((r) => Math.max(5, r - 5))} className="w-12 h-12 rounded-full items-center justify-center" style={{ backgroundColor: c.buttonBg }}
+              accessibilityRole="button" accessibilityLabel="Decrease reps by 5">
               <Text style={{ color: c.text, fontFamily: "PlusJakartaSans_700Bold" }} className="text-xl">−</Text>
             </Pressable>
             <Text style={{ color: c.text, fontFamily: "PlusJakartaSans_700Bold" }} className="text-3xl w-24 text-center">{reps}</Text>
-            <Pressable onPress={() => setReps((r) => r + 5)} className="w-12 h-12 rounded-full items-center justify-center" style={{ backgroundColor: c.buttonBg }}>
+            <Pressable onPress={() => setReps((r) => r + 5)} className="w-12 h-12 rounded-full items-center justify-center" style={{ backgroundColor: c.buttonBg }}
+              accessibilityRole="button" accessibilityLabel="Increase reps by 5">
               <Text style={{ color: c.text, fontFamily: "PlusJakartaSans_700Bold" }} className="text-xl">+</Text>
             </Pressable>
           </View>
@@ -63,11 +65,13 @@ export function LogSetModal({ visible, goal, weightKg, onClose, onLog }: LogSetM
           {/* Sets Stepper */}
           <Text style={{ color: c.textSecondary, fontFamily: "PlusJakartaSans_500Medium" }} className="text-xs mb-2">Sets</Text>
           <View className="flex-row items-center justify-center gap-4 mb-2">
-            <Pressable onPress={() => setSets((s) => Math.max(1, s - 1))} className="w-12 h-12 rounded-full items-center justify-center" style={{ backgroundColor: c.buttonBg }}>
+            <Pressable onPress={() => setSets((s) => Math.max(1, s - 1))} className="w-12 h-12 rounded-full items-center justify-center" style={{ backgroundColor: c.buttonBg }}
+              accessibilityRole="button" accessibilityLabel="Decrease sets by 1">
               <Text style={{ color: c.text, fontFamily: "PlusJakartaSans_700Bold" }} className="text-xl">−</Text>
             </Pressable>
             <Text style={{ color: c.text, fontFamily: "PlusJakartaSans_700Bold" }} className="text-3xl w-24 text-center">{sets}</Text>
-            <Pressable onPress={() => setSets((s) => s + 1)} className="w-12 h-12 rounded-full items-center justify-center" style={{ backgroundColor: c.buttonBg }}>
+            <Pressable onPress={() => setSets((s) => s + 1)} className="w-12 h-12 rounded-full items-center justify-center" style={{ backgroundColor: c.buttonBg }}
+              accessibilityRole="button" accessibilityLabel="Increase sets by 1">
               <Text style={{ color: c.text, fontFamily: "PlusJakartaSans_700Bold" }} className="text-xl">+</Text>
             </Pressable>
           </View>

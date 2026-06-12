@@ -45,6 +45,9 @@ export function ScheduleSelector({ selected, onSelect }: ScheduleSelectorProps) 
                 borderWidth: 1,
                 borderColor: isActive ? ACCENT.mint : c.cardBorder,
               }}
+              accessibilityRole="radio"
+              accessibilityLabel={`${p.label} fasting schedule`}
+              accessibilityState={{ selected: isActive }}
             >
               <Text
                 style={{

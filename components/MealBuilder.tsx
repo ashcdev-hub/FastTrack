@@ -71,7 +71,8 @@ export function MealBuilder({ items, mealType, onRemove, onLog }: MealBuilderPro
               {item.serving_size ? ` · ${item.serving_size}` : ""}
             </Text>
           </View>
-          <Pressable onPress={() => onRemove(item.id)} className="p-2">
+          <Pressable onPress={() => onRemove(item.id)} className="p-2"
+            accessibilityRole="button" accessibilityLabel={`Remove ${item.name}`}>
             <HugeiconsIcon icon={Delete02Icon} size={18} color={c.textMuted} strokeWidth={1.5} />
           </Pressable>
         </View>
