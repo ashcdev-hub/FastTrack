@@ -182,7 +182,8 @@ All tables have RLS enabled with `auth.uid() = user_id` policies.
 
 ## License
 
-MIT License — see [LICENSE](LICENSE) for details.
+All Rights Reserved — view-only. See [LICENSE](LICENSE) for details.
+You may view this code, but you may not use, copy, modify, or distribute it.
 
 ## Author
 
