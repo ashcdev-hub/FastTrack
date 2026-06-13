@@ -28,17 +28,17 @@ Expo's unified codebase reduces the overhead of native development while maintai
 - **Mood check-ins** during fasts with chart and timeline
 - **Previous fasts** list with expandable detail and delete
 
-### Nutrition
-- **Food search** via OpenFoodFacts (with barcode scanner)
-- **Quick-add** common foods (eggs, rice, chicken, etc.)
-- **Meal builder** with macro breakdown (calories, protein, carbs, fat)
-- **Water tracking** with bottle presets and progress bar
-
 ### Workouts
 - **Exercise panels** for pushups, crunches, sit-ups, squats + custom
 - **Log sets** with stepper controls (no keyboard needed)
 - **Progress tracking** with daily goal progress bars
 - **Calorie estimation** based on reps and body weight
+
+### Nutrition
+- **Food search** via OpenFoodFacts (with barcode scanner)
+- **Quick-add** common foods (eggs, rice, chicken, etc.)
+- **Meal builder** with macro breakdown (calories, protein, carbs, fat)
+- **Water tracking** with bottle presets and progress bar
 
 ### Profile & Settings
 - **Achievements** for fasting streaks and workout milestones
