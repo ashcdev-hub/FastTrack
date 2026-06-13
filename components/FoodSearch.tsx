@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Pressable, View, Text, TextInput, ScrollView, ActivityIndicator, Modal } from "react-native";
+import { Platform, Pressable, View, Text, TextInput, ScrollView, ActivityIndicator, Modal } from "react-native";
 import { HugeiconsIcon } from "@hugeicons/react-native";
 import BarcodeScanIcon from "@hugeicons/core-free-icons/dist/esm/BarcodeScanIcon";
 import { supabase } from "@/lib/supabase";
@@ -111,13 +111,15 @@ export function FoodSearch({ onAdd }: FoodSearchProps) {
           onSubmitEditing={search}
           returnKeyType="search"
         />
-        <Pressable
-          onPress={() => setShowScanner(true)}
-          className="rounded-xl px-4 py-3"
-          style={{ backgroundColor: c.buttonBg }}
-        >
-          <HugeiconsIcon icon={BarcodeScanIcon} size={20} color={c.text} strokeWidth={1.5} />
-        </Pressable>
+        {Platform.OS !== "web" && (
+          <Pressable
+            onPress={() => setShowScanner(true)}
+            className="rounded-xl px-4 py-3"
+            style={{ backgroundColor: c.buttonBg }}
+          >
+            <HugeiconsIcon icon={BarcodeScanIcon} size={20} color={c.text} strokeWidth={1.5} />
+          </Pressable>
+        )}
         <Pressable
           onPress={search}
           disabled={loading}
@@ -247,22 +249,24 @@ export function FoodSearch({ onAdd }: FoodSearchProps) {
         </View>
       </Modal>
 
-      <BarcodeScanner
-        visible={showScanner}
-        onClose={() => setShowScanner(false)}
-        onProductFound={(product) => {
-          onAdd({
-            name: product.name,
-            brand: product.brand,
-            calories: product.calories,
-            protein_g: product.protein_g,
-            carbs_g: product.carbs_g,
-            fat_g: product.fat_g,
-            serving_size: product.serving_size,
-            quantity: 1,
-          });
-        }}
-      />
+      {Platform.OS !== "web" && (
+        <BarcodeScanner
+          visible={showScanner}
+          onClose={() => setShowScanner(false)}
+          onProductFound={(product) => {
+            onAdd({
+              name: product.name,
+              brand: product.brand,
+              calories: product.calories,
+              protein_g: product.protein_g,
+              carbs_g: product.carbs_g,
+              fat_g: product.fat_g,
+              serving_size: product.serving_size,
+              quantity: 1,
+            });
+          }}
+        />
+      )}
     </View>
   );
 }

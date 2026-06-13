@@ -32,6 +32,15 @@ export async function setupNotifications() {
     return;
   }
 
+  // Listen for notification taps (foreground & background)
+  Notifications.addNotificationResponseReceivedListener((response) => {
+    const data = response.notification.request.content.data;
+    if (data?.screen) {
+      // Deep-link handling can be added here if expo-router linking is configured
+      console.log("Notification tapped:", data.screen);
+    }
+  });
+
   if (Platform.OS === "android") {
     await Notifications.setNotificationChannelAsync("fasting", {
       name: "Fasting Reminders",
