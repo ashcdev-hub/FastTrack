@@ -33,7 +33,10 @@ export default function SettingsScreen() {
         <SettingsPanel userId={user?.id ?? null} />
 
         <Pressable
-          onPress={() => signOut()}
+          onPress={async () => {
+            await signOut();
+            router.replace("/(auth)/login");
+          }}
           className="rounded-xl py-4 mt-4"
           style={{ backgroundColor: ACCENT.roseBg, borderWidth: 1, borderColor: ACCENT.roseBorder }}
         >

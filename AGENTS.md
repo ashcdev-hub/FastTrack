@@ -74,6 +74,9 @@ import Timer01Icon from "@hugeicons/core-free-icons/dist/esm/Timer01Icon";
 ### Expo Router — `<Redirect>` Crashes on Web
 Do NOT use `<Redirect>` inside layout files. Handle auth redirects in `app/index.tsx` instead.
 
+### Auth Redirect — `<Redirect>` Does NOT React to State Changes in Stack Routes
+`app/index.tsx` uses `useEffect` + `router.replace()` (not `<Redirect>`) because `<Redirect>` only fires on initial render. `app/index.tsx` is a route in the Stack — once it calls `router.replace()`, it unmounts and its effects die. **Auth state changes that happen while the user is on another screen (e.g., `/login`) must be handled imperatively in that screen** — see `login.tsx` (navigates after `signIn`) and `app/(tabs)/_layout.tsx` (guards against no session). Sign-out is handled in `app/settings.tsx`.
+
 ### React Native Modal on Web
 `<Modal>` from react-native renders inline on web. Use conditional inline rendering or custom overlays.
 
@@ -333,6 +336,7 @@ EXPO_PUBLIC_SUPABASE_ANON_KEY=eyJ...
 - [x] BMI instant update + color coding
 - [x] Sign Out moved to Settings
 - [x] Tab rename: "Log Food" → "Log" + SpoonAndFork icon
+- [x] Auth redirect fix — useEffect + router.replace() for state-change navigation
 
 ## Next Steps
 

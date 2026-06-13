@@ -1,5 +1,5 @@
-import React from "react";
-import { Tabs } from "expo-router";
+import React, { useEffect } from "react";
+import { router, Tabs } from "expo-router";
 import { HugeiconsIcon } from "@hugeicons/react-native";
 import Timer01Icon from "@hugeicons/core-free-icons/dist/esm/Timer01Icon";
 import Dumbbell01Icon from "@hugeicons/core-free-icons/dist/esm/Dumbbell01Icon";
@@ -7,10 +7,18 @@ import SpoonAndForkIcon from "@hugeicons/core-free-icons/dist/esm/SpoonAndForkIc
 import UserCircleIcon from "@hugeicons/core-free-icons/dist/esm/UserCircleIcon";
 import { useThemeStore } from "@/lib/theme-store";
 import { getThemeColors, ACCENT } from "@/lib/theme-colors";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function TabLayout() {
   const { theme } = useThemeStore();
   const c = getThemeColors(theme);
+  const { session, loading } = useAuth();
+
+  useEffect(() => {
+    if (!loading && !session) {
+      router.replace("/(auth)/login");
+    }
+  }, [session, loading]);
 
   return (
     <Tabs

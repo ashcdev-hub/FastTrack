@@ -1,4 +1,4 @@
-import { Redirect } from "expo-router";
+import { router } from "expo-router";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { View, ActivityIndicator } from "react-native";
@@ -20,20 +20,18 @@ export default function Index() {
     });
   }, []);
 
-  if (loading || onboardingComplete === null) {
-    return (
-      <View style={{ flex: 1, backgroundColor: c.bg, alignItems: "center", justifyContent: "center" }}>
-        <ActivityIndicator size="large" color={ACCENT.mint} />
-      </View>
-    );
-  }
-
-  if (session) {
-    if (onboardingComplete) {
-      return <Redirect href="/(tabs)" />;
+  useEffect(() => {
+    if (loading || onboardingComplete === null) return;
+    if (session) {
+      router.replace(onboardingComplete ? "/(tabs)" : "/(onboarding)/welcome");
+    } else {
+      router.replace("/(auth)/login");
     }
-    return <Redirect href="/(onboarding)/welcome" />;
-  }
+  }, [session, loading, onboardingComplete]);
 
-  return <Redirect href="/(auth)/login" />;
+  return (
+    <View style={{ flex: 1, backgroundColor: c.bg, alignItems: "center", justifyContent: "center" }}>
+      <ActivityIndicator size="large" color={ACCENT.mint} />
+    </View>
+  );
 }

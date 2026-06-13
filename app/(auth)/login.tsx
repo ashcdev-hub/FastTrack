@@ -1,9 +1,12 @@
 import React, { useState } from "react";
-import { Pressable, View, Text, TextInput, KeyboardAvoidingView, Platform, ActivityIndicator } from "react-native";
-import { Link } from "expo-router";
+import { Pressable, View, Text, TextInput, KeyboardAvoidingView, Platform, ActivityIndicator, Image } from "react-native";
+import { Link, router } from "expo-router";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useAuth } from "@/hooks/useAuth";
 import { getThemeColors, ACCENT } from "@/lib/theme-colors";
 import { useThemeStore } from "@/lib/theme-store";
+
+const ONBOARDING_KEY = "@fasttrack_onboarding_done";
 
 export default function LoginScreen() {
   const { signIn } = useAuth();
@@ -21,8 +24,13 @@ export default function LoginScreen() {
     setLoading(true);
     setError("");
     const { error } = await signIn(loginEmail, loginPass);
-    if (error) setError(error.message);
-    setLoading(false);
+    if (error) {
+      setError(error.message);
+      setLoading(false);
+      return;
+    }
+    const onboarded = await AsyncStorage.getItem(ONBOARDING_KEY);
+    router.replace(onboarded === "true" ? "/(tabs)" : "/(onboarding)/welcome");
   };
 
   const inputStyle = { backgroundColor: c.inputBg, color: c.text, fontFamily: "PlusJakartaSans_500Medium" as const };
@@ -30,9 +38,12 @@ export default function LoginScreen() {
   return (
     <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} className="flex-1" style={{ backgroundColor: c.bg }}>
       <View className="flex-1 justify-center px-6">
-        <Text style={{ color: c.text, fontFamily: "PlusJakartaSans_700Bold" }} className="text-4xl text-center mb-2">
-          FastTrack
-        </Text>
+        <Image
+          source={require("@/assets/fasttrack_logo_small_transparent.png")}
+          style={{ width: 240, height: 80 }}
+          resizeMode="contain"
+          className="self-center mb-4"
+        />
         <Text style={{ color: c.textMuted, fontFamily: "PlusJakartaSans_400Regular" }} className="text-center mb-10">
           Intermittent Fasting & Macro Tracker
         </Text>
