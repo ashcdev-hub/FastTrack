@@ -7,10 +7,88 @@ Expo SDK 54 (React Native 0.81) + Supabase + NativeWind + Zustand + TanStack Que
 ```bash
 cd /Users/ash/FastTrack
 npx expo start --web --port 8081    # web (localhost:8081)
-npx expo start --ios                 # native
+npx expo start --ios                 # native (requires dev build)
+npx expo run:ios --device            # build + install to your iPhone
 ```
 
 Test account: `test@fasttrack.app` / `test1234`
+
+## Building for iOS (Standalone App)
+
+You can build and install FastTrack as a standalone iPhone app **without enrolling in the Apple Developer Program** ($99/yr), using a free "Personal Team" signing cert that lasts 7 days. Full steps below.
+
+### Prerequisites
+- macOS with Xcode 16+ (rename: "Xcode 26" for iOS 26 device support)
+- iPhone with **Developer Mode** enabled (Settings → Privacy & Security → Developer Mode)
+- iPhone plugged into Mac via USB
+- Expo account (free at https://expo.dev)
+- `eas-cli`: `npm i -g eas-cli` (may need `--prefix ~/.npm-global` if you get permission errors)
+
+### One-time setup
+```bash
+# 1. Log in to Expo (creates account at expo.dev if needed)
+~/.npm-global/bin/eas login
+
+# 2. Initialize EAS project (fills extra.eas.projectId in app.json)
+eas init
+
+# 3. Configure OTA updates (fills updates.url in app.json)
+eas update:configure
+
+# 4. Generate native iOS project from app.json
+npx expo prebuild --clean --platform ios
+
+# 5. One-time Xcode signing setup:
+#    - Open ios/FastTrack.xcworkspace
+#    - Select the "FastTrack" target → Signing & Capabilities tab
+#    - Check "Automatically manage signing"
+#    - Team dropdown → select your Apple ID (Personal Team)
+#    - Close Xcode (it remembers the setting)
+```
+
+### Build & install to your iPhone
+```bash
+# Plug iPhone in via USB, trust the Mac on the phone
+npx expo run:ios --device
+```
+- First build: ~3-5 minutes (downloads ~100MB of Pods)
+- After install, you may need to **trust the developer** on the phone:
+  Settings → General → VPN & Device Management → tap your Apple ID → "Trust"
+- Cert lasts **7 days**. After expiry, re-run `npx expo run:ios --device` to renew.
+
+### Pushing JS-only updates (no rebuild needed)
+```bash
+eas update --branch production --message "fix description"
+```
+The app picks up the new JS bundle on next launch. No cert renewal needed.
+
+### Upgrading to TestFlight / App Store (later, optional)
+Requires Apple Developer Program enrollment ($99/yr at https://developer.apple.com):
+```bash
+eas build --profile production --platform ios
+eas submit --profile production --platform ios
+```
+
+### Bundle identifier
+- Currently `com.ashcdev2.fasttrack` (changed from `com.fasttrack.app` because the
+  original was already registered by another developer in App Store Connect)
+- Change in both `app.json` (`ios.bundleIdentifier`) AND
+  `ios/FastTrack.xcodeproj/project.pbxproj` (`PRODUCT_BUNDLE_IDENTIFIER`) — must match
+
+### iOS-specific gotchas
+- **Personal teams don't support push notifications** — `aps-environment` entitlement
+  is stripped from the build. Local notifications still work (scheduled on-device).
+  Remote push (APNs) requires a paid Apple Developer account.
+- **iOS 26 device support**: Xcode downloads platform files on demand. If your phone
+  runs iOS 26.x but the build fails with "iOS 26.x is not installed", open
+  Xcode → Settings → Platforms (or Components) and download the matching version.
+- **Developer Mode** must be enabled on the iPhone for builds to install.
+  First-time USB connection requires tapping "Trust" on the phone.
+
+### EAS Project
+- Project ID: `c4a4b201-84a4-433f-a303-3945786d495b`
+- Owner: `ashcdev2`
+- Dashboard: https://expo.dev/accounts/ashcdev2/projects/FastTrack
 
 ## Git Workflow (CRITICAL — READ THIS FIRST)
 
@@ -267,9 +345,13 @@ EXPO_PUBLIC_SUPABASE_ANON_KEY=eyJ...
 ## Deployment
 
 - **Web**: `npx expo start --web --port 8081`
-- **iOS**: `npx expo run:ios`
+- **iOS (dev)**: `npx expo run:ios --device` (build + install to plugged-in iPhone)
+- **iOS (OTA)**: `eas update --branch production --message "..."` (JS-only changes, no rebuild)
+- **iOS (App Store)**: `eas build --profile production --platform ios` + `eas submit` (requires Apple Developer Program)
 - **Edge Functions**: `supabase functions deploy daily-summary` / `supabase functions deploy food-search`
 - **TypeScript**: `npx tsc --noEmit`
+
+See [Building for iOS (Standalone App)](#building-for-ios-standalone-app) above for the full iOS build workflow.
 
 ## Handover Checklist
 
@@ -337,6 +419,7 @@ EXPO_PUBLIC_SUPABASE_ANON_KEY=eyJ...
 - [x] Sign Out moved to Settings
 - [x] Tab rename: "Log Food" → "Log" + SpoonAndFork icon
 - [x] Auth redirect fix — useEffect + router.replace() for state-change navigation
+- [x] iOS standalone build — EAS config, personal-team signing, OTA updates
 
 ## Next Steps
 

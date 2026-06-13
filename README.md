@@ -1,5 +1,9 @@
 # FastTrack
 
+<p align="center">
+  <img src="assets/fasttrack_logo_small_transparent.png" alt="FastTrack" width="320">
+</p>
+
 **Intermittent fasting, macro & workout tracker built with Expo + Supabase.**
 
 FastTrack is a lightweight, streamlined mobile application designed for seamless tracking of intermittent fasting cycles, daily workout targets, macros, and hydration.
@@ -57,12 +61,16 @@ Expo's unified codebase reduces the overhead of native development while maintai
 | Framework | Expo SDK 54 + Expo Router (file-based routing) |
 | UI | React Native 0.81 + NativeWind v4 (Tailwind CSS) |
 | State | Zustand (fasting, goals, theme) |
+| Data Fetching | TanStack Query |
 | Backend | Supabase (PostgreSQL, Auth, Realtime, Edge Functions) |
+| Auth | Supabase Auth + expo-secure-store (native) / localStorage (web) |
+| Native Modules | expo-camera (barcode), expo-notifications, expo-secure-store |
 | Icons | Hugeicons |
 | Animations | react-native-reanimated |
 | Charts | react-native-svg |
 | Dates | date-fns |
-| Notifications | expo-notifications |
+| OTA Updates | EAS Update |
+| iOS Build | EAS Build + personal-team signing (no Apple Developer Program needed for personal use) |
 
 ---
 
@@ -97,6 +105,26 @@ EXPO_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 npx expo start --web --port 8081    # Web
 npx expo start --ios                 # iOS
 npx expo start --android             # Android
+```
+
+### Building for iPhone (Standalone App)
+
+You can build and install FastTrack directly on your iPhone **without an Apple Developer Program membership** (free, using a personal team). Full instructions are in [AGENTS.md](AGENTS.md#building-for-ios-standalone-app).
+
+Quick summary:
+```bash
+npm i -g eas-cli
+eas login
+eas init                            # one-time
+eas update:configure                # one-time
+npx expo prebuild --clean --platform ios
+# Open ios/FastTrack.xcworkspace in Xcode, set Personal Team signing
+npx expo run:ios --device           # build + install to your iPhone
+```
+
+For JS-only changes after first install:
+```bash
+eas update --branch production --message "fix description"
 ```
 
 ---
