@@ -183,3 +183,9 @@ All tables have RLS enabled with `auth.uid() = user_id` policies.
 ## License
 
 MIT License — see [LICENSE](LICENSE) for details.
+
+## Author
+
+Ash Eskrett
+
+---
