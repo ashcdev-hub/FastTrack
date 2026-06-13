@@ -4,7 +4,7 @@
 
 FastTrack is a lightweight, streamlined mobile application designed for seamless tracking of intermittent fasting cycles, daily workout targets, macros, and hydration.
 
-Many existing fitness tracker apps have become visually cluttered or rely heavily on aggressive monetisation via premium tiers. I built this to escape that model and return to a streamlined, functional, and performative-fast alternative at zero cost.
+Existing fitness tracker apps have become visually cluttered or rely heavily on aggressive monetisation via premium tiers. I built this to escape that model and return to a streamlined, functional, and performative-fast alternative at zero cost.
 
 Expo's unified codebase reduces the overhead of native development while maintaining a high-performance experience across both iOS and Android.
 
