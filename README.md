@@ -4,7 +4,7 @@
   <img src="assets/fasttrack_logo_small_transparent.png" alt="FastTrack" width="320">
 </p>
 
-**Intermittent fasting, macro & workout tracker built with Expo + Supabase.**
+**Intermittent fasting, workout & macro tracker built with Expo + Supabase.**
 
 FastTrack is a lightweight, streamlined mobile application designed for seamless tracking of intermittent fasting cycles, daily workout targets, macros, and hydration.
 
