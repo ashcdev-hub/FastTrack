@@ -17,7 +17,7 @@ export default function SettingsScreen() {
 
   return (
     <SafeAreaView className="flex-1" style={{ backgroundColor: c.bg }}>
-      <ScrollView contentContainerClassName="px-6 py-8">
+      <ScrollView contentContainerClassName="px-6 py-8" showsVerticalScrollIndicator={false}>
         <View className="flex-row items-center mb-6">
           <Pressable
             onPress={() => router.back()}

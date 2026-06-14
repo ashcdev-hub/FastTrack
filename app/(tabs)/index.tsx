@@ -186,7 +186,7 @@ export default function HomeScreen() {
 
   return (
     <SafeAreaView className="flex-1" style={{ backgroundColor: c.bg }}>
-      <ScrollView contentContainerClassName="px-6" style={{ paddingTop: 32, paddingBottom: 120 }}>
+      <ScrollView contentContainerClassName="px-6" style={{ paddingTop: 32, paddingBottom: 120 }} showsVerticalScrollIndicator={false}>
         <AppHeader showLogo logoImage={require("@/assets/fasttrack_logo_small_transparent.png")} />
 
         {/* TIMER */}
