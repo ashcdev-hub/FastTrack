@@ -1,5 +1,5 @@
 import React from "react";
-import { Pressable, View, Text } from "react-native";
+import { Pressable, View, Text, Image, ImageSourcePropType } from "react-native";
 import { useRouter } from "expo-router";
 import { HugeiconsIcon } from "@hugeicons/react-native";
 import Settings02Icon from "@hugeicons/core-free-icons/dist/esm/Settings02Icon";
@@ -7,12 +7,13 @@ import { useThemeStore } from "@/lib/theme-store";
 import { getThemeColors, ACCENT } from "@/lib/theme-colors";
 
 type AppHeaderProps = {
-  title: string;
+  title?: string;
   showLogo?: boolean;
   logoIcon?: any;
+  logoImage?: ImageSourcePropType;
 };
 
-export function AppHeader({ title, showLogo = false, logoIcon }: AppHeaderProps) {
+export function AppHeader({ title, showLogo = false, logoIcon, logoImage }: AppHeaderProps) {
   const router = useRouter();
   const { theme } = useThemeStore();
   const c = getThemeColors(theme);
@@ -29,18 +30,26 @@ export function AppHeader({ title, showLogo = false, logoIcon }: AppHeaderProps)
           </Text>
         </View>
 
-        <View
-          style={{
-            width: 40,
-            height: 40,
-            borderRadius: 12,
-            backgroundColor: ACCENT.mintBg,
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          <HugeiconsIcon icon={logoIcon} size={22} color={ACCENT.mint} strokeWidth={1.5} />
-        </View>
+        {logoImage ? (
+          <Image
+            source={logoImage}
+            style={{ width: 144, height: 48 }}
+            resizeMode="contain"
+          />
+        ) : (
+          <View
+            style={{
+              width: 40,
+              height: 40,
+              borderRadius: 12,
+              backgroundColor: ACCENT.mintBg,
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <HugeiconsIcon icon={logoIcon} size={22} color={ACCENT.mint} strokeWidth={1.5} />
+          </View>
+        )}
 
         <View style={{ flex: 1, alignItems: "flex-end" }}>
           <Pressable

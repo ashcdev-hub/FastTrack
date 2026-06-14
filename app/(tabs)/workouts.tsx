@@ -17,7 +17,6 @@ import PlusSignIcon from "@hugeicons/core-free-icons/dist/esm/PlusSignIcon";
 import RepeatIcon from "@hugeicons/core-free-icons/dist/esm/RepeatIcon";
 import FlameIcon from "@hugeicons/core-free-icons/dist/esm/FlameIcon";
 import Target01Icon from "@hugeicons/core-free-icons/dist/esm/Target01Icon";
-import Dumbbell01Icon from "@hugeicons/core-free-icons/dist/esm/Dumbbell01Icon";
 import type { WorkoutGoal } from "@/lib/types";
 
 export default function WorkoutsScreen() {
@@ -55,7 +54,7 @@ export default function WorkoutsScreen() {
   return (
     <SafeAreaView className="flex-1" style={{ backgroundColor: c.bg }}>
       <ScrollView contentContainerClassName="px-6" style={{ paddingTop: 32, paddingBottom: 120 }}>
-        <AppHeader title="Workouts" showLogo logoIcon={Dumbbell01Icon} />
+        <AppHeader showLogo logoImage={require("@/assets/fasttrack_logo_small_transparent.png")} />
 
         {/* Today's Summary */}
         <View className="flex-row gap-3 mb-6">
