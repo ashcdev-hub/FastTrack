@@ -314,6 +314,7 @@ FastTrack/
 - Edit daily goal via stepper + presets + custom input
 - Remove exercises
 - Default exercises seeded on first use
+- **Calorie formula**: `reps × sets × calories_per_rep × (weight_kg / 70)` (uses 70kg fallback if no profile weight)
 
 ### Log Tab
 - Meal type selector at top, date/time picker
@@ -334,6 +335,16 @@ FastTrack/
 - Preferences (weight/height/water unit selectors)
 - Dark/light mode toggle
 - Sign Out
+
+## Notifications
+- **Local push** (native only): `expo-notifications` — fast reminder, check-in reminder, water reminders, streak milestones. Scheduled on start fast, cancelled on break/end. Web silently no-ops.
+- **Email digest**: Supabase Edge Function `daily-summary` — nightly at user-configured time, queries food_log + water_log + workouts, sends via Resend API (only if `RESEND_API_KEY` env var is set on the edge function).
+- **Personal-team iOS builds** do not support remote APNs; local scheduled notifications only. Remote push requires a paid Apple Developer account.
+
+## Spacing Convention
+- Panel-to-panel (across all tabs): `mb-6` (24px)
+- Section headings: `text-lg font-bold mb-4` (16px)
+- List items within panels: `mb-3` (12px)
 
 ## Environment Variables
 
