@@ -26,18 +26,19 @@ import { scheduleFastingReminder, cancelAllNotifications, scheduleDailyFastRemin
 import { format, addHours } from "date-fns";
 
 function useCountdown(endTime: string | null) {
-  const [remaining, setRemaining] = useState({ hours: 0, minutes: 0, seconds: 0, totalSeconds: 0, totalMinutes: 0 });
+  const [remaining, setRemaining] = useState({ hours: 0, minutes: 0, seconds: 0, totalSeconds: 0, totalMinutes: 0, isOver: false });
 
   useEffect(() => {
-    if (!endTime) { setRemaining({ hours: 0, minutes: 0, seconds: 0, totalSeconds: 0, totalMinutes: 0 }); return; }
+    if (!endTime) { setRemaining({ hours: 0, minutes: 0, seconds: 0, totalSeconds: 0, totalMinutes: 0, isOver: false }); return; }
     const tick = () => {
       const diff = new Date(endTime).getTime() - Date.now();
-      const totalSeconds = Math.max(0, Math.floor(diff / 1000));
+      const isOver = diff < 0;
+      const totalSeconds = Math.floor(Math.abs(diff) / 1000);
       const hours = Math.floor(totalSeconds / 3600);
       const minutes = Math.floor((totalSeconds % 3600) / 60);
       const seconds = totalSeconds % 60;
       const totalMinutes = Math.floor(totalSeconds / 60);
-      setRemaining({ hours, minutes, seconds, totalSeconds, totalMinutes });
+      setRemaining({ hours, minutes, seconds, totalSeconds, totalMinutes, isOver });
     };
     tick();
     const interval = setInterval(tick, 1000);
@@ -203,6 +204,7 @@ export default function HomeScreen() {
             elapsedHours={phase === "fasting" ? fastElapsed.hours : phase === "eating" ? eatingElapsed.hours : 0}
             elapsedMinutesPart={phase === "fasting" ? fastElapsed.minutes : phase === "eating" ? eatingElapsed.minutes : 0}
             elapsedSeconds={phase === "fasting" ? fastElapsed.seconds : phase === "eating" ? eatingElapsed.seconds : 0}
+            isOver={phase === "fasting" ? fastCountdown.isOver : false}
             schedule={session?.fasting_schedule}
           />
         </View>

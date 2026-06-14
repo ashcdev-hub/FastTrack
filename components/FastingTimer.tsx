@@ -27,6 +27,7 @@ type FastingTimerProps = {
   elapsedHours: number;
   elapsedMinutesPart: number;
   elapsedSeconds: number;
+  isOver?: boolean;
   schedule?: string | null;
 };
 
@@ -67,6 +68,7 @@ export function FastingTimer({
   elapsedHours,
   elapsedMinutesPart,
   elapsedSeconds,
+  isOver = false,
   schedule,
 }: FastingTimerProps) {
   const { theme } = useThemeStore();
@@ -210,19 +212,21 @@ export function FastingTimer({
                     color: c.text,
                     fontFamily: "PlusJakartaSans_700Bold",
                     borderBottomWidth: 1,
-                    borderBottomColor: showElapsed ? colors.stroke : "transparent",
+                    borderBottomColor: showElapsed || isOver ? colors.stroke : "transparent",
                     paddingBottom: 2,
                   }}
                   className="text-5xl tracking-tight"
                 >
                   {showElapsed
                     ? `${pad(elapsedHours)}:${pad(elapsedMinutesPart)}:${pad(elapsedSeconds)}`
-                    : `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`}
+                    : isOver
+                      ? `+${pad(hours)}:${pad(minutes)}:${pad(seconds)}`
+                      : `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`}
                 </Text>
                 <View className="flex-row items-center mt-2">
                   <HugeiconsIcon icon={Exchange01Icon} size={12} color={c.textMuted} strokeWidth={1.5} />
                   <Text style={{ color: c.textMuted, fontFamily: "PlusJakartaSans_400Regular" }} className="text-xs ml-1">
-                    {showElapsed ? "elapsed" : "remaining"}
+                    {showElapsed ? "elapsed" : isOver ? "over schedule" : "remaining"}
                   </Text>
                 </View>
               </Pressable>
