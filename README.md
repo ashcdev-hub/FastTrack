@@ -1,6 +1,6 @@
 # FastTrack
 
-<p align="center">
+<p align="left">
   <img src="assets/fasttrack_logo_small_transparent.png" alt="FastTrack" width="320">
 </p>
 
