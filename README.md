@@ -6,9 +6,9 @@
 
 **Intermittent fasting, workout & macro tracker built with Expo + Supabase.**
 
-FastTrack is a lightweight, streamlined mobile application designed for seamless tracking of intermittent fasting cycles, daily workout targets, macros, and hydration.
+FastTrack is a lightweight, streamlined mobile app for tracking of intermittent fasting cycles, daily workout targets, macros and hydration.
 
-Existing fitness tracker apps have become visually cluttered or rely heavily on aggressive monetisation via premium tiers. I built this to escape that model and return to a streamlined, feature-rich experience at zero cost.
+Existing fasting/fitness tracker apps have become visually cluttered and rely heavily on aggressive monetisation via premium tiers. I built this to escape that model and return to a straightforward, feature-rich experience at zero cost.
 
 Expo's unified codebase reduces the overhead of native development while maintaining a high-performance experience across both iOS and Android.
 
