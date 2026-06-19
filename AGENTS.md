@@ -2,17 +2,6 @@
 
 Expo SDK 54 (React Native 0.81) + Supabase + NativeWind + Zustand + TanStack Query.
 
-## Quick Start
-
-```bash
-cd /Users/ash/FastTrack
-npx expo start --web --port 8081    # web (localhost:8081)
-npx expo start --ios                 # native (requires dev build)
-npx expo run:ios --device            # build + install to your iPhone
-```
-
-Test account: `test@fasttrack.app` / `test1234`
-
 ## Building for iOS (Standalone App)
 
 You can build and install FastTrack as a standalone iPhone app **without enrolling in the Apple Developer Program** ($99/yr), using a free "Personal Team" signing cert that lasts 7 days. Full steps below.
