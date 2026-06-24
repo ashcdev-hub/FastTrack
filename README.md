@@ -56,12 +56,13 @@ Expo's unified codebase reduces the overhead of native development while maintai
 |-------|-----------|
 | Framework | Expo SDK 54 + Expo Router (file-based routing) |
 | UI | React Native 0.81 + NativeWind v4 (Tailwind CSS) |
+| Fonts | Inter + Space Grotesk (via `@expo-google-fonts/...`) |
 | State | Zustand (fasting, goals, theme) |
 | Data Fetching | TanStack Query |
 | Backend | Supabase (PostgreSQL, Auth, Realtime, Edge Functions) |
 | Auth | Supabase Auth + expo-secure-store (native) / localStorage (web) |
 | Native Modules | expo-camera (barcode), expo-notifications, expo-secure-store |
-| Icons | Hugeicons |
+| Icons | MaterialCommunityIcons (`@expo/vector-icons`) |
 | Animations | react-native-reanimated |
 | Charts | react-native-svg |
 | Dates | date-fns |
@@ -131,14 +132,14 @@ eas update --branch production --message "fix description"
 FastTrack/
 ├── app/                    # Expo Router screens
 │   ├── (tabs)/             # Bottom tab navigation
-│   │   ├── index.tsx       # Fast tab
+│   │   ├── index.tsx       # Home tab (daily overview)
+│   │   ├── fast.tsx        # Fast tab (timer, schedule)
 │   │   ├── workouts.tsx    # Workouts tab
 │   │   ├── log-food.tsx    # Log tab
-│   │   └── profile.tsx     # Me tab
+│   │   └── profile.tsx     # Profile tab (with settings inline)
 │   ├── (auth)/             # Login & signup
-│   ├── (onboarding)/       # Onboarding wizard
-│   └── settings.tsx        # Settings screen
-├── components/             # 26 reusable components
+│   └── (onboarding)/       # Onboarding wizard
+├── components/             # 30 reusable components
 ├── hooks/                  # 13 custom hooks
 ├── lib/                    # Utilities, types, theme
 ├── store/                  # Zustand stores

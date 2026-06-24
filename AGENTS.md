@@ -115,7 +115,7 @@ git log --oneline        # See history of snapshots
 | State | Zustand (fasting store, goal store, theme store) |
 | Data Fetching | TanStack Query (QueryClientProvider in root layout) |
 | Backend | Supabase (PostgreSQL, Auth, Realtime, Edge Functions) |
-| Icons | Hugeicons (`@hugeicons/react-native` + `@hugeicons/core-free-icons`) — individual file imports only |
+| Icons | MaterialCommunityIcons (`@expo/vector-icons`) |
 | Animations | react-native-reanimated + react-native-svg |
 | Food Search | OpenFoodFacts API via Supabase Edge Function proxy (CORS fix) |
 | Dates | date-fns |
@@ -132,17 +132,11 @@ NativeWind v4 requires ALL of these or the app won't render:
 4. `import "../global.css"` in `app/_layout.tsx`
 5. `nativewind-env.d.ts` with `/// <reference types="nativewind/types" />`
 
-### Hugeicons — Barrel Export Broken with Metro
-`import { IconName } from "@hugeicons/core-free-icons"` crashes Metro. Always import from individual files:
-```ts
-import Timer01Icon from "@hugeicons/core-free-icons/dist/esm/Timer01Icon";
-```
-
 ### Expo Router — `<Redirect>` Crashes on Web
 Do NOT use `<Redirect>` inside layout files. Handle auth redirects in `app/index.tsx` instead.
 
 ### Auth Redirect — `<Redirect>` Does NOT React to State Changes in Stack Routes
-`app/index.tsx` uses `useEffect` + `router.replace()` (not `<Redirect>`) because `<Redirect>` only fires on initial render. `app/index.tsx` is a route in the Stack — once it calls `router.replace()`, it unmounts and its effects die. **Auth state changes that happen while the user is on another screen (e.g., `/login`) must be handled imperatively in that screen** — see `login.tsx` (navigates after `signIn`) and `app/(tabs)/_layout.tsx` (guards against no session). Sign-out is handled in `app/settings.tsx`.
+`app/index.tsx` uses `useEffect` + `router.replace()` (not `<Redirect>`) because `<Redirect>` only fires on initial render. `app/index.tsx` is a route in the Stack — once it calls `router.replace()`, it unmounts and its effects die. **Auth state changes that happen while the user is on another screen (e.g., `/login`) must be handled imperatively in that screen** — see `login.tsx` (navigates after `signIn`) and `app/(tabs)/_layout.tsx` (guards against no session). Sign-out is handled inline in `app/(tabs)/profile.tsx` (no standalone settings page).
 
 ### React Native Modal on Web
 `<Modal>` from react-native renders inline on web. Use conditional inline rendering or custom overlays.
@@ -152,6 +146,18 @@ Do NOT use `<Redirect>` inside layout files. Handle auth redirects in `app/index
 
 ### Theme System
 All components must use `useThemeStore` + `getThemeColors()` from `lib/theme-colors.ts`. Never hardcode `#FFFFFF`, `rgba(255,255,255,0.X)`, or `bg-slate-900`.
+
+### Glass Panel Utility
+All card containers must use the `glass-panel` utility class from `global.css`, not `c.cardBg`/`c.cardBorder` inline styles. This applies to rounded-xl cards on every tab screen.
+
+### Fasting Lifecycle
+Three clear phases: **Idle** (schedule selector shown) → **Fasting** (ring fills, "Break Fast" button) → **Eating** (ring turns cyan, "End Eating Window" button). The eating phase timer counts down remaining eating time. Schedule selection is only shown when idle.
+
+### Edit Goal Modal
+"Edit Goal" in `ExercisePanel.tsx` opens a bottom-sheet modal (`EditGoalModal.tsx`) with stepper controls, preset chips, and custom text input — never inline expansion.
+
+### ACCENT.lime / ACCENT.cyan / ACCENT.coral
+`ACCENT.mint` is defined in the palette but never used in any UI component. All UI uses `ACCENT.lime` (#c3f400), `ACCENT.cyan` (#00daf3), or `ACCENT.coral` (#FF6B52) for the various accent roles.
 
 ### OpenFoodFacts CORS
 Direct calls from web blocked by CORS. Use Supabase Edge Function `food-search` as proxy.
@@ -206,17 +212,18 @@ FastTrack/
 ├── app/
 │   ├── _layout.tsx              # Root: global.css, QueryClientProvider, Stack, theme init
 │   ├── index.tsx                # Auth redirect (login vs tabs)
-│   ├── settings.tsx             # Standalone settings screen
 │   ├── (auth)/
 │   │   ├── _layout.tsx          # Auth stack
 │   │   ├── login.tsx            # Email/password login
 │   │   └── signup.tsx           # Sign up with display name
+│   ├── (onboarding)/            # 4-step onboarding wizard
 │   └── (tabs)/
-│       ├── _layout.tsx          # Bottom tabs: Fast | Workouts | Log | Me
-│       ├── index.tsx            # Fast tab: timer, schedule, check-ins, weekly calendar, previous fasts
+│       ├── _layout.tsx          # Bottom tabs: Home | Fast | Workout | Food | Profile
+│       ├── index.tsx            # Home dashboard: fasting, workouts, water, macros
+│       ├── fast.tsx             # Fast tab: timer, schedule, check-ins, calendar, prev fasts
 │       ├── workouts.tsx         # Workouts tab: exercise panels, log sets
 │       ├── log-food.tsx         # Log tab: food search, meal builder, water
-│       └── profile.tsx          # Me tab: achievements, weekly stats, macro progress
+│       └── profile.tsx          # Profile tab: achievements, weight, stats, settings, sign out
 ├── components/
 │   ├── AppHeader.tsx            # Header with title + settings cog
 │   ├── FastingTimer.tsx         # SVG progress ring (theme-aware)
@@ -236,11 +243,15 @@ FastTrack/
 │   ├── MoodChart.tsx            # SVG mood graph (theme-aware)
 │   ├── SettingsPanel.tsx        # Profile, account, notifications, preferences, appearance
 │   ├── ExercisePanel.tsx        # Exercise card: progress, log, edit goal
+│   ├── EditGoalModal.tsx        # Bottom-sheet goal editor (stepper + presets + custom)
 │   ├── LogSetModal.tsx          # Log reps + sets (stepper controls)
 │   ├── AddExerciseModal.tsx     # Add custom exercise modal
 │   ├── BarcodeScanner.tsx       # Camera barcode scanner
 │   ├── WeightTracker.tsx        # Weight logging + recent entries (supports unit prefs)
 │   ├── WeightChart.tsx          # SVG weight line chart
+│   ├── GlassPanel.tsx           # Shared glass-card wrapper
+│   ├── ProgressRing.tsx         # Reusable SVG progress ring
+│   ├── StepperControl.tsx       # +/- stepper with preset chips
 │   ├── Toast.tsx                # Animated toast notification overlay
 │   ├── Skeleton.tsx             # Reusable loading skeleton with shimmer
 │   └── FoodLogItem.tsx          # Meal entry card (theme-aware)
@@ -325,6 +336,8 @@ FastTrack/
 - Dark/light mode toggle
 - Sign Out
 
+Note: Settings are inline in the Profile tab (no standalone settings page). All headbars are clean (no bell icons, no cog icons).
+
 ## Notifications
 - **Local push** (native only): `expo-notifications` — fast reminder, check-in reminder, water reminders, streak milestones. Scheduled on start fast, cancelled on break/end. Web silently no-ops.
 - **Email digest**: Supabase Edge Function `daily-summary` — nightly at user-configured time, queries food_log + water_log + workouts, sends via Resend API (only if `RESEND_API_KEY` env var is set on the edge function).
@@ -387,63 +400,48 @@ See [Building for iOS (Standalone App)](#building-for-ios-standalone-app) above 
 - [x] Weekly calendar view (Zero-style circles)
 - [x] Full month calendar modal
 - [x] Previous fasts limit with Show All toggle
-- [x] Sign Out moved to Settings
-- [x] Tab rename: "Log Food" → "Log" + SpoonAndFork icon
-- [x] UI redesign: Plus Jakarta Sans, warm neutrals, mint/coral/rose/sky palette
-- [x] Mood icons: Hugeicons (Sad01, Frown, Meh, Smile, Happy01) with per-mood colors
-- [x] Responsive charts (MoodChart, WeightChart) via onLayout
-- [x] Floating pill tab bar → reverted to solid bar per feedback
-- [x] Native Modal component for web-compatible modals
-- [x] Workouts tab: stat cards, exercise-specific icons, grey buttons
-- [x] Bug fixes: loading screen, splash, idle timer, Alert.alert removal
-- [x] Theme tokens: textOnAccent, textOnDark, overlay, shared MEAL_COLORS
-- [x] Streak notifications: fast reminders, check-ins, water, milestones
-- [x] Notification preferences: configurable time, water interval, per-type toggles
-- [x] Onboarding flow: 4-step wizard for new users
-- [x] Barcode scanner: scan food packaging for instant logging
-- [x] Apple Health / Google Fit integration
-- [x] Export / reports (CSV fasting history)
-- [x] Weekly/monthly insights charts
-- [x] Recent foods quick re-log
-- [x] Fasting journal (notes per session)
-- [x] Nutritional insights (low protein alerts)
-- [x] Custom meal templates
-- [x] Fasting schedule presets (auto-suggest from history)
-- [x] Dark mode improvements (AMOLED true-black)
-- [x] Animated achievements (unlock animations)
-- [x] Unit preferences (kg/lbs, cm/ft, ml/floz)
-- [x] Weekly calendar view (Zero-style circles)
-- [x] Full month calendar modal
-- [x] Previous fasts limit with Show All toggle
-- [x] BMI instant update + color coding
-- [x] Sign Out moved to Settings
-- [x] Tab rename: "Log Food" → "Log" + SpoonAndFork icon
 - [x] Auth redirect fix — useEffect + router.replace() for state-change navigation
 - [x] iOS standalone build — EAS config, personal-team signing, OTA updates
+- [x] Stitch visual redesign — Inter + Space Grotesk fonts, glass-panel cards, dark glass-morphism UI
+- [x] MaterialCommunityIcons replacing Hugeicons throughout
+- [x] Eating phase: cyan ring, "End Eating Window" button, remaining-time countdown
+- [x] Edit Goal modal (bottom-sheet) replacing inline goal editor
+- [x] Settings merged into Profile tab (no standalone settings page)
+- [x] Bell/cog icons removed from all headers
+- [x] Home tab is the only place for daily macros (MacroProgress removed from Profile)
+- [x] Fast tab timer countdown fixed for eating phase (eatWindowEndStr computed from session.end_time)
+- [x] FastingTimer labels simplified to "REMAINING"/"ELAPSED"
 
 ## Next Steps
 
 ### Completed
 | # | Feature | Status |
 |---|---------|--------|
-| 1 | **UI redesign** — Fresh palette, Plus Jakarta Sans, mood icons, responsive charts | Done |
-| 2 | **Bug fixes / polish** — Theme tokens, hardcoded colors, web compat | Done |
-| 3 | **Streak notifications** — Fast reminders, check-ins, water, milestones | Done |
-| 4 | **Onboarding flow** — 4-step wizard | Done |
-| 5 | **Barcode scanner** — Camera food scanning | Done |
-| 6 | **Apple Health / Google Fit** — Weight, workouts, water sync | Done |
-| 7 | **Export / reports** — CSV fasting history | Done |
-| 8 | **Weekly/monthly insights** — Calorie trends, fasting consistency | Done |
-| 9 | **Recent foods** — Quick re-log | Done |
-| 10 | **Fasting journal** — Notes per session | Done |
-| 11 | **Nutritional insights** — Proactive guidance | Done |
-| 12 | **Custom meal templates** — One-tap logging | Done |
-| 13 | **Fasting schedule presets** — Auto-suggest from history | Done |
-| 14 | **Dark mode improvements** — AMOLED true-black | Done |
-| 15 | **Animated achievements** — Unlock animations | Done |
-| 16 | **Unit preferences** — kg/lbs, cm/ft, ml/floz | Done |
-| 17 | **Weekly calendar** — Zero-style circle calendar | Done |
-| 18 | **Full month calendar** — Tap day for fast details | Done |
+| 1 | **Stitch visual redesign** — Inter + Space Grotesk fonts, glass-panel cards, dark glass-morphism UI, MaterialCommunityIcons, lime/cyan accent palette | Done |
+| 2 | **Settings merged into Profile tab** — Removed standalone `/settings` page, all settings live inline at the bottom of Profile | Done |
+| 3 | **Header cleanup** — Bell and cog icons removed from all tab headers | Done |
+| 4 | **Edit Goal modal** — Bottom-sheet modal replacing inline goal editor | Done |
+| 5 | **Eating phase UI** — Cyan ring, prominent EATING WINDOW badge, "End Eating Window" button | Done |
+| 6 | **Timer fix** — Countdown works during eating phase (eatWindowEndStr computed from session.end_time) | Done |
+| 7 | **FastingTimer labels** — Simplified to "REMAINING"/"ELAPSED" for both phases | Done |
+| 8 | **UI redesign** — Fresh palette, Plus Jakarta Sans, mood icons, responsive charts | Done |
+| 9 | **Bug fixes / polish** — Theme tokens, hardcoded colors, web compat | Done |
+| 10 | **Streak notifications** — Fast reminders, check-ins, water, milestones | Done |
+| 11 | **Onboarding flow** — 4-step wizard | Done |
+| 12 | **Barcode scanner** — Camera food scanning | Done |
+| 13 | **Apple Health / Google Fit** — Weight, workouts, water sync | Done |
+| 14 | **Export / reports** — CSV fasting history | Done |
+| 15 | **Weekly/monthly insights** — Calorie trends, fasting consistency | Done |
+| 16 | **Recent foods** — Quick re-log | Done |
+| 17 | **Fasting journal** — Notes per session | Done |
+| 18 | **Nutritional insights** — Proactive guidance | Done |
+| 19 | **Custom meal templates** — One-tap logging | Done |
+| 20 | **Fasting schedule presets** — Auto-suggest from history | Done |
+| 21 | **Dark mode improvements** — AMOLED true-black | Done |
+| 22 | **Animated achievements** — Unlock animations | Done |
+| 23 | **Unit preferences** — kg/lbs, cm/ft, ml/floz | Done |
+| 24 | **Weekly calendar** — Zero-style circle calendar | Done |
+| 25 | **Full month calendar** — Tap day for fast details | Done |
 
 ### Remaining
 | # | Feature | Effort | Description |
