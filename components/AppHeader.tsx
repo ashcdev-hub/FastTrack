@@ -1,8 +1,7 @@
 import React from "react";
 import { Pressable, View, Text, Image, ImageSourcePropType } from "react-native";
 import { useRouter } from "expo-router";
-import { HugeiconsIcon } from "@hugeicons/react-native";
-import Settings02Icon from "@hugeicons/core-free-icons/dist/esm/Settings02Icon";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useThemeStore } from "@/lib/theme-store";
 import { getThemeColors, ACCENT } from "@/lib/theme-colors";
 
@@ -23,7 +22,7 @@ export function AppHeader({ title, showLogo = false, logoIcon, logoImage }: AppH
       <View className="flex-row items-center justify-between mb-8">
         <View style={{ flex: 1, alignItems: "flex-start" }}>
           <Text
-            style={{ color: c.text, fontFamily: "PlusJakartaSans_700Bold" }}
+            style={{ color: c.text, fontFamily: "Inter_700Bold" }}
             className="text-3xl"
           >
             {title}
@@ -42,12 +41,12 @@ export function AppHeader({ title, showLogo = false, logoIcon, logoImage }: AppH
               width: 40,
               height: 40,
               borderRadius: 12,
-              backgroundColor: ACCENT.mintBg,
+              backgroundColor: ACCENT.limeBg,
               alignItems: "center",
               justifyContent: "center",
             }}
           >
-            <HugeiconsIcon icon={logoIcon} size={22} color={ACCENT.mint} strokeWidth={1.5} />
+            <MaterialCommunityIcons name="circle-small" size={22} color={ACCENT.lime} />
           </View>
         )}
 
@@ -57,11 +56,10 @@ export function AppHeader({ title, showLogo = false, logoIcon, logoImage }: AppH
             className="p-2.5 rounded-xl"
             style={{ backgroundColor: c.buttonBg }}
           >
-            <HugeiconsIcon
-              icon={Settings02Icon}
+            <MaterialCommunityIcons
+              name="cog-outline"
               size={22}
               color={c.textSecondary}
-              strokeWidth={1.5}
             />
           </Pressable>
         </View>
@@ -72,7 +70,7 @@ export function AppHeader({ title, showLogo = false, logoIcon, logoImage }: AppH
   return (
     <View className="flex-row justify-between items-center mb-8">
       <Text
-        style={{ color: c.text, fontFamily: "PlusJakartaSans_700Bold" }}
+        style={{ color: c.text, fontFamily: "Inter_700Bold" }}
         className="text-3xl"
       >
         {title}
@@ -82,11 +80,10 @@ export function AppHeader({ title, showLogo = false, logoIcon, logoImage }: AppH
         className="p-2.5 rounded-xl"
         style={{ backgroundColor: c.buttonBg }}
       >
-        <HugeiconsIcon
-          icon={Settings02Icon}
+        <MaterialCommunityIcons
+          name="cog-outline"
           size={22}
           color={c.textSecondary}
-          strokeWidth={1.5}
         />
       </Pressable>
     </View>

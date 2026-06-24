@@ -24,8 +24,8 @@ export function ScheduleSelector({ selected, onSelect }: ScheduleSelectorProps) 
   const [customEating, setCustomEating] = useState("8");
 
   return (
-    <View className="rounded-2xl p-5 mb-6" style={{ backgroundColor: c.cardBg, borderWidth: 1, borderColor: c.cardBorder }}>
-      <Text style={{ color: c.textMuted, fontFamily: "PlusJakartaSans_600SemiBold" }} className="text-xs mb-4 tracking-widest">
+    <View className="glass-panel p-5 mb-6">
+      <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_600SemiBold" }} className="text-xs mb-4 tracking-widest">
         FASTING SCHEDULE
       </Text>
 
@@ -41,9 +41,9 @@ export function ScheduleSelector({ selected, onSelect }: ScheduleSelectorProps) 
               }}
               className="flex-1 rounded-xl py-4 items-center"
               style={{
-                backgroundColor: isActive ? ACCENT.mint : c.cardBgAlt,
+                backgroundColor: isActive ? ACCENT.lime : c.cardBgAlt,
                 borderWidth: 1,
-                borderColor: isActive ? ACCENT.mint : c.cardBorder,
+                borderColor: isActive ? ACCENT.lime : c.cardBorder,
               }}
               accessibilityRole="radio"
               accessibilityLabel={`${p.label} fasting schedule`}
@@ -51,8 +51,8 @@ export function ScheduleSelector({ selected, onSelect }: ScheduleSelectorProps) 
             >
               <Text
                 style={{
-                  color: isActive ? c.textOnAccent : c.text,
-                  fontFamily: "PlusJakartaSans_700Bold",
+                  color: isActive ? "#161e00" : c.text,
+                  fontFamily: "Inter_700Bold",
                 }}
                 className="text-base"
               >
@@ -61,7 +61,7 @@ export function ScheduleSelector({ selected, onSelect }: ScheduleSelectorProps) 
               <Text
                 style={{
                   color: isActive ? "rgba(12,12,14,0.6)" : c.textMuted,
-                  fontFamily: "PlusJakartaSans_400Regular",
+                  fontFamily: "Inter_400Regular",
                 }}
                 className="text-[10px] mt-1"
               >
@@ -82,16 +82,16 @@ export function ScheduleSelector({ selected, onSelect }: ScheduleSelectorProps) 
         }}
         className="rounded-xl items-center"
         style={{
-          backgroundColor: customMode ? ACCENT.mint : c.cardBgAlt,
+          backgroundColor: customMode ? ACCENT.lime : c.cardBgAlt,
           borderWidth: 1,
-          borderColor: customMode ? ACCENT.mint : c.cardBorder,
+          borderColor: customMode ? ACCENT.lime : c.cardBorder,
           paddingVertical: 10,
         }}
       >
         <Text
           style={{
-            color: customMode ? c.textOnAccent : c.textSecondary,
-            fontFamily: "PlusJakartaSans_600SemiBold",
+            color: customMode ? "#161e00" : c.textSecondary,
+            fontFamily: "Inter_700Bold",
           }}
           className="text-base"
         >
@@ -102,7 +102,7 @@ export function ScheduleSelector({ selected, onSelect }: ScheduleSelectorProps) 
       {customMode && (
         <View className="flex-row items-center gap-3 mt-4">
           <View className="flex-1">
-            <Text style={{ color: c.textMuted, fontFamily: "PlusJakartaSans_400Regular" }} className="text-xs mb-1">
+            <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular" }} className="text-xs mb-1">
               Fasting
             </Text>
             <TextInput
@@ -118,14 +118,14 @@ export function ScheduleSelector({ selected, onSelect }: ScheduleSelectorProps) 
               placeholder="16"
               placeholderTextColor={c.placeholder}
               className="rounded-xl px-4 py-3.5 text-center text-xl"
-              style={{ backgroundColor: c.inputBg, color: c.text, fontFamily: "PlusJakartaSans_700Bold" }}
+              style={{ backgroundColor: c.inputBg, color: c.text, fontFamily: "Inter_700Bold" }}
             />
           </View>
-          <Text style={{ color: c.textMuted, fontFamily: "PlusJakartaSans_700Bold" }} className="text-xl mt-5">
+          <Text style={{ color: c.textMuted, fontFamily: "Inter_700Bold" }} className="text-xl mt-5">
             :
           </Text>
           <View className="flex-1">
-            <Text style={{ color: c.textMuted, fontFamily: "PlusJakartaSans_400Regular" }} className="text-xs mb-1">
+            <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular" }} className="text-xs mb-1">
               Eating
             </Text>
             <TextInput
@@ -141,7 +141,7 @@ export function ScheduleSelector({ selected, onSelect }: ScheduleSelectorProps) 
               placeholder="8"
               placeholderTextColor={c.placeholder}
               className="rounded-xl px-4 py-3.5 text-center text-xl"
-              style={{ backgroundColor: c.inputBg, color: c.text, fontFamily: "PlusJakartaSans_700Bold" }}
+              style={{ backgroundColor: c.inputBg, color: c.text, fontFamily: "Inter_700Bold" }}
             />
           </View>
           <Pressable
@@ -151,9 +151,9 @@ export function ScheduleSelector({ selected, onSelect }: ScheduleSelectorProps) 
               onSelect(`${f}:${e}`, f, e);
             }}
             className="rounded-xl px-6 py-3.5 mt-5"
-            style={{ backgroundColor: ACCENT.mint }}
+            style={{ backgroundColor: ACCENT.lime }}
           >
-            <Text style={{ color: c.textOnAccent, fontFamily: "PlusJakartaSans_700Bold" }} className="text-sm">
+            <Text style={{ color: "#161e00", fontFamily: "Inter_700Bold" }} className="text-sm">
               Set
             </Text>
           </Pressable>

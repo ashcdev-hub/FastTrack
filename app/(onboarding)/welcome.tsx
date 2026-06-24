@@ -1,8 +1,7 @@
 import React from "react";
 import { Pressable, View, Text } from "react-native";
 import { useRouter } from "expo-router";
-import { HugeiconsIcon } from "@hugeicons/react-native";
-import Timer01Icon from "@hugeicons/core-free-icons/dist/esm/Timer01Icon";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useThemeStore } from "@/lib/theme-store";
 import { getThemeColors, ACCENT } from "@/lib/theme-colors";
 
@@ -19,19 +18,19 @@ export default function WelcomeScreen() {
             width: 96,
             height: 96,
             borderRadius: 24,
-            backgroundColor: ACCENT.mintBg,
+            backgroundColor: ACCENT.limeBg,
             alignItems: "center",
             justifyContent: "center",
             marginBottom: 24,
           }}
         >
-          <HugeiconsIcon icon={Timer01Icon} size={48} color={ACCENT.mint} strokeWidth={1.5} />
+          <MaterialCommunityIcons name="timer-outline" size={48} color={ACCENT.lime} />
         </View>
 
-        <Text style={{ color: c.text, fontFamily: "PlusJakartaSans_700Bold" }} className="text-4xl text-center mb-3">
+        <Text style={{ color: c.text, fontFamily: "Inter_700Bold" }} className="text-4xl text-center mb-3">
           FastTrack
         </Text>
-        <Text style={{ color: c.textSecondary, fontFamily: "PlusJakartaSans_400Regular" }} className="text-center text-lg leading-6">
+        <Text style={{ color: c.textSecondary, fontFamily: "Inter_400Regular" }} className="text-center text-lg leading-6">
           Your intermittent fasting{"\n"}companion
         </Text>
       </View>
@@ -40,9 +39,9 @@ export default function WelcomeScreen() {
         <Pressable
           onPress={() => router.push("/(onboarding)/profile")}
           className="rounded-xl py-4"
-          style={{ backgroundColor: ACCENT.mint }}
+          style={{ backgroundColor: ACCENT.lime }}
         >
-          <Text style={{ color: c.textOnAccent, fontFamily: "PlusJakartaSans_700Bold" }} className="text-center text-lg">
+          <Text style={{ color: c.textOnAccent, fontFamily: "Inter_700Bold" }} className="text-center text-lg">
             Get Started
           </Text>
         </Pressable>
@@ -50,7 +49,7 @@ export default function WelcomeScreen() {
 
       {/* Step indicator */}
       <View className="flex-row gap-2 mt-10">
-        <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: ACCENT.mint }} />
+        <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: ACCENT.lime }} />
         <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: c.textFaint }} />
         <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: c.textFaint }} />
         <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: c.textFaint }} />

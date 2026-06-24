@@ -30,11 +30,11 @@ export function MealForm({ onSubmit, onCancel }: MealFormProps) {
     setName(""); setBrand(""); setServingSize(""); setCalories(""); setProtein(""); setCarbs(""); setFat(""); setQuantity("1");
   };
 
-  const inputStyle = { backgroundColor: c.inputBg, color: c.text, fontFamily: "PlusJakartaSans_500Medium" as const };
+  const inputStyle = { backgroundColor: c.inputBg, color: c.text, fontFamily: "Inter_400Regular" as const };
 
   return (
     <View className="rounded-2xl p-5" style={{ backgroundColor: c.elevated }}>
-      <Text style={{ color: c.text, fontFamily: "PlusJakartaSans_700Bold" }} className="text-lg mb-4">Add Custom Item</Text>
+      <Text style={{ color: c.text, fontFamily: "Inter_700Bold" }} className="text-lg mb-4">Add Custom Item</Text>
 
       <TextInput value={name} onChangeText={setName} placeholder="Food name" placeholderTextColor={c.placeholder} className="rounded-xl px-4 py-3 mb-3" style={inputStyle} />
       <TextInput value={brand} onChangeText={setBrand} placeholder="Brand (optional)" placeholderTextColor={c.placeholder} className="rounded-xl px-4 py-3 mb-3" style={inputStyle} />
@@ -42,37 +42,37 @@ export function MealForm({ onSubmit, onCancel }: MealFormProps) {
 
       <View className="flex-row gap-2 mb-3">
         <View className="flex-1">
-          <Text style={{ color: c.textSecondary, fontFamily: "PlusJakartaSans_400Regular" }} className="text-xs mb-1">Calories</Text>
+          <Text style={{ color: c.textSecondary, fontFamily: "Inter_400Regular" }} className="text-xs mb-1">Calories</Text>
           <TextInput value={calories} onChangeText={setCalories} placeholder="0" placeholderTextColor={c.placeholder} keyboardType="numeric" className="rounded-xl px-4 py-3" style={inputStyle} />
         </View>
         <View className="flex-1">
-          <Text style={{ color: c.textSecondary, fontFamily: "PlusJakartaSans_400Regular" }} className="text-xs mb-1">Protein (g)</Text>
+          <Text style={{ color: c.textSecondary, fontFamily: "Inter_400Regular" }} className="text-xs mb-1">Protein (g)</Text>
           <TextInput value={protein} onChangeText={setProtein} placeholder="0" placeholderTextColor={c.placeholder} keyboardType="numeric" className="rounded-xl px-4 py-3" style={inputStyle} />
         </View>
       </View>
 
       <View className="flex-row gap-2 mb-3">
         <View className="flex-1">
-          <Text style={{ color: c.textSecondary, fontFamily: "PlusJakartaSans_400Regular" }} className="text-xs mb-1">Carbs (g)</Text>
+          <Text style={{ color: c.textSecondary, fontFamily: "Inter_400Regular" }} className="text-xs mb-1">Carbs (g)</Text>
           <TextInput value={carbs} onChangeText={setCarbs} placeholder="0" placeholderTextColor={c.placeholder} keyboardType="numeric" className="rounded-xl px-4 py-3" style={inputStyle} />
         </View>
         <View className="flex-1">
-          <Text style={{ color: c.textSecondary, fontFamily: "PlusJakartaSans_400Regular" }} className="text-xs mb-1">Fat (g)</Text>
+          <Text style={{ color: c.textSecondary, fontFamily: "Inter_400Regular" }} className="text-xs mb-1">Fat (g)</Text>
           <TextInput value={fat} onChangeText={setFat} placeholder="0" placeholderTextColor={c.placeholder} keyboardType="numeric" className="rounded-xl px-4 py-3" style={inputStyle} />
         </View>
       </View>
 
-      <Text style={{ color: c.textSecondary, fontFamily: "PlusJakartaSans_400Regular" }} className="text-xs mb-2">Quantity</Text>
+      <Text style={{ color: c.textSecondary, fontFamily: "Inter_400Regular" }} className="text-xs mb-2">Quantity</Text>
       <TextInput value={quantity} onChangeText={setQuantity} placeholder="1" placeholderTextColor={c.placeholder} keyboardType="numeric" className="rounded-xl px-4 py-3 mb-4" style={inputStyle} />
 
       <View className="flex-row gap-3">
         {onCancel && (
           <Pressable onPress={onCancel} className="flex-1 rounded-xl py-3" style={{ backgroundColor: c.buttonBg }}>
-            <Text style={{ color: c.text, fontFamily: "PlusJakartaSans_600SemiBold" }} className="text-center">Cancel</Text>
+            <Text style={{ color: c.text, fontFamily: "Inter_700Bold" }} className="text-center">Cancel</Text>
           </Pressable>
         )}
-        <Pressable onPress={handleSubmit} className="flex-1 rounded-xl py-3" style={{ backgroundColor: ACCENT.mint }}>
-          <Text style={{ color: c.textOnAccent, fontFamily: "PlusJakartaSans_600SemiBold" }} className="text-center">Add to Meal</Text>
+        <Pressable onPress={handleSubmit} className="flex-1 rounded-xl py-3" style={{ backgroundColor: ACCENT.lime }}>
+          <Text style={{ color: c.textOnAccent, fontFamily: "Inter_700Bold" }} className="text-center">Add to Meal</Text>
         </Pressable>
       </View>
     </View>

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Pressable, View, Text, Modal } from "react-native";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useThemeStore } from "@/lib/theme-store";
 import { getThemeColors, ACCENT } from "@/lib/theme-colors";
 import { useFastCalendar } from "@/hooks/useFastCalendar";
@@ -25,7 +26,7 @@ function getDaysInMonth(year: number, month: number): Date[] {
   const daysInMonth = lastDay.getDate();
 
   let startDow = firstDay.getDay();
-  startDow = startDow === 0 ? 6 : startDow - 1; // Mon=0
+  startDow = startDow === 0 ? 6 : startDow - 1;
 
   const days: Date[] = [];
 
@@ -91,31 +92,28 @@ export function FastCalendar({ visible, userId, fastingHours, onClose }: FastCal
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
       <View className="flex-1 justify-end" style={{ backgroundColor: c.overlay }}>
         <View className="rounded-t-3xl p-6" style={{ backgroundColor: c.elevated }}>
-          {/* Header */}
           <View className="flex-row justify-between items-center mb-5">
             <Pressable onPress={prevMonth} className="p-2 rounded-xl" style={{ backgroundColor: c.buttonBg }}>
-              <Text style={{ color: c.text, fontFamily: "PlusJakartaSans_700Bold" }} className="text-lg">←</Text>
+              <MaterialCommunityIcons name="chevron-left" size={24} color={c.text} />
             </Pressable>
-            <Text style={{ color: c.text, fontFamily: "PlusJakartaSans_700Bold" }} className="text-lg">
+            <Text style={{ color: c.text, fontFamily: "Inter_700Bold" }} className="text-lg">
               {MONTH_NAMES[month]} {year}
             </Text>
             <Pressable onPress={nextMonth} className="p-2 rounded-xl" style={{ backgroundColor: c.buttonBg }}>
-              <Text style={{ color: c.text, fontFamily: "PlusJakartaSans_700Bold" }} className="text-lg">→</Text>
+              <MaterialCommunityIcons name="chevron-right" size={24} color={c.text} />
             </Pressable>
           </View>
 
-          {/* Day labels */}
           <View className="flex-row mb-2">
             {DAY_LABELS.map((label) => (
               <View key={label} className="flex-1 items-center">
-                <Text style={{ color: c.textMuted, fontFamily: "PlusJakartaSans_600SemiBold" }} className="text-[10px]">
+                <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_600SemiBold" }} className="text-[10px]">
                   {label}
                 </Text>
               </View>
             ))}
           </View>
 
-          {/* Calendar grid — grouped into week rows */}
           {weeks.map((week, rowIdx) => (
             <View key={rowIdx} className="flex-row mb-1">
               {week.map((date, colIdx) => {
@@ -141,9 +139,9 @@ export function FastCalendar({ visible, userId, fastingHours, onClose }: FastCal
                         height: 36,
                         borderRadius: 18,
                         borderWidth: isSelected ? 2 : isToday ? 1.5 : 0,
-                        borderColor: isSelected ? ACCENT.mint : isToday ? ACCENT.mint : "transparent",
+                        borderColor: isSelected ? ACCENT.lime : isToday ? ACCENT.lime : "transparent",
                         backgroundColor: hasFast
-                          ? goalMet ? ACCENT.mint : ACCENT.coral
+                          ? goalMet ? ACCENT.lime : ACCENT.coral
                           : "transparent",
                         alignItems: "center",
                         justifyContent: "center",
@@ -152,8 +150,8 @@ export function FastCalendar({ visible, userId, fastingHours, onClose }: FastCal
                     >
                       <Text
                         style={{
-                          color: hasFast ? c.textOnAccent : c.text,
-                          fontFamily: "PlusJakartaSans_500Medium",
+                          color: hasFast ? "#161e00" : c.text,
+                          fontFamily: "Inter_400Regular",
                         }}
                         className="text-sm"
                       >
@@ -166,17 +164,13 @@ export function FastCalendar({ visible, userId, fastingHours, onClose }: FastCal
             </View>
           ))}
 
-          {/* Selected day detail */}
           {selectedDate && (
-            <View
-              className="mt-3 rounded-xl p-4"
-              style={{ backgroundColor: c.cardBg, borderWidth: 1, borderColor: c.cardBorder }}
-            >
-              <Text style={{ color: c.textSecondary, fontFamily: "PlusJakartaSans_600SemiBold" }} className="text-xs mb-2">
+            <View className="mt-3 glass-panel p-4">
+              <Text style={{ color: c.textSecondary, fontFamily: "SpaceGrotesk_600SemiBold" }} className="text-xs mb-2">
                 {selectedDate.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })}
               </Text>
               {selectedDaySessions.length === 0 ? (
-                <Text style={{ color: c.textMuted, fontFamily: "PlusJakartaSans_400Regular" }} className="text-sm">
+                <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular" }} className="text-sm">
                   No fasts recorded
                 </Text>
               ) : (
@@ -192,17 +186,17 @@ export function FastCalendar({ visible, userId, fastingHours, onClose }: FastCal
                             width: 8,
                             height: 8,
                             borderRadius: 4,
-                            backgroundColor: met ? ACCENT.mint : ACCENT.coral,
+                            backgroundColor: met ? ACCENT.lime : ACCENT.coral,
                           }}
                         />
-                        <Text style={{ color: c.text, fontFamily: "PlusJakartaSans_500Medium" }} className="text-sm">
+                        <Text style={{ color: c.text, fontFamily: "Inter_400Regular" }} className="text-sm">
                           {s.fasting_schedule ?? "Fast"} · {hrs}h {mins}m
                         </Text>
                       </View>
                       <Text
                         style={{
-                          color: met ? ACCENT.mint : ACCENT.coral,
-                          fontFamily: "PlusJakartaSans_600SemiBold",
+                          color: met ? ACCENT.lime : ACCENT.coral,
+                          fontFamily: "SpaceGrotesk_600SemiBold",
                         }}
                         className="text-xs"
                       >
@@ -215,9 +209,8 @@ export function FastCalendar({ visible, userId, fastingHours, onClose }: FastCal
             </View>
           )}
 
-          {/* Close */}
           <Pressable onPress={onClose} className="rounded-xl py-3 mt-4" style={{ backgroundColor: c.buttonBg }}>
-            <Text style={{ color: c.text, fontFamily: "PlusJakartaSans_600SemiBold" }} className="text-center">
+            <Text style={{ color: c.text, fontFamily: "Inter_700Bold" }} className="text-center">
               Close
             </Text>
           </Pressable>

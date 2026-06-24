@@ -1,29 +1,55 @@
 type Theme = "dark" | "light";
 
+const DARK = {
+  bg: "#131313",
+  surface: "#201f1f",
+  elevated: "#2a2a2a",
+  text: "#ffffff",
+  textSecondary: "#e5e2e1",
+  textMuted: "#c4c9ac",
+  textFaint: "rgba(196,201,172,0.35)",
+  textOnAccent: "#161e00",
+  textOnDark: "#ffffff",
+  cardBg: "rgba(28,28,30,0.8)",
+  cardBgAlt: "#1c1b1b",
+  cardBorder: "rgba(44,44,46,1)",
+  inputBg: "rgba(255,255,255,0.07)",
+  inputBorder: "rgba(255,255,255,0.12)",
+  buttonBg: "rgba(255,255,255,0.08)",
+  divider: "rgba(255,255,255,0.07)",
+  tabBarBg: "rgba(19,19,19,0.8)",
+  tabBarBorder: "rgba(53,53,52,0.2)",
+  tabBarInactive: "rgba(229,226,225,0.3)",
+  placeholder: "rgba(196,201,172,0.5)",
+  overlay: "rgba(0,0,0,0.5)",
+} as const;
+
+const LIGHT = {
+  bg: "#F6F4EF",
+  surface: "#FFFFFF",
+  elevated: "#F0EDE8",
+  text: "#1A1816",
+  textSecondary: "rgba(26,24,22,0.55)",
+  textMuted: "rgba(26,24,22,0.35)",
+  textFaint: "rgba(26,24,22,0.15)",
+  textOnAccent: "#FFFFFF",
+  textOnDark: "#FFFFFF",
+  cardBg: "#FFFFFF",
+  cardBgAlt: "#F0EDE8",
+  cardBorder: "rgba(0,0,0,0.06)",
+  inputBg: "rgba(0,0,0,0.04)",
+  inputBorder: "rgba(0,0,0,0.1)",
+  buttonBg: "rgba(0,0,0,0.05)",
+  divider: "rgba(0,0,0,0.06)",
+  tabBarBg: "#FAFAF7",
+  tabBarBorder: "rgba(0,0,0,0.06)",
+  tabBarInactive: "rgba(26,24,22,0.35)",
+  placeholder: "rgba(26,24,22,0.35)",
+  overlay: "rgba(0,0,0,0.5)",
+} as const;
+
 export function getThemeColors(theme: Theme) {
-  return {
-    bg: theme === "dark" ? "#0C0C0E" : "#F6F4EF",
-    surface: theme === "dark" ? "#161618" : "#FFFFFF",
-    elevated: theme === "dark" ? "#1E1E21" : "#F0EDE8",
-    text: theme === "dark" ? "#F0EDE8" : "#1A1816",
-    textSecondary: theme === "dark" ? "rgba(240,237,232,0.55)" : "rgba(26,24,22,0.5)",
-    textMuted: theme === "dark" ? "rgba(240,237,232,0.35)" : "rgba(26,24,22,0.3)",
-    textFaint: theme === "dark" ? "rgba(240,237,232,0.2)" : "rgba(26,24,22,0.15)",
-    textOnAccent: "#0C0C0E",
-    textOnDark: "#FFFFFF",
-    cardBg: theme === "dark" ? "#161618" : "#FFFFFF",
-    cardBgAlt: theme === "dark" ? "#1E1E21" : "#F0EDE8",
-    cardBorder: theme === "dark" ? "rgba(255,255,255,0.07)" : "rgba(0,0,0,0.06)",
-    inputBg: theme === "dark" ? "rgba(255,255,255,0.07)" : "rgba(0,0,0,0.04)",
-    inputBorder: theme === "dark" ? "rgba(255,255,255,0.12)" : "rgba(0,0,0,0.1)",
-    buttonBg: theme === "dark" ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.05)",
-    divider: theme === "dark" ? "rgba(255,255,255,0.07)" : "rgba(0,0,0,0.06)",
-    tabBarBg: theme === "dark" ? "#0D0D0F" : "#FAFAF7",
-    tabBarBorder: theme === "dark" ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)",
-    tabBarInactive: theme === "dark" ? "rgba(240,237,232,0.3)" : "rgba(26,24,22,0.35)",
-    placeholder: theme === "dark" ? "rgba(240,237,232,0.35)" : "rgba(26,24,22,0.35)",
-    overlay: "rgba(0,0,0,0.5)",
-  };
+  return theme === "dark" ? { ...DARK } : { ...LIGHT };
 }
 
 export const ACCENT = {
@@ -45,13 +71,19 @@ export const ACCENT = {
   amber: "#FBBF24",
   amberBg: "rgba(251,191,36,0.12)",
   amberBorder: "rgba(251,191,36,0.3)",
+  lime: "#c3f400",
+  limeBg: "rgba(195,244,0,0.15)",
+  limeBorder: "rgba(195,244,0,0.3)",
+  cyan: "#00daf3",
+  cyanBg: "rgba(0,218,243,0.12)",
+  cyanBorder: "rgba(0,218,243,0.3)",
 } as const;
 
 export const MEAL_COLORS: Record<string, string> = {
   breakfast: ACCENT.coral,
-  lunch: ACCENT.mint,
+  lunch: ACCENT.lime,
   dinner: ACCENT.sky,
-  snack: ACCENT.coralLight,
+  snack: ACCENT.lime,
   other: "rgba(128,128,128,0.5)",
 };
 

@@ -1,7 +1,6 @@
 import React from "react";
 import { View, Text, Pressable } from "react-native";
-import { HugeiconsIcon } from "@hugeicons/react-native";
-import Delete02Icon from "@hugeicons/core-free-icons/dist/esm/Delete02Icon";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useThemeStore } from "@/lib/theme-store";
 import { getThemeColors, MEAL_COLORS } from "@/lib/theme-colors";
 
@@ -29,10 +28,7 @@ export function FoodLogItem({ entry, onDelete }: FoodLogItemProps) {
   const color = MEAL_COLORS[entry.meal_type] ?? MEAL_COLORS.other;
 
   return (
-    <View
-      className="rounded-xl p-4 mb-2 flex-row items-center"
-      style={{ backgroundColor: c.cardBg, borderWidth: 1, borderColor: c.cardBorder }}
-    >
+    <View className="glass-panel p-4 mb-2 flex-row items-center">
       <View
         style={{
           width: 4,
@@ -44,21 +40,21 @@ export function FoodLogItem({ entry, onDelete }: FoodLogItemProps) {
       />
       <View className="flex-1">
         <View className="flex-row items-center">
-          <Text style={{ color: c.text, fontFamily: "PlusJakartaSans_500Medium" }} className="text-sm">
+          <Text style={{ color: c.text, fontFamily: "Inter_400Regular" }} className="text-sm">
             {entry.name}
           </Text>
           {entry.brand ? (
-            <Text style={{ color: c.textMuted, fontFamily: "PlusJakartaSans_400Regular" }} className="text-xs ml-2">
+            <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular" }} className="text-xs ml-2">
               {entry.brand}
             </Text>
           ) : null}
         </View>
         <View className="flex-row items-center mt-1">
-          <Text style={{ color: c.textSecondary, fontFamily: "PlusJakartaSans_400Regular" }} className="text-xs">
+          <Text style={{ color: c.textSecondary, fontFamily: "Inter_400Regular" }} className="text-xs">
             {entry.calories ?? 0} kcal · P{entry.protein_g ?? 0}g · C{entry.carbs_g ?? 0}g · F{entry.fat_g ?? 0}g
           </Text>
           {entry.serving_size && entry.quantity && entry.quantity > 1 ? (
-            <Text style={{ color: c.textMuted, fontFamily: "PlusJakartaSans_400Regular" }} className="text-xs ml-2">
+            <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular" }} className="text-xs ml-2">
               ×{entry.quantity}
             </Text>
           ) : null}
@@ -67,7 +63,7 @@ export function FoodLogItem({ entry, onDelete }: FoodLogItemProps) {
       {onDelete && (
         <Pressable onPress={() => onDelete(entry.id)} hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }} style={{ padding: 8 }}
           accessibilityRole="button" accessibilityLabel={`Delete ${entry.name}`}>
-          <HugeiconsIcon icon={Delete02Icon} size={18} color={c.textMuted} strokeWidth={1.5} />
+          <MaterialCommunityIcons name="delete-outline" size={18} color={c.textMuted} />
         </Pressable>
       )}
     </View>

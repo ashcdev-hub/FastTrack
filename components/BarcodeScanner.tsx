@@ -1,8 +1,7 @@
 import React, { useState, useRef } from "react";
 import { Pressable, View, Text, ActivityIndicator } from "react-native";
 import { CameraView, useCameraPermissions } from "expo-camera";
-import { HugeiconsIcon } from "@hugeicons/react-native";
-import Cancel01Icon from "@hugeicons/core-free-icons/dist/esm/Cancel01Icon";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { supabase } from "@/lib/supabase";
 import { useThemeStore } from "@/lib/theme-store";
 import { getThemeColors, ACCENT } from "@/lib/theme-colors";
@@ -83,7 +82,7 @@ export function BarcodeScanner({ visible, onClose, onProductFound }: BarcodeScan
   if (!permission) {
     return (
       <View className="flex-1 items-center justify-center" style={{ backgroundColor: c.bg }}>
-        <ActivityIndicator size="large" color={ACCENT.mint} />
+        <ActivityIndicator size="large" color={ACCENT.lime} />
       </View>
     );
   }
@@ -92,23 +91,23 @@ export function BarcodeScanner({ visible, onClose, onProductFound }: BarcodeScan
   if (!permission.granted) {
     return (
       <View className="flex-1 items-center justify-center px-8" style={{ backgroundColor: c.bg }}>
-        <Text style={{ color: c.text, fontFamily: "PlusJakartaSans_700Bold" }} className="text-xl text-center mb-3">
+        <Text style={{ color: c.text, fontFamily: "Inter_700Bold" }} className="text-xl text-center mb-3">
           Camera Access Required
         </Text>
-        <Text style={{ color: c.textSecondary, fontFamily: "PlusJakartaSans_400Regular" }} className="text-center mb-8">
+        <Text style={{ color: c.textSecondary, fontFamily: "Inter_400Regular" }} className="text-center mb-8">
           Allow camera access to scan barcodes on food packaging
         </Text>
         <Pressable
           onPress={requestPermission}
           className="rounded-xl py-3 px-8"
-          style={{ backgroundColor: ACCENT.mint }}
+          style={{ backgroundColor: ACCENT.lime }}
         >
-          <Text style={{ color: c.textOnAccent, fontFamily: "PlusJakartaSans_600SemiBold" }}>
+          <Text style={{ color: c.textOnAccent, fontFamily: "Inter_700Bold" }}>
             Grant Permission
           </Text>
         </Pressable>
         <Pressable onPress={onClose} className="mt-4">
-          <Text style={{ color: c.textSecondary, fontFamily: "PlusJakartaSans_500Medium" }}>Cancel</Text>
+          <Text style={{ color: c.textSecondary, fontFamily: "Inter_400Regular" }}>Cancel</Text>
         </Pressable>
       </View>
     );
@@ -133,9 +132,9 @@ export function BarcodeScanner({ visible, onClose, onProductFound }: BarcodeScan
               className="p-2 rounded-full"
               style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
             >
-              <HugeiconsIcon icon={Cancel01Icon} size={24} color="#FFFFFF" strokeWidth={1.5} />
+              <MaterialCommunityIcons name="close-circle-outline" size={24} color="#FFFFFF" />
             </Pressable>
-            <Text style={{ color: "#FFFFFF", fontFamily: "PlusJakartaSans_600SemiBold" }} className="text-sm">
+            <Text style={{ color: "#FFFFFF", fontFamily: "SpaceGrotesk_600SemiBold" }} className="text-sm">
               Scan Barcode
             </Text>
             <View className="w-10" />
@@ -147,21 +146,21 @@ export function BarcodeScanner({ visible, onClose, onProductFound }: BarcodeScan
               width: 260,
               height: 260,
               borderWidth: 2,
-              borderColor: ACCENT.mint,
+              borderColor: ACCENT.lime,
               borderRadius: 16,
               backgroundColor: "transparent",
             }}
           >
             {/* Corner accents */}
-            <View style={{ position: "absolute", top: -1, left: -1, width: 32, height: 32, borderTopWidth: 3, borderLeftWidth: 3, borderColor: ACCENT.mint, borderTopLeftRadius: 16 }} />
-            <View style={{ position: "absolute", top: -1, right: -1, width: 32, height: 32, borderTopWidth: 3, borderRightWidth: 3, borderColor: ACCENT.mint, borderTopRightRadius: 16 }} />
-            <View style={{ position: "absolute", bottom: -1, left: -1, width: 32, height: 32, borderBottomWidth: 3, borderLeftWidth: 3, borderColor: ACCENT.mint, borderBottomLeftRadius: 16 }} />
-            <View style={{ position: "absolute", bottom: -1, right: -1, width: 32, height: 32, borderBottomWidth: 3, borderRightWidth: 3, borderColor: ACCENT.mint, borderBottomRightRadius: 16 }} />
+            <View style={{ position: "absolute", top: -1, left: -1, width: 32, height: 32, borderTopWidth: 3, borderLeftWidth: 3, borderColor: ACCENT.lime, borderTopLeftRadius: 16 }} />
+            <View style={{ position: "absolute", top: -1, right: -1, width: 32, height: 32, borderTopWidth: 3, borderRightWidth: 3, borderColor: ACCENT.lime, borderTopRightRadius: 16 }} />
+            <View style={{ position: "absolute", bottom: -1, left: -1, width: 32, height: 32, borderBottomWidth: 3, borderLeftWidth: 3, borderColor: ACCENT.lime, borderBottomLeftRadius: 16 }} />
+            <View style={{ position: "absolute", bottom: -1, right: -1, width: 32, height: 32, borderBottomWidth: 3, borderRightWidth: 3, borderColor: ACCENT.lime, borderBottomRightRadius: 16 }} />
           </View>
 
           {/* Instructions */}
           <Text
-            style={{ color: "#FFFFFF", fontFamily: "PlusJakartaSans_400Regular" }}
+            style={{ color: "#FFFFFF", fontFamily: "Inter_400Regular" }}
             className="text-sm mt-6 text-center px-8"
           >
             Align the barcode within the frame
@@ -172,17 +171,17 @@ export function BarcodeScanner({ visible, onClose, onProductFound }: BarcodeScan
             <View className="absolute bottom-32 left-8 right-8 items-center">
               {lookupLoading ? (
                 <View className="flex-row items-center gap-2 rounded-xl px-5 py-3" style={{ backgroundColor: "rgba(0,0,0,0.7)" }}>
-                  <ActivityIndicator size="small" color={ACCENT.mint} />
-                  <Text style={{ color: "#FFFFFF", fontFamily: "PlusJakartaSans_500Medium" }} className="text-sm">
+                  <ActivityIndicator size="small" color={ACCENT.lime} />
+                  <Text style={{ color: "#FFFFFF", fontFamily: "Inter_400Regular" }} className="text-sm">
                     Looking up product...
                   </Text>
                 </View>
               ) : error ? (
                 <View className="rounded-xl px-5 py-3" style={{ backgroundColor: "rgba(0,0,0,0.7)" }}>
-                  <Text style={{ color: ACCENT.rose, fontFamily: "PlusJakartaSans_500Medium" }} className="text-sm text-center">
+                  <Text style={{ color: ACCENT.rose, fontFamily: "Inter_400Regular" }} className="text-sm text-center">
                     {error}
                   </Text>
-                  <Text style={{ color: "rgba(255,255,255,0.6)", fontFamily: "PlusJakartaSans_400Regular" }} className="text-xs text-center mt-1">
+                  <Text style={{ color: "rgba(255,255,255,0.6)", fontFamily: "Inter_400Regular" }} className="text-xs text-center mt-1">
                     Try scanning again
                   </Text>
                 </View>

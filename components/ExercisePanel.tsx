@@ -1,26 +1,25 @@
 import React, { useState } from "react";
-import { Pressable, View, Text, TextInput } from "react-native";
-import { HugeiconsIcon } from "@hugeicons/react-native";
-import Edit01Icon from "@hugeicons/core-free-icons/dist/esm/Edit01Icon";
-import Delete02Icon from "@hugeicons/core-free-icons/dist/esm/Delete02Icon";
-import PlusSignIcon from "@hugeicons/core-free-icons/dist/esm/PlusSignIcon";
-import PushUpBarIcon from "@hugeicons/core-free-icons/dist/esm/PushUpBarIcon";
-import BodyPartSixPackIcon from "@hugeicons/core-free-icons/dist/esm/BodyPartSixPackIcon";
-import WorkoutSquatsIcon from "@hugeicons/core-free-icons/dist/esm/WorkoutSquatsIcon";
-import BodyPartMuscleIcon from "@hugeicons/core-free-icons/dist/esm/BodyPartMuscleIcon";
+import { Pressable, View, Text } from "react-native";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useThemeStore } from "@/lib/theme-store";
 import { getThemeColors, ACCENT } from "@/lib/theme-colors";
+import { EditGoalModal } from "@/components/EditGoalModal";
 import type { WorkoutGoal } from "@/lib/types";
 import type { TodayTotals } from "@/hooks/useWorkoutLog";
 
-const EXERCISE_CONFIG: Record<string, { icon: any }> = {
-  pushups: { icon: PushUpBarIcon },
-  crunches: { icon: BodyPartSixPackIcon },
-  situps: { icon: BodyPartSixPackIcon },
-  squats: { icon: WorkoutSquatsIcon },
+const EXERCISE_ICONS: Record<string, keyof typeof MaterialCommunityIcons.glyphMap> = {
+  pushups: "dumbbell",
+  crunches: "circle-multiple",
+  situps: "circle-multiple",
+  squats: "human",
 };
 
-const DEFAULT_CONFIG = { icon: BodyPartMuscleIcon };
+const EXERCISE_CATEGORIES: Record<string, string> = {
+  pushups: "UPPER BODY",
+  crunches: "CORE",
+  situps: "CORE",
+  squats: "LEGS",
+};
 
 type ExercisePanelProps = {
   goal: WorkoutGoal;
@@ -39,284 +38,102 @@ export function ExercisePanel({
 }: ExercisePanelProps) {
   const { theme } = useThemeStore();
   const c = getThemeColors(theme);
-  const [editingGoal, setEditingGoal] = useState(false);
-  const [goalInput, setGoalInput] = useState(String(goal.daily_goal));
-  const [customMode, setCustomMode] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const reps = todayTotal?.reps ?? 0;
   const sets = todayTotal?.sets ?? 0;
   const calories = todayTotal?.calories ?? 0;
   const progress = Math.min(reps / goal.daily_goal, 1);
-  const config = EXERCISE_CONFIG[goal.exercise_type] ?? DEFAULT_CONFIG;
-  const IconComponent = config.icon;
+  const iconName = EXERCISE_ICONS[goal.exercise_type] ?? "dumbbell";
+  const category = EXERCISE_CATEGORIES[goal.exercise_type] ?? "EXERCISE";
   const isGoalMet = reps >= goal.daily_goal;
 
-  const handleSaveGoal = () => {
-    const newGoal = parseInt(goalInput);
-    if (!isNaN(newGoal) && newGoal > 0) {
-      onUpdateGoal(goal.id, newGoal);
-    } else {
-      setGoalInput(String(goal.daily_goal));
-    }
-    setEditingGoal(false);
+  const handleSaveGoal = (newGoal: number) => {
+    onUpdateGoal(goal.id, newGoal);
+    setShowEditModal(false);
   };
 
   return (
-    <View
-      className="rounded-2xl p-5 mb-3"
-      style={{ backgroundColor: c.cardBg, borderWidth: 1, borderColor: c.cardBorder }}
-    >
+    <View className="glass-panel p-4">
       {/* Header */}
-      <View className="flex-row items-center justify-between mb-3">
-        <View className="flex-row items-center">
-          <View
-            style={{
-              width: 36,
-              height: 36,
-              borderRadius: 10,
-              backgroundColor: c.cardBgAlt,
-              alignItems: "center",
-              justifyContent: "center",
-              marginRight: 10,
-            }}
-          >
-            <HugeiconsIcon icon={IconComponent} size={18} color={c.textSecondary} strokeWidth={1.5} />
-          </View>
-          <Text style={{ color: c.text, fontFamily: "PlusJakartaSans_700Bold" }} className="text-lg capitalize">
+      <View className="flex-row justify-between items-start mb-4">
+        <View>
+          <Text style={{ color: ACCENT.cyan, fontFamily: "SpaceGrotesk_700Bold", fontSize: 12, letterSpacing: 1, marginBottom: 4, textTransform: "uppercase" }}>
+            {category}
+          </Text>
+          <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 28, letterSpacing: -0.3, lineHeight: 32, textTransform: "capitalize" }}>
             {goal.exercise_type}
           </Text>
         </View>
-        <View className="flex-row gap-2">
-          <Pressable
-            onPress={() => {
-              setGoalInput(String(goal.daily_goal));
-              setCustomMode(false);
-              setEditingGoal(true);
-            }}
-            className="p-1"
-            accessibilityRole="button"
-            accessibilityLabel="Edit exercise goal"
-          >
-            <HugeiconsIcon icon={Edit01Icon} size={18} color={c.textMuted} strokeWidth={1.5} />
-          </Pressable>
-          <Pressable
-            onPress={() => setShowDeleteConfirm(true)}
-            className="p-1"
-            accessibilityRole="button"
-            accessibilityLabel="Remove exercise"
-          >
-            <HugeiconsIcon icon={Delete02Icon} size={18} color={c.textMuted} strokeWidth={1.5} />
-          </Pressable>
+        <View className="flex-col items-end">
+          <Text style={{ color: ACCENT.lime, fontFamily: "SpaceGrotesk_600SemiBold", fontSize: 40, letterSpacing: -1 }}>
+            {reps}<Text style={{ fontFamily: "SpaceGrotesk_700Bold", fontSize: 12, color: c.textMuted, marginLeft: 4 }}>/ {goal.daily_goal}</Text>
+          </Text>
         </View>
       </View>
 
-      {/* Progress */}
-      <View className="mb-3">
-        <View className="flex-row justify-between mb-1">
-          <Text style={{ color: c.textSecondary, fontFamily: "PlusJakartaSans_500Medium" }} className="text-sm">
-            Today&apos;s Progress
-          </Text>
-          <Text
-            style={{ color: isGoalMet ? ACCENT.mint : c.text, fontFamily: "PlusJakartaSans_700Bold" }}
-            className="text-sm"
-          >
-            {reps} / {goal.daily_goal}
-          </Text>
-        </View>
+      {/* Progress Bar */}
+      <View className="w-full h-1 rounded-full overflow-hidden mb-6" style={{ backgroundColor: "rgba(53,53,52,0.3)" }}>
         <View
-          className="h-2.5 rounded-full overflow-hidden"
-          style={{ backgroundColor: c.cardBgAlt }}
-          accessibilityRole="progressbar"
-          accessibilityValue={{
-            min: 0,
-            max: goal.daily_goal,
-            now: reps,
-            text: `${reps} of ${goal.daily_goal} reps`,
-          }}
-        >
-          <View
-            className="h-full rounded-full"
-            style={{
-              width: `${progress * 100}%`,
-              backgroundColor: isGoalMet ? ACCENT.mint : c.textMuted,
-            }}
-          />
-        </View>
+          className="h-full rounded-full"
+          style={{ width: `${progress * 100}%`, backgroundColor: isGoalMet ? ACCENT.cyan : ACCENT.lime }}
+        />
       </View>
 
-      {/* Stats */}
-      <View className="flex-row justify-between mb-4">
-        <View className="items-center">
-          <Text style={{ color: c.text, fontFamily: "PlusJakartaSans_700Bold" }}>{reps}</Text>
-          <Text style={{ color: c.textMuted, fontFamily: "PlusJakartaSans_400Regular" }} className="text-xs">Reps</Text>
+      {/* Stepper Controls */}
+      <Pressable onPress={onLogSet} className="flex-row items-center justify-between mb-4" style={{ backgroundColor: c.elevated, borderRadius: 8, padding: 4 }}>
+        <View className="w-touch-target h-touch-target items-center justify-center rounded" style={{ backgroundColor: "transparent" }}>
+          <MaterialCommunityIcons name="minus" size={20} color={c.textMuted} />
         </View>
-        <View className="items-center">
-          <Text style={{ color: c.text, fontFamily: "PlusJakartaSans_700Bold" }}>{sets}</Text>
-          <Text style={{ color: c.textMuted, fontFamily: "PlusJakartaSans_400Regular" }} className="text-xs">Sets</Text>
+        <View className="flex-col items-center">
+          <Text style={{ color: c.text, fontFamily: "SpaceGrotesk_600SemiBold", fontSize: 32, lineHeight: 32 }}>
+            {reps}
+          </Text>
+          <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 10, letterSpacing: 1 }}>
+            REPS TODAY
+          </Text>
         </View>
-        <View className="items-center">
-          <Text style={{ color: c.text, fontFamily: "PlusJakartaSans_700Bold" }}>{Math.round(calories)}</Text>
-          <Text style={{ color: c.textMuted, fontFamily: "PlusJakartaSans_400Regular" }} className="text-xs">Calories</Text>
+        <View className="w-touch-target h-touch-target items-center justify-center rounded" style={{ backgroundColor: "transparent" }}>
+          <MaterialCommunityIcons name="plus" size={20} color={c.textSecondary} />
         </View>
+      </Pressable>
+
+      {/* Action Buttons */}
+      <View className="flex-row gap-2 mb-2">
+        <Pressable onPress={() => setShowEditModal(true)} className="flex-1 py-3 rounded-lg items-center flex-row justify-center gap-2" style={{ backgroundColor: c.buttonBg }}>
+          <MaterialCommunityIcons name="pencil-outline" size={16} color={c.textMuted} />
+          <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 14 }}>Edit Goal</Text>
+        </Pressable>
+        <Pressable onPress={() => setShowDeleteConfirm(true)} className="flex-1 py-3 rounded-lg items-center flex-row justify-center gap-2" style={{ backgroundColor: c.buttonBg }}>
+          <MaterialCommunityIcons name="delete-outline" size={16} color={c.textMuted} />
+          <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 14 }}>Remove</Text>
+        </Pressable>
       </View>
 
       {/* Delete Confirmation */}
       {showDeleteConfirm && (
-        <View className="rounded-xl p-4 mb-3" style={{ backgroundColor: ACCENT.roseBg, borderWidth: 1, borderColor: ACCENT.roseBorder }}>
-          <Text style={{ color: c.text, fontFamily: "PlusJakartaSans_700Bold" }} className="mb-1">
-            Remove this exercise?
-          </Text>
-          <Text style={{ color: c.textSecondary, fontFamily: "PlusJakartaSans_400Regular" }} className="text-sm mb-3">
-            You can re-add it later from the Add Exercise menu.
-          </Text>
+        <View className="rounded-lg p-4 mb-3" style={{ backgroundColor: ACCENT.roseBg, borderWidth: 1, borderColor: ACCENT.roseBorder }}>
+          <Text style={{ color: c.text, fontFamily: "Inter_700Bold", marginBottom: 4 }}>Remove this exercise?</Text>
+          <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 14, marginBottom: 12 }}>You can re-add it later from the Add Exercise menu.</Text>
           <View className="flex-row gap-3">
-            <Pressable
-              onPress={() => setShowDeleteConfirm(false)}
-              className="flex-1 rounded-xl py-3"
-              style={{ backgroundColor: c.buttonBg }}
-            >
-              <Text style={{ color: c.text, fontFamily: "PlusJakartaSans_600SemiBold" }} className="text-center">Cancel</Text>
+            <Pressable onPress={() => setShowDeleteConfirm(false)} className="flex-1 py-3 rounded-lg items-center" style={{ backgroundColor: c.buttonBg }}>
+              <Text style={{ color: c.text, fontFamily: "Inter_700Bold" }}>Cancel</Text>
             </Pressable>
-            <Pressable
-              onPress={() => {
-                onToggleEnabled(goal.id, false);
-                setShowDeleteConfirm(false);
-              }}
-              className="flex-1 rounded-xl py-3"
-              style={{ backgroundColor: ACCENT.rose }}
-            >
-              <Text style={{ color: c.textOnDark, fontFamily: "PlusJakartaSans_600SemiBold" }} className="text-center">Remove</Text>
+            <Pressable onPress={() => { onToggleEnabled(goal.id, false); setShowDeleteConfirm(false); }} className="flex-1 py-3 rounded-lg items-center" style={{ backgroundColor: ACCENT.rose }}>
+              <Text style={{ color: "#161e00", fontFamily: "Inter_700Bold" }}>Remove</Text>
             </Pressable>
           </View>
         </View>
       )}
 
-      {/* Goal Edit Card */}
-      {editingGoal && (
-        <View className="rounded-xl p-4 mb-3" style={{ backgroundColor: c.cardBgAlt, borderWidth: 1, borderColor: c.cardBorder }}>
-          <Text style={{ color: c.textSecondary, fontFamily: "PlusJakartaSans_500Medium" }} className="text-xs mb-3">
-            Daily Goal (reps/day)
-          </Text>
-
-          <View className="flex-row items-center justify-center gap-4 mb-3">
-              <Pressable
-              onPress={() => {
-                const v = parseInt(goalInput);
-                if (!isNaN(v) && v > 10) setGoalInput(String(v - 10));
-              }}
-              className="w-10 h-10 rounded-full items-center justify-center"
-              style={{ backgroundColor: c.buttonBg }}
-              accessibilityRole="button"
-              accessibilityLabel="Decrease goal by 10"
-            >
-              <Text style={{ color: c.text, fontFamily: "PlusJakartaSans_700Bold" }} className="text-lg">−</Text>
-            </Pressable>
-            <Text style={{ color: c.text, fontFamily: "PlusJakartaSans_700Bold" }} className="text-2xl w-20 text-center">
-              {goalInput}
-            </Text>
-            <Pressable
-              onPress={() => {
-                const v = parseInt(goalInput);
-                if (!isNaN(v)) setGoalInput(String(v + 10));
-              }}
-              className="w-10 h-10 rounded-full items-center justify-center"
-              style={{ backgroundColor: c.buttonBg }}
-              accessibilityRole="button"
-              accessibilityLabel="Increase goal by 10"
-            >
-              <Text style={{ color: c.text, fontFamily: "PlusJakartaSans_700Bold" }} className="text-lg">+</Text>
-            </Pressable>
-          </View>
-
-          <View className="flex-row gap-2 mb-3">
-            {[50, 100, 150, 200, 250].map((preset) => {
-              const isActive = !customMode && parseInt(goalInput) === preset;
-              return (
-                <Pressable
-                  key={preset}
-                  onPress={() => {
-                    setGoalInput(String(preset));
-                    setCustomMode(false);
-                  }}
-                  className="flex-1 py-2 rounded-lg items-center"
-                  style={{
-                    backgroundColor: isActive ? ACCENT.mint : c.buttonBg,
-                  }}
-                >
-                  <Text
-                    className="text-xs"
-                    style={{
-                      color: isActive ? c.textOnAccent : c.textSecondary,
-                      fontFamily: "PlusJakartaSans_600SemiBold",
-                    }}
-                  >
-                    {preset}
-                  </Text>
-                </Pressable>
-              );
-            })}
-            <Pressable
-              onPress={() => setCustomMode(true)}
-              className="flex-1 py-2 rounded-lg items-center"
-              style={{
-                backgroundColor: customMode ? ACCENT.mint : c.buttonBg,
-              }}
-            >
-              <Text
-                className="text-xs font-medium"
-                style={{
-                  color: customMode ? c.textOnAccent : c.textSecondary,
-                  fontFamily: "PlusJakartaSans_600SemiBold",
-                }}
-              >
-                Custom
-              </Text>
-            </Pressable>
-          </View>
-          {customMode && (
-            <TextInput
-              value={goalInput}
-              onChangeText={setGoalInput}
-              placeholder="Enter goal"
-              placeholderTextColor={c.placeholder}
-              keyboardType="numeric"
-              className="rounded-xl px-4 py-2 mb-3"
-              style={{ backgroundColor: c.inputBg, color: c.text, fontFamily: "PlusJakartaSans_500Medium" }}
-            />
-          )}
-
-          <View className="flex-row gap-2">
-            <Pressable
-              onPress={() => {
-                setGoalInput(String(goal.daily_goal));
-                setEditingGoal(false);
-              }}
-              className="flex-1 rounded-xl py-2.5"
-              style={{ backgroundColor: c.buttonBg }}
-            >
-              <Text style={{ color: c.text, fontFamily: "PlusJakartaSans_600SemiBold" }} className="text-center">Cancel</Text>
-            </Pressable>
-            <Pressable
-              onPress={handleSaveGoal}
-              className="flex-1 rounded-xl py-2.5"
-              style={{ backgroundColor: ACCENT.mint }}
-            >
-              <Text style={{ color: c.textOnAccent, fontFamily: "PlusJakartaSans_600SemiBold" }} className="text-center">Save</Text>
-            </Pressable>
-          </View>
-        </View>
-      )}
-
-      {/* Log Set Button */}
-      <Pressable
-        onPress={onLogSet}
-        className="rounded-xl py-3 flex-row items-center justify-center"
-        style={{ backgroundColor: c.buttonBg }}
-      >
-        <HugeiconsIcon icon={PlusSignIcon} size={18} color={c.text} strokeWidth={2} />
-        <Text style={{ color: c.text, fontFamily: "PlusJakartaSans_700Bold" }} className="ml-2">Log Set</Text>
-      </Pressable>
+      <EditGoalModal
+        visible={showEditModal}
+        currentGoal={goal.daily_goal}
+        exerciseName={goal.exercise_type}
+        onSave={handleSaveGoal}
+        onCancel={() => setShowEditModal(false)}
+      />
     </View>
   );
 }

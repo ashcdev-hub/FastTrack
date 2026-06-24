@@ -1,52 +1,21 @@
 import React, { useEffect, useState } from "react";
 import { Pressable, View, Text, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { HugeiconsIcon } from "@hugeicons/react-native";
-import Clock01Icon from "@hugeicons/core-free-icons/dist/esm/Clock01Icon";
-import SunriseIcon from "@hugeicons/core-free-icons/dist/esm/SunriseIcon";
-import Moon01Icon from "@hugeicons/core-free-icons/dist/esm/Moon01Icon";
-import AlarmClockIcon from "@hugeicons/core-free-icons/dist/esm/AlarmClockIcon";
-import Timer01Icon from "@hugeicons/core-free-icons/dist/esm/Timer01Icon";
-import StopIcon from "@hugeicons/core-free-icons/dist/esm/StopIcon";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useAuth } from "@/hooks/useAuth";
 import { useFastingSession } from "@/hooks/useFastingSession";
 import { useFastingStore } from "@/store/useFastingStore";
-import { useFastCheckIns } from "@/hooks/useFastCheckIns";
+import { useWorkoutGoals } from "@/hooks/useWorkoutGoals";
+import { useWorkoutLog } from "@/hooks/useWorkoutLog";
+import { useWaterLog } from "@/hooks/useWaterLog";
+import { useFoodLog } from "@/hooks/useFoodLog";
+import { useGoalStore } from "@/store/useGoalStore";
 import { useProfile } from "@/hooks/useProfile";
-import { FastingTimer } from "@/components/FastingTimer";
-import { PreviousFasts } from "@/components/PreviousFasts";
-import { CheckInPanel } from "@/components/CheckInPanel";
-import { CheckInTimeline } from "@/components/CheckInTimeline";
-import { MoodChart } from "@/components/MoodChart";
-import { ScheduleSelector } from "@/components/ScheduleSelector";
-import { AppHeader } from "@/components/AppHeader";
+import { ProgressRing } from "@/components/ProgressRing";
 import { useThemeStore } from "@/lib/theme-store";
 import { getThemeColors, ACCENT } from "@/lib/theme-colors";
-import { scheduleFastingReminder, cancelAllNotifications, scheduleDailyFastReminder, scheduleCheckInReminder, scheduleWaterReminders, checkAndNotifyStreakMilestone } from "@/lib/notifications";
 import { format, addHours } from "date-fns";
-
-function useCountdown(endTime: string | null) {
-  const [remaining, setRemaining] = useState({ hours: 0, minutes: 0, seconds: 0, totalSeconds: 0, totalMinutes: 0, isOver: false });
-
-  useEffect(() => {
-    if (!endTime) { setRemaining({ hours: 0, minutes: 0, seconds: 0, totalSeconds: 0, totalMinutes: 0, isOver: false }); return; }
-    const tick = () => {
-      const diff = new Date(endTime).getTime() - Date.now();
-      const isOver = diff < 0;
-      const totalSeconds = Math.floor(Math.abs(diff) / 1000);
-      const hours = Math.floor(totalSeconds / 3600);
-      const minutes = Math.floor((totalSeconds % 3600) / 60);
-      const seconds = totalSeconds % 60;
-      const totalMinutes = Math.floor(totalSeconds / 60);
-      setRemaining({ hours, minutes, seconds, totalSeconds, totalMinutes, isOver });
-    };
-    tick();
-    const interval = setInterval(tick, 1000);
-    return () => clearInterval(interval);
-  }, [endTime]);
-
-  return remaining;
-}
+import { router } from "expo-router";
 
 function useElapsedMinutes(startTime: string | null) {
   const [totalMinutes, setTotalMinutes] = useState(0);
@@ -63,308 +32,197 @@ function useElapsedMinutes(startTime: string | null) {
   return totalMinutes;
 }
 
-function useElapsed(startTime: string | null) {
-  const [elapsed, setElapsed] = useState({ hours: 0, minutes: 0, seconds: 0 });
-  useEffect(() => {
-    if (!startTime) { setElapsed({ hours: 0, minutes: 0, seconds: 0 }); return; }
-    const tick = () => {
-      const diff = Math.max(0, Math.floor((Date.now() - new Date(startTime).getTime()) / 1000));
-      const hours = Math.floor(diff / 3600);
-      const minutes = Math.floor((diff % 3600) / 60);
-      const seconds = diff % 60;
-      setElapsed({ hours, minutes, seconds });
-    };
-    tick();
-    const interval = setInterval(tick, 1000);
-    return () => clearInterval(interval);
-  }, [startTime]);
-  return elapsed;
-}
-
-function useCountdownSeconds(endTime: Date | null, totalDurationSec: number) {
-  const [remaining, setRemaining] = useState(totalDurationSec);
-  useEffect(() => {
-    if (!endTime) { setRemaining(totalDurationSec); return; }
-    const tick = () => {
-      const elapsed = Math.floor((Date.now() - endTime.getTime()) / 1000);
-      setRemaining(Math.max(0, totalDurationSec - elapsed));
-    };
-    tick();
-    const interval = setInterval(tick, 1000);
-    return () => clearInterval(interval);
-  }, [endTime, totalDurationSec]);
-  const hours = Math.floor(remaining / 3600);
-  const minutes = Math.floor((remaining % 3600) / 60);
-  const seconds = remaining % 60;
-  const totalMinutes = Math.floor(remaining / 60);
-  return { hours, minutes, seconds, totalMinutes, totalSeconds: remaining };
-}
-
-type Phase = "idle" | "fasting" | "eating";
-
 export default function HomeScreen() {
   const { user } = useAuth();
-  const { session, startFast, endFast, breakFast, deleteFast, pastSessions, streak, completedFasts } = useFastingSession(user?.id);
-  const { fastingHours, eatingHours, setSessionId, setStartTime, setFastingHours, setEatingHours } = useFastingStore();
+  const { session } = useFastingSession(user?.id);
+  const { fastingHours, eatingHours } = useFastingStore();
+  const { profile } = useProfile(user?.id ?? null);
+  const { goals: workoutGoals } = useWorkoutGoals(user?.id);
+  const { todayTotals } = useWorkoutLog(user?.id, profile?.weight_kg ?? null);
+  const { totalMl, addWater } = useWaterLog(user?.id);
+  const { totals } = useFoodLog(user?.id);
+  const goals = useGoalStore();
   const { theme } = useThemeStore();
   const c = getThemeColors(theme);
-  const [showEndConfirm, setShowEndConfirm] = useState(false);
-  const [selectedSchedule, setSelectedSchedule] = useState<string | null>(null);
-  const { checkIns, addCheckIn } = useFastCheckIns(user?.id, session?.id ?? null);
-  const { profile, updateFastingSchedule } = useProfile(user?.id ?? null);
 
-  const notifPrefs = profile?.notification_preferences;
-
-  const phase: Phase = !session ? "idle" : (session.status as Phase);
-
+  const phase = !session ? "idle" : (session.status as "idle" | "fasting" | "eating");
   const fastStartStr = phase === "fasting" ? session!.start_time : null;
-  const eatWindowEndStr = fastStartStr ? addHours(new Date(fastStartStr), fastingHours).toISOString() : null;
-  const fastCountdown = useCountdown(eatWindowEndStr);
-  const fastElapsedMinutes = useElapsedMinutes(fastStartStr);
+  const elapsedMinutes = useElapsedMinutes(fastStartStr);
+  const fastPct = Math.min(elapsedMinutes / (fastingHours * 60), 1);
+  const elapsedHours = Math.floor(elapsedMinutes / 60);
+  const elapsedMins = elapsedMinutes % 60;
 
-  const breakTimeStr = phase === "eating" ? (session!.end_time ?? session!.start_time) : null;
-  const eatingWindowEndStr = breakTimeStr ? addHours(new Date(breakTimeStr), eatingHours).toISOString() : null;
-  const eatingCountdown = useCountdown(eatingWindowEndStr);
+  const waterPct = goals.waterGoalMl > 0 ? Math.min(totalMl / goals.waterGoalMl, 1) : 0;
+  const enabledGoals = workoutGoals.filter((g) => g.enabled);
+  const totalReps = Object.values(todayTotals).reduce((sum, t) => sum + t.reps, 0);
 
-  const fastElapsed = useElapsed(fastStartStr);
-  const eatingElapsed = useElapsed(breakTimeStr);
-
-  const fastStartDate = session?.start_time ? new Date(session.start_time) : null;
-  const eatWindowOpens = fastStartDate ? addHours(fastStartDate, fastingHours) : null;
-  const eatWindowCloses = eatWindowOpens ? addHours(eatWindowOpens, eatingHours) : null;
-
-  useEffect(() => {
-    if (session) { setSessionId(session.id); setStartTime(session.start_time); }
-    else { setSessionId(null); setStartTime(null); }
-  }, [session?.id]);
-
-  const handleStartFast = async () => {
-    if (!user) return;
-    const schedule = selectedSchedule ?? `${fastingHours}:${eatingHours}`;
-    const { data, error } = await startFast(new Date(), schedule);
-    if (data && !error) {
-      setSessionId(data.id);
-      setStartTime(data.start_time);
-
-      // Always schedule the fast complete reminder
-      await scheduleFastingReminder("Fast Complete!", `Your fast is done. Time to eat!`, fastingHours * 3600);
-
-      // Schedule additional notifications based on preferences
-      if (notifPrefs?.checkin_reminders) {
-        await scheduleCheckInReminder(fastingHours / 2);
-      }
-      if (notifPrefs?.water_reminders && notifPrefs?.water_interval_hours) {
-        await scheduleWaterReminders(notifPrefs.water_interval_hours);
-      }
-    }
-  };
-
-  const handleBreakFast = async () => {
-    if (!session) return;
-    const { error } = await breakFast(session.id);
-    if (!error) {
-      await cancelAllNotifications();
-      if (notifPrefs?.streak_reminders) {
-        await checkAndNotifyStreakMilestone(completedFasts + 1);
-      }
-    }
-  };
-
-  const confirmEndSession = async () => {
-    setShowEndConfirm(false);
-    if (!session) return;
-    const { error } = await endFast(session.id);
-    if (!error) {
-      await cancelAllNotifications();
-      if (notifPrefs?.streak_reminders) {
-        await checkAndNotifyStreakMilestone(completedFasts + 1);
-      }
-    }
-  };
-
-  const headerTitle = phase === "fasting" ? "Keep Going!" : phase === "eating" ? "Eat Window" : "FastTrack";
+  const macros = [
+    { label: "Calories", current: totals.calories, goal: goals.dailyCalories, unit: "kcal", barColor: ACCENT.lime },
+    { label: "Protein", current: totals.protein_g, goal: goals.dailyProtein, unit: "g", barColor: "#b6c9d8" },
+    { label: "Carbs", current: totals.carbs_g, goal: goals.dailyCarbs, unit: "g", barColor: "#9cf0ff" },
+    { label: "Fat", current: totals.fat_g, goal: goals.dailyFat, unit: "g", barColor: "#ffb4ab" },
+  ];
 
   return (
     <SafeAreaView className="flex-1" style={{ backgroundColor: c.bg }}>
-      <ScrollView contentContainerClassName="px-6" style={{ paddingTop: 32, paddingBottom: 120 }} showsVerticalScrollIndicator={false}>
-        <AppHeader showLogo logoImage={require("@/assets/fasttrack_logo_small_transparent.png")} />
-
-        {/* TIMER */}
-        <View className="items-center mb-6">
-          <FastingTimer
-            status={phase}
-            totalMinutes={phase === "eating" ? eatingHours * 60 : fastingHours * 60}
-            elapsedMinutes={
-              phase === "eating" ? eatingHours * 60 - eatingCountdown.totalMinutes
-              : phase === "fasting" ? fastElapsedMinutes : 0
-            }
-            hours={phase === "eating" ? eatingCountdown.hours : phase === "fasting" ? fastCountdown.hours : 0}
-            minutes={phase === "eating" ? eatingCountdown.minutes : phase === "fasting" ? fastCountdown.minutes : 0}
-            seconds={phase === "eating" ? eatingCountdown.seconds : phase === "fasting" ? fastCountdown.seconds : 0}
-            elapsedHours={phase === "fasting" ? fastElapsed.hours : phase === "eating" ? eatingElapsed.hours : 0}
-            elapsedMinutesPart={phase === "fasting" ? fastElapsed.minutes : phase === "eating" ? eatingElapsed.minutes : 0}
-            elapsedSeconds={phase === "fasting" ? fastElapsed.seconds : phase === "eating" ? eatingElapsed.seconds : 0}
-            isOver={phase === "fasting" ? fastCountdown.isOver : false}
-            schedule={session?.fasting_schedule}
-          />
+      {/* Fixed Top App Bar */}
+      <View style={{ backgroundColor: c.tabBarBg, borderBottomWidth: 1, borderBottomColor: "rgba(53,53,52,0.2)", paddingTop: 8 }}>
+        <View className="flex-row justify-between items-center" style={{ height: 44, paddingHorizontal: 20 }}>
+          <View className="flex-row items-center gap-3">
+            <View style={{ width: 32, height: 32, borderRadius: 16, backgroundColor: c.elevated, borderWidth: 1, borderColor: c.cardBorder, alignItems: "center", justifyContent: "center" }}>
+              <MaterialCommunityIcons name="account" size={16} color={c.textSecondary} />
+            </View>
+            <Text style={{ color: ACCENT.lime, fontFamily: "Inter_800ExtraBold", fontSize: 22, letterSpacing: -0.5 }}>FastTrack</Text>
+          </View>
+          <Pressable>
+            <MaterialCommunityIcons name="bell-outline" size={24} color={ACCENT.lime} />
+          </Pressable>
         </View>
+      </View>
 
-        {/* SCHEDULE + BUTTON */}
-        {showEndConfirm ? (
-          <View className="rounded-2xl p-5 w-full mb-6" style={{ backgroundColor: c.elevated, borderWidth: 1, borderColor: c.cardBorder }}>
-            <Text style={{ color: c.text, fontFamily: "PlusJakartaSans_700Bold" }} className="text-xl mb-2">
-              End Eating Window?
-            </Text>
-            <Text style={{ color: c.textSecondary, fontFamily: "PlusJakartaSans_400Regular" }} className="text-sm mb-2">
-              You&apos;ve been eating for {eatingHours * 60 - eatingCountdown.totalMinutes} min.
-            </Text>
-            <Text style={{ color: c.textMuted, fontFamily: "PlusJakartaSans_400Regular" }} className="text-xs mb-5">
-              This will complete your fasting session and your results will be saved.
-            </Text>
-            <View className="flex-row gap-3">
-              <Pressable onPress={() => setShowEndConfirm(false)} className="flex-1 rounded-xl py-3" style={{ backgroundColor: c.buttonBg }}>
-                <Text style={{ color: c.text, fontFamily: "PlusJakartaSans_600SemiBold" }} className="text-center">Keep Eating</Text>
-              </Pressable>
-              <Pressable onPress={confirmEndSession} className="flex-1 rounded-xl py-3" style={{ backgroundColor: ACCENT.mint }}>
-                <Text style={{ color: c.textOnAccent, fontFamily: "PlusJakartaSans_600SemiBold" }} className="text-center">End Session</Text>
-              </Pressable>
+      <ScrollView
+        contentContainerStyle={{ paddingBottom: 120 }}
+        showsVerticalScrollIndicator={false}
+      >
+        <View style={{ paddingHorizontal: 20, paddingTop: 24 }}>
+          {/* Fasting Today */}
+          <View className="mb-section-gap">
+            <View className="flex-row justify-between items-end mb-3">
+              <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 12, letterSpacing: 1, textTransform: "uppercase" }}>
+                Fasting Today
+              </Text>
+              <Text style={{ color: ACCENT.lime, fontFamily: "Inter_700Bold", fontSize: 14 }}>
+                {Math.round(fastPct * 100)}%
+              </Text>
             </View>
-          </View>
-        ) : (
-          <>
-            {phase === "idle" && (
-              <Pressable
-                onPress={handleStartFast}
-                className="rounded-2xl py-4 w-full flex-row items-center justify-center mb-6"
-                style={{ backgroundColor: ACCENT.mint }}
-              >
-                <HugeiconsIcon icon={Timer01Icon} size={22} color={c.textOnAccent} strokeWidth={2} />
-                <Text style={{ color: c.textOnAccent, fontFamily: "PlusJakartaSans_700Bold" }} className="text-lg ml-2">
-                  Start {selectedSchedule ?? `${fastingHours}:${eatingHours}`} Fast
-                </Text>
-              </Pressable>
-            )}
-
-            {phase === "idle" && (
-              <ScheduleSelector
-                selected={selectedSchedule}
-                onSelect={(schedule, fasting, eating) => {
-                  setSelectedSchedule(schedule);
-                  setFastingHours(fasting);
-                  setEatingHours(eating);
-                  if (fasting > 0 && eating > 0) updateFastingSchedule(fasting, eating);
-                }}
-              />
-            )}
-
-            {/* Schedule card */}
-            <View className="rounded-2xl p-5 w-full mb-6" style={{ backgroundColor: c.cardBg, borderWidth: 1, borderColor: c.cardBorder }}>
-              {phase === "idle" && (
-                <>
-                  <Text style={{ color: c.textMuted, fontFamily: "PlusJakartaSans_600SemiBold" }} className="text-xs mb-4 tracking-widest">
-                    IF YOU START NOW
+            <Pressable onPress={() => router.push("/(tabs)/fast")} className="rounded-xl p-6" style={{ backgroundColor: "rgba(28,28,30,0.8)", borderWidth: 1, borderColor: "rgba(44,44,46,1)" }}>
+              <View className="flex-row items-center justify-between">
+                <View>
+                  <Text style={{ color: c.text, fontFamily: "SpaceGrotesk_600SemiBold", fontSize: 40, letterSpacing: -1 }}>
+                    {elapsedHours}h {elapsedMins}m
                   </Text>
-                  <View className="flex-row">
-                    <ScheduleColumn icon={Clock01Icon} dotColor={ACCENT.mint} label="Fast starts" value={format(new Date(), "h:mm a")} />
-                    <ScheduleColumn icon={SunriseIcon} dotColor={ACCENT.sky} label="Eat window" value={format(addHours(new Date(), fastingHours), "h:mm a")} />
-                    <ScheduleColumn icon={Moon01Icon} dotColor={ACCENT.coral} label="Window closes" value={format(addHours(addHours(new Date(), fastingHours), eatingHours), "h:mm a")} />
-                  </View>
-                </>
-              )}
-
-              {phase === "fasting" && fastStartDate && eatWindowOpens && (
-                <>
-                  <Text style={{ color: ACCENT.mint, fontFamily: "PlusJakartaSans_600SemiBold" }} className="text-xs mb-4 tracking-widest">
-                    YOUR FAST{session?.fasting_schedule ? `  ·  ${session.fasting_schedule}` : ""}
+                  <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 12, letterSpacing: 1, marginTop: 4, textTransform: "uppercase" }}>
+                    {phase === "idle" ? `READY TO FAST` : `ELAPSED OF ${fastingHours}H GOAL`}
                   </Text>
-                  <View className="flex-row">
-                    <ScheduleColumn icon={Clock01Icon} dotColor={ACCENT.mint} label="Fast started" value={format(fastStartDate, "h:mm a")} />
-                    <ScheduleColumn icon={SunriseIcon} dotColor={ACCENT.sky} label="Eat window" value={format(eatWindowOpens, "h:mm a")} />
-                    <ScheduleColumn icon={Moon01Icon} dotColor={ACCENT.coral} label="Window closes" value={eatWindowCloses ? format(eatWindowCloses, "h:mm a") : ""} />
-                  </View>
-                </>
-              )}
-
-              {phase === "eating" && (
-                <>
-                  <Text style={{ color: ACCENT.coral, fontFamily: "PlusJakartaSans_600SemiBold" }} className="text-xs mb-4 tracking-widest">
-                    EATING WINDOW{session?.fasting_schedule ? `  ·  ${session.fasting_schedule}` : ""}
-                  </Text>
-                  <View className="flex-row">
-                    <ScheduleColumn icon={Clock01Icon} dotColor={ACCENT.mint} label="Fast started" value={fastStartDate ? format(fastStartDate, "h:mm a") : ""} />
-                    {session?.end_time && (
-                      <ScheduleColumn icon={AlarmClockIcon} dotColor={ACCENT.coral} label="Broke fast" value={format(new Date(session.end_time), "h:mm a")} />
-                    )}
-                    {eatWindowCloses && (
-                      <ScheduleColumn icon={Moon01Icon} dotColor={ACCENT.rose} label="Window closes" value={format(eatWindowCloses, "h:mm a")} />
-                    )}
-                  </View>
-                </>
-              )}
-            </View>
-
-            {phase === "fasting" && (
-              <Pressable onPress={handleBreakFast} className="rounded-2xl py-4 w-full" style={{ backgroundColor: ACCENT.coral }}>
-                <Text style={{ color: c.textOnDark, fontFamily: "PlusJakartaSans_700Bold" }} className="text-center text-lg">
-                  Break Fast
-                </Text>
-              </Pressable>
-            )}
-
-            {phase === "eating" && (
-              <Pressable
-                onPress={() => setShowEndConfirm(true)}
-                className="rounded-2xl py-4 w-full flex-row items-center justify-center"
-                style={{ backgroundColor: c.buttonBg, borderWidth: 1, borderColor: c.cardBorder }}
-              >
-                <HugeiconsIcon icon={StopIcon} size={20} color={c.textSecondary} strokeWidth={1.5} />
-                <Text style={{ color: c.text, fontFamily: "PlusJakartaSans_700Bold" }} className="text-center text-lg ml-2">
-                  End Session
-                </Text>
-              </Pressable>
-            )}
-          </>
-        )}
-
-        {/* CHECK-INS */}
-        {(phase === "fasting" || phase === "eating") && (
-          <View className="mt-6">
-            <CheckInPanel phase={phase} onSubmit={(mood, note) => addCheckIn({ mood, note, phase })} />
-            {checkIns.length > 0 && (
-              <View className="mt-6 mb-6">
-                <MoodChart checkIns={checkIns} />
-                <Text style={{ color: c.textMuted, fontFamily: "PlusJakartaSans_600SemiBold" }} className="text-xs mb-3 tracking-widest">
-                  CHECK-INS
-                </Text>
-                <CheckInTimeline checkIns={checkIns} />
+                </View>
+                <ProgressRing size={96} progress={fastPct} strokeWidth={8} indicatorColor={ACCENT.lime}>
+                  <MaterialCommunityIcons name="timer-outline" size={28} color={ACCENT.lime} />
+                </ProgressRing>
               </View>
-            )}
+              <View className="mt-6 h-1 rounded-full overflow-hidden" style={{ backgroundColor: "rgba(53,53,52,0.3)" }}>
+                <View className="h-full rounded-full" style={{ width: `${fastPct * 100}%`, backgroundColor: ACCENT.lime }} />
+              </View>
+            </Pressable>
           </View>
-        )}
 
-        {/* PREVIOUS FASTS */}
-        <PreviousFasts sessions={pastSessions} fastingHours={fastingHours} onDelete={deleteFast} />
+          {/* Workout Progress */}
+          {enabledGoals.length > 0 && (
+            <View className="mb-section-gap">
+              <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 12, letterSpacing: 1, marginBottom: 12, textTransform: "uppercase" }}>
+                Workout Progress
+              </Text>
+              <View className="rounded-xl p-5" style={{ backgroundColor: "rgba(28,28,30,0.8)", borderWidth: 1, borderColor: "rgba(44,44,46,1)" }}>
+                {enabledGoals.slice(0, 2).map((goal) => {
+                  const total = todayTotals[goal.exercise_type];
+                  const reps = total?.reps ?? 0;
+                  const pct = Math.min(reps / goal.daily_goal, 1);
+                  return (
+                    <View key={goal.id} className="mb-3">
+                      <View className="flex-row justify-between items-center mb-2">
+                        <View className="flex-row items-center gap-2">
+                          <MaterialCommunityIcons name="dumbbell" size={16} color={ACCENT.cyan} />
+                          <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 14, textTransform: "capitalize" }}>
+                            {goal.exercise_type}
+                          </Text>
+                        </View>
+                        <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 12 }}>
+                          {reps}/{goal.daily_goal}
+                        </Text>
+                      </View>
+                      <View className="h-1.5 rounded-full overflow-hidden" style={{ backgroundColor: "rgba(53,53,52,0.3)" }}>
+                        <View className="h-full rounded-full" style={{ width: `${pct * 100}%`, backgroundColor: ACCENT.cyan }} />
+                      </View>
+                    </View>
+                  );
+                })}
+                {enabledGoals.length > 2 && (
+                  <Pressable onPress={() => router.push("/(tabs)/workouts")} className="mt-2">
+                    <Text style={{ color: ACCENT.cyan, fontFamily: "Inter_700Bold", fontSize: 12, textAlign: "center" }}>
+                      +{enabledGoals.length - 2} more exercises
+                    </Text>
+                  </Pressable>
+                )}
+              </View>
+            </View>
+          )}
+
+          {/* Hydration */}
+          <View className="mb-section-gap">
+            <View className="flex-row justify-between items-center mb-3">
+              <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 12, letterSpacing: 1, textTransform: "uppercase" }}>
+                Hydration
+              </Text>
+              <Text style={{ color: ACCENT.cyan, fontFamily: "Inter_700Bold", fontSize: 14 }}>
+                {Math.round(totalMl / 100) / 10} / {goals.waterGoalMl / 1000}L
+              </Text>
+            </View>
+            <View className="rounded-xl p-5" style={{ backgroundColor: "rgba(28,28,30,0.8)", borderWidth: 1, borderColor: "rgba(44,44,46,1)" }}>
+              <View className="flex-row gap-3 mb-5 overflow-x-auto no-scrollbar">
+                {[250, 500, 750].map((ml) => (
+                  <Pressable
+                    key={ml}
+                    onPress={() => addWater(ml)}
+                    className="flex-1 py-3 rounded items-center glass-panel"
+                  >
+                    <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 14 }}>{ml}ml</Text>
+                    <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 10, textTransform: "uppercase" }}>
+                      {ml === 250 ? "Small" : ml === 500 ? "Regular" : "Large"}
+                    </Text>
+                  </Pressable>
+                ))}
+              </View>
+              <Pressable
+                onPress={() => addWater(250)}
+                className="w-full py-3 rounded flex-row items-center justify-center"
+                style={{ backgroundColor: ACCENT.lime }}
+              >
+                <MaterialCommunityIcons name="plus" size={20} color="#161e00" />
+                <Text style={{ color: "#161e00", fontFamily: "Inter_700Bold", fontSize: 14, marginLeft: 8 }}>Add Water</Text>
+              </Pressable>
+            </View>
+          </View>
+
+          {/* Daily Macros */}
+          <View className="mb-section-gap">
+            <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 12, letterSpacing: 1, marginBottom: 16, textTransform: "uppercase" }}>
+              Daily Macros
+            </Text>
+            <View className="flex-row flex-wrap" style={{ marginHorizontal: -8 }}>
+              {macros.map((macro) => {
+                const pct = macro.goal > 0 ? Math.min(macro.current / macro.goal, 1) : 0;
+                return (
+                  <View key={macro.label} className="w-1/2" style={{ paddingHorizontal: 8, marginBottom: 16 }}>
+                    <View className="rounded-xl p-4" style={{ backgroundColor: "rgba(28,28,30,0.8)", borderWidth: 1, borderColor: "rgba(44,44,46,1)" }}>
+                      <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 10, letterSpacing: 1, marginBottom: 4, textTransform: "uppercase" }}>
+                        {macro.label}
+                      </Text>
+                      <View className="flex-row items-baseline gap-1">
+                        <Text style={{ color: c.text, fontFamily: "SpaceGrotesk_600SemiBold", fontSize: 22, letterSpacing: -0.5 }}>
+                          {Math.round(macro.current).toLocaleString()}
+                        </Text>
+                        <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 12 }}>{macro.unit}</Text>
+                      </View>
+                      <View className="mt-3 h-1 rounded-full overflow-hidden" style={{ backgroundColor: "rgba(53,53,52,0.3)" }}>
+                        <View className="h-full rounded-full" style={{ width: `${pct * 100}%`, backgroundColor: macro.barColor }} />
+                      </View>
+                    </View>
+                  </View>
+                );
+              })}
+            </View>
+          </View>
+        </View>
       </ScrollView>
     </SafeAreaView>
-  );
-}
-
-function ScheduleColumn({ dotColor, label, value, icon }: { dotColor: string; label: string; value: string; icon?: any }) {
-  const { theme } = useThemeStore();
-  const c = getThemeColors(theme);
-  return (
-    <View className="flex-1 items-center">
-      {icon ? (
-        <HugeiconsIcon icon={icon} size={18} color={dotColor} strokeWidth={1.5} />
-      ) : (
-        <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: dotColor }} />
-      )}
-      <Text style={{ color: c.textSecondary, fontFamily: "PlusJakartaSans_400Regular" }} className="text-xs text-center mt-1.5" numberOfLines={1}>
-        {label}
-      </Text>
-      <Text style={{ color: c.text, fontFamily: "PlusJakartaSans_500Medium" }} className="text-sm text-center mt-0.5" numberOfLines={1}>
-        {value}
-      </Text>
-    </View>
   );
 }

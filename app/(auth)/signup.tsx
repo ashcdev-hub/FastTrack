@@ -29,20 +29,20 @@ export default function SignupScreen() {
     setLoading(false);
   };
 
-  const inputStyle = { backgroundColor: c.inputBg, color: c.text, fontFamily: "PlusJakartaSans_500Medium" as const };
+  const inputStyle = { backgroundColor: c.inputBg, color: c.text, fontFamily: "Inter_400Regular" as const };
 
   if (success) {
     return (
       <View className="flex-1 justify-center px-6" style={{ backgroundColor: c.bg }}>
-        <Text style={{ color: c.text, fontFamily: "PlusJakartaSans_700Bold" }} className="text-3xl text-center mb-4">
+        <Text style={{ color: c.text, fontFamily: "Inter_700Bold" }} className="text-3xl text-center mb-4">
           Check Your Email
         </Text>
-        <Text style={{ color: c.textMuted, fontFamily: "PlusJakartaSans_400Regular" }} className="text-center mb-8">
+        <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular" }} className="text-center mb-8">
           We sent a confirmation link to {email}
         </Text>
         <Link href="/(auth)/login" asChild>
-          <Pressable className="rounded-xl py-4" style={{ backgroundColor: ACCENT.mint }}>
-            <Text style={{ color: c.textOnAccent, fontFamily: "PlusJakartaSans_700Bold" }} className="text-center text-lg">
+          <Pressable className="rounded-xl py-4" style={{ backgroundColor: ACCENT.lime }}>
+            <Text style={{ color: c.textOnAccent, fontFamily: "Inter_700Bold" }} className="text-center text-lg">
               Back to Sign In
             </Text>
           </Pressable>
@@ -54,16 +54,16 @@ export default function SignupScreen() {
   return (
     <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} className="flex-1" style={{ backgroundColor: c.bg }}>
       <View className="flex-1 justify-center px-6">
-        <Text style={{ color: c.text, fontFamily: "PlusJakartaSans_700Bold" }} className="text-4xl text-center mb-2">
+        <Text style={{ color: c.text, fontFamily: "Inter_700Bold" }} className="text-4xl text-center mb-2">
           Create Account
         </Text>
-        <Text style={{ color: c.textMuted, fontFamily: "PlusJakartaSans_400Regular" }} className="text-center mb-10">
+        <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular" }} className="text-center mb-10">
           Start tracking your fasting journey
         </Text>
 
         {error ? (
           <View className="rounded-xl p-3 mb-4" style={{ backgroundColor: ACCENT.roseBg, borderWidth: 1, borderColor: ACCENT.roseBorder }}>
-            <Text style={{ color: ACCENT.rose, fontFamily: "PlusJakartaSans_500Medium" }} className="text-sm text-center">{error}</Text>
+            <Text style={{ color: ACCENT.rose, fontFamily: "Inter_400Regular" }} className="text-sm text-center">{error}</Text>
           </View>
         ) : null}
 
@@ -76,11 +76,11 @@ export default function SignupScreen() {
         <TextInput value={confirmPassword} onChangeText={setConfirmPassword} placeholder="Confirm Password" placeholderTextColor={c.placeholder}
           secureTextEntry className="rounded-xl px-4 py-4 mb-6" style={inputStyle} />
 
-        <Pressable onPress={handleSignup} disabled={loading} className="rounded-xl py-4 mb-4" style={{ backgroundColor: ACCENT.mint }}>
+        <Pressable onPress={handleSignup} disabled={loading} className="rounded-xl py-4 mb-4" style={{ backgroundColor: ACCENT.lime }}>
           {loading ? (
             <ActivityIndicator color={c.textOnAccent} />
           ) : (
-            <Text style={{ color: c.textOnAccent, fontFamily: "PlusJakartaSans_700Bold" }} className="text-center text-lg">
+            <Text style={{ color: c.textOnAccent, fontFamily: "Inter_700Bold" }} className="text-center text-lg">
               Sign Up
             </Text>
           )}
@@ -88,9 +88,9 @@ export default function SignupScreen() {
 
         <Link href="/(auth)/login" asChild>
           <Pressable>
-            <Text style={{ color: c.textMuted, fontFamily: "PlusJakartaSans_400Regular" }} className="text-center">
+            <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular" }} className="text-center">
               Already have an account?{" "}
-              <Text style={{ color: ACCENT.mint, fontFamily: "PlusJakartaSans_600SemiBold" }}>Sign In</Text>
+              <Text style={{ color: ACCENT.lime, fontFamily: "SpaceGrotesk_600SemiBold" }}>Sign In</Text>
             </Text>
           </Pressable>
         </Link>

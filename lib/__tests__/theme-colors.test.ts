@@ -99,8 +99,8 @@ describe("ACCENT palette", () => {
     }
   });
 
-  test("mint is the signature green (#2DD4A8)", () => {
-    expect(ACCENT.mint.toLowerCase()).toBe("#2dd4a8");
+  test("lime is the signature green (#c3f400)", () => {
+    expect(ACCENT.lime.toLowerCase()).toBe("#c3f400");
   });
 
   test("coral is the signature warm tone (#FF6B52)", () => {
@@ -119,7 +119,7 @@ describe("MEAL_COLORS", () => {
 
   test("breakfast, lunch, and dinner reuse accent colors", () => {
     expect(MEAL_COLORS.breakfast).toBe(ACCENT.coral);
-    expect(MEAL_COLORS.lunch).toBe(ACCENT.mint);
+    expect(MEAL_COLORS.lunch).toBe(ACCENT.lime);
     expect(MEAL_COLORS.dinner).toBe(ACCENT.sky);
   });
 });

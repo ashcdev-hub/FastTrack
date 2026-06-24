@@ -32,10 +32,10 @@ export function WaterTracker({ currentMl, goalMl, onAdd, unitPrefs = DEFAULT_UNI
   };
 
   return (
-    <View className="rounded-2xl p-5" style={{ backgroundColor: c.cardBg, borderWidth: 1, borderColor: c.cardBorder }}>
+    <View className="rounded-xl p-5 glass-panel" style={{ borderLeftWidth: 4, borderLeftColor: ACCENT.cyan }}>
       <View className="flex-row justify-between items-center mb-3">
-        <Text style={{ color: c.text, fontFamily: "PlusJakartaSans_700Bold" }} className="text-lg">Water</Text>
-        <Text style={{ color: c.textSecondary, fontFamily: "PlusJakartaSans_500Medium" }} className="text-sm">
+        <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 18 }}>Water</Text>
+        <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 14 }}>
           {displayWater(currentMl, unitPrefs)} / {displayWater(goalMl, unitPrefs)}
         </Text>
       </View>
@@ -44,30 +44,22 @@ export function WaterTracker({ currentMl, goalMl, onAdd, unitPrefs = DEFAULT_UNI
         className="h-2.5 rounded-full overflow-hidden mb-2"
         style={{ backgroundColor: c.cardBgAlt }}
         accessibilityRole="progressbar"
-        accessibilityValue={{
-          min: 0,
-          max: goalMl,
-          now: currentMl,
-          text: `${displayWater(currentMl, unitPrefs)} of ${displayWater(goalMl, unitPrefs)}`,
-        }}
+        accessibilityValue={{ min: 0, max: goalMl, now: currentMl, text: `${displayWater(currentMl, unitPrefs)} of ${displayWater(goalMl, unitPrefs)}` }}
       >
-        <View
-          className="h-full rounded-full"
-          style={{ width: `${pct}%`, backgroundColor: ACCENT.sky }}
-        />
+        <View className="h-full rounded-full" style={{ width: `${pct}%`, backgroundColor: ACCENT.cyan }} />
       </View>
 
       {remainingMl > 0 ? (
-        <Text style={{ color: c.textMuted, fontFamily: "PlusJakartaSans_400Regular" }} className="text-xs mb-4">
+        <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 12, marginBottom: 16 }}>
           {displayWater(remainingMl, unitPrefs)} remaining
         </Text>
       ) : (
-        <Text style={{ color: ACCENT.mint, fontFamily: "PlusJakartaSans_600SemiBold" }} className="text-xs mb-4">
+        <Text style={{ color: ACCENT.lime, fontFamily: "Inter_700Bold", fontSize: 12, marginBottom: 16 }}>
           Goal reached!
         </Text>
       )}
 
-      <Text style={{ color: c.textMuted, fontFamily: "PlusJakartaSans_600SemiBold" }} className="text-xs mb-2 tracking-widest">
+      <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 12, letterSpacing: 1, marginBottom: 8, textTransform: "uppercase" }}>
         BOTTLE SIZE
       </Text>
       <View className="flex-row flex-wrap gap-2 mb-4">
@@ -75,19 +67,19 @@ export function WaterTracker({ currentMl, goalMl, onAdd, unitPrefs = DEFAULT_UNI
           <Pressable
             key={ml}
             onPress={() => onAdd(ml)}
-            style={{ backgroundColor: ACCENT.skyBg, borderWidth: 1, borderColor: ACCENT.skyBorder }}
-            className="rounded-xl px-4 py-2.5"
+            style={{ backgroundColor: ACCENT.cyanBg, borderWidth: 1, borderColor: ACCENT.cyanBorder }}
+            className="rounded-lg px-4 py-2.5"
             accessibilityRole="button"
             accessibilityLabel={`Add ${displayWaterBottle(ml, unitPrefs)} of water`}
           >
-            <Text style={{ color: ACCENT.sky, fontFamily: "PlusJakartaSans_600SemiBold" }} className="text-sm">
+            <Text style={{ color: ACCENT.cyan, fontFamily: "Inter_700Bold", fontSize: 14 }}>
               +{displayWaterBottle(ml, unitPrefs)}
             </Text>
           </Pressable>
         ))}
       </View>
 
-      <Text style={{ color: c.textMuted, fontFamily: "PlusJakartaSans_600SemiBold" }} className="text-xs mb-2 tracking-widest">
+      <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 12, letterSpacing: 1, marginBottom: 8, textTransform: "uppercase" }}>
         CUSTOM AMOUNT
       </Text>
       <View className="flex-row gap-2">
@@ -98,28 +90,20 @@ export function WaterTracker({ currentMl, goalMl, onAdd, unitPrefs = DEFAULT_UNI
             placeholder={`Enter ${unitLabel}`}
             placeholderTextColor={c.placeholder}
             keyboardType="numeric"
-            className="rounded-xl px-4 py-3 pr-10"
-            style={{ backgroundColor: c.inputBg, color: c.text, fontFamily: "PlusJakartaSans_500Medium" }}
+            className="rounded-lg px-4 py-3 pr-10"
+            style={{ backgroundColor: c.inputBg, color: c.text, fontFamily: "Inter_400Regular" }}
           />
-          <Text
-            className="absolute text-sm"
-            style={{ right: 12, top: 12, color: c.textMuted, fontFamily: "PlusJakartaSans_400Regular" }}
-          >
+          <Text className="absolute text-sm" style={{ right: 12, top: 12, color: c.textMuted, fontFamily: "Inter_400Regular" }}>
             {unitLabel}
           </Text>
         </View>
         <Pressable
           onPress={handleCustomAdd}
           disabled={!customInput || Number(customInput) <= 0}
-          className="rounded-xl px-5 py-3"
-          style={{ backgroundColor: customInput && Number(customInput) > 0 ? ACCENT.sky : c.buttonBg }}
+          className="rounded-lg px-5 py-3"
+          style={{ backgroundColor: customInput && Number(customInput) > 0 ? ACCENT.cyan : c.buttonBg }}
         >
-          <Text
-            style={{
-              fontFamily: "PlusJakartaSans_600SemiBold",
-              color: customInput && Number(customInput) > 0 ? c.textOnDark : c.textMuted,
-            }}
-          >
+          <Text style={{ fontFamily: "Inter_700Bold", color: customInput && Number(customInput) > 0 ? "#161e00" : c.textMuted }}>
             Add
           </Text>
         </Pressable>

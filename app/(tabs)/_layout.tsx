@@ -1,13 +1,17 @@
 import React, { useEffect } from "react";
 import { router, Tabs } from "expo-router";
-import { HugeiconsIcon } from "@hugeicons/react-native";
-import Timer01Icon from "@hugeicons/core-free-icons/dist/esm/Timer01Icon";
-import Dumbbell01Icon from "@hugeicons/core-free-icons/dist/esm/Dumbbell01Icon";
-import SpoonAndForkIcon from "@hugeicons/core-free-icons/dist/esm/SpoonAndForkIcon";
-import UserCircleIcon from "@hugeicons/core-free-icons/dist/esm/UserCircleIcon";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useThemeStore } from "@/lib/theme-store";
 import { getThemeColors, ACCENT } from "@/lib/theme-colors";
 import { useAuth } from "@/hooks/useAuth";
+
+const TAB_CONFIG: Record<string, { label: string; active: keyof typeof MaterialCommunityIcons.glyphMap; inactive: keyof typeof MaterialCommunityIcons.glyphMap }> = {
+  index: { label: "Home", active: "view-dashboard", inactive: "view-dashboard-outline" },
+  fast: { label: "Fast", active: "timer", inactive: "timer-outline" },
+  workouts: { label: "Workout", active: "dumbbell", inactive: "dumbbell" },
+  "log-food": { label: "Food", active: "food-apple", inactive: "food-apple-outline" },
+  profile: { label: "Profile", active: "account-circle", inactive: "account-circle-outline" },
+};
 
 export default function TabLayout() {
   const { theme } = useThemeStore();
@@ -32,62 +36,32 @@ export default function TabLayout() {
           paddingTop: 8,
           paddingBottom: 28,
         },
-        tabBarActiveTintColor: ACCENT.mint,
+        tabBarActiveTintColor: ACCENT.lime,
         tabBarInactiveTintColor: c.tabBarInactive,
+        tabBarLabelStyle: {
+          fontFamily: "SpaceGrotesk_700Bold",
+          fontSize: 10,
+          letterSpacing: 0.5,
+          marginTop: 2,
+        },
       }}
     >
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: "Fast",
-          tabBarIcon: ({ color }) => (
-            <HugeiconsIcon icon={Timer01Icon} size={22} color={color} strokeWidth={1.5} />
-          ),
-          tabBarLabelStyle: {
-            fontFamily: "PlusJakartaSans_600SemiBold",
-            fontSize: 11,
-          },
-        }}
-      />
-      <Tabs.Screen
-        name="workouts"
-        options={{
-          title: "Workouts",
-          tabBarIcon: ({ color }) => (
-            <HugeiconsIcon icon={Dumbbell01Icon} size={22} color={color} strokeWidth={1.5} />
-          ),
-          tabBarLabelStyle: {
-            fontFamily: "PlusJakartaSans_600SemiBold",
-            fontSize: 11,
-          },
-        }}
-      />
-      <Tabs.Screen
-        name="log-food"
-        options={{
-          title: "Log",
-          tabBarIcon: ({ color }) => (
-            <HugeiconsIcon icon={SpoonAndForkIcon} size={22} color={color} strokeWidth={1.5} />
-          ),
-          tabBarLabelStyle: {
-            fontFamily: "PlusJakartaSans_600SemiBold",
-            fontSize: 11,
-          },
-        }}
-      />
-      <Tabs.Screen
-        name="profile"
-        options={{
-          title: "Me",
-          tabBarIcon: ({ color }) => (
-            <HugeiconsIcon icon={UserCircleIcon} size={22} color={color} strokeWidth={1.5} />
-          ),
-          tabBarLabelStyle: {
-            fontFamily: "PlusJakartaSans_600SemiBold",
-            fontSize: 11,
-          },
-        }}
-      />
+      {Object.entries(TAB_CONFIG).map(([name, config]) => (
+        <Tabs.Screen
+          key={name}
+          name={name}
+          options={{
+            title: config.label,
+            tabBarIcon: ({ color, focused }) => (
+              <MaterialCommunityIcons
+                name={focused ? config.active : config.inactive}
+                size={22}
+                color={color}
+              />
+            ),
+          }}
+        />
+      ))}
     </Tabs>
   );
 }

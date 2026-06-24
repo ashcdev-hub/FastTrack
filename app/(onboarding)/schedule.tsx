@@ -30,15 +30,15 @@ export default function ScheduleScreen() {
   return (
     <ScrollView className="flex-1" style={{ backgroundColor: c.bg }} contentContainerClassName="px-6" contentContainerStyle={{ paddingTop: 60, paddingBottom: 40 }} showsVerticalScrollIndicator={false}>
       <Pressable onPress={() => router.back()} className="mb-8" hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}>
-        <Text style={{ color: c.textSecondary, fontFamily: "PlusJakartaSans_500Medium" }} className="text-sm">
+        <Text style={{ color: c.textSecondary, fontFamily: "Inter_400Regular" }} className="text-sm">
           Back
         </Text>
       </Pressable>
 
-      <Text style={{ color: c.text, fontFamily: "PlusJakartaSans_700Bold" }} className="text-3xl mb-2">
+      <Text style={{ color: c.text, fontFamily: "Inter_700Bold" }} className="text-3xl mb-2">
         Choose your schedule
       </Text>
-      <Text style={{ color: c.textMuted, fontFamily: "PlusJakartaSans_400Regular" }} className="text-sm mb-8">
+      <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular" }} className="text-sm mb-8">
         You can change this later in settings
       </Text>
 
@@ -50,9 +50,9 @@ export default function ScheduleScreen() {
       <Pressable
         onPress={handleContinue}
         className="rounded-xl py-4"
-        style={{ backgroundColor: ACCENT.mint }}
+        style={{ backgroundColor: ACCENT.lime }}
       >
-        <Text style={{ color: c.textOnAccent, fontFamily: "PlusJakartaSans_700Bold" }} className="text-center text-lg">
+        <Text style={{ color: c.textOnAccent, fontFamily: "Inter_700Bold" }} className="text-center text-lg">
           Continue
         </Text>
       </Pressable>
@@ -61,7 +61,7 @@ export default function ScheduleScreen() {
       <View className="flex-row gap-2 mt-10 justify-center">
         <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: c.textFaint }} />
         <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: c.textFaint }} />
-        <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: ACCENT.mint }} />
+        <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: ACCENT.lime }} />
         <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: c.textFaint }} />
       </View>
     </ScrollView>

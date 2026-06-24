@@ -5,3 +5,33 @@
 :root {
   --css-interop-darkMode: "class dark";
 }
+
+@layer components {
+  .glass-panel {
+    background: rgba(28, 28, 30, 0.8);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-width: 1px;
+    border-color: rgba(44, 44, 46, 1);
+  }
+
+  .progress-ring-track {
+    stroke: rgba(255, 255, 255, 0.1);
+  }
+
+  .progress-ring-indicator {
+    stroke: #c3f400;
+    stroke-linecap: square;
+    transition: stroke-dashoffset 0.35s;
+    transform: rotate(-90deg);
+    transform-origin: 50% 50%;
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}

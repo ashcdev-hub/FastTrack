@@ -41,7 +41,7 @@ export function WeightChart({ entries, goalWeightKg }: WeightChartProps) {
   const pathD = points.map((p, i) => `${i === 0 ? "M" : "L"} ${p.x} ${p.y}`).join(" ");
   const fillPathD = pathD + ` L ${points[points.length - 1].x} ${padding.top + chartH}` + ` L ${points[0].x} ${padding.top + chartH} Z`;
 
-  const lineColor = ACCENT.mint;
+  const lineColor = ACCENT.lime;
   const fillColor = theme === "dark" ? "rgba(45,212,168,0.15)" : "rgba(45,212,168,0.1)";
   const gridColor = theme === "dark" ? "rgba(240,237,232,0.05)" : "rgba(26,24,22,0.05)";
   const labelColor = theme === "dark" ? "rgba(240,237,232,0.25)" : "rgba(26,24,22,0.25)";
@@ -54,22 +54,22 @@ export function WeightChart({ entries, goalWeightKg }: WeightChartProps) {
   return (
     <View className="mb-4" onLayout={(e) => setContainerWidth(e.nativeEvent.layout.width)}>
       <View className="flex-row justify-between items-center mb-2">
-        <Text style={{ color: c.textSecondary, fontFamily: "PlusJakartaSans_600SemiBold" }} className="text-xs tracking-widest">
+        <Text style={{ color: c.textSecondary, fontFamily: "SpaceGrotesk_600SemiBold" }} className="text-xs tracking-widest">
           WEIGHT OVER TIME
         </Text>
-        <Text style={{ color: lineColor, fontFamily: "PlusJakartaSans_500Medium" }} className="text-xs">
+        <Text style={{ color: lineColor, fontFamily: "Inter_400Regular" }} className="text-xs">
           {entries.length} entries
         </Text>
       </View>
 
-      <View style={{ backgroundColor: c.cardBgAlt, borderRadius: 16, padding: 8 }}>
+      <View className="glass-panel" style={{ padding: 8 }}>
         <Svg width={width - 16} height={height}>
           {yTicks.map((w, i) => {
             const y = padding.top + chartH - ((w - yMin) / yRange) * chartH;
             return (
               <React.Fragment key={i}>
                 <Line x1={padding.left} y1={y} x2={width - padding.right - 16} y2={y} stroke={gridColor} strokeWidth={1} />
-                <SvgText x={padding.left - 8} y={y + 4} textAnchor="end" fontSize={9} fill={labelColor} fontFamily="PlusJakartaSans_400Regular">
+                <SvgText x={padding.left - 8} y={y + 4} textAnchor="end" fontSize={9} fill={labelColor} fontFamily="Inter_400Regular">
                   {w.toFixed(1)}
                 </SvgText>
               </React.Fragment>
@@ -80,7 +80,7 @@ export function WeightChart({ entries, goalWeightKg }: WeightChartProps) {
             const p = points[idx];
             const label = `${p.date.getMonth() + 1}/${p.date.getDate()}`;
             return (
-              <SvgText key={idx} x={p.x} y={height - 8} textAnchor="middle" fontSize={9} fill={labelColor} fontFamily="PlusJakartaSans_400Regular">
+              <SvgText key={idx} x={p.x} y={height - 8} textAnchor="middle" fontSize={9} fill={labelColor} fontFamily="Inter_400Regular">
                 {label}
               </SvgText>
             );
@@ -88,8 +88,8 @@ export function WeightChart({ entries, goalWeightKg }: WeightChartProps) {
 
           {goalY !== null && (
             <>
-              <Line x1={padding.left} y1={goalY} x2={width - padding.right - 16} y2={goalY} stroke={ACCENT.mint} strokeWidth={1} strokeDasharray="4 4" />
-              <SvgText x={width - padding.right - 16 + 4} y={goalY + 4} fontSize={8} fill={ACCENT.mint} fontFamily="PlusJakartaSans_600SemiBold">
+              <Line x1={padding.left} y1={goalY} x2={width - padding.right - 16} y2={goalY} stroke={ACCENT.lime} strokeWidth={1} strokeDasharray="4 4" />
+              <SvgText x={width - padding.right - 16 + 4} y={goalY + 4} fontSize={8} fill={ACCENT.lime} fontFamily="SpaceGrotesk_600SemiBold">
                 Goal
               </SvgText>
             </>

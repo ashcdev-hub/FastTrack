@@ -60,8 +60,7 @@ export function SkeletonCard({ children }: SkeletonCardProps) {
   const c = getThemeColors(theme);
   return (
     <View
-      className="rounded-2xl p-5 mb-3"
-      style={{ backgroundColor: c.cardBg, borderWidth: 1, borderColor: c.cardBorder }}
+      className="glass-panel p-5 mb-3"
     >
       {children}
     </View>

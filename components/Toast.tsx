@@ -29,7 +29,7 @@ export function Toast({ visible, message, type }: ToastProps) {
 
   if (!rendered) return null;
 
-  const bgColor = type === "success" ? ACCENT.mint : ACCENT.rose;
+  const bgColor = type === "success" ? ACCENT.lime : ACCENT.rose;
   const textColor = type === "success" ? c.textOnAccent : c.textOnDark;
 
   return (
@@ -56,7 +56,7 @@ export function Toast({ visible, message, type }: ToastProps) {
           paddingHorizontal: 16,
           borderRadius: 12,
           fontSize: 14,
-          fontFamily: "PlusJakartaSans_600SemiBold",
+          fontFamily: "Inter_700Bold",
           overflow: "hidden",
           ...(Platform.OS === "web" ? { boxShadow: "0 4px 12px rgba(0,0,0,0.25)" } : {}),
         }}

@@ -33,7 +33,7 @@ export default function LoginScreen() {
     router.replace(onboarded === "true" ? "/(tabs)" : "/(onboarding)/welcome");
   };
 
-  const inputStyle = { backgroundColor: c.inputBg, color: c.text, fontFamily: "PlusJakartaSans_500Medium" as const };
+  const inputStyle = { backgroundColor: c.inputBg, color: c.text, fontFamily: "Inter_400Regular" as const };
 
   return (
     <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} className="flex-1" style={{ backgroundColor: c.bg }}>
@@ -44,13 +44,13 @@ export default function LoginScreen() {
           resizeMode="contain"
           className="self-center mb-4"
         />
-        <Text style={{ color: c.textMuted, fontFamily: "PlusJakartaSans_400Regular" }} className="text-center mb-10">
+        <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular" }} className="text-center mb-10">
           Intermittent Fasting & Macro Tracker
         </Text>
 
         {error ? (
           <View className="rounded-xl p-3 mb-4" style={{ backgroundColor: ACCENT.roseBg, borderWidth: 1, borderColor: ACCENT.roseBorder }}>
-            <Text style={{ color: ACCENT.rose, fontFamily: "PlusJakartaSans_500Medium" }} className="text-sm text-center">{error}</Text>
+            <Text style={{ color: ACCENT.rose, fontFamily: "Inter_400Regular" }} className="text-sm text-center">{error}</Text>
           </View>
         ) : null}
 
@@ -65,12 +65,12 @@ export default function LoginScreen() {
 
         <Pressable
           onPress={() => handleLogin()} disabled={loading}
-          className="rounded-xl py-4 mb-4" style={{ backgroundColor: ACCENT.mint }}
+          className="rounded-xl py-4 mb-4" style={{ backgroundColor: ACCENT.lime }}
         >
           {loading ? (
             <ActivityIndicator color={c.textOnAccent} />
           ) : (
-            <Text style={{ color: c.textOnAccent, fontFamily: "PlusJakartaSans_700Bold" }} className="text-center text-lg">
+            <Text style={{ color: c.textOnAccent, fontFamily: "Inter_700Bold" }} className="text-center text-lg">
               Sign In
             </Text>
           )}
@@ -80,16 +80,16 @@ export default function LoginScreen() {
           onPress={() => handleLogin("test@fasttrack.app", "test1234")} disabled={loading}
           className="rounded-xl py-4 mb-6" style={{ backgroundColor: c.buttonBg, borderWidth: 1, borderColor: c.cardBorder }}
         >
-          <Text style={{ color: c.textSecondary, fontFamily: "PlusJakartaSans_500Medium" }} className="text-center">
+          <Text style={{ color: c.textSecondary, fontFamily: "Inter_400Regular" }} className="text-center">
             Quick Test Login
           </Text>
         </Pressable>
 
         <Link href="/(auth)/signup" asChild>
           <Pressable>
-            <Text style={{ color: c.textMuted, fontFamily: "PlusJakartaSans_400Regular" }} className="text-center">
+            <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular" }} className="text-center">
               Don&apos;t have an account?{" "}
-              <Text style={{ color: ACCENT.mint, fontFamily: "PlusJakartaSans_600SemiBold" }}>Sign Up</Text>
+              <Text style={{ color: ACCENT.lime, fontFamily: "SpaceGrotesk_600SemiBold" }}>Sign Up</Text>
             </Text>
           </Pressable>
         </Link>

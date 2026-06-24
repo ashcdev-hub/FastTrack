@@ -2,8 +2,7 @@ import React from "react";
 import { Pressable, View, Text, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
-import { HugeiconsIcon } from "@hugeicons/react-native";
-import ArrowLeft01Icon from "@hugeicons/core-free-icons/dist/esm/ArrowLeft01Icon";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useAuth } from "@/hooks/useAuth";
 import { useThemeStore } from "@/lib/theme-store";
 import { getThemeColors, ACCENT } from "@/lib/theme-colors";
@@ -21,12 +20,12 @@ export default function SettingsScreen() {
         <View className="flex-row items-center mb-6">
           <Pressable
             onPress={() => router.back()}
-            className="p-2 rounded-xl mr-3"
+            className="p-2 rounded-lg mr-3"
             style={{ backgroundColor: c.buttonBg }}
           >
-            <HugeiconsIcon icon={ArrowLeft01Icon} size={20} color={c.textSecondary} strokeWidth={1.5} />
+            <MaterialCommunityIcons name="arrow-left" size={20} color={c.textSecondary} />
           </Pressable>
-          <Text style={{ color: c.text, fontFamily: "PlusJakartaSans_700Bold" }} className="text-3xl">
+          <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 28 }}>
             Settings
           </Text>
         </View>
@@ -37,10 +36,10 @@ export default function SettingsScreen() {
             await signOut();
             router.replace("/(auth)/login");
           }}
-          className="rounded-xl py-4 mt-4"
+          className="rounded-lg py-4 mt-4"
           style={{ backgroundColor: ACCENT.roseBg, borderWidth: 1, borderColor: ACCENT.roseBorder }}
         >
-          <Text style={{ color: ACCENT.rose, fontFamily: "PlusJakartaSans_600SemiBold" }} className="text-center">
+          <Text style={{ color: ACCENT.rose, fontFamily: "Inter_700Bold", textAlign: "center" }}>
             Sign Out
           </Text>
         </Pressable>

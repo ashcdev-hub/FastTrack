@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { Pressable, View, Text } from "react-native";
-import { HugeiconsIcon } from "@hugeicons/react-native";
-import Delete02Icon from "@hugeicons/core-free-icons/dist/esm/Delete02Icon";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { format } from "date-fns";
 import { useSessionCheckIns } from "@/hooks/useFastCheckIns";
 import { CheckInTimeline } from "@/components/CheckInTimeline";
@@ -37,18 +36,16 @@ export function PreviousFasts({ sessions, fastingHours, onDelete }: PreviousFast
 
   return (
     <View className="mb-6">
-      <Text style={{ color: c.text, fontFamily: "PlusJakartaSans_700Bold" }} className="text-lg mb-4">
+      <Text style={{ color: c.text, fontFamily: "Inter_700Bold" }} className="text-lg mb-4">
         Previous Fasts
       </Text>
 
-      {/* Weekly Calendar */}
       <WeeklyCalendar
         pastSessions={sessions}
         fastingHours={fastingHours}
         onViewCalendar={() => setShowCalendar(true)}
       />
 
-      {/* Session list */}
       {visibleSessions.map((s) => {
         const start = new Date(s.start_time);
         const end = s.end_time ? new Date(s.end_time) : null;
@@ -64,8 +61,7 @@ export function PreviousFasts({ sessions, fastingHours, onDelete }: PreviousFast
           <View key={s.id} className="mb-3">
             <Pressable
               onPress={() => setExpandedId(isExpanded ? null : s.id)}
-              className="rounded-xl p-4 flex-row items-center"
-              style={{ backgroundColor: c.cardBg, borderWidth: 1, borderColor: c.cardBorder }}
+              className="glass-panel p-4 flex-row items-center"
             >
               <View
                 style={{
@@ -73,32 +69,32 @@ export function PreviousFasts({ sessions, fastingHours, onDelete }: PreviousFast
                   height: 48,
                   borderRadius: 4,
                   marginRight: 12,
-                  backgroundColor: goalMet ? ACCENT.mint : ACCENT.coral,
+                  backgroundColor: goalMet ? ACCENT.lime : ACCENT.coral,
                 }}
               />
               <View className="flex-1">
                 <View className="flex-row items-center">
-                  <Text style={{ color: c.text, fontFamily: "PlusJakartaSans_500Medium" }} className="text-sm">
+                  <Text style={{ color: c.text, fontFamily: "Inter_400Regular" }} className="text-sm">
                     {format(start, "EEE, MMM d")}
                   </Text>
                   {s.fasting_schedule && (
-                    <View className="ml-2 px-2 py-0.5 rounded-md" style={{ backgroundColor: ACCENT.skyBg }}>
-                      <Text style={{ color: ACCENT.sky, fontFamily: "PlusJakartaSans_700Bold" }} className="text-[10px]">
+                    <View className="ml-2 px-2 py-0.5 rounded-md" style={{ backgroundColor: ACCENT.cyanBg }}>
+                      <Text style={{ color: ACCENT.cyan, fontFamily: "Inter_700Bold" }} className="text-[10px]">
                         {s.fasting_schedule}
                       </Text>
                     </View>
                   )}
                 </View>
-                <Text style={{ color: c.textMuted, fontFamily: "PlusJakartaSans_400Regular" }} className="text-xs">
+                <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular" }} className="text-xs">
                   {format(start, "h:mm a")} — {end ? format(end, "h:mm a") : "..."}
                 </Text>
               </View>
               <View className="items-end mr-3">
-                <Text style={{ color: c.text, fontFamily: "PlusJakartaSans_600SemiBold" }} className="text-sm">
+                <Text style={{ color: c.text, fontFamily: "SpaceGrotesk_600SemiBold" }} className="text-sm">
                   {hrs}h {mins}m
                 </Text>
                 <Text
-                  style={{ color: goalMet ? ACCENT.mint : ACCENT.coral, fontFamily: "PlusJakartaSans_400Regular" }}
+                  style={{ color: goalMet ? ACCENT.lime : ACCENT.coral, fontFamily: "Inter_400Regular" }}
                   className="text-xs"
                 >
                   {goalMet
@@ -113,7 +109,7 @@ export function PreviousFasts({ sessions, fastingHours, onDelete }: PreviousFast
                 accessibilityRole="button"
                 accessibilityLabel="Delete fast"
               >
-                <HugeiconsIcon icon={Delete02Icon} size={20} color={c.textMuted} strokeWidth={1.5} />
+                <MaterialCommunityIcons name="delete-outline" size={20} color={c.textMuted} />
               </Pressable>
             </Pressable>
 
@@ -121,10 +117,10 @@ export function PreviousFasts({ sessions, fastingHours, onDelete }: PreviousFast
 
             {deleteTarget?.id === s.id && (
               <View className="rounded-xl p-4 mt-2" style={{ backgroundColor: ACCENT.roseBg, borderWidth: 1, borderColor: ACCENT.roseBorder }}>
-                <Text style={{ color: c.text, fontFamily: "PlusJakartaSans_700Bold" }} className="mb-1">
+                <Text style={{ color: c.text, fontFamily: "Inter_700Bold" }} className="mb-1">
                   Delete this fast?
                 </Text>
-                <Text style={{ color: c.textSecondary, fontFamily: "PlusJakartaSans_400Regular" }} className="text-sm mb-3">
+                <Text style={{ color: c.textSecondary, fontFamily: "Inter_400Regular" }} className="text-sm mb-3">
                   This record will be permanently removed.
                 </Text>
                 <View className="flex-row gap-3">
@@ -133,14 +129,14 @@ export function PreviousFasts({ sessions, fastingHours, onDelete }: PreviousFast
                     className="flex-1 rounded-xl py-3"
                     style={{ backgroundColor: c.buttonBg }}
                   >
-                    <Text style={{ color: c.text, fontFamily: "PlusJakartaSans_600SemiBold" }} className="text-center">Cancel</Text>
+                    <Text style={{ color: c.text, fontFamily: "Inter_700Bold" }} className="text-center">Cancel</Text>
                   </Pressable>
                   <Pressable
                     onPress={() => { onDelete(deleteTarget.id); setDeleteTarget(null); }}
                     className="flex-1 rounded-xl py-3"
                     style={{ backgroundColor: ACCENT.rose }}
                   >
-                    <Text style={{ color: c.textOnDark, fontFamily: "PlusJakartaSans_600SemiBold" }} className="text-center">Delete</Text>
+                    <Text style={{ color: c.textOnDark, fontFamily: "Inter_700Bold" }} className="text-center">Delete</Text>
                   </Pressable>
                 </View>
               </View>
@@ -149,16 +145,14 @@ export function PreviousFasts({ sessions, fastingHours, onDelete }: PreviousFast
         );
       })}
 
-      {/* Show All / Show Less toggle */}
       {hasMore && (
         <Pressable onPress={() => setShowAll(!showAll)} className="mt-2 items-center py-2">
-          <Text style={{ color: ACCENT.mint, fontFamily: "PlusJakartaSans_600SemiBold" }} className="text-sm">
+          <Text style={{ color: ACCENT.lime, fontFamily: "SpaceGrotesk_600SemiBold" }} className="text-sm">
             {showAll ? "← Show Less" : `Show All ${sessions.length} Fasts →`}
           </Text>
         </Pressable>
       )}
 
-      {/* Full Calendar Modal */}
       <FastCalendar
         visible={showCalendar}
         userId={user?.id ?? null}
@@ -175,17 +169,17 @@ function SessionDetail({ sessionId, schedule }: { sessionId: string; schedule?: 
   const c = getThemeColors(theme);
 
   return (
-    <View className="rounded-xl p-4 mt-2" style={{ backgroundColor: c.cardBgAlt, borderWidth: 1, borderColor: c.cardBorder }}>
+    <View className="glass-panel p-4 mt-2">
       {schedule && (
         <View className="flex-row items-center mb-3">
-          <Text style={{ color: c.textMuted, fontFamily: "PlusJakartaSans_400Regular" }} className="text-xs">Schedule:</Text>
-          <View className="ml-2 px-2 py-0.5 rounded-md" style={{ backgroundColor: ACCENT.skyBg }}>
-            <Text style={{ color: ACCENT.sky, fontFamily: "PlusJakartaSans_700Bold" }} className="text-xs">{schedule}</Text>
+          <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular" }} className="text-xs">Schedule:</Text>
+          <View className="ml-2 px-2 py-0.5 rounded-md" style={{ backgroundColor: ACCENT.cyanBg }}>
+            <Text style={{ color: ACCENT.cyan, fontFamily: "Inter_700Bold" }} className="text-xs">{schedule}</Text>
           </View>
         </View>
       )}
       {checkIns.length === 0 ? (
-        <Text style={{ color: c.textMuted, fontFamily: "PlusJakartaSans_400Regular" }} className="text-sm text-center py-2">
+        <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular" }} className="text-sm text-center py-2">
           No check-ins recorded
         </Text>
       ) : (

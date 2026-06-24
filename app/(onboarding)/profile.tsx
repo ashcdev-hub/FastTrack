@@ -42,7 +42,7 @@ export default function ProfileScreen() {
     }
   }, [profile]);
 
-  const inputStyle = { backgroundColor: c.inputBg, color: c.text, fontFamily: "PlusJakartaSans_500Medium" as const };
+  const inputStyle = { backgroundColor: c.inputBg, color: c.text, fontFamily: "Inter_400Regular" as const };
   const wUnit = weightUnitLabel(unitPrefs);
   const hUnit = heightUnitLabel(unitPrefs);
 
@@ -69,20 +69,20 @@ export default function ProfileScreen() {
     <ScrollView className="flex-1" style={{ backgroundColor: c.bg }} contentContainerClassName="px-6" contentContainerStyle={{ paddingTop: 60, paddingBottom: 40 }} showsVerticalScrollIndicator={false}>
       {/* Back button */}
       <Pressable onPress={() => router.back()} className="mb-8" hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}>
-        <Text style={{ color: c.textSecondary, fontFamily: "PlusJakartaSans_500Medium" }} className="text-sm">
+        <Text style={{ color: c.textSecondary, fontFamily: "Inter_400Regular" }} className="text-sm">
           Back
         </Text>
       </Pressable>
 
-      <Text style={{ color: c.text, fontFamily: "PlusJakartaSans_700Bold" }} className="text-3xl mb-2">
+      <Text style={{ color: c.text, fontFamily: "Inter_700Bold" }} className="text-3xl mb-2">
         About you
       </Text>
-      <Text style={{ color: c.textMuted, fontFamily: "PlusJakartaSans_400Regular" }} className="text-sm mb-8">
+      <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular" }} className="text-sm mb-8">
         This helps us personalise your experience
       </Text>
 
       {/* Display Name */}
-      <Text style={{ color: c.textSecondary, fontFamily: "PlusJakartaSans_400Regular" }} className="text-xs mb-1.5">
+      <Text style={{ color: c.textSecondary, fontFamily: "Inter_400Regular" }} className="text-xs mb-1.5">
         Name
       </Text>
       <TextInput
@@ -92,7 +92,7 @@ export default function ProfileScreen() {
       />
 
       {/* Age */}
-      <Text style={{ color: c.textSecondary, fontFamily: "PlusJakartaSans_400Regular" }} className="text-xs mb-1.5">
+      <Text style={{ color: c.textSecondary, fontFamily: "Inter_400Regular" }} className="text-xs mb-1.5">
         Age
       </Text>
       <TextInput
@@ -102,7 +102,7 @@ export default function ProfileScreen() {
       />
 
       {/* Gender */}
-      <Text style={{ color: c.textSecondary, fontFamily: "PlusJakartaSans_400Regular" }} className="text-xs mb-1.5">
+      <Text style={{ color: c.textSecondary, fontFamily: "Inter_400Regular" }} className="text-xs mb-1.5">
         Gender
       </Text>
       <View className="flex-row gap-2 mb-4">
@@ -111,11 +111,11 @@ export default function ProfileScreen() {
             key={g}
             onPress={() => setGender(gender === g ? null : g)}
             className="flex-1 py-3 rounded-xl items-center"
-            style={{ backgroundColor: gender === g ? ACCENT.mint : c.buttonBg }}
+            style={{ backgroundColor: gender === g ? ACCENT.lime : c.buttonBg }}
           >
             <Text
               className="text-sm capitalize"
-              style={{ color: gender === g ? c.textOnAccent : c.textSecondary, fontFamily: "PlusJakartaSans_600SemiBold" }}
+              style={{ color: gender === g ? c.textOnAccent : c.textSecondary, fontFamily: "SpaceGrotesk_600SemiBold" }}
             >
               {g}
             </Text>
@@ -124,7 +124,7 @@ export default function ProfileScreen() {
       </View>
 
       {/* Preferred Units */}
-      <Text style={{ color: c.textSecondary, fontFamily: "PlusJakartaSans_400Regular" }} className="text-xs mb-1.5">
+      <Text style={{ color: c.textSecondary, fontFamily: "Inter_400Regular" }} className="text-xs mb-1.5">
         Preferred Units
       </Text>
       <View className="flex-row gap-2 mb-2">
@@ -133,9 +133,9 @@ export default function ProfileScreen() {
             key={unit}
             onPress={() => setUnitPrefs({ ...unitPrefs, weight: unit })}
             className="flex-1 py-3 rounded-xl items-center"
-            style={{ backgroundColor: unitPrefs.weight === unit ? ACCENT.mint : c.buttonBg }}
+            style={{ backgroundColor: unitPrefs.weight === unit ? ACCENT.lime : c.buttonBg }}
           >
-            <Text className="text-sm" style={{ color: unitPrefs.weight === unit ? c.textOnAccent : c.textSecondary, fontFamily: "PlusJakartaSans_600SemiBold" }}>
+            <Text className="text-sm" style={{ color: unitPrefs.weight === unit ? c.textOnAccent : c.textSecondary, fontFamily: "SpaceGrotesk_600SemiBold" }}>
               {unit === "kg" ? "Kilograms" : "Pounds"}
             </Text>
           </Pressable>
@@ -147,9 +147,9 @@ export default function ProfileScreen() {
             key={unit}
             onPress={() => setUnitPrefs({ ...unitPrefs, height: unit })}
             className="flex-1 py-3 rounded-xl items-center"
-            style={{ backgroundColor: unitPrefs.height === unit ? ACCENT.mint : c.buttonBg }}
+            style={{ backgroundColor: unitPrefs.height === unit ? ACCENT.lime : c.buttonBg }}
           >
-            <Text className="text-sm" style={{ color: unitPrefs.height === unit ? c.textOnAccent : c.textSecondary, fontFamily: "PlusJakartaSans_600SemiBold" }}>
+            <Text className="text-sm" style={{ color: unitPrefs.height === unit ? c.textOnAccent : c.textSecondary, fontFamily: "SpaceGrotesk_600SemiBold" }}>
               {unit === "cm" ? "Centimeters" : "Feet/Inches"}
             </Text>
           </Pressable>
@@ -157,7 +157,7 @@ export default function ProfileScreen() {
       </View>
 
       {/* Weight */}
-      <Text style={{ color: c.textSecondary, fontFamily: "PlusJakartaSans_400Regular" }} className="text-xs mb-1.5">
+      <Text style={{ color: c.textSecondary, fontFamily: "Inter_400Regular" }} className="text-xs mb-1.5">
         Current weight ({wUnit})
       </Text>
       <TextInput
@@ -168,7 +168,7 @@ export default function ProfileScreen() {
       />
 
       {/* Height */}
-      <Text style={{ color: c.textSecondary, fontFamily: "PlusJakartaSans_400Regular" }} className="text-xs mb-1.5">
+      <Text style={{ color: c.textSecondary, fontFamily: "Inter_400Regular" }} className="text-xs mb-1.5">
         Height ({hUnit})
       </Text>
       <TextInput
@@ -180,7 +180,7 @@ export default function ProfileScreen() {
       />
 
       {/* Goal Weight */}
-      <Text style={{ color: c.textSecondary, fontFamily: "PlusJakartaSans_400Regular" }} className="text-xs mb-1.5">
+      <Text style={{ color: c.textSecondary, fontFamily: "Inter_400Regular" }} className="text-xs mb-1.5">
         Goal weight ({wUnit})
       </Text>
       <TextInput
@@ -194,9 +194,9 @@ export default function ProfileScreen() {
       <Pressable
         onPress={handleContinue} disabled={saving}
         className="rounded-xl py-4"
-        style={{ backgroundColor: ACCENT.mint }}
+        style={{ backgroundColor: ACCENT.lime }}
       >
-        <Text style={{ color: c.textOnAccent, fontFamily: "PlusJakartaSans_700Bold" }} className="text-center text-lg">
+        <Text style={{ color: c.textOnAccent, fontFamily: "Inter_700Bold" }} className="text-center text-lg">
           Continue
         </Text>
       </Pressable>
@@ -204,7 +204,7 @@ export default function ProfileScreen() {
       {/* Step indicator */}
       <View className="flex-row gap-2 mt-10 justify-center">
         <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: c.textFaint }} />
-        <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: ACCENT.mint }} />
+        <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: ACCENT.lime }} />
         <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: c.textFaint }} />
         <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: c.textFaint }} />
       </View>

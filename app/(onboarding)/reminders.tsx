@@ -58,51 +58,51 @@ export default function RemindersScreen() {
   return (
     <ScrollView className="flex-1" style={{ backgroundColor: c.bg }} contentContainerClassName="px-6" contentContainerStyle={{ paddingTop: 60, paddingBottom: 40 }} showsVerticalScrollIndicator={false}>
       <Pressable onPress={() => router.back()} className="mb-8" hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}>
-        <Text style={{ color: c.textSecondary, fontFamily: "PlusJakartaSans_500Medium" }} className="text-sm">
+        <Text style={{ color: c.textSecondary, fontFamily: "Inter_400Regular" }} className="text-sm">
           Back
         </Text>
       </Pressable>
 
-      <Text style={{ color: c.text, fontFamily: "PlusJakartaSans_700Bold" }} className="text-3xl mb-2">
+      <Text style={{ color: c.text, fontFamily: "Inter_700Bold" }} className="text-3xl mb-2">
         Stay on track
       </Text>
-      <Text style={{ color: c.textMuted, fontFamily: "PlusJakartaSans_400Regular" }} className="text-sm mb-8">
+      <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular" }} className="text-sm mb-8">
         Set up reminders to help you stay consistent
       </Text>
 
       {/* Toggles */}
-      <View className="rounded-2xl overflow-hidden mb-6" style={{ backgroundColor: c.cardBg, borderWidth: 1, borderColor: c.cardBorder }}>
+      <View className="glass-panel overflow-hidden mb-6">
         <View className="flex-row justify-between items-center p-4" style={{ borderBottomWidth: 1, borderBottomColor: c.divider }}>
-          <Text style={{ color: c.text, fontFamily: "PlusJakartaSans_500Medium" }} className="text-sm">Fasting reminders</Text>
+          <Text style={{ color: c.text, fontFamily: "Inter_400Regular" }} className="text-sm">Fasting reminders</Text>
           <Switch
             value={fastingReminders}
             onValueChange={setFastingReminders}
-            trackColor={{ false: c.buttonBg, true: ACCENT.mint }}
+            trackColor={{ false: c.buttonBg, true: ACCENT.lime }}
             thumbColor="#FFFFFF"
           />
         </View>
         <View className="flex-row justify-between items-center p-4" style={{ borderBottomWidth: 1, borderBottomColor: c.divider }}>
-          <Text style={{ color: c.text, fontFamily: "PlusJakartaSans_500Medium" }} className="text-sm">Check-in reminders</Text>
+          <Text style={{ color: c.text, fontFamily: "Inter_400Regular" }} className="text-sm">Check-in reminders</Text>
           <Switch
             value={checkinReminders}
             onValueChange={setCheckinReminders}
-            trackColor={{ false: c.buttonBg, true: ACCENT.mint }}
+            trackColor={{ false: c.buttonBg, true: ACCENT.lime }}
             thumbColor="#FFFFFF"
           />
         </View>
         <View className="flex-row justify-between items-center p-4">
-          <Text style={{ color: c.text, fontFamily: "PlusJakartaSans_500Medium" }} className="text-sm">Water reminders</Text>
+          <Text style={{ color: c.text, fontFamily: "Inter_400Regular" }} className="text-sm">Water reminders</Text>
           <Switch
             value={waterReminders}
             onValueChange={setWaterReminders}
-            trackColor={{ false: c.buttonBg, true: ACCENT.mint }}
+            trackColor={{ false: c.buttonBg, true: ACCENT.lime }}
             thumbColor="#FFFFFF"
           />
         </View>
       </View>
 
       {/* Reminder Time */}
-      <Text style={{ color: c.textSecondary, fontFamily: "PlusJakartaSans_400Regular" }} className="text-xs mb-2">
+      <Text style={{ color: c.textSecondary, fontFamily: "Inter_400Regular" }} className="text-xs mb-2">
         Fast reminder time
       </Text>
       <View className="flex-row gap-2 mb-8">
@@ -114,9 +114,9 @@ export default function RemindersScreen() {
               key={time}
               onPress={() => setReminderTime(time)}
               className="flex-1 py-2.5 rounded-lg items-center"
-              style={{ backgroundColor: isActive ? ACCENT.mint : c.buttonBg }}
+              style={{ backgroundColor: isActive ? ACCENT.lime : c.buttonBg }}
             >
-              <Text style={{ color: isActive ? c.textOnAccent : c.textSecondary, fontFamily: "PlusJakartaSans_600SemiBold" }} className="text-xs">
+              <Text style={{ color: isActive ? c.textOnAccent : c.textSecondary, fontFamily: "SpaceGrotesk_600SemiBold" }} className="text-xs">
                 {label}
               </Text>
             </Pressable>
@@ -128,9 +128,9 @@ export default function RemindersScreen() {
       <Pressable
         onPress={handleComplete} disabled={saving}
         className="rounded-xl py-4"
-        style={{ backgroundColor: ACCENT.mint }}
+        style={{ backgroundColor: ACCENT.lime }}
       >
-        <Text style={{ color: c.textOnAccent, fontFamily: "PlusJakartaSans_700Bold" }} className="text-center text-lg">
+        <Text style={{ color: c.textOnAccent, fontFamily: "Inter_700Bold" }} className="text-center text-lg">
           Start Tracking
         </Text>
       </Pressable>
@@ -140,7 +140,7 @@ export default function RemindersScreen() {
         <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: c.textFaint }} />
         <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: c.textFaint }} />
         <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: c.textFaint }} />
-        <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: ACCENT.mint }} />
+        <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: ACCENT.lime }} />
       </View>
     </ScrollView>
   );

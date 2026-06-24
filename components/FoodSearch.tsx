@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { Platform, Pressable, View, Text, TextInput, ScrollView, ActivityIndicator, Modal } from "react-native";
-import { HugeiconsIcon } from "@hugeicons/react-native";
-import BarcodeScanIcon from "@hugeicons/core-free-icons/dist/esm/BarcodeScanIcon";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { supabase } from "@/lib/supabase";
 import { useThemeStore } from "@/lib/theme-store";
 import { getThemeColors, ACCENT } from "@/lib/theme-colors";
@@ -95,9 +94,9 @@ export function FoodSearch({ onAdd }: FoodSearchProps) {
   };
 
   return (
-    <View className="rounded-2xl p-5" style={{ backgroundColor: c.cardBg, borderWidth: 1, borderColor: c.cardBorder }}>
-      <Text style={{ color: c.text, fontFamily: "PlusJakartaSans_700Bold" }} className="text-lg mb-3">Search Food</Text>
-      <Text style={{ color: c.textMuted, fontFamily: "PlusJakartaSans_400Regular" }} className="text-xs mb-3">
+    <View className="glass-panel p-5">
+      <Text style={{ color: c.text, fontFamily: "Inter_700Bold" }} className="text-lg mb-3">Search Food</Text>
+      <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular" }} className="text-xs mb-3">
         Search by name or scan a barcode
       </Text>
       <View className="flex-row gap-2 mb-3">
@@ -107,7 +106,7 @@ export function FoodSearch({ onAdd }: FoodSearchProps) {
           placeholder="Search OpenFoodFacts..."
           placeholderTextColor={c.placeholder}
           className="flex-1 rounded-xl px-4 py-3"
-          style={{ backgroundColor: c.inputBg, color: c.text, fontFamily: "PlusJakartaSans_500Medium" }}
+          style={{ backgroundColor: c.inputBg, color: c.text, fontFamily: "Inter_400Regular" }}
           onSubmitEditing={search}
           returnKeyType="search"
         />
@@ -117,24 +116,24 @@ export function FoodSearch({ onAdd }: FoodSearchProps) {
             className="rounded-xl px-4 py-3"
             style={{ backgroundColor: c.buttonBg }}
           >
-            <HugeiconsIcon icon={BarcodeScanIcon} size={20} color={c.text} strokeWidth={1.5} />
+            <MaterialCommunityIcons name="barcode-scan" size={20} color={c.text} />
           </Pressable>
         )}
         <Pressable
           onPress={search}
           disabled={loading}
           className="rounded-xl px-4 py-3"
-          style={{ backgroundColor: ACCENT.mint, opacity: loading ? 0.5 : 1 }}
+          style={{ backgroundColor: ACCENT.lime, opacity: loading ? 0.5 : 1 }}
         >
-          <Text style={{ color: c.textOnAccent, fontFamily: "PlusJakartaSans_600SemiBold" }}>Search</Text>
+          <Text style={{ color: "#161e00", fontFamily: "Inter_700Bold" }}>Search</Text>
         </Pressable>
       </View>
 
-      {loading && <ActivityIndicator color={ACCENT.mint} />}
+      {loading && <ActivityIndicator color={ACCENT.lime} />}
 
       {error && (
         <View className="rounded-xl p-3 mb-3" style={{ backgroundColor: ACCENT.roseBg }}>
-          <Text style={{ color: ACCENT.rose, fontFamily: "PlusJakartaSans_500Medium" }} className="text-sm">{error}</Text>
+          <Text style={{ color: ACCENT.rose, fontFamily: "Inter_400Regular" }} className="text-sm">{error}</Text>
         </View>
       )}
 
@@ -148,11 +147,11 @@ export function FoodSearch({ onAdd }: FoodSearchProps) {
                 className="rounded-xl p-3 mb-2"
                 style={{ backgroundColor: c.cardBgAlt }}
               >
-                <Text style={{ color: c.text, fontFamily: "PlusJakartaSans_500Medium" }}>{item.name}</Text>
+                <Text style={{ color: c.text, fontFamily: "Inter_400Regular" }}>{item.name}</Text>
                 {item.brand ? (
-                  <Text style={{ color: c.textMuted, fontFamily: "PlusJakartaSans_400Regular" }} className="text-xs">{item.brand}</Text>
+                  <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular" }} className="text-xs">{item.brand}</Text>
                 ) : null}
-                <Text style={{ color: c.textSecondary, fontFamily: "PlusJakartaSans_400Regular" }} className="text-xs mt-1">
+                <Text style={{ color: c.textSecondary, fontFamily: "Inter_400Regular" }} className="text-xs mt-1">
                   {item.nutrition.calories} kcal · P{item.nutrition.protein}g · C{item.nutrition.carbs}g · F{item.nutrition.fat}g
                   {item.serving_size ? ` · ${item.serving_size}` : ""}
                 </Text>
@@ -162,7 +161,7 @@ export function FoodSearch({ onAdd }: FoodSearchProps) {
         </View>
       )}
 
-      <Text style={{ color: c.textMuted, fontFamily: "PlusJakartaSans_600SemiBold" }} className="text-xs mb-2 tracking-widest">
+      <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_600SemiBold" }} className="text-xs mb-2 tracking-widest">
         QUICK ADD
       </Text>
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
@@ -171,12 +170,12 @@ export function FoodSearch({ onAdd }: FoodSearchProps) {
             key={food.name}
             onPress={() => handleAddCommonFood(food)}
             className="rounded-xl px-4 py-2.5 mr-2"
-            style={{ backgroundColor: ACCENT.mintBg, borderWidth: 1, borderColor: ACCENT.mintBorder }}
+            style={{ backgroundColor: ACCENT.limeBg, borderWidth: 1, borderColor: ACCENT.limeBorder }}
           >
-            <Text style={{ color: ACCENT.mint, fontFamily: "PlusJakartaSans_600SemiBold" }} className="text-sm">
+            <Text style={{ color: ACCENT.lime, fontFamily: "SpaceGrotesk_600SemiBold" }} className="text-sm">
               {food.name}
             </Text>
-            <Text style={{ color: "rgba(45,212,168,0.6)", fontFamily: "PlusJakartaSans_400Regular" }} className="text-xs">
+            <Text style={{ color: "rgba(45,212,168,0.6)", fontFamily: "Inter_400Regular" }} className="text-xs">
               {food.calories} kcal
             </Text>
           </Pressable>
@@ -188,42 +187,42 @@ export function FoodSearch({ onAdd }: FoodSearchProps) {
           <View className="rounded-t-3xl p-6" style={{ backgroundColor: c.elevated }}>
             <View className="flex-row justify-between items-center mb-4">
               <Pressable onPress={() => setSelectedItem(null)}>
-                <Text style={{ color: c.textSecondary, fontFamily: "PlusJakartaSans_500Medium" }}>Cancel</Text>
+                <Text style={{ color: c.textSecondary, fontFamily: "Inter_400Regular" }}>Cancel</Text>
               </Pressable>
-              <Text style={{ color: c.text, fontFamily: "PlusJakartaSans_700Bold" }} className="text-lg">Add to Meal</Text>
+              <Text style={{ color: c.text, fontFamily: "Inter_700Bold" }} className="text-lg">Add to Meal</Text>
               <View className="w-12" />
             </View>
 
             {selectedItem && (
               <>
                 <View className="mb-4">
-                  <Text style={{ color: c.text, fontFamily: "PlusJakartaSans_500Medium" }}>{selectedItem.name}</Text>
+                  <Text style={{ color: c.text, fontFamily: "Inter_400Regular" }}>{selectedItem.name}</Text>
                   {selectedItem.brand ? (
-                    <Text style={{ color: c.textMuted, fontFamily: "PlusJakartaSans_400Regular" }} className="text-sm">{selectedItem.brand}</Text>
+                    <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular" }} className="text-sm">{selectedItem.brand}</Text>
                   ) : null}
                   {selectedItem.serving_size ? (
-                    <Text style={{ color: c.textSecondary, fontFamily: "PlusJakartaSans_400Regular" }} className="text-xs mt-1">
+                    <Text style={{ color: c.textSecondary, fontFamily: "Inter_400Regular" }} className="text-xs mt-1">
                       Per serving: {selectedItem.serving_size}
                     </Text>
                   ) : null}
                 </View>
 
-                <View className="rounded-xl p-4 mb-4" style={{ backgroundColor: c.cardBgAlt }}>
+                <View className="glass-panel p-4 mb-4">
                   <View className="flex-row justify-between mb-2">
-                    <Text style={{ color: c.textSecondary, fontFamily: "PlusJakartaSans_500Medium" }} className="text-sm">Calories</Text>
-                    <Text style={{ color: c.text, fontFamily: "PlusJakartaSans_600SemiBold" }}>
+                    <Text style={{ color: c.textSecondary, fontFamily: "Inter_400Regular" }} className="text-sm">Calories</Text>
+                    <Text style={{ color: c.text, fontFamily: "SpaceGrotesk_600SemiBold" }}>
                       {selectedItem.nutrition.calories} kcal
                     </Text>
                   </View>
                   <View className="flex-row justify-between">
-                    <Text style={{ color: c.textSecondary, fontFamily: "PlusJakartaSans_500Medium" }} className="text-sm">Macros</Text>
-                    <Text style={{ color: c.textSecondary, fontFamily: "PlusJakartaSans_400Regular" }} className="text-sm">
+                    <Text style={{ color: c.textSecondary, fontFamily: "Inter_400Regular" }} className="text-sm">Macros</Text>
+                    <Text style={{ color: c.textSecondary, fontFamily: "Inter_400Regular" }} className="text-sm">
                       P{selectedItem.nutrition.protein}g · C{selectedItem.nutrition.carbs}g · F{selectedItem.nutrition.fat}g
                     </Text>
                   </View>
                 </View>
 
-                <Text style={{ color: c.textSecondary, fontFamily: "PlusJakartaSans_500Medium" }} className="text-xs mb-2">Quantity (servings)</Text>
+                <Text style={{ color: c.textSecondary, fontFamily: "Inter_400Regular" }} className="text-xs mb-2">Quantity (servings)</Text>
                 <TextInput
                   value={quantity}
                   onChangeText={setQuantity}
@@ -231,15 +230,15 @@ export function FoodSearch({ onAdd }: FoodSearchProps) {
                   placeholderTextColor={c.placeholder}
                   keyboardType="numeric"
                   className="rounded-xl px-4 py-3 mb-4"
-                  style={{ backgroundColor: c.inputBg, color: c.text, fontFamily: "PlusJakartaSans_500Medium" }}
+                  style={{ backgroundColor: c.inputBg, color: c.text, fontFamily: "Inter_400Regular" }}
                 />
 
                 <Pressable
                   onPress={handleAddToMeal}
                   className="rounded-xl py-3"
-                  style={{ backgroundColor: ACCENT.mint }}
+                  style={{ backgroundColor: ACCENT.lime }}
                 >
-                  <Text style={{ color: c.textOnAccent, fontFamily: "PlusJakartaSans_700Bold" }} className="text-center">
+                  <Text style={{ color: "#161e00", fontFamily: "Inter_700Bold" }} className="text-center">
                     Add to Meal
                   </Text>
                 </Pressable>

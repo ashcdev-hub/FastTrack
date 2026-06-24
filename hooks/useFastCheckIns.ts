@@ -39,11 +39,8 @@ export function useFastCheckIns(userId: string | undefined, sessionId: string | 
       if (error) throw error;
       return data;
     },
-    onSuccess: (data) => {
-      queryClient.setQueryData<FastCheckIn[]>(["fast_check_ins", sessionId], (old) => [
-        ...(old ?? []),
-        data,
-      ]);
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["fast_check_ins", sessionId] });
     },
   });
 

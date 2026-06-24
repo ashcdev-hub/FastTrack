@@ -25,7 +25,7 @@ export function AddExerciseModal({ visible, onClose, onAdd, disabledGoals, onRei
     setExerciseType(""); setDailyGoal("100"); setCaloriesPerRep("0.5"); onClose();
   };
 
-  const inputStyle = { backgroundColor: c.inputBg, color: c.text, fontFamily: "PlusJakartaSans_500Medium" as const };
+  const inputStyle = { backgroundColor: c.inputBg, color: c.text, fontFamily: "Inter_400Regular" as const };
 
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
@@ -33,26 +33,26 @@ export function AddExerciseModal({ visible, onClose, onAdd, disabledGoals, onRei
         <View className="rounded-t-3xl p-6" style={{ backgroundColor: c.elevated }}>
           <View className="flex-row justify-between items-center mb-6">
             <Pressable onPress={onClose}>
-              <Text style={{ color: c.textSecondary, fontFamily: "PlusJakartaSans_500Medium" }}>Cancel</Text>
+              <Text style={{ color: c.textSecondary, fontFamily: "Inter_400Regular" }}>Cancel</Text>
             </Pressable>
-            <Text style={{ color: c.text, fontFamily: "PlusJakartaSans_700Bold" }} className="text-lg">Add Exercise</Text>
+            <Text style={{ color: c.text, fontFamily: "Inter_700Bold" }} className="text-lg">Add Exercise</Text>
             <View className="w-12" />
           </View>
 
           {disabledGoals.length > 0 && (
             <View className="mb-5">
-              <Text style={{ color: c.textSecondary, fontFamily: "PlusJakartaSans_500Medium" }} className="text-xs mb-3">Recently Removed</Text>
+              <Text style={{ color: c.textSecondary, fontFamily: "Inter_400Regular" }} className="text-xs mb-3">Recently Removed</Text>
               <View className="gap-2">
                 {disabledGoals.map((goal) => (
                   <View key={goal.id} className="flex-row items-center justify-between rounded-xl px-4 py-3" style={{ backgroundColor: c.inputBg, borderWidth: 1, borderColor: c.cardBorder }}>
                     <View>
-                      <Text style={{ color: c.text, fontFamily: "PlusJakartaSans_600SemiBold" }} className="capitalize">{goal.exercise_type}</Text>
-                      <Text style={{ color: c.textMuted, fontFamily: "PlusJakartaSans_400Regular" }} className="text-xs">
+                      <Text style={{ color: c.text, fontFamily: "SpaceGrotesk_600SemiBold" }} className="capitalize">{goal.exercise_type}</Text>
+                      <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular" }} className="text-xs">
                         {goal.daily_goal} reps/day · {goal.calories_per_rep} cal/rep
                       </Text>
                     </View>
-                    <Pressable onPress={() => onReinstate(goal.id)} className="rounded-lg px-3 py-1.5" style={{ backgroundColor: ACCENT.mint }}>
-                      <Text style={{ color: c.textOnAccent, fontFamily: "PlusJakartaSans_600SemiBold" }} className="text-xs">Reinstate</Text>
+                    <Pressable onPress={() => onReinstate(goal.id)} className="rounded-lg px-3 py-1.5" style={{ backgroundColor: ACCENT.lime }}>
+                      <Text style={{ color: c.textOnAccent, fontFamily: "SpaceGrotesk_600SemiBold" }} className="text-xs">Reinstate</Text>
                     </Pressable>
                   </View>
                 ))}
@@ -61,21 +61,21 @@ export function AddExerciseModal({ visible, onClose, onAdd, disabledGoals, onRei
             </View>
           )}
 
-          <Text style={{ color: c.textSecondary, fontFamily: "PlusJakartaSans_400Regular" }} className="text-xs mb-2">Exercise Name</Text>
+          <Text style={{ color: c.textSecondary, fontFamily: "Inter_400Regular" }} className="text-xs mb-2">Exercise Name</Text>
           <TextInput value={exerciseType} onChangeText={setExerciseType} placeholder="e.g., lunges, planks" placeholderTextColor={c.placeholder}
             className="rounded-xl px-4 py-3 mb-4" style={inputStyle} />
 
-          <Text style={{ color: c.textSecondary, fontFamily: "PlusJakartaSans_400Regular" }} className="text-xs mb-2">Daily Goal (reps)</Text>
+          <Text style={{ color: c.textSecondary, fontFamily: "Inter_400Regular" }} className="text-xs mb-2">Daily Goal (reps)</Text>
           <TextInput value={dailyGoal} onChangeText={setDailyGoal} placeholder="100" placeholderTextColor={c.placeholder} keyboardType="numeric"
             className="rounded-xl px-4 py-3 mb-4" style={inputStyle} />
 
-          <Text style={{ color: c.textSecondary, fontFamily: "PlusJakartaSans_400Regular" }} className="text-xs mb-2">Calories Per Rep</Text>
+          <Text style={{ color: c.textSecondary, fontFamily: "Inter_400Regular" }} className="text-xs mb-2">Calories Per Rep</Text>
           <TextInput value={caloriesPerRep} onChangeText={setCaloriesPerRep} placeholder="0.5" placeholderTextColor={c.placeholder} keyboardType="numeric"
             className="rounded-xl px-4 py-3 mb-4" style={inputStyle} />
 
           <Pressable onPress={handleAdd} disabled={!exerciseType.trim()} className="rounded-xl py-3"
-            style={{ backgroundColor: exerciseType.trim() ? ACCENT.mint : c.buttonBg }}>
-            <Text style={{ color: exerciseType.trim() ? c.textOnAccent : c.textMuted, fontFamily: "PlusJakartaSans_700Bold" }} className="text-center">
+            style={{ backgroundColor: exerciseType.trim() ? ACCENT.lime : c.buttonBg }}>
+            <Text style={{ color: exerciseType.trim() ? c.textOnAccent : c.textMuted, fontFamily: "Inter_700Bold" }} className="text-center">
               Add Exercise
             </Text>
           </Pressable>

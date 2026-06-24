@@ -1,21 +1,15 @@
 import React, { useState } from "react";
 import { Pressable, View, Text, TextInput } from "react-native";
-import { HugeiconsIcon } from "@hugeicons/react-native";
-import ArrowRight01Icon from "@hugeicons/core-free-icons/dist/esm/ArrowRight01Icon";
-import Sad01Icon from "@hugeicons/core-free-icons/dist/esm/Sad01Icon";
-import FrownIcon from "@hugeicons/core-free-icons/dist/esm/FrownIcon";
-import MehIcon from "@hugeicons/core-free-icons/dist/esm/MehIcon";
-import SmileIcon from "@hugeicons/core-free-icons/dist/esm/SmileIcon";
-import Happy01Icon from "@hugeicons/core-free-icons/dist/esm/Happy01Icon";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useThemeStore } from "@/lib/theme-store";
 import { getThemeColors, ACCENT } from "@/lib/theme-colors";
 
 const MOODS = [
-  { value: 1, label: "Terrible", icon: Sad01Icon, color: ACCENT.rose },
-  { value: 2, label: "Bad", icon: FrownIcon, color: ACCENT.coral },
-  { value: 3, label: "Okay", icon: MehIcon, color: ACCENT.amber },
-  { value: 4, label: "Good", icon: SmileIcon, color: ACCENT.mint },
-  { value: 5, label: "Great", icon: Happy01Icon, color: ACCENT.mintLight },
+  { value: 1, label: "Terrible", icon: "emoticon-sad-outline" as const, color: ACCENT.rose },
+  { value: 2, label: "Bad", icon: "emoticon-sad" as const, color: ACCENT.coral },
+  { value: 3, label: "Okay", icon: "emoticon-neutral" as const, color: ACCENT.amber },
+  { value: 4, label: "Good", icon: "emoticon-happy-outline" as const, color: ACCENT.lime },
+  { value: 5, label: "Great", icon: "emoticon-happy" as const, color: ACCENT.cyan },
 ];
 
 type CheckInPanelProps = {
@@ -43,8 +37,8 @@ export function CheckInPanel({ phase, onSubmit }: CheckInPanelProps) {
 
   if (submitted) {
     return (
-      <View className="rounded-2xl p-4" style={{ backgroundColor: ACCENT.mintBg, borderWidth: 1, borderColor: ACCENT.mintBorder }}>
-        <Text style={{ color: ACCENT.mint, fontFamily: "PlusJakartaSans_500Medium" }} className="text-center">
+      <View className="rounded-xl p-4" style={{ backgroundColor: ACCENT.limeBg, borderWidth: 1, borderColor: ACCENT.limeBorder }}>
+        <Text style={{ color: ACCENT.lime, fontFamily: "Inter_700Bold", textAlign: "center" }}>
           Check-in saved
         </Text>
       </View>
@@ -52,8 +46,8 @@ export function CheckInPanel({ phase, onSubmit }: CheckInPanelProps) {
   }
 
   return (
-    <View className="rounded-2xl p-4" style={{ backgroundColor: c.cardBg, borderWidth: 1, borderColor: c.cardBorder }}>
-      <Text style={{ color: c.textMuted, fontFamily: "PlusJakartaSans_600SemiBold" }} className="text-xs mb-3 tracking-widest">
+    <View className="glass-panel p-4">
+      <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 12, letterSpacing: 1, marginBottom: 12, textTransform: "uppercase" }}>
         HOW ARE YOU FEELING?
       </Text>
 
@@ -81,19 +75,18 @@ export function CheckInPanel({ phase, onSubmit }: CheckInPanelProps) {
                   marginBottom: 6,
                 }}
               >
-                <HugeiconsIcon
-                  icon={m.icon}
+                <MaterialCommunityIcons
+                  name={m.icon}
                   size={28}
                   color={isSelected ? m.color : c.textFaint}
-                  strokeWidth={1.5}
                 />
               </View>
               <Text
                 style={{
                   color: isSelected ? m.color : c.textMuted,
-                  fontFamily: isSelected ? "PlusJakartaSans_600SemiBold" : "PlusJakartaSans_400Regular",
+                  fontFamily: isSelected ? "SpaceGrotesk_700Bold" : "Inter_400Regular",
+                  fontSize: 10,
                 }}
-                className="text-[10px]"
               >
                 {m.label}
               </Text>
@@ -108,8 +101,8 @@ export function CheckInPanel({ phase, onSubmit }: CheckInPanelProps) {
           onChangeText={setNote}
           placeholder={phase === "fasting" ? "How's the fast going?" : "How's the meal?"}
           placeholderTextColor={c.placeholder}
-          className="flex-1 rounded-xl px-4 py-3 text-sm"
-          style={{ backgroundColor: c.cardBgAlt, color: c.text, fontFamily: "PlusJakartaSans_400Regular" }}
+          className="flex-1 rounded-lg px-4 py-3 text-sm"
+          style={{ backgroundColor: c.cardBgAlt, color: c.text, fontFamily: "Inter_400Regular" }}
           multiline
           maxLength={280}
         />
@@ -119,17 +112,16 @@ export function CheckInPanel({ phase, onSubmit }: CheckInPanelProps) {
           style={{
             padding: 12,
             borderRadius: 12,
-            backgroundColor: selectedMood !== null ? selectedMoodData?.color ?? ACCENT.mint : c.cardBgAlt,
+            backgroundColor: selectedMood !== null ? selectedMoodData?.color ?? ACCENT.lime : c.cardBgAlt,
           }}
           accessibilityRole="button"
           accessibilityLabel="Submit check-in"
           accessibilityState={{ disabled: selectedMood === null }}
         >
-          <HugeiconsIcon
-            icon={ArrowRight01Icon}
+          <MaterialCommunityIcons
+            name="arrow-right"
             size={18}
-            color={selectedMood !== null ? c.textOnAccent : c.textMuted}
-            strokeWidth={1.5}
+            color={selectedMood !== null ? "#161e00" : c.textMuted}
           />
         </Pressable>
       </View>

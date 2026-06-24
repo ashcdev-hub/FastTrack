@@ -4,11 +4,15 @@ import { Stack } from "expo-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useFonts } from "expo-font";
 import {
-  PlusJakartaSans_700Bold,
-  PlusJakartaSans_600SemiBold,
-  PlusJakartaSans_500Medium,
-  PlusJakartaSans_400Regular,
-} from "@expo-google-fonts/plus-jakarta-sans";
+  Inter_400Regular,
+  Inter_700Bold,
+  Inter_800ExtraBold,
+} from "@expo-google-fonts/inter";
+import {
+  SpaceGrotesk_500Medium,
+  SpaceGrotesk_600SemiBold,
+  SpaceGrotesk_700Bold,
+} from "@expo-google-fonts/space-grotesk";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useGoalStore } from "@/store/useGoalStore";
 import { useFastingStore } from "@/store/useFastingStore";
@@ -67,10 +71,12 @@ function InnerLayout() {
   const { theme, loaded: themeLoaded, loadTheme } = useThemeStore();
 
   const [fontsLoaded] = useFonts({
-    PlusJakartaSans_700Bold,
-    PlusJakartaSans_600SemiBold,
-    PlusJakartaSans_500Medium,
-    PlusJakartaSans_400Regular,
+    Inter_400Regular,
+    Inter_700Bold,
+    Inter_800ExtraBold,
+    SpaceGrotesk_500Medium,
+    SpaceGrotesk_600SemiBold,
+    SpaceGrotesk_700Bold,
   });
 
   useEffect(() => {
@@ -96,7 +102,7 @@ function InnerLayout() {
   if (!fontsLoaded) {
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: theme === "dark" ? "#0C0C0E" : "#F6F4EF" }}>
-        <ActivityIndicator size="large" color={ACCENT.mint} />
+        <ActivityIndicator size="large" color={ACCENT.lime} />
       </View>
     );
   }

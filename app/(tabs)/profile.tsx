@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
-import { View, Text, ScrollView } from "react-native";
+import { View, Text, ScrollView, Pressable } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
 import { useFoodLog } from "@/hooks/useFoodLog";
@@ -13,17 +14,17 @@ import { useWorkoutLog } from "@/hooks/useWorkoutLog";
 import { useWorkoutGoals } from "@/hooks/useWorkoutGoals";
 import { useWeightLog } from "@/hooks/useWeightLog";
 import { useThemeStore } from "@/lib/theme-store";
-import { getThemeColors } from "@/lib/theme-colors";
+import { getThemeColors, ACCENT } from "@/lib/theme-colors";
 import { DEFAULT_UNITS } from "@/lib/units";
 import { useToast } from "@/hooks/useToast";
 import { Toast } from "@/components/Toast";
-import { AppHeader } from "@/components/AppHeader";
 import { MacroProgress } from "@/components/MacroProgress";
 import { FastingAchievements } from "@/components/FastingAchievements";
 import { WeeklyStats } from "@/components/WeeklyStats";
 import { WeightChart } from "@/components/WeightChart";
 import { WeightTracker } from "@/components/WeightTracker";
 import { ProfileSkeleton } from "@/components/Skeleton";
+import { router } from "expo-router";
 
 export default function ProfileScreen() {
   const { user, signOut } = useAuth();
@@ -64,8 +65,30 @@ export default function ProfileScreen() {
   return (
     <SafeAreaView className="flex-1" style={{ backgroundColor: c.bg }}>
       <Toast visible={toast.visible} message={toast.message} type={toast.type} />
-      <ScrollView contentContainerClassName="px-6" style={{ paddingTop: 32, paddingBottom: 120 }} showsVerticalScrollIndicator={false}>
-        <AppHeader title={getFirstName()} showLogo logoImage={require("@/assets/fasttrack_logo_small_transparent.png")} />
+
+      {/* Fixed Top App Bar */}
+      <View style={{ backgroundColor: c.tabBarBg, borderBottomWidth: 1, borderBottomColor: "rgba(53,53,52,0.2)", paddingTop: 8 }}>
+        <View className="flex-row justify-between items-center" style={{ height: 44, paddingHorizontal: 20 }}>
+          <View className="flex-row items-center gap-3">
+            <View style={{ width: 32, height: 32, borderRadius: 16, backgroundColor: c.elevated, borderWidth: 1, borderColor: c.cardBorder, alignItems: "center", justifyContent: "center" }}>
+              <MaterialCommunityIcons name="account" size={16} color={c.textSecondary} />
+            </View>
+            <Text style={{ color: ACCENT.lime, fontFamily: "Inter_800ExtraBold", fontSize: 22, letterSpacing: -0.5 }}>FastTrack</Text>
+          </View>
+          <Pressable onPress={() => router.push("/settings")}>
+            <MaterialCommunityIcons name="cog-outline" size={24} color={c.textSecondary} />
+          </Pressable>
+        </View>
+      </View>
+
+      <ScrollView
+        contentContainerStyle={{ paddingBottom: 120, paddingHorizontal: 20, paddingTop: 24 }}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Greeting */}
+        <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 28, letterSpacing: -0.3, marginBottom: 24 }}>
+          {getFirstName()}
+        </Text>
 
         {isLoading ? (
           <ProfileSkeleton />
@@ -86,7 +109,7 @@ export default function ProfileScreen() {
               fat={{ current: totals.fat_g, goal: goals.dailyFat }}
             />
 
-            <View className="rounded-2xl p-5 mb-4" style={{ backgroundColor: c.cardBg, borderWidth: 1, borderColor: c.cardBorder }}>
+            <View className="rounded-xl p-5 mb-6 glass-panel">
               <WeightChart entries={weightEntries} goalWeightKg={profile?.goal_weight_kg ?? null} />
               <WeightTracker
                 entries={weightEntries}

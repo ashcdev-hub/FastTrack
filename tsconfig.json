@@ -8,8 +8,6 @@
       ]
     },
     "types": [
-      "@hugeicons/core-free-icons",
-      "@hugeicons/react-native",
       "jest"
     ]
   },

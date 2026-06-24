@@ -14,8 +14,8 @@ const MOOD_COLORS: Record<number, string> = {
   1: ACCENT.rose,
   2: ACCENT.coral,
   3: ACCENT.amber,
-  4: ACCENT.mint,
-  5: ACCENT.mintLight,
+  4: ACCENT.lime,
+  5: ACCENT.cyan,
 };
 
 export function MoodChart({ checkIns }: MoodChartProps) {
@@ -41,7 +41,7 @@ export function MoodChart({ checkIns }: MoodChartProps) {
   const pathD = points.map((p, i) => `${i === 0 ? "M" : "L"} ${p.x} ${p.y}`).join(" ");
 
   const avgMood = checkIns.reduce((sum, ch) => sum + ch.mood, 0) / checkIns.length;
-  const lineColor = avgMood >= 4 ? ACCENT.mint : avgMood >= 3 ? ACCENT.amber : ACCENT.rose;
+  const lineColor = avgMood >= 4 ? ACCENT.lime : avgMood >= 3 ? ACCENT.amber : ACCENT.rose;
   const gridColor = theme === "dark" ? "rgba(240,237,232,0.05)" : "rgba(26,24,22,0.05)";
   const labelColor = theme === "dark" ? "rgba(240,237,232,0.25)" : "rgba(26,24,22,0.25)";
   const dotStroke = c.bg;
@@ -49,22 +49,22 @@ export function MoodChart({ checkIns }: MoodChartProps) {
   return (
     <View className="mb-4" onLayout={(e) => setContainerWidth(e.nativeEvent.layout.width)}>
       <View className="flex-row justify-between items-center mb-2">
-        <Text style={{ color: c.textSecondary, fontFamily: "PlusJakartaSans_600SemiBold" }} className="text-xs tracking-widest">
+        <Text style={{ color: c.textSecondary, fontFamily: "SpaceGrotesk_600SemiBold" }} className="text-xs tracking-widest">
           MOOD OVER TIME
         </Text>
-        <Text style={{ color: lineColor, fontFamily: "PlusJakartaSans_500Medium" }} className="text-xs">
+        <Text style={{ color: lineColor, fontFamily: "Inter_400Regular" }} className="text-xs">
           Avg: {MOOD_LABELS[Math.round(avgMood)]} · {avgMood.toFixed(1)}
         </Text>
       </View>
 
-      <View style={{ backgroundColor: c.cardBgAlt, borderRadius: 16, padding: 8 }}>
+      <View className="glass-panel" style={{ padding: 8 }}>
         <Svg width={width - 16} height={height}>
           {[1, 2, 3, 4, 5].map((m) => {
             const y = padding.top + chartH - ((m - 1) / 4) * chartH;
             return (
               <React.Fragment key={m}>
                 <Line x1={padding.left} y1={y} x2={width - padding.right - 16} y2={y} stroke={gridColor} strokeWidth={1} />
-                <SvgText x={padding.left - 8} y={y + 4} textAnchor="end" fontSize={10} fill={labelColor} fontFamily="PlusJakartaSans_400Regular">
+                <SvgText x={padding.left - 8} y={y + 4} textAnchor="end" fontSize={10} fill={labelColor} fontFamily="Inter_400Regular">
                   {MOOD_LABELS[m]}
                 </SvgText>
               </React.Fragment>
@@ -77,7 +77,7 @@ export function MoodChart({ checkIns }: MoodChartProps) {
             const m = p.time.getMinutes();
             const label = `${h}:${String(m).padStart(2, "0")}`;
             return (
-              <SvgText key={idx} x={p.x} y={height - 8} textAnchor="middle" fontSize={9} fill={labelColor} fontFamily="PlusJakartaSans_400Regular">
+              <SvgText key={idx} x={p.x} y={height - 8} textAnchor="middle" fontSize={9} fill={labelColor} fontFamily="Inter_400Regular">
                 {label}
               </SvgText>
             );
