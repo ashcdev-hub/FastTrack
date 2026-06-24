@@ -135,9 +135,6 @@ export default function LogFoodScreen() {
             </View>
             <Text style={{ color: ACCENT.lime, fontFamily: "Inter_800ExtraBold", fontSize: 22, letterSpacing: -0.5 }}>FastTrack</Text>
           </View>
-          <Pressable>
-            <MaterialCommunityIcons name="bell-outline" size={24} color={ACCENT.lime} />
-          </Pressable>
         </View>
       </View>
 
