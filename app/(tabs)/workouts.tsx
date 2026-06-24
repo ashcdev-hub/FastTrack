@@ -37,7 +37,12 @@ export default function WorkoutsScreen() {
   const handleLogSet = (goal: WorkoutGoal) => { setSelectedGoal(goal); setShowLogModal(true); };
   const handleLog = async (reps: number, sets: number) => {
     if (!selectedGoal) return;
-    await logSet(selectedGoal.exercise_type, reps, sets, selectedGoal.calories_per_rep);
+    await logSet({
+      exerciseType: selectedGoal.exercise_type,
+      reps,
+      sets,
+      caloriesPerRep: selectedGoal.calories_per_rep,
+    });
   };
   const handleUpdateGoal = async (goalId: string, dailyGoal: number) => { await updateGoal(goalId, { daily_goal: dailyGoal }); };
   const handleToggleEnabled = async (goalId: string, enabled: boolean) => { await toggleEnabled(goalId, enabled); };

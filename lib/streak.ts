@@ -1,4 +1,4 @@
-import type { FastingSession } from "../types";
+import type { FastingSession } from "./types";
 
 /**
  * Calculate the current fasting streak from completed sessions.

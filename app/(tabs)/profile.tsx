@@ -39,7 +39,13 @@ export default function ProfileScreen() {
   const { weeklyStats: weeklyWorkouts, streaks: workoutStreaks, fetchStreaks, loading: workoutLoading } =
     useWorkoutLog(user?.id, profile?.weight_kg ?? null);
   const { goals: workoutGoals } = useWorkoutGoals(user?.id);
-  const { entries: weightEntries, loading: weightLoading, addWeight, deleteWeight, currentWeight, weightChange } = useWeightLog(user?.id);
+  const { entries: weightEntries, loading: weightLoading, addWeight: addWeightRaw, deleteWeight: deleteWeightRaw, currentWeight, weightChange } = useWeightLog(user?.id);
+  const addWeight = async (kg: number) => {
+    try { await addWeightRaw(kg); return { error: null }; } catch (e) { return { error: e as Error }; }
+  };
+  const deleteWeight = async (id: string) => {
+    try { await deleteWeightRaw(id); return { error: null }; } catch (e) { return { error: e as Error }; }
+  };
   const { toast, error: toastError } = useToast();
   const unitPrefs = profile?.unit_preferences ?? DEFAULT_UNITS;
 

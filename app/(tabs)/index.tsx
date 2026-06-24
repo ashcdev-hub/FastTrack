@@ -329,7 +329,7 @@ export default function HomeScreen() {
         {/* CHECK-INS */}
         {(phase === "fasting" || phase === "eating") && (
           <View className="mt-6">
-            <CheckInPanel phase={phase} onSubmit={(mood, note) => addCheckIn(mood, note, phase)} />
+            <CheckInPanel phase={phase} onSubmit={(mood, note) => addCheckIn({ mood, note, phase })} />
             {checkIns.length > 0 && (
               <View className="mt-6 mb-6">
                 <MoodChart checkIns={checkIns} />

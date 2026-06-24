@@ -9,6 +9,7 @@ import {
   PlusJakartaSans_500Medium,
   PlusJakartaSans_400Regular,
 } from "@expo-google-fonts/plus-jakarta-sans";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useGoalStore } from "@/store/useGoalStore";
 import { useFastingStore } from "@/store/useFastingStore";
 import { useAuth } from "@/hooks/useAuth";
@@ -18,10 +19,46 @@ import { applyTheme } from "@/lib/dark-mode";
 import { getThemeColors, ACCENT } from "@/lib/theme-colors";
 import { setupNotifications } from "@/lib/notifications";
 import { View, ActivityIndicator } from "react-native";
+import { OfflineBanner } from "@/components/OfflineBanner";
+import { useOfflineQueueProcessor } from "@/hooks/useOfflineQueueProcessor";
 
-const queryClient = new QueryClient();
+const CACHE_KEY = "fasttrack_query_cache";
 
-export default function RootLayout() {
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60 * 2,
+      gcTime: 1000 * 60 * 60 * 24,
+      refetchOnWindowFocus: true,
+      retry: 2,
+    },
+  },
+});
+
+let persistTimer: ReturnType<typeof setTimeout> | null = null;
+const persistCache = () => {
+  if (persistTimer) return;
+  persistTimer = setTimeout(() => {
+    persistTimer = null;
+    try {
+      const cache = queryClient.getQueryCache();
+      const queries = cache.getAll().map((q) => ({
+        queryKey: q.queryKey,
+        data: q.state.data,
+        dataUpdatedAt: q.state.dataUpdatedAt,
+      }));
+      AsyncStorage.setItem(CACHE_KEY, JSON.stringify({ queries }));
+    } catch {}
+  }, 1000);
+};
+queryClient.getQueryCache().subscribe(persistCache);
+
+function OfflineQueueProcessor() {
+  useOfflineQueueProcessor();
+  return null;
+}
+
+function InnerLayout() {
   const { user } = useAuth();
   const loadGoals = useGoalStore((s) => s.loadGoals);
   const setFastingHours = useFastingStore((s) => s.setFastingHours);
@@ -40,6 +77,7 @@ export default function RootLayout() {
     loadGoals();
     loadTheme();
     setupNotifications();
+    useFastingStore.getState().restoreTimer();
   }, []);
 
   useEffect(() => {
@@ -48,7 +86,6 @@ export default function RootLayout() {
     }
   }, [theme, themeLoaded]);
 
-  // Populate fasting store from profile
   useEffect(() => {
     if (profile && !profileLoading) {
       setFastingHours(profile.fasting_hours ?? 16);
@@ -65,13 +102,23 @@ export default function RootLayout() {
   }
 
   return (
-    <QueryClientProvider client={queryClient}>
+    <>
+      <OfflineQueueProcessor />
+      <OfflineBanner />
       <Stack
         screenOptions={{
           headerShown: false,
           contentStyle: { backgroundColor: getThemeColors(theme).bg },
         }}
       />
+    </>
+  );
+}
+
+export default function RootLayout() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <InnerLayout />
     </QueryClientProvider>
   );
 }

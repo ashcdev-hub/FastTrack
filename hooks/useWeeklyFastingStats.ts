@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
 import type { FastingSession } from "@/lib/types";
 
@@ -10,17 +10,11 @@ export type WeeklyFastingStats = {
 };
 
 export function useWeeklyFastingStats(userId: string | undefined) {
-  const [stats, setStats] = useState<WeeklyFastingStats>({
-    avgDurationMin: 0,
-    longestFastMin: 0,
-    totalFasts: 0,
-    totalFastingHours: 0,
-  });
+  const { data: stats = { avgDurationMin: 0, longestFastMin: 0, totalFasts: 0, totalFastingHours: 0 } } = useQuery({
+    queryKey: ["weekly_fasting_stats", userId],
+    queryFn: async (): Promise<WeeklyFastingStats> => {
+      if (!userId) return { avgDurationMin: 0, longestFastMin: 0, totalFasts: 0, totalFastingHours: 0 };
 
-  useEffect(() => {
-    if (!userId) return;
-
-    const fetchStats = async () => {
       const oneWeekAgo = new Date();
       oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
 
@@ -32,30 +26,35 @@ export function useWeeklyFastingStats(userId: string | undefined) {
         .gte("end_time", oneWeekAgo.toISOString())
         .order("end_time", { ascending: false });
 
-      if (error || !data) return;
+      if (error || !data) {
+        return { avgDurationMin: 0, longestFastMin: 0, totalFasts: 0, totalFastingHours: 0 };
+      }
 
-      const completed = data.filter((s: any) => s.fasting_duration_minutes != null);
-      const durations = completed.map((s: any) => s.fasting_duration_minutes as number);
+      const completed = data.filter(
+        (s: { fasting_duration_minutes: number | null }) => s.fasting_duration_minutes != null
+      );
+      const durations = completed.map(
+        (s: { fasting_duration_minutes: number }) => s.fasting_duration_minutes as number
+      );
 
       if (durations.length === 0) {
-        setStats({ avgDurationMin: 0, longestFastMin: 0, totalFasts: 0, totalFastingHours: 0 });
-        return;
+        return { avgDurationMin: 0, longestFastMin: 0, totalFasts: 0, totalFastingHours: 0 };
       }
 
       const total = durations.reduce((sum: number, d: number) => sum + d, 0);
       const avg = Math.round(total / durations.length);
       const longest = Math.max(...durations);
 
-      setStats({
+      return {
         avgDurationMin: avg,
         longestFastMin: longest,
         totalFasts: durations.length,
         totalFastingHours: Math.round(total / 60),
-      });
-    };
-
-    fetchStats();
-  }, [userId]);
+      };
+    },
+    enabled: !!userId,
+    staleTime: 1000 * 60 * 10,
+  });
 
   return stats;
 }

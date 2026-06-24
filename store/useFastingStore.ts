@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { supabase } from "@/lib/supabase";
 
 type TimerState = "idle" | "running" | "paused";
@@ -20,18 +21,53 @@ type FastingStore = {
   endFast: (sessionId: string) => Promise<void>;
   breakFast: (sessionId: string) => Promise<void>;
   reset: () => void;
+  restoreTimer: () => Promise<void>;
 };
 
-export const useFastingStore = create<FastingStore>((set) => ({
+const TIMER_KEY = "@fasttrack_timer";
+
+async function persistTimer(state: {
+  timerState: TimerState;
+  sessionId: string | null;
+  startTime: string | null;
+}) {
+  try {
+    await AsyncStorage.setItem(TIMER_KEY, JSON.stringify(state));
+  } catch (e) {
+    console.error("Failed to persist timer:", e);
+  }
+}
+
+async function clearPersistedTimer() {
+  try {
+    await AsyncStorage.removeItem(TIMER_KEY);
+  } catch (e) {
+    console.error("Failed to clear timer:", e);
+  }
+}
+
+export const useFastingStore = create<FastingStore>((set, get) => ({
   timerState: "idle",
   sessionId: null,
   startTime: null,
   fastingHours: 16,
   eatingHours: 8,
 
-  setTimerState: (timerState) => set({ timerState }),
-  setSessionId: (sessionId) => set({ sessionId }),
-  setStartTime: (startTime) => set({ startTime }),
+  setTimerState: (timerState) => {
+    set({ timerState });
+    const { sessionId, startTime } = get();
+    persistTimer({ timerState, sessionId, startTime });
+  },
+  setSessionId: (sessionId) => {
+    set({ sessionId });
+    const { timerState, startTime } = get();
+    persistTimer({ timerState, sessionId, startTime });
+  },
+  setStartTime: (startTime) => {
+    set({ startTime });
+    const { timerState, sessionId } = get();
+    persistTimer({ timerState, sessionId, startTime });
+  },
   setFastingHours: (fastingHours) => set({ fastingHours }),
   setEatingHours: (eatingHours) => set({ eatingHours }),
 
@@ -48,11 +84,9 @@ export const useFastingStore = create<FastingStore>((set) => ({
       return null;
     }
 
-    set({
-      timerState: "running",
-      sessionId: data.id,
-      startTime: now,
-    });
+    const newState = { timerState: "running" as TimerState, sessionId: data.id, startTime: now };
+    set(newState);
+    persistTimer(newState);
 
     return data.id;
   },
@@ -64,7 +98,9 @@ export const useFastingStore = create<FastingStore>((set) => ({
       .update({ end_time: now, status: "completed" })
       .eq("id", sessionId);
 
-    set({ timerState: "idle", sessionId: null, startTime: null });
+    const newState = { timerState: "idle" as TimerState, sessionId: null, startTime: null };
+    set(newState);
+    clearPersistedTimer();
   },
 
   breakFast: async (sessionId: string) => {
@@ -76,10 +112,26 @@ export const useFastingStore = create<FastingStore>((set) => ({
     set({ timerState: "paused" });
   },
 
-  reset: () =>
-    set({
-      timerState: "idle",
-      sessionId: null,
-      startTime: null,
-    }),
+  reset: () => {
+    const newState = { timerState: "idle" as TimerState, sessionId: null, startTime: null };
+    set(newState);
+    clearPersistedTimer();
+  },
+
+  restoreTimer: async () => {
+    try {
+      const raw = await AsyncStorage.getItem(TIMER_KEY);
+      if (!raw) return;
+      const parsed = JSON.parse(raw);
+      if (parsed.sessionId && parsed.startTime) {
+        set({
+          timerState: parsed.timerState ?? "idle",
+          sessionId: parsed.sessionId,
+          startTime: parsed.startTime,
+        });
+      }
+    } catch (e) {
+      console.error("Failed to restore timer:", e);
+    }
+  },
 }));

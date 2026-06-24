@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
 
 export type WeeklyWaterStats = {
@@ -9,17 +9,11 @@ export type WeeklyWaterStats = {
 };
 
 export function useWeeklyWaterStats(userId: string | undefined, goalMl: number) {
-  const [stats, setStats] = useState<WeeklyWaterStats>({
-    dailyAverageMl: 0,
-    goalHitDays: 0,
-    totalDays: 0,
-    goalHitRate: 0,
-  });
+  const { data: stats = { dailyAverageMl: 0, goalHitDays: 0, totalDays: 0, goalHitRate: 0 } } = useQuery({
+    queryKey: ["weekly_water_stats", userId, goalMl],
+    queryFn: async (): Promise<WeeklyWaterStats> => {
+      if (!userId) return { dailyAverageMl: 0, goalHitDays: 0, totalDays: 0, goalHitRate: 0 };
 
-  useEffect(() => {
-    if (!userId) return;
-
-    const fetchStats = async () => {
       const oneWeekAgo = new Date();
       oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
 
@@ -30,11 +24,12 @@ export function useWeeklyWaterStats(userId: string | undefined, goalMl: number) 
         .gte("logged_at", oneWeekAgo.toISOString())
         .order("logged_at", { ascending: false });
 
-      if (error || !data) return;
+      if (error || !data) {
+        return { dailyAverageMl: 0, goalHitDays: 0, totalDays: 0, goalHitRate: 0 };
+      }
 
-      // Group by day
       const byDay: Record<string, number> = {};
-      data.forEach((entry: any) => {
+      data.forEach((entry: { logged_at: string; amount_ml: number }) => {
         const day = new Date(entry.logged_at).toISOString().split("T")[0];
         byDay[day] = (byDay[day] ?? 0) + (entry.amount_ml ?? 0);
       });
@@ -43,8 +38,7 @@ export function useWeeklyWaterStats(userId: string | undefined, goalMl: number) 
       const totalDays = days.length;
 
       if (totalDays === 0) {
-        setStats({ dailyAverageMl: 0, goalHitDays: 0, totalDays: 0, goalHitRate: 0 });
-        return;
+        return { dailyAverageMl: 0, goalHitDays: 0, totalDays: 0, goalHitRate: 0 };
       }
 
       const totalMl = days.reduce((sum, ml) => sum + ml, 0);
@@ -52,16 +46,16 @@ export function useWeeklyWaterStats(userId: string | undefined, goalMl: number) 
       const goalHitDays = days.filter((ml) => ml >= goalMl).length;
       const goalHitRate = Math.round((goalHitDays / totalDays) * 100);
 
-      setStats({
+      return {
         dailyAverageMl: avgMl,
         goalHitDays,
         totalDays,
         goalHitRate,
-      });
-    };
-
-    fetchStats();
-  }, [userId, goalMl]);
+      };
+    },
+    enabled: !!userId,
+    staleTime: 1000 * 60 * 10,
+  });
 
   return stats;
 }

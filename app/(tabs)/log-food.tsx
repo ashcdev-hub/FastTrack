@@ -85,8 +85,12 @@ export default function LogFoodScreen() {
       carbs_g: Math.round(item.carbs_g * item.quantity * 10) / 10, fat_g: Math.round(item.fat_g * item.quantity * 10) / 10,
       meal_type: mealType, logged_at: loggedAt.toISOString(), session_id: null,
     }));
-    const { error } = await addEntries(es);
-    if (!error) setStagedItems([]);
+    try {
+      await addEntries(es);
+      setStagedItems([]);
+    } catch (err) {
+      console.error("Failed to log meals:", err);
+    }
   };
 
   const applyDateTime = () => {
@@ -99,11 +103,11 @@ export default function LogFoodScreen() {
   const hours = Array.from({ length: 24 }, (_, i) => i);
   const minutes = Array.from({ length: 60 }, (_, i) => i);
 
-  const mealsByType = entries.reduce((acc, entry) => {
+  const mealsByType = entries.reduce<Record<string, typeof entries>>((acc, entry) => {
     if (!acc[entry.meal_type]) acc[entry.meal_type] = [];
     acc[entry.meal_type].push(entry);
     return acc;
-  }, {} as Record<string, typeof entries>);
+  }, {});
 
   const inputStyle = { backgroundColor: c.inputBg, color: c.text, fontFamily: "PlusJakartaSans_500Medium" as const };
 
