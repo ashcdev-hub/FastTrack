@@ -118,7 +118,7 @@ export default function HomeScreen() {
                 Workout Progress
               </Text>
               <View className="rounded-xl p-5" style={{ backgroundColor: "rgba(28,28,30,0.8)", borderWidth: 1, borderColor: "rgba(44,44,46,1)" }}>
-                {enabledGoals.slice(0, 2).map((goal) => {
+                {enabledGoals.slice(0, 4).map((goal) => {
                   const total = todayTotals[goal.exercise_type];
                   const reps = total?.reps ?? 0;
                   const pct = Math.min(reps / goal.daily_goal, 1);
@@ -141,7 +141,7 @@ export default function HomeScreen() {
                     </View>
                   );
                 })}
-                {enabledGoals.length > 2 && (
+                {enabledGoals.length > 4 && (
                   <Pressable onPress={() => router.push("/(tabs)/workouts")} className="mt-2">
                     <Text style={{ color: ACCENT.cyan, fontFamily: "Inter_700Bold", fontSize: 12, textAlign: "center" }}>
                       +{enabledGoals.length - 2} more exercises

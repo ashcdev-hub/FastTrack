@@ -105,30 +105,42 @@ export function FastingTimer({
           strokeWidth={strokeWidth}
         />
         {status !== "idle" && (
-          <>
-            <AnimatedCircle
-              cx={size / 2}
-              cy={size / 2}
-              r={radius}
-              strokeWidth={strokeWidth + 4}
-              fill="none"
-              stroke={activeColor}
-              animatedProps={glowAnimatedProps}
-            />
-            <AnimatedCircle
-              cx={size / 2}
-              cy={size / 2}
-              r={radius}
-              fill="none"
-              stroke={activeColor}
-              strokeWidth={strokeWidth}
-              strokeDasharray={circumference}
-              strokeLinecap="round"
-              strokeDashoffset={0}
-              animatedProps={progressAnimatedProps}
-              transform={`rotate(-90 ${size / 2} ${size / 2})`}
-            />
-          </>
+          <AnimatedCircle
+            cx={size / 2}
+            cy={size / 2}
+            r={radius}
+            strokeWidth={strokeWidth + 4}
+            fill="none"
+            stroke={activeColor}
+            animatedProps={glowAnimatedProps}
+          />
+        )}
+        <Circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          fill="none"
+          stroke={status === "idle" ? "rgba(255,255,255,0.08)" : "rgba(255,255,255,0.05)"}
+          strokeWidth={strokeWidth}
+          strokeDasharray={circumference}
+          strokeDashoffset={status === "idle" ? circumference : 0}
+          strokeLinecap="round"
+          transform={`rotate(-90 ${size / 2} ${size / 2})`}
+        />
+        {status !== "idle" && (
+          <AnimatedCircle
+            cx={size / 2}
+            cy={size / 2}
+            r={radius}
+            fill="none"
+            stroke={activeColor}
+            strokeWidth={strokeWidth}
+            strokeDasharray={circumference}
+            strokeLinecap="round"
+            strokeDashoffset={0}
+            animatedProps={progressAnimatedProps}
+            transform={`rotate(-90 ${size / 2} ${size / 2})`}
+          />
         )}
       </Svg>
 

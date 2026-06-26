@@ -112,6 +112,8 @@ export default function FastScreen() {
   const [showEndConfirm, setShowEndConfirm] = useState(false);
   const [checkInMood, setCheckInMood] = useState<number | null>(null);
   const [checkInNote, setCheckInNote] = useState("");
+  const [customFasting, setCustomFasting] = useState("16");
+  const [customEating, setCustomEating] = useState("8");
 
   useEffect(() => {
     if (session) { setSessionId(session.id); setStartTime(session.start_time); }
@@ -192,7 +194,7 @@ export default function FastScreen() {
         {/* Timer Ring */}
         {phase === "idle" ? (
           <View className="items-center mb-8">
-            <View style={{ width: 280, height: 280, alignItems: "center", justifyContent: "center" }}>
+            <View className="relative items-center justify-center mb-8" style={{ width: 320, height: 320 }}>
               <FastingTimer
                 status="idle"
                 totalMinutes={fastingHours * 60}
@@ -247,6 +249,54 @@ export default function FastScreen() {
                     </Pressable>
                   );
                 })}
+              </View>
+
+              {/* Custom Schedule */}
+              <View className="flex-row gap-3 mb-4">
+                <View className="flex-1">
+                  <TextInput
+                    value={customFasting}
+                    onChangeText={setCustomFasting}
+                    keyboardType="numeric"
+                    placeholder="16"
+                    placeholderTextColor={c.placeholder}
+                    className="rounded-xl px-3 py-3 text-center"
+                    style={{ backgroundColor: c.inputBg, color: c.text, fontFamily: "Inter_700Bold", fontSize: 16 }}
+                  />
+                  <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 10, marginTop: 4, textAlign: "center" }}>
+                    Fasting
+                  </Text>
+                </View>
+                <Text style={{ color: c.textMuted, fontFamily: "Inter_700Bold", fontSize: 20, marginTop: 8 }}>:</Text>
+                <View className="flex-1">
+                  <TextInput
+                    value={customEating}
+                    onChangeText={setCustomEating}
+                    keyboardType="numeric"
+                    placeholder="8"
+                    placeholderTextColor={c.placeholder}
+                    className="rounded-xl px-3 py-3 text-center"
+                    style={{ backgroundColor: c.inputBg, color: c.text, fontFamily: "Inter_700Bold", fontSize: 16 }}
+                  />
+                  <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 10, marginTop: 4, textAlign: "center" }}>
+                    Eating
+                  </Text>
+                </View>
+                <Pressable
+                  onPress={() => {
+                    const f = parseInt(customFasting) || 16;
+                    const e = parseInt(customEating) || 8;
+                    const label = `${f}:${e}`;
+                    setSelectedSchedule(label);
+                    setFastingHours(f);
+                    setEatingHours(e);
+                    updateFastingSchedule(f, e);
+                  }}
+                  className="px-4 rounded-xl items-center justify-center mt-5"
+                  style={{ backgroundColor: ACCENT.lime }}
+                >
+                  <Text style={{ color: "#161e00", fontFamily: "Inter_700Bold", fontSize: 14 }}>Set</Text>
+                </Pressable>
               </View>
             </View>
 

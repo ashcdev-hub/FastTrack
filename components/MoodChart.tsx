@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { View, Text } from "react-native";
-import Svg, { Path, Circle, Line, Text as SvgText } from "react-native-svg";
+import Svg, { Circle, Line, Text as SvgText } from "react-native-svg";
 import { useThemeStore } from "@/lib/theme-store";
 import { getThemeColors, ACCENT } from "@/lib/theme-colors";
 import type { FastCheckIn } from "@/lib/types";
@@ -38,13 +38,25 @@ export function MoodChart({ checkIns }: MoodChartProps) {
     time: new Date(ch.created_at),
   }));
 
-  const pathD = points.map((p, i) => `${i === 0 ? "M" : "L"} ${p.x} ${p.y}`).join(" ");
-
-  const avgMood = checkIns.reduce((sum, ch) => sum + ch.mood, 0) / checkIns.length;
-  const lineColor = avgMood >= 4 ? ACCENT.lime : avgMood >= 3 ? ACCENT.amber : ACCENT.rose;
   const gridColor = theme === "dark" ? "rgba(240,237,232,0.05)" : "rgba(26,24,22,0.05)";
   const labelColor = theme === "dark" ? "rgba(240,237,232,0.25)" : "rgba(26,24,22,0.25)";
   const dotStroke = c.bg;
+
+  const avgMood = checkIns.reduce((sum, ch) => sum + ch.mood, 0) / checkIns.length;
+
+  function blendColors(colorA: string, colorB: string): string {
+    const h = (color: string) => color.replace("#", "");
+    const aR = parseInt(h(colorA).substring(0, 2), 16);
+    const aG = parseInt(h(colorA).substring(2, 4), 16);
+    const aB = parseInt(h(colorA).substring(4, 6), 16);
+    const bR = parseInt(h(colorB).substring(0, 2), 16);
+    const bG = parseInt(h(colorB).substring(2, 4), 16);
+    const bB = parseInt(h(colorB).substring(4, 6), 16);
+    const r = Math.round((aR + bR) / 2 + (255 - (aR + bR) / 2) * 0.35);
+    const g = Math.round((aG + bG) / 2 + (255 - (aG + bG) / 2) * 0.35);
+    const bVal = Math.round((aB + bB) / 2 + (255 - (aB + bB) / 2) * 0.35);
+    return `rgb(${r},${g},${bVal})`;
+  }
 
   return (
     <View className="mb-4" onLayout={(e) => setContainerWidth(e.nativeEvent.layout.width)}>
@@ -52,7 +64,7 @@ export function MoodChart({ checkIns }: MoodChartProps) {
         <Text style={{ color: c.textSecondary, fontFamily: "SpaceGrotesk_600SemiBold" }} className="text-xs tracking-widest">
           MOOD OVER TIME
         </Text>
-        <Text style={{ color: lineColor, fontFamily: "Inter_400Regular" }} className="text-xs">
+        <Text style={{ color: c.textSecondary, fontFamily: "Inter_400Regular" }} className="text-xs">
           Avg: {MOOD_LABELS[Math.round(avgMood)]} · {avgMood.toFixed(1)}
         </Text>
       </View>
@@ -83,7 +95,22 @@ export function MoodChart({ checkIns }: MoodChartProps) {
             );
           })}
 
-          <Path d={pathD} stroke={lineColor} strokeWidth={2} fill="none" strokeLinecap="round" strokeLinejoin="round" />
+          {points.slice(0, -1).map((p, i) => {
+            const next = points[i + 1];
+            const segmentColor = blendColors(MOOD_COLORS[p.mood], MOOD_COLORS[next.mood]);
+            return (
+              <Line
+                key={`seg-${i}`}
+                x1={p.x}
+                y1={p.y}
+                x2={next.x}
+                y2={next.y}
+                stroke={segmentColor}
+                strokeWidth={2.5}
+                strokeLinecap="round"
+              />
+            );
+          })}
 
           {points.map((p, i) => (
             <Circle
@@ -91,7 +118,7 @@ export function MoodChart({ checkIns }: MoodChartProps) {
               cx={p.x}
               cy={p.y}
               r={5}
-              fill={MOOD_COLORS[p.mood] ?? lineColor}
+              fill={MOOD_COLORS[p.mood] ?? c.text}
               stroke={dotStroke}
               strokeWidth={2}
             />
