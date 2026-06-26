@@ -1,9 +1,12 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
 import type { Profile } from "@/lib/types";
+import { useConnectivity } from "@/hooks/useConnectivity";
+import { withOfflineFallback } from "@/lib/offline-mutation";
 
 export function useProfile(userId: string | null) {
   const queryClient = useQueryClient();
+  const { isOffline } = useConnectivity();
 
   const { data: profile = null, isLoading: loading } = useQuery({
     queryKey: ["profile", userId],
@@ -29,16 +32,25 @@ export function useProfile(userId: string | null) {
   const updateMutation = useMutation({
     mutationFn: async (updates: Partial<Profile>) => {
       if (!userId) throw new Error("No user");
-      const { data, error } = await supabase
-        .from("profiles")
-        .update(updates)
-        .eq("id", userId)
-        .select()
-        .single();
-      if (error) throw error;
-      return data;
+      return withOfflineFallback(
+        async () => {
+          const { data, error } = await supabase
+            .from("profiles")
+            .update(updates)
+            .eq("id", userId)
+            .select()
+            .single();
+          if (error) throw error;
+          return data;
+        },
+        "profiles",
+        "update",
+        { id: userId, ...updates },
+        isOffline,
+      );
     },
     onSuccess: (data) => {
+      if (!data) return;
       queryClient.setQueryData(["profile", userId], data);
     },
   });

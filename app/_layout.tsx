@@ -16,6 +16,7 @@ import {
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useGoalStore } from "@/store/useGoalStore";
 import { useFastingStore } from "@/store/useFastingStore";
+import { useFoodLogStore } from "@/store/useFoodLogStore";
 import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
 import { useThemeStore } from "@/lib/theme-store";
@@ -38,6 +39,34 @@ const queryClient = new QueryClient({
     },
   },
 });
+
+const MAX_CACHE_AGE = 1000 * 60 * 60 * 24;
+
+async function hydrateQueryCache() {
+  try {
+    const raw = await AsyncStorage.getItem(CACHE_KEY);
+    if (!raw) return;
+    const { queries } = JSON.parse(raw);
+    const now = Date.now();
+    for (const q of queries) {
+      if (
+        q.queryKey &&
+        q.data !== undefined &&
+        q.data !== null &&
+        q.dataUpdatedAt &&
+        now - q.dataUpdatedAt < MAX_CACHE_AGE
+      ) {
+        queryClient.setQueryData(q.queryKey, q.data, {
+          updatedAt: q.dataUpdatedAt,
+        });
+      }
+    }
+  } catch (e) {
+    console.error("Failed to hydrate query cache:", e);
+  }
+}
+
+void hydrateQueryCache();
 
 let persistTimer: ReturnType<typeof setTimeout> | null = null;
 const persistCache = () => {
@@ -84,6 +113,7 @@ function InnerLayout() {
     loadTheme();
     setupNotifications();
     useFastingStore.getState().restoreTimer();
+    useFoodLogStore.getState().loadFromStorage();
   }, []);
 
   useEffect(() => {

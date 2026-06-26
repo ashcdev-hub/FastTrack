@@ -1,6 +1,8 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
 import type { WaterLog } from "@/lib/types";
+import { useConnectivity } from "@/hooks/useConnectivity";
+import { withOfflineFallback } from "@/lib/offline-mutation";
 
 const localDateKey = () => {
   const d = new Date();
@@ -15,6 +17,7 @@ function localDateBounds(dateKey: string) {
 
 export function useWaterLog(userId: string | undefined) {
   const queryClient = useQueryClient();
+  const { isOffline } = useConnectivity();
   const dateKey = localDateKey();
 
   const { data: entries = [], isLoading: loading } = useQuery({
@@ -44,15 +47,24 @@ export function useWaterLog(userId: string | undefined) {
   const addWaterMutation = useMutation({
     mutationFn: async (amount_ml: number = 250) => {
       if (!userId) throw new Error("No user");
-      const { data, error } = await supabase
-        .from("water_log")
-        .insert({ user_id: userId, amount_ml })
-        .select()
-        .single();
-      if (error) throw error;
-      return data;
+      return withOfflineFallback(
+        async () => {
+          const { data, error } = await supabase
+            .from("water_log")
+            .insert({ user_id: userId, amount_ml })
+            .select()
+            .single();
+          if (error) throw error;
+          return data;
+        },
+        "water_log",
+        "insert",
+        { user_id: userId, amount_ml },
+        isOffline,
+      );
     },
     onSuccess: (data) => {
+      if (!data) return;
       queryClient.setQueryData<WaterLog[]>(["water_log", userId, dateKey], (old) => [
         data,
         ...(old ?? []),

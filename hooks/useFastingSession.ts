@@ -2,9 +2,12 @@ import { useEffect, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
 import type { FastingSession } from "@/lib/types";
+import { useConnectivity } from "@/hooks/useConnectivity";
+import { withOfflineFallback } from "@/lib/offline-mutation";
 
 export function useFastingSession(userId: string | undefined) {
   const queryClient = useQueryClient();
+  const { isOffline } = useConnectivity();
 
   const { data: session = null, isLoading: loading } = useQuery({
     queryKey: ["fasting_session", "active", userId],
@@ -97,18 +100,26 @@ export function useFastingSession(userId: string | undefined) {
     mutationFn: async ({ startTime, schedule }: { startTime?: Date; schedule?: string }) => {
       if (!userId) throw new Error("No user");
       const start = startTime ?? new Date();
-      const { data, error } = await supabase
-        .from("fasting_sessions")
-        .insert({
-          user_id: userId,
-          start_time: start.toISOString(),
-          status: "fasting",
-          fasting_schedule: schedule ?? null,
-        })
-        .select()
-        .single();
-      if (error) throw error;
-      return data;
+      return withOfflineFallback(
+        async () => {
+          const { data, error } = await supabase
+            .from("fasting_sessions")
+            .insert({
+              user_id: userId,
+              start_time: start.toISOString(),
+              status: "fasting",
+              fasting_schedule: schedule ?? null,
+            })
+            .select()
+            .single();
+          if (error) throw error;
+          return data;
+        },
+        "fasting_sessions",
+        "insert",
+        { user_id: userId, start_time: start.toISOString(), status: "fasting", fasting_schedule: schedule ?? null },
+        isOffline,
+      );
     },
     onSuccess: (data) => {
       queryClient.setQueryData(["fasting_session", "active", userId], data);
@@ -122,18 +133,26 @@ export function useFastingSession(userId: string | undefined) {
         ? Math.floor((end.getTime() - new Date(session.start_time).getTime()) / 60000)
         : null;
 
-      const { data, error } = await supabase
-        .from("fasting_sessions")
-        .update({
-          end_time: end.toISOString(),
-          status: "completed",
-          fasting_duration_minutes: durationMinutes,
-        })
-        .eq("id", sessionId)
-        .select()
-        .single();
-      if (error) throw error;
-      return data;
+      return withOfflineFallback(
+        async () => {
+          const { data, error } = await supabase
+            .from("fasting_sessions")
+            .update({
+              end_time: end.toISOString(),
+              status: "completed",
+              fasting_duration_minutes: durationMinutes,
+            })
+            .eq("id", sessionId)
+            .select()
+            .single();
+          if (error) throw error;
+          return data;
+        },
+        "fasting_sessions",
+        "update",
+        { id: sessionId, end_time: end.toISOString(), status: "completed", fasting_duration_minutes: durationMinutes },
+        isOffline,
+      );
     },
     onSuccess: () => {
       queryClient.setQueryData(["fasting_session", "active", userId], null);
@@ -144,14 +163,22 @@ export function useFastingSession(userId: string | undefined) {
   const breakFastMutation = useMutation({
     mutationFn: async (sessionId: string) => {
       const now = new Date().toISOString();
-      const { data, error } = await supabase
-        .from("fasting_sessions")
-        .update({ status: "eating", end_time: now })
-        .eq("id", sessionId)
-        .select()
-        .single();
-      if (error) throw error;
-      return data;
+      return withOfflineFallback(
+        async () => {
+          const { data, error } = await supabase
+            .from("fasting_sessions")
+            .update({ status: "eating", end_time: now })
+            .eq("id", sessionId)
+            .select()
+            .single();
+          if (error) throw error;
+          return data;
+        },
+        "fasting_sessions",
+        "update",
+        { id: sessionId, status: "eating", end_time: now },
+        isOffline,
+      );
     },
     onSuccess: (data) => {
       queryClient.setQueryData(["fasting_session", "active", userId], data);
@@ -161,14 +188,22 @@ export function useFastingSession(userId: string | undefined) {
   const discardFastMutation = useMutation({
     mutationFn: async (sessionId: string) => {
       const now = new Date().toISOString();
-      const { data, error } = await supabase
-        .from("fasting_sessions")
-        .update({ status: "broken", end_time: now })
-        .eq("id", sessionId)
-        .select()
-        .single();
-      if (error) throw error;
-      return data;
+      return withOfflineFallback(
+        async () => {
+          const { data, error } = await supabase
+            .from("fasting_sessions")
+            .update({ status: "broken", end_time: now })
+            .eq("id", sessionId)
+            .select()
+            .single();
+          if (error) throw error;
+          return data;
+        },
+        "fasting_sessions",
+        "update",
+        { id: sessionId, status: "broken", end_time: now },
+        isOffline,
+      );
     },
     onSuccess: () => {
       queryClient.setQueryData(["fasting_session", "active", userId], null);
@@ -178,11 +213,20 @@ export function useFastingSession(userId: string | undefined) {
 
   const deleteFastMutation = useMutation({
     mutationFn: async (sessionId: string) => {
-      const { error } = await supabase
-        .from("fasting_sessions")
-        .delete()
-        .eq("id", sessionId);
-      if (error) throw error;
+      return withOfflineFallback(
+        async () => {
+          const { error } = await supabase
+            .from("fasting_sessions")
+            .delete()
+            .eq("id", sessionId);
+          if (error) throw error;
+          return sessionId;
+        },
+        "fasting_sessions",
+        "delete",
+        { id: sessionId },
+        isOffline,
+      );
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["fasting_sessions", "past", userId] });

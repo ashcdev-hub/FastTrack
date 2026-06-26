@@ -2,6 +2,8 @@ import { useCallback } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
 import type { WorkoutLogEntry, WorkoutGoal } from "@/lib/types";
+import { useConnectivity } from "@/hooks/useConnectivity";
+import { withOfflineFallback } from "@/lib/offline-mutation";
 
 export type TodayTotals = Record<string, { reps: number; sets: number; calories: number }>;
 
@@ -13,6 +15,7 @@ export type WeeklyStats = {
 
 export function useWorkoutLog(userId: string | undefined, weightKg: number | null) {
   const queryClient = useQueryClient();
+  const { isOffline } = useConnectivity();
 
   const startOfDay = new Date();
   startOfDay.setHours(0, 0, 0, 0);
@@ -91,22 +94,36 @@ export function useWorkoutLog(userId: string | undefined, weightKg: number | nul
       if (!userId) throw new Error("No user");
       const caloriesBurned = reps * sets * caloriesPerRep * ((weightKg ?? 70) / 70);
 
-      const { data, error } = await supabase
-        .from("workout_log")
-        .insert({
+      return withOfflineFallback(
+        async () => {
+          const { data, error } = await supabase
+            .from("workout_log")
+            .insert({
+              user_id: userId,
+              exercise_type: exerciseType,
+              reps,
+              sets,
+              calories_burned: Math.round(caloriesBurned * 10) / 10,
+            })
+            .select()
+            .single();
+          if (error) throw error;
+          return data;
+        },
+        "workout_log",
+        "insert",
+        {
           user_id: userId,
           exercise_type: exerciseType,
           reps,
           sets,
           calories_burned: Math.round(caloriesBurned * 10) / 10,
-        })
-        .select()
-        .single();
-
-      if (error) throw error;
-      return data;
+        },
+        isOffline,
+      );
     },
     onSuccess: (data) => {
+      if (!data) return;
       queryClient.setQueryData<WorkoutLogEntry[]>(["workout_log", "today", userId], (old) => [
         data,
         ...(old ?? []),

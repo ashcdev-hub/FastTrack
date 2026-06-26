@@ -1,11 +1,14 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
 import type { FoodLogEntry } from "@/lib/types";
+import { useConnectivity } from "@/hooks/useConnectivity";
+import { withOfflineFallback } from "@/lib/offline-mutation";
 
 const today = () => new Date().toISOString().split("T")[0];
 
 export function useFoodLog(userId: string | undefined) {
   const queryClient = useQueryClient();
+  const { isOffline } = useConnectivity();
   const dateKey = today();
 
   const { data: entries = [], isLoading: loading } = useQuery({
@@ -36,15 +39,24 @@ export function useFoodLog(userId: string | undefined) {
   const addEntryMutation = useMutation({
     mutationFn: async (entry: Omit<FoodLogEntry, "id">) => {
       if (!userId) throw new Error("No user");
-      const { data, error } = await supabase
-        .from("food_log")
-        .insert({ ...entry, user_id: userId, logged_at: entry.logged_at })
-        .select()
-        .single();
-      if (error) throw error;
-      return data;
+      return withOfflineFallback(
+        async () => {
+          const { data, error } = await supabase
+            .from("food_log")
+            .insert({ ...entry, user_id: userId, logged_at: entry.logged_at })
+            .select()
+            .single();
+          if (error) throw error;
+          return data;
+        },
+        "food_log",
+        "insert",
+        { ...entry, user_id: userId, logged_at: entry.logged_at },
+        isOffline,
+      );
     },
     onSuccess: (data) => {
+      if (!data) return;
       queryClient.setQueryData<FoodLogEntry[]>(["food_log", userId, dateKey], (old) => [
         data,
         ...(old ?? []),
@@ -55,14 +67,23 @@ export function useFoodLog(userId: string | undefined) {
   const addEntriesMutation = useMutation({
     mutationFn: async (newEntries: Omit<FoodLogEntry, "id">[]) => {
       if (!userId || newEntries.length === 0) throw new Error("No entries");
-      const { data, error } = await supabase
-        .from("food_log")
-        .insert(newEntries.map((e) => ({ ...e, user_id: userId, logged_at: e.logged_at })))
-        .select();
-      if (error) throw error;
-      return data ?? [];
+      return withOfflineFallback(
+        async () => {
+          const { data, error } = await supabase
+            .from("food_log")
+            .insert(newEntries.map((e) => ({ ...e, user_id: userId, logged_at: e.logged_at })))
+            .select();
+          if (error) throw error;
+          return data ?? [];
+        },
+        "food_log",
+        "insert",
+        newEntries.map((e) => ({ ...e, user_id: userId, logged_at: e.logged_at })),
+        isOffline,
+      );
     },
     onSuccess: (data) => {
+      if (!data || data.length === 0) return;
       queryClient.setQueryData<FoodLogEntry[]>(["food_log", userId, dateKey], (old) => [
         ...data,
         ...(old ?? []),
@@ -72,8 +93,17 @@ export function useFoodLog(userId: string | undefined) {
 
   const deleteEntryMutation = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase.from("food_log").delete().eq("id", id);
-      if (error) throw error;
+      return withOfflineFallback(
+        async () => {
+          const { error } = await supabase.from("food_log").delete().eq("id", id);
+          if (error) throw error;
+          return id;
+        },
+        "food_log",
+        "delete",
+        { id },
+        isOffline,
+      );
     },
     onSuccess: (_data, id) => {
       queryClient.setQueryData<FoodLogEntry[]>(["food_log", userId, dateKey], (old) =>

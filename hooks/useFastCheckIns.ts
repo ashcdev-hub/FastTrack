@@ -1,9 +1,12 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
 import type { FastCheckIn } from "@/lib/types";
+import { useConnectivity } from "@/hooks/useConnectivity";
+import { withOfflineFallback } from "@/lib/offline-mutation";
 
 export function useFastCheckIns(userId: string | undefined, sessionId: string | null) {
   const queryClient = useQueryClient();
+  const { isOffline } = useConnectivity();
 
   const { data: checkIns = [] } = useQuery({
     queryKey: ["fast_check_ins", sessionId],
@@ -25,19 +28,27 @@ export function useFastCheckIns(userId: string | undefined, sessionId: string | 
   const addCheckInMutation = useMutation({
     mutationFn: async ({ mood, note, phase }: { mood: number; note: string; phase: string }) => {
       if (!userId || !sessionId) throw new Error("No user or session");
-      const { data, error } = await supabase
-        .from("fast_check_ins")
-        .insert({
-          user_id: userId,
-          session_id: sessionId,
-          mood,
-          note: note.trim() || null,
-          phase,
-        })
-        .select()
-        .single();
-      if (error) throw error;
-      return data;
+      return withOfflineFallback(
+        async () => {
+          const { data, error } = await supabase
+            .from("fast_check_ins")
+            .insert({
+              user_id: userId,
+              session_id: sessionId,
+              mood,
+              note: note.trim() || null,
+              phase,
+            })
+            .select()
+            .single();
+          if (error) throw error;
+          return data;
+        },
+        "fast_check_ins",
+        "insert",
+        { user_id: userId, session_id: sessionId, mood, note: note.trim() || null, phase },
+        isOffline,
+      );
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["fast_check_ins", sessionId] });
@@ -46,11 +57,20 @@ export function useFastCheckIns(userId: string | undefined, sessionId: string | 
 
   const deleteCheckInMutation = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
-        .from("fast_check_ins")
-        .delete()
-        .eq("id", id);
-      if (error) throw error;
+      return withOfflineFallback(
+        async () => {
+          const { error } = await supabase
+            .from("fast_check_ins")
+            .delete()
+            .eq("id", id);
+          if (error) throw error;
+          return id;
+        },
+        "fast_check_ins",
+        "delete",
+        { id },
+        isOffline,
+      );
     },
     onSuccess: (_data, id) => {
       queryClient.setQueryData<FastCheckIn[]>(["fast_check_ins", sessionId], (old) =>

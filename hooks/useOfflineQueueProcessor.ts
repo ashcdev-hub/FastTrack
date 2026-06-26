@@ -42,18 +42,24 @@ export function useOfflineQueueProcessor() {
         const queue = await getQueue();
         if (queue.length === 0) return;
 
+        let hasProgress = false;
+
         for (const item of queue) {
           try {
             await processItem(item);
             await removeById(item.id);
+            hasProgress = true;
           } catch (err) {
-            console.error("Failed to replay queued mutation:", err);
-            break;
+            console.error(`Failed to replay queued mutation [${item.table}/${item.operation}]:`, err);
+            // Small delay before next attempt to avoid thundering herd
+            await new Promise((r) => setTimeout(r, 500));
           }
         }
 
-        // Invalidate all queries to refresh from server
-        queryClient.invalidateQueries();
+        if (hasProgress) {
+          // Invalidate all queries to refresh from server
+          queryClient.invalidateQueries();
+        }
       } finally {
         processingRef.current = false;
       }

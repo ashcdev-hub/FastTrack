@@ -174,7 +174,7 @@ export function LogMealModal({ visible, onClose, userId, quickAddFoods, onSaveQu
       user_id: userId, name: item.name, brand: item.brand ?? null, serving_size: item.serving_size ?? null,
       calories: Math.round(item.calories * item.quantity), protein_g: Math.round(item.protein_g * item.quantity * 10) / 10,
       carbs_g: Math.round(item.carbs_g * item.quantity * 10) / 10, fat_g: Math.round(item.fat_g * item.quantity * 10) / 10,
-      meal_type: store.selectedMealType, logged_at: store.stagedDate.toISOString(), session_id: null,
+      meal_type: store.selectedMealType, logged_at: store.stagedDate, session_id: null,
     }));
     try {
       await onLogMeal(es);
@@ -317,11 +317,11 @@ export function LogMealModal({ visible, onClose, userId, quickAddFoods, onSaveQu
 
             {/* Date/Time */}
             <Pressable
-              onPress={() => { setPickerDate(new Date(store.stagedDate)); setPickerHour(store.stagedDate.getHours()); setPickerMinute(store.stagedDate.getMinutes()); setShowDateTimePicker(true); }}
+              onPress={() => { const d = new Date(store.stagedDate); setPickerDate(d); setPickerHour(d.getHours()); setPickerMinute(d.getMinutes()); setShowDateTimePicker(true); }}
               className="rounded-xl px-4 py-3 mb-4 flex-row items-center justify-between"
               style={{ backgroundColor: c.cardBgAlt }}
             >
-              <Text style={{ color: c.text, fontFamily: "Inter_400Regular", fontSize: 13 }}>{formatDateTime(store.stagedDate)}</Text>
+              <Text style={{ color: c.text, fontFamily: "Inter_400Regular", fontSize: 13 }}>{formatDateTime(new Date(store.stagedDate))}</Text>
               <Text style={{ color: ACCENT.lime, fontFamily: "Inter_700Bold", fontSize: 12 }}>Change</Text>
             </Pressable>
 

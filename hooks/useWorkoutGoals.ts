@@ -1,6 +1,8 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
 import type { WorkoutGoal } from "@/lib/types";
+import { useConnectivity } from "@/hooks/useConnectivity";
+import { withOfflineFallback } from "@/lib/offline-mutation";
 
 const DEFAULT_EXERCISES = [
   { exercise_type: "pushups", daily_goal: 100, calories_per_rep: 0.5 },
@@ -11,6 +13,7 @@ const DEFAULT_EXERCISES = [
 
 export function useWorkoutGoals(userId: string | undefined) {
   const queryClient = useQueryClient();
+  const { isOffline } = useConnectivity();
 
   const { data: goals = [], isLoading: loading } = useQuery({
     queryKey: ["workout_goals", userId],
@@ -50,11 +53,20 @@ export function useWorkoutGoals(userId: string | undefined) {
 
   const updateGoalMutation = useMutation({
     mutationFn: async ({ goalId, updates }: { goalId: string; updates: Partial<WorkoutGoal> }) => {
-      const { error } = await supabase
-        .from("workout_goals")
-        .update(updates)
-        .eq("id", goalId);
-      if (error) throw error;
+      return withOfflineFallback(
+        async () => {
+          const { error } = await supabase
+            .from("workout_goals")
+            .update(updates)
+            .eq("id", goalId);
+          if (error) throw error;
+          return { goalId, updates };
+        },
+        "workout_goals",
+        "update",
+        { id: goalId, ...updates },
+        isOffline,
+      );
     },
     onSuccess: (_data, { goalId, updates }) => {
       queryClient.setQueryData<WorkoutGoal[]>(["workout_goals", userId], (old) =>
@@ -74,19 +86,27 @@ export function useWorkoutGoals(userId: string | undefined) {
       caloriesPerRep: number;
     }) => {
       if (!userId) throw new Error("No user");
-      const { data, error } = await supabase
-        .from("workout_goals")
-        .insert({
-          user_id: userId,
-          exercise_type: exerciseType,
-          daily_goal: dailyGoal,
-          calories_per_rep: caloriesPerRep,
-          enabled: true,
-        })
-        .select()
-        .single();
-      if (error) throw error;
-      return data;
+      return withOfflineFallback(
+        async () => {
+          const { data, error } = await supabase
+            .from("workout_goals")
+            .insert({
+              user_id: userId,
+              exercise_type: exerciseType,
+              daily_goal: dailyGoal,
+              calories_per_rep: caloriesPerRep,
+              enabled: true,
+            })
+            .select()
+            .single();
+          if (error) throw error;
+          return data;
+        },
+        "workout_goals",
+        "insert",
+        { user_id: userId, exercise_type: exerciseType, daily_goal: dailyGoal, calories_per_rep: caloriesPerRep, enabled: true },
+        isOffline,
+      );
     },
     onSuccess: (data) => {
       queryClient.setQueryData<WorkoutGoal[]>(["workout_goals", userId], (old) => [

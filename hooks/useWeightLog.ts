@@ -1,9 +1,12 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
 import type { WeightLogEntry } from "@/lib/types";
+import { useConnectivity } from "@/hooks/useConnectivity";
+import { withOfflineFallback } from "@/lib/offline-mutation";
 
 export function useWeightLog(userId: string | undefined) {
   const queryClient = useQueryClient();
+  const { isOffline } = useConnectivity();
 
   const { data: entries = [], isLoading: loading } = useQuery({
     queryKey: ["weight_log", userId],
@@ -32,6 +35,18 @@ export function useWeightLog(userId: string | undefined) {
   const addWeightMutation = useMutation({
     mutationFn: async (weightKg: number) => {
       if (!userId) throw new Error("No user");
+
+      if (isOffline) {
+        await withOfflineFallback(
+          async () => null,
+          "weight_log",
+          "insert",
+          { user_id: userId, weight_kg: weightKg },
+          true,
+        );
+        return { data: { user_id: userId, weight_kg: weightKg } as WeightLogEntry, updated: false };
+      }
+
       const todayStr = new Date().toISOString().split("T")[0];
       const startOfDay = `${todayStr}T00:00:00Z`;
       const endOfDay = `${todayStr}T23:59:59Z`;
@@ -60,10 +75,23 @@ export function useWeightLog(userId: string | undefined) {
         .insert({ user_id: userId, weight_kg: weightKg })
         .select()
         .single();
-      if (error) throw error;
+      if (error) {
+        const networkResult = await withOfflineFallback(
+          async () => null,
+          "weight_log",
+          "insert",
+          { user_id: userId, weight_kg: weightKg },
+          false,
+        );
+        if (networkResult === null) {
+          return { data: { user_id: userId, weight_kg: weightKg } as WeightLogEntry, updated: false };
+        }
+        throw error;
+      }
       return { data, updated: false };
     },
     onSuccess: (result) => {
+      if (!result?.data) return;
       queryClient.setQueryData<WeightLogEntry[]>(["weight_log", userId], (old) => {
         if (result.updated) {
           return (old ?? []).map((e) =>
@@ -77,8 +105,17 @@ export function useWeightLog(userId: string | undefined) {
 
   const deleteWeightMutation = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase.from("weight_log").delete().eq("id", id);
-      if (error) throw error;
+      return withOfflineFallback(
+        async () => {
+          const { error } = await supabase.from("weight_log").delete().eq("id", id);
+          if (error) throw error;
+          return id;
+        },
+        "weight_log",
+        "delete",
+        { id },
+        isOffline,
+      );
     },
     onSuccess: (_data, id) => {
       queryClient.setQueryData<WeightLogEntry[]>(["weight_log", userId], (old) =>
