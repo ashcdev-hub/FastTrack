@@ -112,6 +112,7 @@ export default function FastScreen() {
   const fastElapsed = useElapsed(fastStartStr);
 
   const [showEndConfirm, setShowEndConfirm] = useState(false);
+  const [showBreakConfirm, setShowBreakConfirm] = useState(false);
   const [checkInMood, setCheckInMood] = useState<number | null>(null);
   const [checkInNote, setCheckInNote] = useState("");
   const [showCustomModal, setShowCustomModal] = useState(false);
@@ -331,7 +332,7 @@ export default function FastScreen() {
 
             {/* End Fast Button */}
             <Pressable
-              onPress={phase === "eating" ? () => setShowEndConfirm(true) : handleBreakFast}
+              onPress={phase === "eating" ? () => setShowEndConfirm(true) : () => setShowBreakConfirm(true)}
               className="w-full py-4 rounded-xl flex-row items-center justify-center mb-section-gap"
               style={{
                 backgroundColor: ACCENT.lime,
@@ -347,6 +348,66 @@ export default function FastScreen() {
                 {phase === "eating" ? "End Eating Window" : "Break Fast"}
               </Text>
             </Pressable>
+
+            {/* Break Fast Confirmation */}
+            <Modal visible={showBreakConfirm} transparent animationType="slide" onRequestClose={() => setShowBreakConfirm(false)}>
+              <Pressable className="flex-1 justify-end" style={{ backgroundColor: c.overlay }} onPress={() => setShowBreakConfirm(false)}>
+                <Pressable onStartShouldSetResponder={() => true} className="rounded-t-3xl p-6" style={{ backgroundColor: c.elevated }}>
+                  <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 20, marginBottom: 8 }}>
+                    Break Your Fast?
+                  </Text>
+                  <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 14, marginBottom: 4 }}>
+                    You're {fastElapsed.hours}h {fastElapsed.minutes}m into a {scheduleLabel} fast.
+                  </Text>
+                  <View className="flex-row items-center gap-2 mb-4">
+                    <View className="flex-1 h-1.5 rounded-full overflow-hidden" style={{ backgroundColor: c.cardBgAlt }}>
+                      <View className="h-full rounded-full" style={{ width: `${Math.min(pct * 100, 100)}%`, backgroundColor: ACCENT.lime }} />
+                    </View>
+                    <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 11 }}>
+                      {Math.round(pct * 100)}%
+                    </Text>
+                  </View>
+                  <View className="glass-panel p-5 mb-4" style={{ borderColor: "rgba(244,63,94,0.3)" }}>
+                    <View className="flex-row items-start gap-3 mb-3">
+                      <View style={{ width: 32, height: 32, borderRadius: 16, backgroundColor: "rgba(244,63,94,0.15)", alignItems: "center", justifyContent: "center" }}>
+                        <MaterialCommunityIcons name="lightning-bolt" size={18} color={ACCENT.rose} />
+                      </View>
+                      <View className="flex-1">
+                        <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 15, marginBottom: 2 }}>
+                          Break now and your eating window starts
+                        </Text>
+                        <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 13 }}>
+                          You'll lose the metabolic benefits built up so far
+                        </Text>
+                      </View>
+                    </View>
+                    <View style={{ height: 1, backgroundColor: c.divider, marginBottom: 12 }} />
+                    {[
+                      "Autophagy slows down significantly",
+                      "Ketone production drops off",
+                      "Body switches back to glucose metabolism",
+                      "Hunger hormones spike as digestion restarts",
+                      "Your fasting streak for today is lost",
+                    ].map((item, i) => (
+                      <View key={i} className="flex-row items-center gap-2 mb-2" style={{ marginLeft: 4 }}>
+                        <View style={{ width: 5, height: 5, borderRadius: 2.5, backgroundColor: ACCENT.rose }} />
+                        <Text style={{ color: c.textSecondary, fontFamily: "Inter_400Regular", fontSize: 12 }}>
+                          {item}
+                        </Text>
+                      </View>
+                    ))}
+                  </View>
+                  <View className="flex-row gap-3 mb-3">
+                    <Pressable onPress={() => setShowBreakConfirm(false)} className="flex-1 py-3.5 rounded-xl items-center" style={{ backgroundColor: ACCENT.lime }}>
+                      <Text style={{ color: "#161e00", fontFamily: "Inter_700Bold" }}>Continue Fasting</Text>
+                    </Pressable>
+                    <Pressable onPress={() => { setShowBreakConfirm(false); handleBreakFast(); }} className="flex-1 py-3.5 rounded-xl items-center" style={{ backgroundColor: c.buttonBg }}>
+                      <Text style={{ color: c.textMuted, fontFamily: "Inter_700Bold" }}>Break Fast</Text>
+                    </Pressable>
+                  </View>
+                </Pressable>
+              </Pressable>
+            </Modal>
 
             {/* End Session Confirmation */}
             <Modal visible={showEndConfirm} transparent animationType="slide" onRequestClose={() => setShowEndConfirm(false)}>
