@@ -14,7 +14,7 @@ Expo's unified codebase reduces the overhead of native development while maintai
 
 | Fasting | Workouts | Food Logging |
 |---------|----------|--------------|
-| ![Fast Tab](assets/screenshots/fast-tab.png) | ![Workouts Tab](assets/screenshots/workouts-tab.png) | ![Log Tab](assets/screenshots/log-tab.png) |
+| ![Fast Tab](assets/screenshots/ft_fasting.PNG) | ![Workouts Tab](assets/screenshots/ft_workouts.PNG) | ![Nutrition Tab](assets/screenshots/ft_nutrition.PNG) |
 
 ---
 
