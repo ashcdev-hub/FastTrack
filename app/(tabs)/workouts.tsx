@@ -66,7 +66,7 @@ export default function WorkoutsScreen() {
       </View>
 
       <ScrollView
-        contentContainerStyle={{ paddingBottom: 120, paddingHorizontal: 20, paddingTop: 24 }}
+        contentContainerStyle={{ paddingBottom: 85, paddingHorizontal: 20, paddingTop: 24 }}
         showsVerticalScrollIndicator={false}
       >
         {/* Session Header */}
@@ -105,7 +105,7 @@ export default function WorkoutsScreen() {
         {/* Add Custom Exercise */}
         <Pressable
           onPress={() => setShowAddModal(true)}
-          className="w-full border-2 border-dashed py-8 rounded-lg flex-col items-center justify-center gap-2 mt-8"
+          className="w-full border-2 border-dashed py-8 rounded-xl flex-col items-center justify-center gap-2 mt-8"
           style={{ borderColor: "rgba(68,73,51,0.4)" }}
         >
           <MaterialCommunityIcons name="plus-circle-outline" size={28} color={ACCENT.lime} />

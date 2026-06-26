@@ -68,7 +68,7 @@ export function WaterTracker({ currentMl, goalMl, onAdd, unitPrefs = DEFAULT_UNI
             key={ml}
             onPress={() => onAdd(ml)}
             style={{ backgroundColor: ACCENT.cyanBg, borderWidth: 1, borderColor: ACCENT.cyanBorder }}
-            className="rounded-lg px-4 py-2.5"
+            className="rounded-xl px-4 py-2.5"
             accessibilityRole="button"
             accessibilityLabel={`Add ${displayWaterBottle(ml, unitPrefs)} of water`}
           >
@@ -90,7 +90,7 @@ export function WaterTracker({ currentMl, goalMl, onAdd, unitPrefs = DEFAULT_UNI
             placeholder={`Enter ${unitLabel}`}
             placeholderTextColor={c.placeholder}
             keyboardType="numeric"
-            className="rounded-lg px-4 py-3 pr-10"
+            className="rounded-xl px-4 py-3 pr-10"
             style={{ backgroundColor: c.inputBg, color: c.text, fontFamily: "Inter_400Regular" }}
           />
           <Text className="absolute text-sm" style={{ right: 12, top: 12, color: c.textMuted, fontFamily: "Inter_400Regular" }}>
@@ -100,7 +100,7 @@ export function WaterTracker({ currentMl, goalMl, onAdd, unitPrefs = DEFAULT_UNI
         <Pressable
           onPress={handleCustomAdd}
           disabled={!customInput || Number(customInput) <= 0}
-          className="rounded-lg px-5 py-3"
+          className="rounded-xl px-5 py-3"
           style={{ backgroundColor: customInput && Number(customInput) > 0 ? ACCENT.cyan : c.buttonBg }}
         >
           <Text style={{ fontFamily: "Inter_700Bold", color: customInput && Number(customInput) > 0 ? "#161e00" : c.textMuted }}>

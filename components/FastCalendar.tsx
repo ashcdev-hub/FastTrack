@@ -90,8 +90,8 @@ export function FastCalendar({ visible, userId, fastingHours, onClose }: FastCal
 
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
-      <View className="flex-1 justify-end" style={{ backgroundColor: c.overlay }}>
-        <View className="rounded-t-3xl p-6" style={{ backgroundColor: c.elevated }}>
+      <Pressable className="flex-1 justify-end" style={{ backgroundColor: c.overlay }} onPress={onClose}>
+        <Pressable onStartShouldSetResponder={() => true} className="rounded-t-3xl p-6" style={{ backgroundColor: c.elevated }}>
           <View className="flex-row justify-between items-center mb-5">
             <Pressable onPress={prevMonth} className="p-2 rounded-xl" style={{ backgroundColor: c.buttonBg }}>
               <MaterialCommunityIcons name="chevron-left" size={24} color={c.text} />
@@ -214,8 +214,8 @@ export function FastCalendar({ visible, userId, fastingHours, onClose }: FastCal
               Close
             </Text>
           </Pressable>
-        </View>
-      </View>
+        </Pressable>
+      </Pressable>
     </Modal>
   );
 }

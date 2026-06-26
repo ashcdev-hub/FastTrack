@@ -134,7 +134,7 @@ export default function LogFoodScreen() {
       </View>
 
       <ScrollView
-        contentContainerStyle={{ paddingBottom: 120, paddingHorizontal: 20, paddingTop: 24 }}
+        contentContainerStyle={{ paddingBottom: 85, paddingHorizontal: 20, paddingTop: 24 }}
         showsVerticalScrollIndicator={false}
       >
         {/* Search Bar */}
@@ -144,7 +144,7 @@ export default function LogFoodScreen() {
             <TextInput
               placeholder="Search food database..."
               placeholderTextColor={c.placeholder}
-              className="flex-1 h-12 rounded-lg pl-12 pr-12 glass-panel"
+              className="flex-1 h-12 rounded-xl pl-12 pr-12 glass-panel"
               style={{ color: c.text, fontFamily: "Inter_400Regular", fontSize: 16 }}
             />
             <Pressable style={{ position: "absolute", right: 16, zIndex: 1 }}>
@@ -197,7 +197,7 @@ export default function LogFoodScreen() {
                 className="w-1/2"
                 style={{ paddingHorizontal: 6, marginBottom: 12 }}
               >
-                <View className="rounded-lg p-4 flex-row items-center gap-3 glass-panel">
+                <View className="rounded-xl p-5 flex-row items-center gap-3 glass-panel">
                   <View className="glass-panel" style={{ width: 40, height: 40, borderRadius: 8, alignItems: "center", justifyContent: "center" }}>
                     <MaterialCommunityIcons name={item.icon} size={20} color={ACCENT.lime} />
                   </View>
@@ -212,7 +212,7 @@ export default function LogFoodScreen() {
         </View>
 
         {/* Meal Type Selector */}
-        <View className="glass-panel p-3 mb-6">
+        <View className="glass-panel p-3 mb-section-gap">
           <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 10, letterSpacing: 1, marginBottom: 10, textTransform: "uppercase" }}>
             MEAL TYPE
           </Text>
@@ -243,31 +243,31 @@ export default function LogFoodScreen() {
         {/* Date/Time Picker */}
         <Pressable
           onPress={() => { setPickerDate(new Date(loggedAt)); setPickerHour(loggedAt.getHours()); setPickerMinute(loggedAt.getMinutes()); setShowDateTimePicker(true); }}
-          className="glass-panel rounded-lg px-4 py-3 mb-6 flex-row items-center justify-between"
+          className="glass-panel rounded-xl px-4 py-3 mb-section-gap flex-row items-center justify-between"
         >
           <Text style={{ color: c.text, fontFamily: "Inter_400Regular", fontSize: 14 }}>{formatDateTime(loggedAt)}</Text>
           <Text style={{ color: ACCENT.lime, fontFamily: "Inter_700Bold", fontSize: 14 }}>Change</Text>
         </Pressable>
 
         {/* FoodSearch */}
-        <View className="mb-6"><FoodSearch onAdd={handleAddFromSearch} /></View>
+        <View className="mb-section-gap"><FoodSearch onAdd={handleAddFromSearch} /></View>
 
         {/* Add Custom Item */}
-        <Pressable
-          onPress={() => setShowCustomItemModal(true)}
-          className="rounded-lg py-3 mb-6 items-center"
+          <Pressable
+            onPress={() => setShowCustomItemModal(true)}
+            className="rounded-xl py-3 mb-section-gap items-center"
           style={{ backgroundColor: c.buttonBg }}
         >
           <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 14 }}>+ Add Custom Item</Text>
         </Pressable>
 
         {/* Meal Builder */}
-        <View className="mb-6">
+        <View className="mb-section-gap">
           <MealBuilder items={stagedItems} mealType={mealType} onRemove={handleRemoveItem} onLog={handleLogMeal} />
         </View>
 
         {/* Today's Meals */}
-        <View className="mb-6">
+        <View className="mb-section-gap">
           <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 18, marginBottom: 16 }}>Today&apos;s Meals</Text>
           {foodLoading ? (
             <LogFoodSkeleton />

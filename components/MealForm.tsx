@@ -33,7 +33,7 @@ export function MealForm({ onSubmit, onCancel }: MealFormProps) {
   const inputStyle = { backgroundColor: c.inputBg, color: c.text, fontFamily: "Inter_400Regular" as const };
 
   return (
-    <View className="rounded-2xl p-5" style={{ backgroundColor: c.elevated }}>
+    <View className="rounded-xl p-5" style={{ backgroundColor: c.elevated }}>
       <Text style={{ color: c.text, fontFamily: "Inter_700Bold" }} className="text-lg mb-4">Add Custom Item</Text>
 
       <TextInput value={name} onChangeText={setName} placeholder="Food name" placeholderTextColor={c.placeholder} className="rounded-xl px-4 py-3 mb-3" style={inputStyle} />

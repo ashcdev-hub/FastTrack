@@ -26,8 +26,8 @@ export function LogSetModal({ visible, goal, weightKg, onClose, onLog }: LogSetM
 
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
-      <View className="flex-1 justify-end" style={{ backgroundColor: c.overlay }}>
-        <View className="rounded-t-3xl p-6" style={{ backgroundColor: c.elevated }}>
+      <Pressable className="flex-1 justify-end" style={{ backgroundColor: c.overlay }} onPress={onClose}>
+        <Pressable onStartShouldSetResponder={() => true} className="rounded-t-3xl p-6" style={{ backgroundColor: c.elevated }}>
           <View className="flex-row justify-between items-center mb-6">
             <Pressable onPress={onClose}>
               <Text style={{ color: c.textSecondary, fontFamily: "Inter_400Regular" }}>Cancel</Text>
@@ -97,8 +97,8 @@ export function LogSetModal({ visible, goal, weightKg, onClose, onLog }: LogSetM
           <Pressable onPress={handleLog} className="rounded-xl py-3" style={{ backgroundColor: ACCENT.lime }}>
             <Text style={{ color: c.textOnAccent, fontFamily: "Inter_700Bold" }} className="text-center">Log Set</Text>
           </Pressable>
-        </View>
-      </View>
+        </Pressable>
+      </Pressable>
     </Modal>
   );
 }

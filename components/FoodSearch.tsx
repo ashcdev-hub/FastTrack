@@ -183,8 +183,8 @@ export function FoodSearch({ onAdd }: FoodSearchProps) {
       </ScrollView>
 
       <Modal visible={selectedItem !== null} transparent animationType="slide" onRequestClose={() => setSelectedItem(null)}>
-        <View className="flex-1 justify-end" style={{ backgroundColor: c.overlay }}>
-          <View className="rounded-t-3xl p-6" style={{ backgroundColor: c.elevated }}>
+        <Pressable className="flex-1 justify-end" style={{ backgroundColor: c.overlay }} onPress={() => setSelectedItem(null)}>
+          <Pressable onStartShouldSetResponder={() => true} className="rounded-t-3xl p-6" style={{ backgroundColor: c.elevated }}>
             <View className="flex-row justify-between items-center mb-4">
               <Pressable onPress={() => setSelectedItem(null)}>
                 <Text style={{ color: c.textSecondary, fontFamily: "Inter_400Regular" }}>Cancel</Text>
@@ -244,9 +244,9 @@ export function FoodSearch({ onAdd }: FoodSearchProps) {
                 </Pressable>
               </>
             )}
-          </View>
-        </View>
-      </Modal>
+        </Pressable>
+      </Pressable>
+    </Modal>
 
       {Platform.OS !== "web" && (
         <BarcodeScanner

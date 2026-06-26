@@ -90,13 +90,13 @@ export default function HomeScreen() {
       </View>
 
       <ScrollView
-        contentContainerStyle={{ paddingBottom: 120 }}
+        contentContainerStyle={{ paddingBottom: 85 }}
         showsVerticalScrollIndicator={false}
       >
         <View style={{ paddingHorizontal: 20, paddingTop: 24 }}>
           {/* Fasting Today */}
           <View className="mb-section-gap">
-            <View className="flex-row justify-between items-end mb-3">
+            <View className="flex-row justify-between items-end mb-4">
               <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 12, letterSpacing: 1, textTransform: "uppercase" }}>
                 Fasting Today
               </Text>
@@ -104,7 +104,7 @@ export default function HomeScreen() {
                 {Math.round(fastPct * 100)}%
               </Text>
             </View>
-            <Pressable onPress={() => router.push("/(tabs)/fast")} className="rounded-xl p-6" style={{ backgroundColor: "rgba(28,28,30,0.8)", borderWidth: 1, borderColor: "rgba(44,44,46,1)" }}>
+            <Pressable onPress={() => router.push("/(tabs)/fast")} className="rounded-xl p-6 glass-panel">
               <View className="flex-row items-center justify-between">
                 <View>
                   <Text style={{ color: c.text, fontFamily: "SpaceGrotesk_600SemiBold", fontSize: 40, letterSpacing: -1 }}>
@@ -127,10 +127,10 @@ export default function HomeScreen() {
           {/* Workout Progress */}
           {enabledGoals.length > 0 && (
             <View className="mb-section-gap">
-              <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 12, letterSpacing: 1, marginBottom: 12, textTransform: "uppercase" }}>
+              <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 12, letterSpacing: 1, marginBottom: 16, textTransform: "uppercase" }}>
                 Workout Progress
               </Text>
-              <Pressable onPress={() => router.push("/(tabs)/workouts")} className="rounded-xl p-5" style={{ backgroundColor: "rgba(28,28,30,0.8)", borderWidth: 1, borderColor: "rgba(44,44,46,1)" }}>
+              <Pressable onPress={() => router.push("/(tabs)/workouts")} className="rounded-xl p-5 glass-panel">
                 <View className="flex-row justify-between">
                   {enabledGoals.slice(0, 4).map((goal) => {
                     const total = todayTotals[goal.exercise_type];
@@ -176,7 +176,7 @@ export default function HomeScreen() {
 
           {/* Hydration */}
           <View className="mb-section-gap">
-            <View className="flex-row justify-between items-center mb-3">
+            <View className="flex-row justify-between items-center mb-4">
               <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 12, letterSpacing: 1, textTransform: "uppercase" }}>
                 Hydration
               </Text>
@@ -189,7 +189,7 @@ export default function HomeScreen() {
                 </Text>
               </View>
             </View>
-            <View className="rounded-xl p-5" style={{ backgroundColor: "rgba(28,28,30,0.8)", borderWidth: 1, borderColor: "rgba(44,44,46,1)" }}>
+            <View className="rounded-xl p-5 glass-panel">
               <View className="h-2 rounded-full overflow-hidden mb-5" style={{ backgroundColor: "rgba(255,255,255,0.05)" }}>
                 <View className="h-full rounded-full" style={{ width: `${Math.min(totalMl / goals.waterGoalMl, 1) * 100}%`, backgroundColor: ACCENT.cyan }} />
               </View>
@@ -221,7 +221,7 @@ export default function HomeScreen() {
                   placeholder="Custom ml"
                   placeholderTextColor={c.placeholder}
                   keyboardType="numeric"
-                  className="flex-1 rounded-lg px-4 py-3"
+                  className="flex-1 rounded-xl px-4 py-3"
                   style={{ backgroundColor: c.inputBg, color: c.text, fontFamily: "Inter_400Regular", borderWidth: 1, borderColor: c.inputBorder }}
                 />
               </View>
@@ -273,7 +273,7 @@ export default function HomeScreen() {
                 const pct = macro.goal > 0 ? Math.min(macro.current / macro.goal, 1) : 0;
                 return (
                   <View key={macro.label} className="w-1/2" style={{ paddingHorizontal: 8, marginBottom: 16 }}>
-                    <View className="rounded-xl p-4" style={{ backgroundColor: "rgba(28,28,30,0.8)", borderWidth: 1, borderColor: "rgba(44,44,46,1)" }}>
+                    <View className="rounded-xl p-4 glass-panel">
                       <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 10, letterSpacing: 1, marginBottom: 4, textTransform: "uppercase" }}>
                         {macro.label}
                       </Text>

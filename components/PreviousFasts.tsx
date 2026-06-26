@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Pressable, View, Text } from "react-native";
+import { Pressable, View, Text, Modal } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { format } from "date-fns";
 import { useSessionCheckIns } from "@/hooks/useFastCheckIns";
@@ -35,7 +35,7 @@ export function PreviousFasts({ sessions, fastingHours, onDelete }: PreviousFast
   const hasMore = sessions.length > DEFAULT_LIMIT;
 
   return (
-    <View className="mb-6">
+    <View className="mb-section-gap">
       <Text style={{ color: c.text, fontFamily: "Inter_700Bold" }} className="text-lg mb-4">
         Previous Fasts
       </Text>
@@ -61,7 +61,7 @@ export function PreviousFasts({ sessions, fastingHours, onDelete }: PreviousFast
           <View key={s.id} className="mb-3">
             <Pressable
               onPress={() => setExpandedId(isExpanded ? null : s.id)}
-              className="glass-panel p-4 flex-row items-center"
+              className="glass-panel p-5 flex-row items-center"
             >
               <View
                 style={{
@@ -115,32 +115,7 @@ export function PreviousFasts({ sessions, fastingHours, onDelete }: PreviousFast
 
             {isExpanded && <SessionDetail sessionId={s.id} schedule={s.fasting_schedule} />}
 
-            {deleteTarget?.id === s.id && (
-              <View className="rounded-xl p-4 mt-2" style={{ backgroundColor: ACCENT.roseBg, borderWidth: 1, borderColor: ACCENT.roseBorder }}>
-                <Text style={{ color: c.text, fontFamily: "Inter_700Bold" }} className="mb-1">
-                  Delete this fast?
-                </Text>
-                <Text style={{ color: c.textSecondary, fontFamily: "Inter_400Regular" }} className="text-sm mb-3">
-                  This record will be permanently removed.
-                </Text>
-                <View className="flex-row gap-3">
-                  <Pressable
-                    onPress={() => setDeleteTarget(null)}
-                    className="flex-1 rounded-xl py-3"
-                    style={{ backgroundColor: c.buttonBg }}
-                  >
-                    <Text style={{ color: c.text, fontFamily: "Inter_700Bold" }} className="text-center">Cancel</Text>
-                  </Pressable>
-                  <Pressable
-                    onPress={() => { onDelete(deleteTarget.id); setDeleteTarget(null); }}
-                    className="flex-1 rounded-xl py-3"
-                    style={{ backgroundColor: ACCENT.rose }}
-                  >
-                    <Text style={{ color: c.textOnDark, fontFamily: "Inter_700Bold" }} className="text-center">Delete</Text>
-                  </Pressable>
-                </View>
-              </View>
-            )}
+            {}
           </View>
         );
       })}
@@ -152,6 +127,28 @@ export function PreviousFasts({ sessions, fastingHours, onDelete }: PreviousFast
           </Text>
         </Pressable>
       )}
+
+      {/* Delete Confirmation Modal */}
+      <Modal visible={deleteTarget !== null} transparent animationType="slide" onRequestClose={() => setDeleteTarget(null)}>
+        <Pressable className="flex-1 justify-end" style={{ backgroundColor: c.overlay }} onPress={() => setDeleteTarget(null)}>
+          <Pressable onStartShouldSetResponder={() => true} className="rounded-t-3xl p-6" style={{ backgroundColor: c.elevated }}>
+            <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 20, marginBottom: 8 }}>
+              Delete this fast?
+            </Text>
+            <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 14, marginBottom: 20 }}>
+              This record will be permanently removed.
+            </Text>
+            <View className="flex-row gap-3">
+              <Pressable onPress={() => setDeleteTarget(null)} className="flex-1 py-3.5 rounded-xl items-center" style={{ backgroundColor: c.buttonBg }}>
+                <Text style={{ color: c.text, fontFamily: "Inter_700Bold" }}>Cancel</Text>
+              </Pressable>
+              <Pressable onPress={() => { if (deleteTarget) { onDelete(deleteTarget.id); setDeleteTarget(null); } }} className="flex-1 py-3.5 rounded-xl items-center" style={{ backgroundColor: ACCENT.rose }}>
+                <Text style={{ color: c.textOnDark, fontFamily: "Inter_700Bold" }}>Delete</Text>
+              </Pressable>
+            </View>
+          </Pressable>
+        </Pressable>
+      </Modal>
 
       <FastCalendar
         visible={showCalendar}

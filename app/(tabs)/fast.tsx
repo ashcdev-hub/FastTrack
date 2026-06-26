@@ -186,12 +186,12 @@ export default function FastScreen() {
       </View>
 
       <ScrollView
-        contentContainerStyle={{ paddingTop: 24, paddingBottom: 120, paddingHorizontal: 20 }}
+        contentContainerStyle={{ paddingTop: 24, paddingBottom: 85, paddingHorizontal: 20 }}
         showsVerticalScrollIndicator={false}
       >
         {/* Current Protocol Header */}
         {(phase !== "idle" || selectedSchedule) && (
-          <View className="items-center mb-8">
+          <View className="items-center mb-section-gap">
             <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 12, letterSpacing: 1, textTransform: "uppercase" }}>
               Current Protocol
             </Text>
@@ -204,7 +204,7 @@ export default function FastScreen() {
 
         {/* Timer Ring */}
         {phase === "idle" ? (
-          <View className="items-center mb-8">
+          <View className="items-center mb-section-gap">
             <View className="relative items-center justify-center mb-8" style={{ width: 320, height: 320 }}>
               <FastingTimer
                 status="idle"
@@ -223,7 +223,7 @@ export default function FastScreen() {
             <Pressable
               onPress={handleStartFast}
               disabled={!selectedSchedule}
-              className="w-full py-4 rounded-lg flex-row items-center justify-center mb-6"
+              className="w-full py-4 rounded-xl flex-row items-center justify-center mb-section-gap"
               style={{ backgroundColor: selectedSchedule ? ACCENT.lime : c.buttonBg }}
             >
               <MaterialCommunityIcons name="timer-outline" size={22} color={selectedSchedule ? "#161e00" : c.textMuted} />
@@ -233,7 +233,7 @@ export default function FastScreen() {
             </Pressable>
 
             {/* Schedule Presets */}
-            <View className="w-full rounded-xl p-5 mb-6 glass-panel">
+            <View className="w-full rounded-xl p-5 mb-section-gap glass-panel">
               <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 12, letterSpacing: 1, marginBottom: 16, textTransform: "uppercase" }}>
                 FASTING SCHEDULE
               </Text>
@@ -253,7 +253,7 @@ export default function FastScreen() {
                           if (p.fasting > 0 && p.eating > 0) updateFastingSchedule(p.fasting, p.eating);
                         }
                       }}
-                      className="flex-1 py-4 items-center rounded-lg"
+                      className="flex-1 py-4 items-center rounded-xl"
                       style={{ backgroundColor: isActive ? ACCENT.lime : c.cardBgAlt, borderWidth: 1, borderColor: isActive ? ACCENT.lime : c.cardBorder }}
                     >
                       <Text style={{ color: isActive ? "#161e00" : c.text, fontFamily: "Inter_700Bold", fontSize: 16 }}>
@@ -269,7 +269,7 @@ export default function FastScreen() {
 
               <Pressable
                 onPress={() => { setSelectedSchedule(null); setShowCustomModal(true); }}
-                className="w-full py-3.5 rounded-lg items-center mb-4"
+                className="w-full py-3.5 rounded-xl items-center mb-4"
                 style={{ backgroundColor: selectedSchedule && !PRESETS.find((p) => p.label === selectedSchedule) ? ACCENT.lime : c.buttonBg, borderWidth: 1, borderColor: selectedSchedule && !PRESETS.find((p) => p.label === selectedSchedule) ? ACCENT.lime : c.cardBorder }}
               >
                 <Text style={{ color: selectedSchedule && !PRESETS.find((p) => p.label === selectedSchedule) ? "#161e00" : c.textSecondary, fontFamily: "Inter_700Bold", fontSize: 14 }}>
@@ -280,7 +280,7 @@ export default function FastScreen() {
 
             {/* Schedule Info */}
             {selectedSchedule && (
-            <View className="w-full rounded-xl p-5 mb-6 glass-panel">
+            <View className="w-full rounded-xl p-5 mb-section-gap glass-panel">
               <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 12, letterSpacing: 1, marginBottom: 16, textTransform: "uppercase" }}>
                 IF YOU START NOW
               </Text>
@@ -310,7 +310,7 @@ export default function FastScreen() {
         ) : (
           <>
             {/* Active Fast Timer */}
-            <View className="items-center mb-8">
+            <View className="items-center mb-section-gap">
               <View className="relative items-center justify-center" style={{ width: 320, height: 320 }}>
                 <FastingTimer
                   status={phase as "fasting" | "eating"}
@@ -332,7 +332,7 @@ export default function FastScreen() {
             {/* End Fast Button */}
             <Pressable
               onPress={phase === "eating" ? () => setShowEndConfirm(true) : handleBreakFast}
-              className="w-full py-4 rounded-lg flex-row items-center justify-center mb-8"
+              className="w-full py-4 rounded-xl flex-row items-center justify-center mb-section-gap"
               style={{
                 backgroundColor: ACCENT.lime,
                 shadowColor: ACCENT.lime,
@@ -387,7 +387,7 @@ export default function FastScreen() {
                 ? getEatingPhase(elapsedEating, eatingHours * 60)
                 : getFastingPhase(fastElapsedMinutes);
               return (
-                <View className="w-full glass-panel p-5 mb-8">
+                <View className="w-full glass-panel p-5 mb-section-gap">
                   <View className="flex-row justify-between items-start mb-3">
                     <View className="flex-1">
                       <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 14 }}>{info.label}</Text>
@@ -410,7 +410,7 @@ export default function FastScreen() {
             })()}
 
             {/* Mood Check-in */}
-            <View className="w-full rounded-xl p-5 mb-8 glass-panel">
+            <View className="w-full rounded-xl p-5 mb-section-gap glass-panel">
               <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 12, letterSpacing: 1, textAlign: "center", marginBottom: 16, textTransform: "uppercase" }}>
                 HOW ARE YOU FEELING?
               </Text>
@@ -439,7 +439,7 @@ export default function FastScreen() {
                 })}
               </View>
               <View className="flex-row items-center gap-2 mt-4">
-                <View className="flex-1 glass-panel rounded-lg px-4 py-3">
+                <View className="flex-1 glass-panel rounded-xl px-4 py-3">
                   <TextInput
                     value={checkInNote}
                     onChangeText={setCheckInNote}
@@ -462,7 +462,7 @@ export default function FastScreen() {
 
             {/* Check-in History */}
             {checkIns.length > 0 && (
-              <View className="w-full glass-panel p-4 mb-8">
+              <View className="w-full glass-panel p-5 mb-section-gap">
                 <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 12, letterSpacing: 1, marginBottom: 12, textTransform: "uppercase" }}>
                   CHECK-IN HISTORY
                 </Text>

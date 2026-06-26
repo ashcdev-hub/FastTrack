@@ -46,7 +46,7 @@ export function CheckInPanel({ phase, onSubmit }: CheckInPanelProps) {
   }
 
   return (
-    <View className="glass-panel p-4">
+    <View className="glass-panel p-5">
       <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 12, letterSpacing: 1, marginBottom: 12, textTransform: "uppercase" }}>
         HOW ARE YOU FEELING?
       </Text>
@@ -101,7 +101,7 @@ export function CheckInPanel({ phase, onSubmit }: CheckInPanelProps) {
           onChangeText={setNote}
           placeholder={phase === "fasting" ? "How's the fast going?" : "How's the meal?"}
           placeholderTextColor={c.placeholder}
-          className="flex-1 rounded-lg px-4 py-3 text-sm"
+          className="flex-1 rounded-xl px-4 py-3 text-sm"
           style={{ backgroundColor: c.cardBgAlt, color: c.text, fontFamily: "Inter_400Regular" }}
           multiline
           maxLength={280}

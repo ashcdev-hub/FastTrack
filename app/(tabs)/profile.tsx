@@ -38,7 +38,7 @@ export default function ProfileScreen() {
       </View>
 
       <ScrollView
-        contentContainerStyle={{ paddingBottom: 200, paddingHorizontal: 20, paddingTop: 24 }}
+        contentContainerStyle={{ paddingBottom: 85, paddingHorizontal: 20, paddingTop: 24 }}
         showsVerticalScrollIndicator={false}
       >
         {/* Greeting */}
@@ -58,7 +58,7 @@ export default function ProfileScreen() {
             await signOut();
             router.replace("/(auth)/login");
           }}
-          className="rounded-lg py-4 mt-4"
+          className="rounded-xl py-4 mt-4"
           style={{ backgroundColor: ACCENT.roseBg, borderWidth: 1, borderColor: ACCENT.roseBorder }}
         >
           <Text style={{ color: ACCENT.rose, fontFamily: "Inter_700Bold", textAlign: "center" }}>

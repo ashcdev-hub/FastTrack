@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Pressable, View, Text, TextInput } from "react-native";
+import { Pressable, View, Text, TextInput, Modal } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useThemeStore } from "@/lib/theme-store";
 import { getThemeColors, ACCENT } from "@/lib/theme-colors";
@@ -120,20 +120,7 @@ export function WeightTracker({ entries, currentWeight, weightChange, onAddWeigh
                     </Pressable>
                   </View>
                 </View>
-                {deleteTarget === entry.id && (
-                  <View className="rounded-xl p-4 mt-2 mb-2" style={{ backgroundColor: ACCENT.roseBg, borderWidth: 1, borderColor: ACCENT.roseBorder }}>
-                    <Text style={{ color: c.text, fontFamily: "Inter_700Bold" }} className="mb-1">Delete this entry?</Text>
-                    <Text style={{ color: c.textSecondary, fontFamily: "Inter_400Regular" }} className="text-sm mb-3">This record will be permanently removed.</Text>
-                    <View className="flex-row gap-3">
-                      <Pressable onPress={() => setDeleteTarget(null)} className="flex-1 rounded-xl py-3" style={{ backgroundColor: c.buttonBg }}>
-                        <Text style={{ color: c.text, fontFamily: "Inter_700Bold" }} className="text-center">Cancel</Text>
-                      </Pressable>
-                      <Pressable onPress={confirmDelete} className="flex-1 rounded-xl py-3" style={{ backgroundColor: ACCENT.rose }}>
-                        <Text style={{ color: c.textOnDark, fontFamily: "Inter_700Bold" }} className="text-center">Delete</Text>
-                      </Pressable>
-                    </View>
-                  </View>
-                )}
+                {}
               </View>
             );
           })}
@@ -147,6 +134,27 @@ export function WeightTracker({ entries, currentWeight, weightChange, onAddWeigh
           </Text>
         </View>
       )}
+      {/* Delete Confirmation Modal */}
+      <Modal visible={deleteTarget !== null} transparent animationType="slide" onRequestClose={() => setDeleteTarget(null)}>
+        <Pressable className="flex-1 justify-end" style={{ backgroundColor: c.overlay }} onPress={() => setDeleteTarget(null)}>
+          <Pressable onStartShouldSetResponder={() => true} className="rounded-t-3xl p-6" style={{ backgroundColor: c.elevated }}>
+            <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 20, marginBottom: 8 }}>
+              Delete this entry?
+            </Text>
+            <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 14, marginBottom: 20 }}>
+              This record will be permanently removed.
+            </Text>
+            <View className="flex-row gap-3">
+              <Pressable onPress={() => setDeleteTarget(null)} className="flex-1 py-3.5 rounded-xl items-center" style={{ backgroundColor: c.buttonBg }}>
+                <Text style={{ color: c.text, fontFamily: "Inter_700Bold" }}>Cancel</Text>
+              </Pressable>
+              <Pressable onPress={confirmDelete} className="flex-1 py-3.5 rounded-xl items-center" style={{ backgroundColor: ACCENT.rose }}>
+                <Text style={{ color: c.textOnDark, fontFamily: "Inter_700Bold" }}>Delete</Text>
+              </Pressable>
+            </View>
+          </Pressable>
+        </Pressable>
+      </Modal>
     </View>
   );
 }

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Pressable, View, Text } from "react-native";
+import { Pressable, View, Text, Modal } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useThemeStore } from "@/lib/theme-store";
 import { getThemeColors, ACCENT } from "@/lib/theme-colors";
@@ -55,7 +55,7 @@ export function ExercisePanel({
   };
 
   return (
-    <View className="glass-panel p-4">
+    <View className="glass-panel p-5">
       {/* Header */}
       <View className="flex-row justify-between items-start mb-4">
         <View>
@@ -101,31 +101,39 @@ export function ExercisePanel({
 
       {/* Action Buttons */}
       <View className="flex-row gap-2 mb-2">
-        <Pressable onPress={() => setShowEditModal(true)} className="flex-1 py-3 rounded-lg items-center flex-row justify-center gap-2" style={{ backgroundColor: c.buttonBg }}>
+        <Pressable onPress={() => setShowEditModal(true)} className="flex-1 py-3 rounded-xl items-center flex-row justify-center gap-2" style={{ backgroundColor: c.buttonBg }}>
           <MaterialCommunityIcons name="pencil-outline" size={16} color={c.textMuted} />
           <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 14 }}>Edit Goal</Text>
         </Pressable>
-        <Pressable onPress={() => setShowDeleteConfirm(true)} className="flex-1 py-3 rounded-lg items-center flex-row justify-center gap-2" style={{ backgroundColor: c.buttonBg }}>
+        <Pressable onPress={() => setShowDeleteConfirm(true)} className="flex-1 py-3 rounded-xl items-center flex-row justify-center gap-2" style={{ backgroundColor: c.buttonBg }}>
           <MaterialCommunityIcons name="delete-outline" size={16} color={c.textMuted} />
           <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 14 }}>Remove</Text>
         </Pressable>
       </View>
 
-      {/* Delete Confirmation */}
-      {showDeleteConfirm && (
-        <View className="rounded-lg p-4 mb-3" style={{ backgroundColor: ACCENT.roseBg, borderWidth: 1, borderColor: ACCENT.roseBorder }}>
-          <Text style={{ color: c.text, fontFamily: "Inter_700Bold", marginBottom: 4 }}>Remove this exercise?</Text>
-          <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 14, marginBottom: 12 }}>You can re-add it later from the Add Exercise menu.</Text>
-          <View className="flex-row gap-3">
-            <Pressable onPress={() => setShowDeleteConfirm(false)} className="flex-1 py-3 rounded-lg items-center" style={{ backgroundColor: c.buttonBg }}>
-              <Text style={{ color: c.text, fontFamily: "Inter_700Bold" }}>Cancel</Text>
-            </Pressable>
-            <Pressable onPress={() => { onToggleEnabled(goal.id, false); setShowDeleteConfirm(false); }} className="flex-1 py-3 rounded-lg items-center" style={{ backgroundColor: ACCENT.rose }}>
-              <Text style={{ color: "#161e00", fontFamily: "Inter_700Bold" }}>Remove</Text>
-            </Pressable>
-          </View>
-        </View>
-      )}
+      {}
+
+      {/* Delete Confirmation Modal */}
+      <Modal visible={showDeleteConfirm} transparent animationType="slide" onRequestClose={() => setShowDeleteConfirm(false)}>
+        <Pressable className="flex-1 justify-end" style={{ backgroundColor: c.overlay }} onPress={() => setShowDeleteConfirm(false)}>
+          <Pressable onStartShouldSetResponder={() => true} className="rounded-t-3xl p-6" style={{ backgroundColor: c.elevated }}>
+            <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 20, marginBottom: 8 }}>
+              Remove this exercise?
+            </Text>
+            <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 14, marginBottom: 20 }}>
+              You can re-add it later from the Add Exercise menu.
+            </Text>
+            <View className="flex-row gap-3">
+              <Pressable onPress={() => setShowDeleteConfirm(false)} className="flex-1 py-3.5 rounded-xl items-center" style={{ backgroundColor: c.buttonBg }}>
+                <Text style={{ color: c.text, fontFamily: "Inter_700Bold" }}>Cancel</Text>
+              </Pressable>
+              <Pressable onPress={() => { onToggleEnabled(goal.id, false); setShowDeleteConfirm(false); }} className="flex-1 py-3.5 rounded-xl items-center" style={{ backgroundColor: ACCENT.rose }}>
+                <Text style={{ color: c.textOnDark, fontFamily: "Inter_700Bold" }}>Remove</Text>
+              </Pressable>
+            </View>
+          </Pressable>
+        </Pressable>
+      </Modal>
 
       <EditGoalModal
         visible={showEditModal}
