@@ -21,32 +21,34 @@ Expo's unified codebase reduces the overhead of native development while maintai
 ## Features
 
 ### Fasting
-- **Countdown timer** with animated SVG progress ring
-- **Schedule presets**: 14:10, 16:8, 18:6, 20:4, OMAD — plus custom
+- **Countdown timer** with animated SVG progress ring, dynamic phase labels
+- **Schedule presets**: 14:10, 16:8, 18:6, 20:4, OMAD — plus custom via stepper
 - **Weekly calendar** showing which days you fasted
 - **Full month calendar** with tap-to-view fast details
 - **Mood check-ins** during fasts with chart and timeline
-- **Previous fasts** list with expandable detail and delete
+- **Previous fasts** list with expandable detail and bottom-sheet delete
+- **End eating / discard fast** via bottom-sheet confirmation modals
 
 ### Workouts
 - **Exercise panels** for pushups, crunches, sit-ups, squats + custom
 - **Log sets** with stepper controls (no keyboard needed)
-- **Progress tracking** with daily goal progress bars
+- **Daily goal editor** via bottom-sheet modal with presets + stepper
+- **Progress tracking** with inline progress rings
 - **Calorie estimation** based on reps and body weight
 
 ### Nutrition
 - **Food search** via OpenFoodFacts (with barcode scanner)
 - **Quick-add** common foods (eggs, rice, chicken, etc.)
 - **Meal builder** with macro breakdown (calories, protein, carbs, fat)
-- **Water tracking** with bottle presets and progress bar
+- **Water tracking** with selectable presets and custom input
 
 ### Profile & Settings
-- **Achievements** for fasting streaks and workout milestones
-- **Weekly stats** for fasting, water, and workouts
 - **Weight tracking** with chart and goal weight
 - **Unit preferences**: kg/lbs, cm/ft, ml/fl oz
 - **Dark/light mode** with full theme support
-- **Push notifications** for fast reminders, water, and milestones
+- **Local notifications** for fast reminders, water, and milestones
+- **Settings inline** (no standalone settings page)
+- **Dynamic fasting phase insights** during active fasts
 
 ---
 

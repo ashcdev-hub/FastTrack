@@ -148,13 +148,40 @@ Do NOT use `<Redirect>` inside layout files. Handle auth redirects in `app/index
 All components must use `useThemeStore` + `getThemeColors()` from `lib/theme-colors.ts`. Never hardcode `#FFFFFF`, `rgba(255,255,255,0.X)`, or `bg-slate-900`.
 
 ### Glass Panel Utility
-All card containers must use the `glass-panel` utility class from `global.css`, not `c.cardBg`/`c.cardBorder` inline styles. This applies to rounded-xl cards on every tab screen.
+All card containers must use the `glass-panel` utility class from `global.css`, not `c.cardBg`/`c.cardBorder` inline styles. This applies to all rounded-xl cards on every tab screen. Do NOT use inline `rgba` backgrounds — Home tab uses `glass-panel` class everywhere.
+
+### Design Conventions (Round 1)
+Standardized values enforced across all screens and components:
+
+| Element | Value | Notes |
+|---------|-------|-------|
+| Panel-to-panel spacing | `mb-section-gap` (32px) | tailwind config token, replaces `mb-6`/`mb-8` |
+| Panel padding | `p-5` (20px) | maps to `container-padding` token |
+| Panel border-radius | `rounded-xl` | never `rounded-lg` or `rounded-2xl` on panel shells |
+| Primary buttons | `py-4 rounded-xl` | full-width CTAs (Start Fast, End Fast) |
+| Secondary buttons | `py-3 rounded-xl` | inline actions (Edit Goal, Remove, etc.) |
+| Danger buttons | `py-3 rounded-xl` with `ACCENT.rose` bg | text color: `c.textOnDark` |
+| Text inputs | `py-3 rounded-xl` | consistent across all forms |
+| Section heading margin | `mb-4` (16px) | applies to all uppercase section titles |
+| Content bottom padding | `paddingBottom: 85` | matches tab bar height (`85px`), no dead space |
+| Modal backdrops | `Pressable` with `onPress` to dismiss | inner content must use `onStartShouldSetResponder={() => true}` to stop propagation |
+| Delete confirmations | Bottom-sheet `Modal` with `animationType="slide"` | never inline confirmation blocks |
+
+### Modal Backdrop Pattern (Required)
+Every bottom-sheet modal must use this exact structure:
+```tsx
+<Modal visible={...} transparent animationType="slide" onRequestClose={onClose}>
+  <Pressable className="flex-1 justify-end" style={{ backgroundColor: c.overlay }} onPress={onClose}>
+    <Pressable onStartShouldSetResponder={() => true} className="rounded-t-3xl p-6" style={{ backgroundColor: c.elevated }}>
+      ...content...
+    </Pressable>
+  </Pressable>
+</Modal>
+```
+The inner `Pressable` with `onStartShouldSetResponder={() => true}` prevents backdrop tap from propagating to content.
 
 ### Fasting Lifecycle
 Three clear phases: **Idle** (schedule selector shown) → **Fasting** (ring fills, "Break Fast" button) → **Eating** (ring turns cyan, "End Eating Window" button). The eating phase timer counts down remaining eating time. Schedule selection is only shown when idle.
-
-### Edit Goal Modal
-"Edit Goal" in `ExercisePanel.tsx` opens a bottom-sheet modal (`EditGoalModal.tsx`) with stepper controls, preset chips, and custom text input — never inline expansion.
 
 ### ACCENT.lime / ACCENT.cyan / ACCENT.coral
 `ACCENT.mint` is defined in the palette but never used in any UI component. All UI uses `ACCENT.lime` (#c3f400), `ACCENT.cyan` (#00daf3), or `ACCENT.coral` (#FF6B52) for the various accent roles.
@@ -225,10 +252,8 @@ FastTrack/
 │       ├── log-food.tsx         # Log tab: food search, meal builder, water
 │       └── profile.tsx          # Profile tab: achievements, weight, stats, settings, sign out
 ├── components/
-│   ├── AppHeader.tsx            # Header with title + settings cog
 │   ├── FastingTimer.tsx         # SVG progress ring (theme-aware)
-│   ├── ScheduleSelector.tsx     # Schedule presets + custom
-│   ├── MacroProgress.tsx        # Macro progress bars (theme-aware)
+│   ├── ScheduleSelector.tsx     # Schedule presets + custom (onboarding only)
 │   ├── FoodSearch.tsx           # OpenFoodFacts search + quick-add presets
 │   ├── MealBuilder.tsx          # Meal staging area
 │   ├── MealForm.tsx             # Manual entry with date/time picker
@@ -251,7 +276,6 @@ FastTrack/
 │   ├── WeightChart.tsx          # SVG weight line chart
 │   ├── GlassPanel.tsx           # Shared glass-card wrapper
 │   ├── ProgressRing.tsx         # Reusable SVG progress ring
-│   ├── StepperControl.tsx       # +/- stepper with preset chips
 │   ├── Toast.tsx                # Animated toast notification overlay
 │   ├── Skeleton.tsx             # Reusable loading skeleton with shimmer
 │   └── FoodLogItem.tsx          # Meal entry card (theme-aware)
@@ -301,7 +325,7 @@ FastTrack/
 
 ### Fast Tab
 - Schedule selector (presets + custom)
-- Start/break/end fast with inline confirmations
+- Start/break/end fast with bottom-sheet confirmations (end eating window + discard fast)
 - Timer counts DOWN, progress ring fills UP
 - Check-ins with mood chart + timeline
 - Weekly calendar (7-day circle view)
@@ -344,7 +368,7 @@ Note: Settings are inline in the Profile tab (no standalone settings page). All 
 - **Personal-team iOS builds** do not support remote APNs; local scheduled notifications only. Remote push requires a paid Apple Developer account.
 
 ## Spacing Convention
-- Panel-to-panel (across all tabs): `mb-6` (24px)
+- Panel-to-panel (across all tabs): `mb-section-gap` (32px)
 - Section headings: `text-lg font-bold mb-4` (16px)
 - List items within panels: `mb-3` (12px)
 
@@ -411,6 +435,11 @@ See [Building for iOS (Standalone App)](#building-for-ios-standalone-app) above 
 - [x] Home tab is the only place for daily macros (MacroProgress removed from Profile)
 - [x] Fast tab timer countdown fixed for eating phase (eatWindowEndStr computed from session.end_time)
 - [x] FastingTimer labels simplified to "REMAINING"/"ELAPSED"
+- [x] Round 1 design consistency — panel spacing, padding, border-radius, button sizes, input sizes standardized across all tab screens and components
+- [x] All modal backdrops use Pressable with tap-to-dismiss (View→Pressable)
+- [x] All delete confirmations use bottom-sheet modals (no inline blocks)
+- [x] Home tab panels use glass-panel class (no inline rgba)
+- [x] Content paddingBottom=85 across all tabs (flush with tab bar)
 
 ## Next Steps
 
@@ -442,6 +471,7 @@ See [Building for iOS (Standalone App)](#building-for-ios-standalone-app) above 
 | 23 | **Unit preferences** — kg/lbs, cm/ft, ml/floz | Done |
 | 24 | **Weekly calendar** — Zero-style circle calendar | Done |
 | 25 | **Full month calendar** — Tap day for fast details | Done |
+| 26 | **Round 1 design consistency** — Standardized panels, buttons, modals, spacing across all screens | Done |
 
 ### Remaining
 | # | Feature | Effort | Description |
