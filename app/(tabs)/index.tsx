@@ -11,9 +11,13 @@ import { useWaterLog } from "@/hooks/useWaterLog";
 import { useFoodLog } from "@/hooks/useFoodLog";
 import { useGoalStore } from "@/store/useGoalStore";
 import { useProfile } from "@/hooks/useProfile";
+import { useWeightLog } from "@/hooks/useWeightLog";
 import { ProgressRing } from "@/components/ProgressRing";
+import { WeightChart } from "@/components/WeightChart";
+import { WeightTracker } from "@/components/WeightTracker";
 import { useThemeStore } from "@/lib/theme-store";
 import { getThemeColors, ACCENT } from "@/lib/theme-colors";
+import { DEFAULT_UNITS } from "@/lib/units";
 import { format, addHours } from "date-fns";
 import { router } from "expo-router";
 
@@ -44,6 +48,14 @@ export default function HomeScreen() {
   const goals = useGoalStore();
   const { theme } = useThemeStore();
   const c = getThemeColors(theme);
+  const { entries: weightEntries, loading: weightLoading, addWeight: addWeightRaw, deleteWeight: deleteWeightRaw, currentWeight, weightChange } = useWeightLog(user?.id);
+  const addWeight = async (kg: number) => {
+    try { await addWeightRaw(kg); return { error: null }; } catch (e) { return { error: e as Error }; }
+  };
+  const deleteWeight = async (id: string) => {
+    try { await deleteWeightRaw(id); return { error: null }; } catch (e) { return { error: e as Error }; }
+  };
+  const unitPrefs = profile?.unit_preferences ?? DEFAULT_UNITS;
 
   const phase = !session ? "idle" : (session.status as "idle" | "fasting" | "eating");
   const fastStartStr = phase === "fasting" ? session!.start_time : null;
@@ -56,7 +68,7 @@ export default function HomeScreen() {
   const enabledGoals = workoutGoals.filter((g) => g.enabled);
   const totalReps = Object.values(todayTotals).reduce((sum, t) => sum + t.reps, 0);
 
-  const [customWater, setCustomWater] = useState("");
+  const [selectedWaterMl, setSelectedWaterMl] = useState<number | null>(null);
 
   const macros = [
     { label: "Calories", current: totals.calories, goal: goals.dailyCalories, unit: "kcal", barColor: ACCENT.lime },
@@ -172,48 +184,72 @@ export default function HomeScreen() {
                 <View className="h-full rounded-full" style={{ width: `${Math.min(totalMl / goals.waterGoalMl, 1) * 100}%`, backgroundColor: ACCENT.cyan }} />
               </View>
               <View className="flex-row gap-3 mb-5 overflow-x-auto no-scrollbar">
-                {[250, 500, 750].map((ml) => (
-                  <Pressable
-                    key={ml}
-                    onPress={() => addWater(ml).catch((err: Error) => console.error("addWater failed:", err))}
-                    className="flex-1 py-3 rounded items-center glass-panel"
-                  >
-                    <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 14 }}>{ml}ml</Text>
-                    <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 10, textTransform: "uppercase" }}>
-                      {ml === 250 ? "Small" : ml === 500 ? "Regular" : "Large"}
-                    </Text>
-                  </Pressable>
-                ))}
+                {[250, 500, 750].map((ml) => {
+                  const isSelected = selectedWaterMl === ml;
+                  return (
+                    <Pressable
+                      key={ml}
+                      onPress={() => setSelectedWaterMl(isSelected ? null : ml)}
+                      className="flex-1 py-3 rounded items-center"
+                      style={{ backgroundColor: isSelected ? ACCENT.cyan : "rgba(255,255,255,0.05)", borderWidth: 1, borderColor: isSelected ? ACCENT.cyan : "rgba(255,255,255,0.08)" }}
+                    >
+                      <Text style={{ color: isSelected ? "#161e00" : c.text, fontFamily: "Inter_700Bold", fontSize: 14 }}>{ml}ml</Text>
+                      <Text style={{ color: isSelected ? "rgba(22,30,0,0.6)" : c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 10, textTransform: "uppercase" }}>
+                        {ml === 250 ? "Small" : ml === 500 ? "Regular" : "Large"}
+                      </Text>
+                    </Pressable>
+                  );
+                })}
               </View>
-              <View className="flex-row gap-3 mb-4">
+              <View className="flex-row gap-3 mb-5">
                 <TextInput
-                  value={customWater}
-                  onChangeText={setCustomWater}
+                  value={selectedWaterMl ? String(selectedWaterMl) : ""}
+                  onChangeText={(text) => {
+                    const parsed = parseInt(text);
+                    setSelectedWaterMl(!isNaN(parsed) && parsed > 0 ? parsed : null);
+                  }}
                   placeholder="Custom ml"
                   placeholderTextColor={c.placeholder}
                   keyboardType="numeric"
                   className="flex-1 rounded-lg px-4 py-3"
                   style={{ backgroundColor: c.inputBg, color: c.text, fontFamily: "Inter_400Regular", borderWidth: 1, borderColor: c.inputBorder }}
                 />
-                <Pressable
-                  onPress={() => {
-                    const ml = parseInt(customWater);
-                    if (!isNaN(ml) && ml > 0) { addWater(ml).catch((err: Error) => console.error("addWater failed:", err)); setCustomWater(""); }
-                  }}
-                  className="px-5 py-3 rounded-lg items-center justify-center"
-                  style={{ backgroundColor: ACCENT.cyan }}
-                >
-                  <MaterialCommunityIcons name="plus" size={20} color="#161e00" />
-                </Pressable>
               </View>
               <Pressable
-                onPress={() => addWater(250).catch((err: Error) => console.error("addWater failed:", err))}
-                className="w-full py-3 rounded flex-row items-center justify-center"
-                style={{ backgroundColor: ACCENT.lime }}
+                onPress={() => {
+                  if (selectedWaterMl && selectedWaterMl > 0) {
+                    addWater(selectedWaterMl).catch((err: Error) => console.error("addWater failed:", err));
+                    setSelectedWaterMl(null);
+                  }
+                }}
+                disabled={!selectedWaterMl}
+                className="w-full py-3.5 rounded flex-row items-center justify-center"
+                style={{ backgroundColor: selectedWaterMl ? ACCENT.lime : c.buttonBg }}
               >
-                <MaterialCommunityIcons name="plus" size={20} color="#161e00" />
-                <Text style={{ color: "#161e00", fontFamily: "Inter_700Bold", fontSize: 14, marginLeft: 8 }}>Add Water</Text>
+                <MaterialCommunityIcons name="plus" size={20} color={selectedWaterMl ? "#161e00" : c.textMuted} />
+                <Text style={{ color: selectedWaterMl ? "#161e00" : c.textMuted, fontFamily: "Inter_700Bold", fontSize: 14, marginLeft: 8 }}>
+                  {selectedWaterMl ? `Add ${selectedWaterMl}ml` : "Select Amount"}
+                </Text>
               </Pressable>
+            </View>
+          </View>
+
+          {/* Weight */}
+          <View className="mb-section-gap">
+            <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 12, letterSpacing: 1, marginBottom: 12, textTransform: "uppercase" }}>
+              Weight
+            </Text>
+            <View className="rounded-xl p-5 glass-panel">
+              <WeightChart entries={weightEntries} goalWeightKg={profile?.goal_weight_kg ?? null} />
+              <WeightTracker
+                entries={weightEntries}
+                currentWeight={currentWeight}
+                weightChange={weightChange}
+                onAddWeight={addWeight}
+                onDeleteWeight={deleteWeight}
+                loading={weightLoading}
+                unitPrefs={unitPrefs}
+              />
             </View>
           </View>
 

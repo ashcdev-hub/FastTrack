@@ -11,7 +11,6 @@ import { useWeeklyFastingStats } from "@/hooks/useWeeklyFastingStats";
 import { useWeeklyWaterStats } from "@/hooks/useWeeklyWaterStats";
 import { useWorkoutLog } from "@/hooks/useWorkoutLog";
 import { useWorkoutGoals } from "@/hooks/useWorkoutGoals";
-import { useWeightLog } from "@/hooks/useWeightLog";
 import { useThemeStore } from "@/lib/theme-store";
 import { getThemeColors, ACCENT } from "@/lib/theme-colors";
 import { DEFAULT_UNITS } from "@/lib/units";
@@ -19,8 +18,6 @@ import { useToast } from "@/hooks/useToast";
 import { Toast } from "@/components/Toast";
 import { FastingAchievements } from "@/components/FastingAchievements";
 import { WeeklyStats } from "@/components/WeeklyStats";
-import { WeightChart } from "@/components/WeightChart";
-import { WeightTracker } from "@/components/WeightTracker";
 import { SettingsPanel } from "@/components/SettingsPanel";
 import { ProfileSkeleton } from "@/components/Skeleton";
 import { router } from "expo-router";
@@ -38,13 +35,6 @@ export default function ProfileScreen() {
   const { weeklyStats: weeklyWorkouts, streaks: workoutStreaks, fetchStreaks, loading: workoutLoading } =
     useWorkoutLog(user?.id, profile?.weight_kg ?? null);
   const { goals: workoutGoals } = useWorkoutGoals(user?.id);
-  const { entries: weightEntries, loading: weightLoading, addWeight: addWeightRaw, deleteWeight: deleteWeightRaw, currentWeight, weightChange } = useWeightLog(user?.id);
-  const addWeight = async (kg: number) => {
-    try { await addWeightRaw(kg); return { error: null }; } catch (e) { return { error: e as Error }; }
-  };
-  const deleteWeight = async (id: string) => {
-    try { await deleteWeightRaw(id); return { error: null }; } catch (e) { return { error: e as Error }; }
-  };
   const { toast, error: toastError } = useToast();
   const unitPrefs = profile?.unit_preferences ?? DEFAULT_UNITS;
 
@@ -93,19 +83,6 @@ export default function ProfileScreen() {
               pushupStreak={workoutStreaks["pushups"] ?? 0}
               weeklyPushups={weeklyWorkouts.totalReps}
             />
-
-            <View className="rounded-xl p-5 mb-6 glass-panel">
-              <WeightChart entries={weightEntries} goalWeightKg={profile?.goal_weight_kg ?? null} />
-              <WeightTracker
-                entries={weightEntries}
-                currentWeight={currentWeight}
-                weightChange={weightChange}
-                onAddWeight={addWeight}
-                onDeleteWeight={deleteWeight}
-                loading={weightLoading}
-                unitPrefs={unitPrefs}
-              />
-            </View>
 
             <WeeklyStats fasting={weeklyFasting} water={weeklyWater} workouts={weeklyWorkouts} unitPrefs={unitPrefs} />
 

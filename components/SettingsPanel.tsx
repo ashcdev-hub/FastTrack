@@ -6,9 +6,9 @@ import { useThemeStore } from "@/lib/theme-store";
 import { useToast } from "@/hooks/useToast";
 import { Toast } from "@/components/Toast";
 import { getThemeColors, ACCENT } from "@/lib/theme-colors";
+import { router } from "expo-router";
 import { cancelAllNotifications, scheduleDailyFastReminder } from "@/lib/notifications";
-import { DEFAULT_UNITS, displayWeight, displayHeight, weightUnitLabel, heightUnitLabel, parseWeightInput, parseHeightInput } from "@/lib/units";
-import type { Profile } from "@/lib/types";
+import { DEFAULT_UNITS, displayWeight, displayHeight, weightUnitLabel, heightUnitLabel, parseWeightInput } from "@/lib/units";
 import type { UnitPreferences } from "@/lib/units";
 
 type SettingsPanelProps = {
@@ -28,10 +28,8 @@ export function SettingsPanel({ userId }: SettingsPanelProps) {
   const c = getThemeColors(theme);
   const { toast, success, error: toastError } = useToast();
 
-  const [expandedSection, setExpandedSection] = useState<string | null>("profile");
+  const [expandedSection, setExpandedSection] = useState<string | null>(null);
   const [displayName, setDisplayName] = useState(profile?.display_name ?? "");
-  const [gender, setGender] = useState<Profile["gender"]>(profile?.gender ?? null);
-  const [age, setAge] = useState(profile?.age ? String(profile.age) : "");
   const [weight, setWeight] = useState("");
   const [goalWeight, setGoalWeight] = useState("");
   const [height, setHeight] = useState("");
@@ -53,8 +51,6 @@ export function SettingsPanel({ userId }: SettingsPanelProps) {
   useEffect(() => {
     if (profile) {
       setDisplayName(profile.display_name ?? "");
-      setGender(profile.gender ?? null);
-      setAge(profile.age ? String(profile.age) : "");
       const prefs = profile.unit_preferences ?? DEFAULT_UNITS;
       setWeight(profile.weight_kg ? displayWeight(profile.weight_kg, prefs) : "");
       setGoalWeight(profile.goal_weight_kg ? displayWeight(profile.goal_weight_kg, prefs) : "");
@@ -76,11 +72,7 @@ export function SettingsPanel({ userId }: SettingsPanelProps) {
   const handleSaveProfile = async () => {
     const updates: any = {
       display_name: displayName.trim() || null,
-      gender,
-      age: age ? parseInt(age) : null,
-      weight_kg: weight ? parseWeightInput(weight, unitPrefs) : null,
       goal_weight_kg: goalWeight ? parseWeightInput(goalWeight, unitPrefs) : null,
-      height_cm: height ? parseHeightInput(height, unitPrefs) : null,
     };
     const { error } = await updateProfile(updates);
     if (error) toastError("Failed to save profile");
@@ -161,38 +153,46 @@ export function SettingsPanel({ userId }: SettingsPanelProps) {
         <Text style={{ color: c.textSecondary, fontFamily: "Inter_400Regular" }} className="text-xs mb-1">Display Name</Text>
         <TextInput value={displayName} onChangeText={setDisplayName} placeholder="Your name" placeholderTextColor={c.placeholder} className="rounded-xl px-4 py-3 mb-3" style={inputStyle} />
 
-        <Text style={{ color: c.textSecondary, fontFamily: "Inter_400Regular" }} className="text-xs mb-1">Gender</Text>
         <View className="flex-row gap-2 mb-3">
-          {(["male", "female", "other"] as const).map((g) => (
-            <Pressable
-              key={g}
-              onPress={() => setGender(gender === g ? null : g)}
-              className="flex-1 py-3 rounded-xl items-center"
-              style={{
-                backgroundColor: gender === g ? ACCENT.lime : c.buttonBg,
-              }}
-            >
-              <Text
-                className="text-sm capitalize"
-                style={{
-                  color: gender === g ? c.textOnAccent : c.textSecondary,
-                  fontFamily: "SpaceGrotesk_600SemiBold",
-                }}
-              >
-                {g}
+          <View className="flex-1">
+            <Text style={{ color: c.textSecondary, fontFamily: "Inter_400Regular" }} className="text-xs mb-1">Gender</Text>
+            <View className="rounded-xl px-4 py-3" style={{ backgroundColor: c.buttonBg }}>
+              <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", textTransform: "capitalize" }}>
+                {profile?.gender ?? "Not set"}
               </Text>
-            </Pressable>
-          ))}
+            </View>
+          </View>
+          <View className="flex-1">
+            <Text style={{ color: c.textSecondary, fontFamily: "Inter_400Regular" }} className="text-xs mb-1">Age</Text>
+            <View className="rounded-xl px-4 py-3" style={{ backgroundColor: c.buttonBg }}>
+              <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular" }}>
+                {profile?.age ?? "—"}
+              </Text>
+            </View>
+          </View>
         </View>
 
         <View className="flex-row gap-2 mb-3">
           <View className="flex-1">
-            <Text style={{ color: c.textSecondary, fontFamily: "Inter_400Regular" }} className="text-xs mb-1">Age</Text>
-            <TextInput value={age} onChangeText={setAge} placeholder="25" placeholderTextColor={c.placeholder} keyboardType="numeric" className="rounded-xl px-4 py-3" style={inputStyle} />
+            <Text style={{ color: c.textSecondary, fontFamily: "Inter_400Regular" }} className="text-xs mb-1">Weight ({weightUnitLabel(unitPrefs)})</Text>
+            <Pressable
+              onPress={() => router.push("/(tabs)")}
+              className="rounded-xl px-4 py-3 flex-row items-center justify-between"
+              style={{ backgroundColor: c.inputBg, borderWidth: 1, borderColor: c.inputBorder }}
+            >
+              <Text style={{ color: c.text, fontFamily: "Inter_400Regular" }}>
+                {weight || (unitPrefs.weight === "lbs" ? "154" : "70")}
+              </Text>
+              <MaterialCommunityIcons name="arrow-right" size={16} color={c.textMuted} />
+            </Pressable>
           </View>
           <View className="flex-1">
-            <Text style={{ color: c.textSecondary, fontFamily: "Inter_400Regular" }} className="text-xs mb-1">Weight ({weightUnitLabel(unitPrefs)})</Text>
-            <TextInput value={weight} onChangeText={setWeight} placeholder={unitPrefs.weight === "lbs" ? "154" : "70"} placeholderTextColor={c.placeholder} keyboardType="numeric" className="rounded-xl px-4 py-3" style={inputStyle} />
+            <Text style={{ color: c.textSecondary, fontFamily: "Inter_400Regular" }} className="text-xs mb-1">Height ({heightUnitLabel(unitPrefs)})</Text>
+            <View className="rounded-xl px-4 py-3" style={{ backgroundColor: c.buttonBg }}>
+              <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular" }}>
+                {height || "—"}
+              </Text>
+            </View>
           </View>
         </View>
 
@@ -201,10 +201,7 @@ export function SettingsPanel({ userId }: SettingsPanelProps) {
             <Text style={{ color: c.textSecondary, fontFamily: "Inter_400Regular" }} className="text-xs mb-1">Goal Weight ({weightUnitLabel(unitPrefs)})</Text>
             <TextInput value={goalWeight} onChangeText={setGoalWeight} placeholder={unitPrefs.weight === "lbs" ? "143" : "75"} placeholderTextColor={c.placeholder} keyboardType="numeric" className="rounded-xl px-4 py-3" style={inputStyle} />
           </View>
-          <View className="flex-1">
-            <Text style={{ color: c.textSecondary, fontFamily: "Inter_400Regular" }} className="text-xs mb-1">Height ({heightUnitLabel(unitPrefs)})</Text>
-            <TextInput value={height} onChangeText={setHeight} placeholder={unitPrefs.height === "ft" ? "5'9\"" : "175"} placeholderTextColor={c.placeholder} keyboardType={unitPrefs.height === "ft" ? "default" : "numeric"} className="rounded-xl px-4 py-3" style={inputStyle} />
-          </View>
+          <View className="flex-1" />
         </View>
 
         {bmi && bmiColors && (
