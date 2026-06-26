@@ -12,6 +12,7 @@ import { PreviousFasts } from "@/components/PreviousFasts";
 import { CheckInPanel } from "@/components/CheckInPanel";
 import { CheckInTimeline } from "@/components/CheckInTimeline";
 import { MoodChart } from "@/components/MoodChart";
+import { CustomScheduleModal } from "@/components/CustomScheduleModal";
 import { useThemeStore } from "@/lib/theme-store";
 import { getThemeColors, ACCENT } from "@/lib/theme-colors";
 import { scheduleFastingReminder, cancelAllNotifications, scheduleDailyFastReminder, scheduleCheckInReminder, scheduleWaterReminders, checkAndNotifyStreakMilestone } from "@/lib/notifications";
@@ -112,8 +113,7 @@ export default function FastScreen() {
   const [showEndConfirm, setShowEndConfirm] = useState(false);
   const [checkInMood, setCheckInMood] = useState<number | null>(null);
   const [checkInNote, setCheckInNote] = useState("");
-  const [customFasting, setCustomFasting] = useState("16");
-  const [customEating, setCustomEating] = useState("8");
+  const [showCustomModal, setShowCustomModal] = useState(false);
 
   useEffect(() => {
     if (session) { setSessionId(session.id); setStartTime(session.start_time); }
@@ -211,12 +211,13 @@ export default function FastScreen() {
             {/* Start Fast Button */}
             <Pressable
               onPress={handleStartFast}
+              disabled={!selectedSchedule}
               className="w-full py-4 rounded-lg flex-row items-center justify-center mb-6"
-              style={{ backgroundColor: ACCENT.lime }}
+              style={{ backgroundColor: selectedSchedule ? ACCENT.lime : c.buttonBg }}
             >
-              <MaterialCommunityIcons name="timer-outline" size={22} color="#161e00" />
-              <Text style={{ color: "#161e00", fontFamily: "Inter_700Bold", fontSize: 18, marginLeft: 8 }}>
-                Start {scheduleLabel} Fast
+              <MaterialCommunityIcons name="timer-outline" size={22} color={selectedSchedule ? "#161e00" : c.textMuted} />
+              <Text style={{ color: selectedSchedule ? "#161e00" : c.textMuted, fontFamily: "Inter_700Bold", fontSize: 18, marginLeft: 8 }}>
+                {selectedSchedule ? `Start ${selectedSchedule} Fast` : "Select a Schedule"}
               </Text>
             </Pressable>
 
@@ -232,10 +233,14 @@ export default function FastScreen() {
                     <Pressable
                       key={p.label}
                       onPress={() => {
-                        setSelectedSchedule(p.label);
-                        setFastingHours(p.fasting);
-                        setEatingHours(p.eating);
-                        if (p.fasting > 0 && p.eating > 0) updateFastingSchedule(p.fasting, p.eating);
+                        if (selectedSchedule === p.label) {
+                          setSelectedSchedule(null);
+                        } else {
+                          setSelectedSchedule(p.label);
+                          setFastingHours(p.fasting);
+                          setEatingHours(p.eating);
+                          if (p.fasting > 0 && p.eating > 0) updateFastingSchedule(p.fasting, p.eating);
+                        }
                       }}
                       className="flex-1 py-4 items-center rounded-lg"
                       style={{ backgroundColor: isActive ? ACCENT.lime : c.cardBgAlt, borderWidth: 1, borderColor: isActive ? ACCENT.lime : c.cardBorder }}
@@ -251,53 +256,15 @@ export default function FastScreen() {
                 })}
               </View>
 
-              {/* Custom Schedule */}
-              <View className="flex-row gap-3 mb-4">
-                <View className="flex-1">
-                  <TextInput
-                    value={customFasting}
-                    onChangeText={setCustomFasting}
-                    keyboardType="numeric"
-                    placeholder="16"
-                    placeholderTextColor={c.placeholder}
-                    className="rounded-xl px-3 py-3 text-center"
-                    style={{ backgroundColor: c.inputBg, color: c.text, fontFamily: "Inter_700Bold", fontSize: 16 }}
-                  />
-                  <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 10, marginTop: 4, textAlign: "center" }}>
-                    Fasting
-                  </Text>
-                </View>
-                <Text style={{ color: c.textMuted, fontFamily: "Inter_700Bold", fontSize: 20, marginTop: 8 }}>:</Text>
-                <View className="flex-1">
-                  <TextInput
-                    value={customEating}
-                    onChangeText={setCustomEating}
-                    keyboardType="numeric"
-                    placeholder="8"
-                    placeholderTextColor={c.placeholder}
-                    className="rounded-xl px-3 py-3 text-center"
-                    style={{ backgroundColor: c.inputBg, color: c.text, fontFamily: "Inter_700Bold", fontSize: 16 }}
-                  />
-                  <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 10, marginTop: 4, textAlign: "center" }}>
-                    Eating
-                  </Text>
-                </View>
-                <Pressable
-                  onPress={() => {
-                    const f = parseInt(customFasting) || 16;
-                    const e = parseInt(customEating) || 8;
-                    const label = `${f}:${e}`;
-                    setSelectedSchedule(label);
-                    setFastingHours(f);
-                    setEatingHours(e);
-                    updateFastingSchedule(f, e);
-                  }}
-                  className="px-4 rounded-xl items-center justify-center mt-5"
-                  style={{ backgroundColor: ACCENT.lime }}
-                >
-                  <Text style={{ color: "#161e00", fontFamily: "Inter_700Bold", fontSize: 14 }}>Set</Text>
-                </Pressable>
-              </View>
+              <Pressable
+                onPress={() => { setSelectedSchedule(null); setShowCustomModal(true); }}
+                className="w-full py-3.5 rounded-lg items-center mb-4"
+                style={{ backgroundColor: selectedSchedule && !PRESETS.find((p) => p.label === selectedSchedule) ? ACCENT.lime : c.buttonBg, borderWidth: 1, borderColor: selectedSchedule && !PRESETS.find((p) => p.label === selectedSchedule) ? ACCENT.lime : c.cardBorder }}
+              >
+                <Text style={{ color: selectedSchedule && !PRESETS.find((p) => p.label === selectedSchedule) ? "#161e00" : c.textSecondary, fontFamily: "Inter_700Bold", fontSize: 14 }}>
+                  {selectedSchedule && !PRESETS.find((p) => p.label === selectedSchedule) ? `Custom: ${selectedSchedule}` : "Custom Schedule"}
+                </Text>
+              </Pressable>
             </View>
 
             {/* Schedule Info */}
@@ -469,6 +436,18 @@ export default function FastScreen() {
         {/* Previous Fasts + Calendar */}
         <PreviousFasts sessions={pastSessions} fastingHours={fastingHours} onDelete={deleteFast} />
       </ScrollView>
+
+      <CustomScheduleModal
+        visible={showCustomModal}
+        onSelect={(label, f, e) => {
+          setSelectedSchedule(label);
+          setFastingHours(f);
+          setEatingHours(e);
+          updateFastingSchedule(f, e);
+          setShowCustomModal(false);
+        }}
+        onCancel={() => setShowCustomModal(false)}
+      />
     </SafeAreaView>
   );
 }
