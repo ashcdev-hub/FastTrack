@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Pressable, View, Text, TextInput, ScrollView, Switch } from "react-native";
+import { Pressable, View, Text, TextInput, ScrollView, Switch, Modal } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useProfile } from "@/hooks/useProfile";
 import { useThemeStore } from "@/lib/theme-store";
@@ -7,9 +7,10 @@ import { useToast } from "@/hooks/useToast";
 import { Toast } from "@/components/Toast";
 import { getThemeColors, ACCENT } from "@/lib/theme-colors";
 import { router } from "expo-router";
-import { cancelAllNotifications, scheduleDailyFastReminder } from "@/lib/notifications";
+import { cancelAllNotifications, scheduleDailyFastReminder, scheduleDailyNotification } from "@/lib/notifications";
 import { DEFAULT_UNITS, displayWeight, displayHeight, weightUnitLabel, heightUnitLabel, parseWeightInput } from "@/lib/units";
 import type { UnitPreferences } from "@/lib/units";
+import type { Profile } from "@/lib/types";
 
 type SettingsPanelProps = {
   userId: string | null;
@@ -36,7 +37,7 @@ export function SettingsPanel({ userId }: SettingsPanelProps) {
   const [newEmail, setNewEmail] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [notifications, setNotifications] = useState(profile?.notification_preferences ?? {
+  const [notifications, setNotifications] = useState<Profile["notification_preferences"]>(profile?.notification_preferences ?? {
     fasting_reminders: true,
     eating_reminders: true,
     daily_digest: true,
@@ -45,8 +46,17 @@ export function SettingsPanel({ userId }: SettingsPanelProps) {
     checkin_reminders: true,
     reminder_time: "20:00",
     water_interval_hours: 2,
+    checkin_mode: "midway",
+    checkin_custom_time: "14:00",
+    eat_window_reminder: false,
+    eat_window_reminder_minutes: 15,
+    notification_days: [1, 2, 3, 4, 5, 6, 7],
   });
   const [unitPrefs, setUnitPrefs] = useState<UnitPreferences>(profile?.unit_preferences ?? DEFAULT_UNITS);
+  const [showTimePicker, setShowTimePicker] = useState(false);
+  const [timePickerTarget, setTimePickerTarget] = useState<string | null>(null);
+  const [pickerHour, setPickerHour] = useState(20);
+  const [pickerMinute, setPickerMinute] = useState(0);
 
   useEffect(() => {
     if (profile) {
@@ -64,6 +74,11 @@ export function SettingsPanel({ userId }: SettingsPanelProps) {
         checkin_reminders: true,
         reminder_time: "20:00",
         water_interval_hours: 2,
+        checkin_mode: "midway",
+        checkin_custom_time: "14:00",
+        eat_window_reminder: false,
+        eat_window_reminder_minutes: 15,
+        notification_days: [1, 2, 3, 4, 5, 6, 7],
       });
       setUnitPrefs(profile.unit_preferences ?? DEFAULT_UNITS);
     }
@@ -89,8 +104,44 @@ export function SettingsPanel({ userId }: SettingsPanelProps) {
         const [hour, minute] = notifications.reminder_time.split(":").map(Number);
         await scheduleDailyFastReminder(hour, minute);
       }
+      if (notifications.eating_reminders && notifications.reminder_time) {
+        const [hour, minute] = notifications.reminder_time.split(":").map(Number);
+        await scheduleDailyNotification("Time to eat", "Your eating window is open. Track your meals!", hour, minute);
+      }
+      if (notifications.checkin_reminders && notifications.checkin_mode === "custom" && notifications.checkin_custom_time) {
+        const [hour, minute] = notifications.checkin_custom_time.split(":").map(Number);
+        await scheduleDailyNotification("How are you feeling?", "Time for a fast check-in.", hour, minute);
+      }
       success("Notification preferences updated");
     }
+  };
+
+  const applyTimePicker = () => {
+    const timeStr = `${pickerHour.toString().padStart(2, "0")}:${pickerMinute.toString().padStart(2, "0")}`;
+    if (timePickerTarget) {
+      setNotifications((prev: Profile["notification_preferences"]) => ({ ...prev, [timePickerTarget]: timeStr }));
+    }
+    setShowTimePicker(false);
+    setTimePickerTarget(null);
+  };
+
+  const openTimePicker = (field: string, currentTime: string) => {
+    const [h, m] = currentTime.split(":").map(Number);
+    setPickerHour(h);
+    setPickerMinute(m);
+    setTimePickerTarget(field);
+    setShowTimePicker(true);
+  };
+
+  const DAY_LABELS = ["M", "T", "W", "T", "F", "S", "S"];
+
+  const hours = Array.from({ length: 24 }, (_, i) => i);
+  const minutes = Array.from({ length: 60 }, (_, i) => i);
+
+  const toggleDay = (day: number) => {
+    const current: number[] = notifications.notification_days ?? [1, 2, 3, 4, 5, 6, 7];
+    const next = current.includes(day) ? current.filter((d) => d !== day) : [...current, day].sort();
+    setNotifications((prev: Profile["notification_preferences"]) => ({ ...prev, notification_days: next }));
   };
 
   const handleChangeEmail = async () => {
@@ -233,98 +284,173 @@ export function SettingsPanel({ userId }: SettingsPanelProps) {
       </SectionCard>
 
       <SectionCard section="notifications" title="Notifications">
+        {/* Fasting Reminders */}
         <View className="flex-row justify-between items-center py-3" style={{ borderBottomWidth: 1, borderBottomColor: c.divider }}>
           <Text style={{ color: c.text, fontFamily: "Inter_400Regular" }} className="text-sm">Fasting Reminders</Text>
           <Switch
             value={notifications.fasting_reminders}
-            onValueChange={(value) => setNotifications({ ...notifications, fasting_reminders: value })}
+            onValueChange={(value) => setNotifications((prev: Profile["notification_preferences"]) => ({ ...prev, fasting_reminders: value }))}
             trackColor={{ false: c.buttonBg, true: ACCENT.lime }}
             thumbColor="#FFFFFF"
           />
         </View>
+        {notifications.fasting_reminders && (
+          <Pressable onPress={() => openTimePicker("reminder_time", notifications.reminder_time ?? "20:00")}
+            className="flex-row items-center justify-between rounded-xl px-4 py-3 mt-2 mb-3"
+            style={{ backgroundColor: c.inputBg }}
+          >
+            <Text style={{ color: c.textSecondary, fontFamily: "Inter_400Regular", fontSize: 13 }}>Remind at</Text>
+            <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 14 }}>{notifications.reminder_time ?? "20:00"}</Text>
+          </Pressable>
+        )}
+
+        {/* Eating Reminders */}
         <View className="flex-row justify-between items-center py-3" style={{ borderBottomWidth: 1, borderBottomColor: c.divider }}>
           <Text style={{ color: c.text, fontFamily: "Inter_400Regular" }} className="text-sm">Eating Reminders</Text>
           <Switch
             value={notifications.eating_reminders}
-            onValueChange={(value) => setNotifications({ ...notifications, eating_reminders: value })}
+            onValueChange={(value) => setNotifications((prev: Profile["notification_preferences"]) => ({ ...prev, eating_reminders: value }))}
             trackColor={{ false: c.buttonBg, true: ACCENT.lime }}
             thumbColor="#FFFFFF"
           />
         </View>
+
+        {/* Check-in Reminders */}
         <View className="flex-row justify-between items-center py-3" style={{ borderBottomWidth: 1, borderBottomColor: c.divider }}>
           <Text style={{ color: c.text, fontFamily: "Inter_400Regular" }} className="text-sm">Check-in Reminders</Text>
           <Switch
             value={notifications.checkin_reminders}
-            onValueChange={(value) => setNotifications({ ...notifications, checkin_reminders: value })}
+            onValueChange={(value) => setNotifications((prev: Profile["notification_preferences"]) => ({ ...prev, checkin_reminders: value }))}
             trackColor={{ false: c.buttonBg, true: ACCENT.lime }}
             thumbColor="#FFFFFF"
           />
         </View>
+        {notifications.checkin_reminders && (
+          <View className="mt-2 mb-3">
+            <Pressable onPress={() => setNotifications((prev: Profile["notification_preferences"]) => ({ ...prev, checkin_mode: prev.checkin_mode === "midway" ? "custom" : "midway" }))}
+              className="flex-row items-center gap-2 mb-2"
+            >
+              <MaterialCommunityIcons name={notifications.checkin_mode === "midway" ? "radiobox-marked" : "radiobox-blank"} size={18} color={notifications.checkin_mode === "midway" ? ACCENT.lime : c.textMuted} />
+              <Text style={{ color: c.textSecondary, fontFamily: "Inter_400Regular", fontSize: 13 }}>Midway through fast</Text>
+            </Pressable>
+            <Pressable onPress={() => setNotifications((prev: Profile["notification_preferences"]) => ({ ...prev, checkin_mode: prev.checkin_mode === "custom" ? "midway" : "custom" }))}
+              className="flex-row items-center gap-2 mb-2"
+            >
+              <MaterialCommunityIcons name={notifications.checkin_mode === "custom" ? "radiobox-marked" : "radiobox-blank"} size={18} color={notifications.checkin_mode === "custom" ? ACCENT.lime : c.textMuted} />
+              <Text style={{ color: c.textSecondary, fontFamily: "Inter_400Regular", fontSize: 13 }}>Custom time</Text>
+            </Pressable>
+            {notifications.checkin_mode === "custom" && (
+              <Pressable onPress={() => openTimePicker("checkin_custom_time", notifications.checkin_custom_time ?? "14:00")}
+                className="flex-row items-center justify-between rounded-xl px-4 py-3 ml-6"
+                style={{ backgroundColor: c.inputBg }}
+              >
+                <Text style={{ color: c.textSecondary, fontFamily: "Inter_400Regular", fontSize: 13 }}>Time</Text>
+                <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 14 }}>{notifications.checkin_custom_time ?? "14:00"}</Text>
+              </Pressable>
+            )}
+          </View>
+        )}
+
+        {/* Streak Milestones */}
         <View className="flex-row justify-between items-center py-3" style={{ borderBottomWidth: 1, borderBottomColor: c.divider }}>
           <Text style={{ color: c.text, fontFamily: "Inter_400Regular" }} className="text-sm">Streak Milestones</Text>
           <Switch
             value={notifications.streak_reminders}
-            onValueChange={(value) => setNotifications({ ...notifications, streak_reminders: value })}
+            onValueChange={(value) => setNotifications((prev: Profile["notification_preferences"]) => ({ ...prev, streak_reminders: value }))}
             trackColor={{ false: c.buttonBg, true: ACCENT.lime }}
             thumbColor="#FFFFFF"
           />
         </View>
+
+        {/* Water Reminders */}
         <View className="flex-row justify-between items-center py-3" style={{ borderBottomWidth: 1, borderBottomColor: c.divider }}>
           <Text style={{ color: c.text, fontFamily: "Inter_400Regular" }} className="text-sm">Water Reminders</Text>
           <Switch
             value={notifications.water_reminders}
-            onValueChange={(value) => setNotifications({ ...notifications, water_reminders: value })}
+            onValueChange={(value) => setNotifications((prev: Profile["notification_preferences"]) => ({ ...prev, water_reminders: value }))}
             trackColor={{ false: c.buttonBg, true: ACCENT.lime }}
             thumbColor="#FFFFFF"
           />
         </View>
+        {notifications.water_reminders && (
+          <View className="mt-2 mb-3">
+            <Text style={{ color: c.textSecondary, fontFamily: "Inter_400Regular", fontSize: 12, marginBottom: 6 }}>Interval</Text>
+            <View className="flex-row gap-2">
+              {[1, 2, 3, 4].map((h) => {
+                const isActive = notifications.water_interval_hours === h;
+                return (
+                  <Pressable key={h} onPress={() => setNotifications((prev: Profile["notification_preferences"]) => ({ ...prev, water_interval_hours: h }))}
+                    className="flex-1 py-2 rounded-lg items-center"
+                    style={{ backgroundColor: isActive ? ACCENT.lime : c.buttonBg }}
+                  >
+                    <Text style={{ color: isActive ? "#161e00" : c.textSecondary, fontFamily: "SpaceGrotesk_600SemiBold", fontSize: 12 }}>{h}h</Text>
+                  </Pressable>
+                );
+              })}
+            </View>
+          </View>
+        )}
+
+        {/* Daily Digest Email */}
         <View className="flex-row justify-between items-center py-3" style={{ borderBottomWidth: 1, borderBottomColor: c.divider }}>
           <Text style={{ color: c.text, fontFamily: "Inter_400Regular" }} className="text-sm">Daily Digest Email</Text>
           <Switch
             value={notifications.daily_digest}
-            onValueChange={(value) => setNotifications({ ...notifications, daily_digest: value })}
+            onValueChange={(value) => setNotifications((prev: Profile["notification_preferences"]) => ({ ...prev, daily_digest: value }))}
             trackColor={{ false: c.buttonBg, true: ACCENT.lime }}
             thumbColor="#FFFFFF"
           />
         </View>
 
-        <View className="mt-3 mb-3">
-          <Text style={{ color: c.textSecondary, fontFamily: "Inter_400Regular" }} className="text-xs mb-2">Fast reminder time</Text>
-          <View className="flex-row gap-2">
-            {["06:00", "12:00", "18:00", "20:00", "22:00"].map((time) => {
-              const isActive = notifications.reminder_time === time;
-              const label = time === "06:00" ? "6am" : time === "12:00" ? "12pm" : time === "18:00" ? "6pm" : time === "20:00" ? "8pm" : "10pm";
-              return (
-                <Pressable
-                  key={time}
-                  onPress={() => setNotifications({ ...notifications, reminder_time: time })}
-                  className="flex-1 py-2 rounded-lg items-center"
-                  style={{ backgroundColor: isActive ? ACCENT.lime : c.buttonBg }}
-                >
-                  <Text style={{ color: isActive ? "#161e00" : c.textSecondary, fontFamily: "SpaceGrotesk_600SemiBold" }} className="text-xs">
-                    {label}
-                  </Text>
-                </Pressable>
-              );
-            })}
-          </View>
+        {/* Eating Window Reminder */}
+        <View className="flex-row justify-between items-center py-3" style={{ borderBottomWidth: 1, borderBottomColor: c.divider }}>
+          <Text style={{ color: c.text, fontFamily: "Inter_400Regular" }} className="text-sm">Eat Window Reminder</Text>
+          <Switch
+            value={notifications.eat_window_reminder}
+            onValueChange={(value) => setNotifications((prev: Profile["notification_preferences"]) => ({ ...prev, eat_window_reminder: value }))}
+            trackColor={{ false: c.buttonBg, true: ACCENT.lime }}
+            thumbColor="#FFFFFF"
+          />
         </View>
-
-        <View className="mb-3">
-          <Text style={{ color: c.textSecondary, fontFamily: "Inter_400Regular" }} className="text-xs mb-2">Water reminder interval</Text>
-          <View className="flex-row gap-2">
-            {[1, 2, 3, 4].map((hours) => {
-              const isActive = notifications.water_interval_hours === hours;
-              return (
-                <Pressable
-                  key={hours}
-                  onPress={() => setNotifications({ ...notifications, water_interval_hours: hours })}
+        {notifications.eat_window_reminder && (
+          <View className="mt-2 mb-3">
+            <Text style={{ color: c.textSecondary, fontFamily: "Inter_400Regular", fontSize: 12, marginBottom: 6 }}>Remind before eating window</Text>
+            <View className="flex-row items-center gap-3 mb-2">
+              <Pressable onPress={() => setNotifications((prev: Profile["notification_preferences"]) => ({ ...prev, eat_window_reminder_minutes: Math.max(1, (prev.eat_window_reminder_minutes ?? 15) - 5) }))} className="p-2 rounded-lg" style={{ backgroundColor: c.buttonBg }}>
+                <MaterialCommunityIcons name="minus" size={16} color={c.text} />
+              </Pressable>
+              <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 18, minWidth: 40, textAlign: "center" }}>{notifications.eat_window_reminder_minutes ?? 15}</Text>
+              <Pressable onPress={() => setNotifications((prev: Profile["notification_preferences"]) => ({ ...prev, eat_window_reminder_minutes: Math.min(120, (prev.eat_window_reminder_minutes ?? 15) + 5) }))} className="p-2 rounded-lg" style={{ backgroundColor: c.buttonBg }}>
+                <MaterialCommunityIcons name="plus" size={16} color={c.text} />
+              </Pressable>
+              <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 13 }}>min before</Text>
+            </View>
+            <View className="flex-row gap-2">
+              {[5, 15, 30, 60].map((v) => (
+                <Pressable key={v} onPress={() => setNotifications((prev: Profile["notification_preferences"]) => ({ ...prev, eat_window_reminder_minutes: v }))}
                   className="flex-1 py-2 rounded-lg items-center"
+                  style={{ backgroundColor: (notifications.eat_window_reminder_minutes ?? 15) === v ? ACCENT.lime : c.buttonBg }}
+                >
+                  <Text style={{ color: (notifications.eat_window_reminder_minutes ?? 15) === v ? "#161e00" : c.textSecondary, fontFamily: "SpaceGrotesk_600SemiBold", fontSize: 12 }}>{v}m</Text>
+                </Pressable>
+              ))}
+            </View>
+          </View>
+        )}
+
+        {/* Notification Days */}
+        <View className="mt-3 mb-3">
+          <Text style={{ color: c.textSecondary, fontFamily: "Inter_400Regular", fontSize: 12, marginBottom: 6 }}>Notification Days</Text>
+          <View className="flex-row gap-2">
+            {DAY_LABELS.map((label, i) => {
+              const day = i + 1;
+              const isActive = (notifications.notification_days ?? [1, 2, 3, 4, 5, 6, 7]).includes(day);
+              return (
+                <Pressable key={day} onPress={() => toggleDay(day)}
+                  className="flex-1 py-2.5 rounded-lg items-center"
                   style={{ backgroundColor: isActive ? ACCENT.lime : c.buttonBg }}
                 >
-                  <Text style={{ color: isActive ? "#161e00" : c.textSecondary, fontFamily: "SpaceGrotesk_600SemiBold" }} className="text-xs">
-                    {hours}h
-                  </Text>
+                  <Text style={{ color: isActive ? "#161e00" : c.textSecondary, fontFamily: "SpaceGrotesk_600SemiBold", fontSize: 12 }}>{label}</Text>
                 </Pressable>
               );
             })}
@@ -427,6 +553,56 @@ export function SettingsPanel({ userId }: SettingsPanelProps) {
           />
         </View>
       </SectionCard>
+
+      {/* Time Picker Modal */}
+      <Modal visible={showTimePicker} transparent animationType="slide" onRequestClose={() => setShowTimePicker(false)}>
+        <Pressable className="flex-1 justify-end" style={{ backgroundColor: c.overlay }} onPress={() => setShowTimePicker(false)}>
+          <Pressable className="rounded-t-3xl p-6" style={{ backgroundColor: c.elevated }} onStartShouldSetResponder={() => true}>
+            <View className="flex-row justify-between items-center mb-4">
+              <Pressable onPress={() => setShowTimePicker(false)}>
+                <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 14 }}>Cancel</Text>
+              </Pressable>
+              <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 18 }}>Select Time</Text>
+              <Pressable onPress={applyTimePicker}>
+                <Text style={{ color: ACCENT.lime, fontFamily: "Inter_700Bold", fontSize: 14 }}>Done</Text>
+              </Pressable>
+            </View>
+            <View className="flex-row justify-center gap-6 mb-4">
+              <View className="items-center">
+                <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 12, marginBottom: 8 }}>Hour</Text>
+                <ScrollView className="h-32 w-16" showsVerticalScrollIndicator={false}>
+                  {hours.map((h) => (
+                    <Pressable key={h} onPress={() => setPickerHour(h)}
+                      className="py-2 items-center rounded-lg"
+                      style={{ backgroundColor: pickerHour === h ? ACCENT.limeBg : "transparent" }}
+                    >
+                      <Text style={{ color: pickerHour === h ? ACCENT.lime : c.textMuted, fontFamily: pickerHour === h ? "Inter_700Bold" : "Inter_400Regular", fontSize: 18, textAlign: "center" }}>
+                        {h.toString().padStart(2, "0")}
+                      </Text>
+                    </Pressable>
+                  ))}
+                </ScrollView>
+              </View>
+              <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 24, marginTop: 24 }}>:</Text>
+              <View className="items-center">
+                <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 12, marginBottom: 8 }}>Minute</Text>
+                <ScrollView className="h-32 w-16" showsVerticalScrollIndicator={false}>
+                  {minutes.map((m) => (
+                    <Pressable key={m} onPress={() => setPickerMinute(m)}
+                      className="py-2 items-center rounded-lg"
+                      style={{ backgroundColor: pickerMinute === m ? ACCENT.limeBg : "transparent" }}
+                    >
+                      <Text style={{ color: pickerMinute === m ? ACCENT.lime : c.textMuted, fontFamily: pickerMinute === m ? "Inter_700Bold" : "Inter_400Regular", fontSize: 18, textAlign: "center" }}>
+                        {m.toString().padStart(2, "0")}
+                      </Text>
+                    </Pressable>
+                  ))}
+                </ScrollView>
+              </View>
+            </View>
+          </Pressable>
+        </Pressable>
+      </Modal>
     </View>
   );
 }

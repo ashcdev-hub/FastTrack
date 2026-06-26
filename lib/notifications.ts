@@ -142,6 +142,36 @@ export async function scheduleWaterReminders(intervalHours: number) {
   });
 }
 
+// --- New: Eating window reminder ---
+
+export async function scheduleEatingWindowReminder(fastingSeconds: number, minutesBefore: number) {
+  if (Platform.OS === "web" || !Notifications) return;
+  const seconds = Math.max(fastingSeconds - minutesBefore * 60, 0);
+  await Notifications.scheduleNotificationAsync({
+    content: {
+      title: "Eating window opening soon",
+      body: `Your fast ends in ${minutesBefore} minutes. Get ready to eat!`,
+      sound: true,
+    },
+    trigger: {
+      type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
+      seconds,
+    },
+  });
+}
+
+export async function scheduleDailyNotification(title: string, body: string, hour: number, minute: number) {
+  if (Platform.OS === "web" || !Notifications) return;
+  await Notifications.scheduleNotificationAsync({
+    content: { title, body, sound: true },
+    trigger: {
+      type: Notifications.SchedulableTriggerInputTypes.DAILY,
+      hour,
+      minute,
+    },
+  });
+}
+
 // --- New: Streak milestone check ---
 
 const STREAK_MILESTONES = [3, 7, 14, 30, 50, 100];

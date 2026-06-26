@@ -63,6 +63,11 @@ export type Profile = {
     checkin_reminders: boolean;
     reminder_time: string;
     water_interval_hours: number;
+    checkin_mode?: "midway" | "custom";
+    checkin_custom_time?: string;
+    eat_window_reminder?: boolean;
+    eat_window_reminder_minutes?: number;
+    notification_days?: number[];
   };
   unit_preferences: {
     weight: "kg" | "lbs";

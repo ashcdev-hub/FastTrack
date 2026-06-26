@@ -15,7 +15,7 @@ import { MoodChart } from "@/components/MoodChart";
 import { CustomScheduleModal } from "@/components/CustomScheduleModal";
 import { useThemeStore } from "@/lib/theme-store";
 import { getThemeColors, ACCENT } from "@/lib/theme-colors";
-import { scheduleFastingReminder, cancelAllNotifications, scheduleDailyFastReminder, scheduleCheckInReminder, scheduleWaterReminders, checkAndNotifyStreakMilestone } from "@/lib/notifications";
+import { scheduleFastingReminder, cancelAllNotifications, scheduleDailyFastReminder, scheduleCheckInReminder, scheduleWaterReminders, scheduleEatingWindowReminder, checkAndNotifyStreakMilestone } from "@/lib/notifications";
 import { getFastingPhase, getEatingPhase } from "@/lib/fasting-phases";
 import { format, addHours } from "date-fns";
 
@@ -130,8 +130,11 @@ export default function FastScreen() {
       setSessionId(data.id);
       setStartTime(data.start_time);
       await scheduleFastingReminder("Fast Complete!", `Your fast is done. Time to eat!`, fastingHours * 3600);
-      if (notifPrefs?.checkin_reminders) await scheduleCheckInReminder(fastingHours / 2);
+      if (notifPrefs?.checkin_reminders && notifPrefs?.checkin_mode !== "custom") await scheduleCheckInReminder(fastingHours / 2);
       if (notifPrefs?.water_reminders && notifPrefs?.water_interval_hours) await scheduleWaterReminders(notifPrefs.water_interval_hours);
+      if (notifPrefs?.eat_window_reminder && notifPrefs?.eat_window_reminder_minutes) {
+        await scheduleEatingWindowReminder(fastingHours * 3600, notifPrefs.eat_window_reminder_minutes);
+      }
     }
   };
 
