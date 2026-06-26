@@ -4,12 +4,10 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useAuth } from "@/hooks/useAuth";
 import { useFoodLog } from "@/hooks/useFoodLog";
-import { useWaterLog } from "@/hooks/useWaterLog";
 import { useGoalStore } from "@/store/useGoalStore";
 import { useProfile } from "@/hooks/useProfile";
 import { MealForm } from "@/components/MealForm";
 import { FoodSearch } from "@/components/FoodSearch";
-import { WaterTracker } from "@/components/WaterTracker";
 import { MealBuilder, StagedItem } from "@/components/MealBuilder";
 import { FoodLogItem } from "@/components/FoodLogItem";
 import { LogFoodSkeleton } from "@/components/Skeleton";
@@ -53,7 +51,6 @@ export default function LogFoodScreen() {
   const { profile } = useProfile(user?.id ?? null);
   const unitPrefs = profile?.unit_preferences ?? DEFAULT_UNITS;
   const { entries, totals, addEntries, deleteEntry, loading: foodLoading } = useFoodLog(user?.id);
-  const { totalMl, addWater } = useWaterLog(user?.id);
   const goals = useGoalStore();
   const { theme } = useThemeStore();
   const c = getThemeColors(theme);
@@ -216,32 +213,6 @@ export default function LogFoodScreen() {
           </View>
         </View>
 
-        {/* Water Tracker */}
-        <View className="glass-panel p-5 mb-section-gap" style={{ borderLeftWidth: 4, borderLeftColor: ACCENT.cyan }}>
-          <View className="flex-row justify-between items-center mb-4">
-            <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 12, letterSpacing: 1, textTransform: "uppercase" }}>
-              WATER TRACKER
-            </Text>
-            <Text style={{ color: ACCENT.cyan, fontFamily: "SpaceGrotesk_600SemiBold", fontSize: 24 }}>
-              {(totalMl / 1000).toFixed(1)} <Text style={{ fontFamily: "Inter_400Regular", fontSize: 14, color: c.textMuted }}>/ {goals.waterGoalMl / 1000}L</Text>
-            </Text>
-          </View>
-          <View className="h-3 rounded-full overflow-hidden mb-6" style={{ backgroundColor: "rgba(255,255,255,0.05)" }}>
-            <View className="h-full rounded-full" style={{ width: `${Math.min(totalMl / goals.waterGoalMl, 1) * 100}%`, backgroundColor: ACCENT.cyan }} />
-          </View>
-          <View className="flex-row gap-2">
-            {[250, 500, 750].map((ml) => (
-              <Pressable
-                key={ml}
-                onPress={() => addWater(ml)}
-                className="flex-1 py-3 rounded items-center glass-panel"
-              >
-                <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 10, letterSpacing: 1 }}>{ml}ML</Text>
-              </Pressable>
-            ))}
-          </View>
-        </View>
-
         {/* Meal Type Selector */}
         <View className="glass-panel p-3 mb-6">
           <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 10, letterSpacing: 1, marginBottom: 10, textTransform: "uppercase" }}>
@@ -328,10 +299,6 @@ export default function LogFoodScreen() {
           )}
         </View>
 
-        {/* Legacy WaterTracker */}
-        <View className="mb-6">
-          <WaterTracker currentMl={totalMl} goalMl={goals.waterGoalMl} onAdd={addWater} unitPrefs={unitPrefs} />
-        </View>
       </ScrollView>
 
       {/* Custom Item Modal */}

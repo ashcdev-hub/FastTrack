@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Pressable, View, Text, ScrollView } from "react-native";
+import { Pressable, View, Text, TextInput, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useAuth } from "@/hooks/useAuth";
@@ -55,6 +55,8 @@ export default function HomeScreen() {
   const waterPct = goals.waterGoalMl > 0 ? Math.min(totalMl / goals.waterGoalMl, 1) : 0;
   const enabledGoals = workoutGoals.filter((g) => g.enabled);
   const totalReps = Object.values(todayTotals).reduce((sum, t) => sum + t.reps, 0);
+
+  const [customWater, setCustomWater] = useState("");
 
   const macros = [
     { label: "Calories", current: totals.calories, goal: goals.dailyCalories, unit: "kcal", barColor: ACCENT.lime },
@@ -159,16 +161,24 @@ export default function HomeScreen() {
               <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 12, letterSpacing: 1, textTransform: "uppercase" }}>
                 Hydration
               </Text>
-              <Text style={{ color: ACCENT.cyan, fontFamily: "Inter_700Bold", fontSize: 14 }}>
-                {Math.round(totalMl / 100) / 10} / {goals.waterGoalMl / 1000}L
-              </Text>
+              <View className="flex-row items-center gap-2">
+                <Text style={{ color: ACCENT.cyan, fontFamily: "SpaceGrotesk_600SemiBold", fontSize: 24, letterSpacing: -0.5 }}>
+                  {Math.round(totalMl / 100) / 10}
+                </Text>
+                <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 14 }}>
+                  / {goals.waterGoalMl / 1000}L
+                </Text>
+              </View>
             </View>
             <View className="rounded-xl p-5" style={{ backgroundColor: "rgba(28,28,30,0.8)", borderWidth: 1, borderColor: "rgba(44,44,46,1)" }}>
+              <View className="h-2 rounded-full overflow-hidden mb-5" style={{ backgroundColor: "rgba(255,255,255,0.05)" }}>
+                <View className="h-full rounded-full" style={{ width: `${Math.min(totalMl / goals.waterGoalMl, 1) * 100}%`, backgroundColor: ACCENT.cyan }} />
+              </View>
               <View className="flex-row gap-3 mb-5 overflow-x-auto no-scrollbar">
                 {[250, 500, 750].map((ml) => (
                   <Pressable
                     key={ml}
-                    onPress={() => addWater(ml)}
+                    onPress={() => addWater(ml).catch((err: Error) => console.error("addWater failed:", err))}
                     className="flex-1 py-3 rounded items-center glass-panel"
                   >
                     <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 14 }}>{ml}ml</Text>
@@ -178,8 +188,29 @@ export default function HomeScreen() {
                   </Pressable>
                 ))}
               </View>
+              <View className="flex-row gap-3 mb-4">
+                <TextInput
+                  value={customWater}
+                  onChangeText={setCustomWater}
+                  placeholder="Custom ml"
+                  placeholderTextColor={c.placeholder}
+                  keyboardType="numeric"
+                  className="flex-1 rounded-lg px-4 py-3"
+                  style={{ backgroundColor: c.inputBg, color: c.text, fontFamily: "Inter_400Regular", borderWidth: 1, borderColor: c.inputBorder }}
+                />
+                <Pressable
+                  onPress={() => {
+                    const ml = parseInt(customWater);
+                    if (!isNaN(ml) && ml > 0) { addWater(ml).catch((err: Error) => console.error("addWater failed:", err)); setCustomWater(""); }
+                  }}
+                  className="px-5 py-3 rounded-lg items-center justify-center"
+                  style={{ backgroundColor: ACCENT.cyan }}
+                >
+                  <MaterialCommunityIcons name="plus" size={20} color="#161e00" />
+                </Pressable>
+              </View>
               <Pressable
-                onPress={() => addWater(250)}
+                onPress={() => addWater(250).catch((err: Error) => console.error("addWater failed:", err))}
                 className="w-full py-3 rounded flex-row items-center justify-center"
                 style={{ backgroundColor: ACCENT.lime }}
               >

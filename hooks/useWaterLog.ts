@@ -2,25 +2,33 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
 import type { WaterLog } from "@/lib/types";
 
-const today = () => new Date().toISOString().split("T")[0];
+const localDateKey = () => {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+};
+
+function localDateBounds(dateKey: string) {
+  const start = new Date(`${dateKey}T00:00:00`);
+  const end = new Date(`${dateKey}T23:59:59.999`);
+  return { start: start.toISOString(), end: end.toISOString() };
+}
 
 export function useWaterLog(userId: string | undefined) {
   const queryClient = useQueryClient();
-  const dateKey = today();
+  const dateKey = localDateKey();
 
   const { data: entries = [], isLoading: loading } = useQuery({
     queryKey: ["water_log", userId, dateKey],
     queryFn: async () => {
       if (!userId) return [];
-      const startOfDay = new Date(`${dateKey}T00:00:00Z`).toISOString();
-      const endOfDay = new Date(`${dateKey}T23:59:59Z`).toISOString();
+      const { start, end } = localDateBounds(dateKey);
 
       const { data, error } = await supabase
         .from("water_log")
         .select("*")
         .eq("user_id", userId)
-        .gte("logged_at", startOfDay)
-        .lte("logged_at", endOfDay)
+        .gte("logged_at", start)
+        .lte("logged_at", end)
         .order("logged_at", { ascending: false });
 
       if (error) {
@@ -49,6 +57,9 @@ export function useWaterLog(userId: string | undefined) {
         data,
         ...(old ?? []),
       ]);
+    },
+    onError: (error) => {
+      console.error("addWater mutation failed:", error);
     },
   });
 

@@ -166,7 +166,7 @@ export default function FastScreen() {
   return (
     <SafeAreaView className="flex-1" style={{ backgroundColor: c.bg }}>
       {/* Fixed Top App Bar */}
-      <header className="fixed top-0 w-full z-50" style={{ backgroundColor: c.tabBarBg, borderBottomWidth: 1, borderBottomColor: "rgba(53,53,52,0.2)" }}>
+      <View style={{ backgroundColor: c.tabBarBg, borderBottomWidth: 1, borderBottomColor: "rgba(53,53,52,0.2)", paddingTop: 8 }}>
         <View className="flex-row justify-between items-center" style={{ height: 44, paddingHorizontal: 20 }}>
           <View className="flex-row items-center gap-3">
             <View style={{ width: 32, height: 32, borderRadius: 16, backgroundColor: c.elevated, borderWidth: 1, borderColor: c.cardBorder, alignItems: "center", justifyContent: "center" }}>
@@ -175,10 +175,10 @@ export default function FastScreen() {
             <Text style={{ color: ACCENT.lime, fontFamily: "Inter_800ExtraBold", fontSize: 22, letterSpacing: -0.5 }}>FastTrack</Text>
           </View>
         </View>
-      </header>
+      </View>
 
       <ScrollView
-        contentContainerStyle={{ paddingTop: 60, paddingBottom: 120, paddingHorizontal: 20 }}
+        contentContainerStyle={{ paddingTop: 24, paddingBottom: 120, paddingHorizontal: 20 }}
         showsVerticalScrollIndicator={false}
       >
         {/* Current Protocol Header */}
