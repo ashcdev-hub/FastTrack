@@ -126,10 +126,7 @@ export default function LogFoodScreen() {
       {/* Fixed Top App Bar */}
       <View style={{ backgroundColor: c.tabBarBg, borderBottomWidth: 1, borderBottomColor: "rgba(53,53,52,0.2)", paddingTop: 8 }}>
         <View className="flex-row justify-between items-center" style={{ height: 44, paddingHorizontal: 20 }}>
-          <View className="flex-row items-center gap-3">
-            <View style={{ width: 32, height: 32, borderRadius: 16, backgroundColor: c.elevated, borderWidth: 1, borderColor: c.cardBorder, alignItems: "center", justifyContent: "center" }}>
-              <MaterialCommunityIcons name="account" size={16} color={c.textSecondary} />
-            </View>
+          <View className="flex-row items-center">
             <Text style={{ color: ACCENT.lime, fontFamily: "Inter_800ExtraBold", fontSize: 22, letterSpacing: -0.5 }}>FastTrack</Text>
           </View>
         </View>

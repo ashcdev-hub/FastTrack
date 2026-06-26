@@ -14,7 +14,7 @@ const ONBOARDING_KEY = "@fasttrack_onboarding_done";
 export default function RemindersScreen() {
   const router = useRouter();
   const { user } = useAuth();
-  const { updateNotificationPreferences } = useProfile(user?.id ?? null);
+  const { updateNotificationPreferences, updateProfile } = useProfile(user?.id ?? null);
   const { fastingHours } = useFastingStore();
   const { theme } = useThemeStore();
   const c = getThemeColors(theme);
@@ -48,7 +48,8 @@ export default function RemindersScreen() {
       await scheduleDailyFastReminder(hour, minute);
     }
 
-    // Mark onboarding as complete
+    // Mark onboarding as complete (server + local)
+    await updateProfile({ onboarding_completed: true });
     await AsyncStorage.setItem(ONBOARDING_KEY, "true");
 
     // Navigate to main app

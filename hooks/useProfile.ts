@@ -63,7 +63,7 @@ export function useProfile(userId: string | null) {
 
   const updateProfile = async (
     updates: Partial<
-      Pick<Profile, "display_name" | "gender" | "age" | "weight_kg" | "height_cm" | "goal_weight_kg">
+      Pick<Profile, "display_name" | "gender" | "age" | "weight_kg" | "height_cm" | "goal_weight_kg" | "onboarding_completed">
     >
   ) => {
     try {

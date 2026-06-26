@@ -1,12 +1,9 @@
 import React, { useState } from "react";
-import { Pressable, View, Text, TextInput, KeyboardAvoidingView, Platform, ActivityIndicator, Image } from "react-native";
+import { Pressable, View, Text, TextInput, KeyboardAvoidingView, Platform, ActivityIndicator } from "react-native";
 import { Link, router } from "expo-router";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useAuth } from "@/hooks/useAuth";
 import { getThemeColors, ACCENT } from "@/lib/theme-colors";
 import { useThemeStore } from "@/lib/theme-store";
-
-const ONBOARDING_KEY = "@fasttrack_onboarding_done";
 
 export default function LoginScreen() {
   const { signIn } = useAuth();
@@ -29,8 +26,7 @@ export default function LoginScreen() {
       setLoading(false);
       return;
     }
-    const onboarded = await AsyncStorage.getItem(ONBOARDING_KEY);
-    router.replace(onboarded === "true" ? "/(tabs)" : "/(onboarding)/welcome");
+    router.replace("/");
   };
 
   const inputStyle = { backgroundColor: c.inputBg, color: c.text, fontFamily: "Inter_400Regular" as const };
@@ -38,13 +34,10 @@ export default function LoginScreen() {
   return (
     <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} className="flex-1" style={{ backgroundColor: c.bg }}>
       <View className="flex-1 justify-center px-6">
-        <Image
-          source={require("@/assets/fasttrack_logo_small_transparent.png")}
-          style={{ width: 240, height: 80 }}
-          resizeMode="contain"
-          className="self-center mb-4"
-        />
-        <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular" }} className="text-center mb-10">
+        <Text style={{ color: ACCENT.lime, fontFamily: "Inter_800ExtraBold", fontSize: 48, letterSpacing: -1, textAlign: "center", marginBottom: 8 }}>
+          FastTrack
+        </Text>
+        <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 16 }} className="text-center mb-10">
           Intermittent Fasting & Macro Tracker
         </Text>
 

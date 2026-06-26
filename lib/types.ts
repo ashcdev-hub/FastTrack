@@ -76,6 +76,7 @@ export type Profile = {
   fasting_hours: number;
   eating_hours: number;
   goal_weight_kg: number | null;
+  onboarding_completed: boolean | null;
   created_at: string;
   updated_at: string;
 };
