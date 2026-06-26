@@ -122,6 +122,33 @@ export function useFoodLog(userId: string | undefined) {
     { calories: 0, protein_g: 0, carbs_g: 0, fat_g: 0 }
   );
 
+  const recentFoodsQuery = useQuery({
+    queryKey: ["food_log_recent", userId],
+    queryFn: async () => {
+      if (!userId) return [];
+      const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+      const { data, error } = await supabase
+        .from("food_log")
+        .select("name, brand, serving_size, calories, protein_g, carbs_g, fat_g, logged_at")
+        .eq("user_id", userId)
+        .gte("logged_at", thirtyDaysAgo)
+        .order("logged_at", { ascending: false })
+        .limit(200);
+      if (error) {
+        console.error("Error fetching recent foods:", error);
+        return [];
+      }
+      const seen = new Set<string>();
+      return (data ?? []).filter((entry) => {
+        if (seen.has(entry.name)) return false;
+        seen.add(entry.name);
+        return true;
+      }).slice(0, 20);
+    },
+    enabled: !!userId,
+    staleTime: 1000 * 60 * 5,
+  });
+
   const getMealsByMonth = useQuery({
     queryKey: ["food_log_monthly", userId, dateKey.slice(0, 7)],
     queryFn: async () => {
@@ -153,6 +180,8 @@ export function useFoodLog(userId: string | undefined) {
     entries,
     totals,
     loading,
+    recentFoods: recentFoodsQuery.data ?? [],
+    recentLoading: recentFoodsQuery.isLoading,
     monthlyEntries: getMealsByMonth.data ?? [],
     monthlyLoading: getMealsByMonth.isLoading,
     addEntry: addEntryMutation.mutateAsync,

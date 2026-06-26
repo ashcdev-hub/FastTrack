@@ -21,7 +21,7 @@ export default function LogFoodScreen() {
   const { user } = useAuth();
   const { profile, saveQuickAddFoods } = useProfile(user?.id ?? null);
   const unitPrefs = profile?.unit_preferences ?? DEFAULT_UNITS;
-  const { entries, totals, monthlyEntries, addEntries, deleteEntry, loading: foodLoading } = useFoodLog(user?.id);
+  const { entries, totals, monthlyEntries, addEntries, deleteEntry, recentFoods, loading: foodLoading } = useFoodLog(user?.id);
   const goals = useGoalStore();
   const { theme } = useThemeStore();
   const c = getThemeColors(theme);
@@ -155,6 +155,7 @@ export default function LogFoodScreen() {
           onClose={() => setShowLogMeal(false)}
           userId={user.id}
           quickAddFoods={quickAddFoods}
+          recentFoods={recentFoods}
           onSaveQuickAdd={async (foods) => { await saveQuickAddFoods(foods); }}
           onLogMeal={addEntries as any}
         />

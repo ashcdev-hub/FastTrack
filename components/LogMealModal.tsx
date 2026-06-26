@@ -52,11 +52,22 @@ function formatDateTime(date: Date): string {
   return `${dateStr} at ${timeStr}`;
 }
 
+type RecentFoodItem = {
+  name: string;
+  brand: string | null;
+  serving_size: string | null;
+  calories: number;
+  protein_g: number;
+  carbs_g: number;
+  fat_g: number;
+};
+
 type LogMealModalProps = {
   visible: boolean;
   onClose: () => void;
   userId: string;
   quickAddFoods: string[];
+  recentFoods?: RecentFoodItem[];
   onSaveQuickAdd: (foods: string[]) => void;
   onLogMeal: (entries: {
     user_id: string; name: string; brand: string | null; serving_size: string | null;
@@ -65,7 +76,7 @@ type LogMealModalProps = {
   }[]) => Promise<void>;
 };
 
-export function LogMealModal({ visible, onClose, userId, quickAddFoods, onSaveQuickAdd, onLogMeal }: LogMealModalProps) {
+export function LogMealModal({ visible, onClose, userId, quickAddFoods, recentFoods = [], onSaveQuickAdd, onLogMeal }: LogMealModalProps) {
   const { theme } = useThemeStore();
   const c = getThemeColors(theme);
   const insets = useSafeAreaInsets();
@@ -362,8 +373,41 @@ export function LogMealModal({ visible, onClose, userId, quickAddFoods, onSaveQu
                     </Pressable>
                   );
                 })}
-              </View>
             </View>
+          </View>
+
+            {/* Recent Foods */}
+            {recentFoods.length > 0 && (
+              <View className="mb-4">
+                <View className="flex-row items-center mb-3">
+                  <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 11, letterSpacing: 1, textTransform: "uppercase" }}>
+                    RECENT
+                  </Text>
+                </View>
+                <View className="flex-row flex-wrap" style={{ marginHorizontal: -5 }}>
+                  {recentFoods.map((item) => (
+                    <Pressable
+                      key={item.name}
+                      className="w-1/2"
+                      style={{ paddingHorizontal: 5, marginBottom: 10 }}
+                      onPress={() => {
+                        store.addItem({ name: item.name, brand: item.brand ?? "", serving_size: item.serving_size ?? undefined, calories: item.calories, protein_g: item.protein_g ?? 0, carbs_g: item.carbs_g ?? 0, fat_g: item.fat_g ?? 0, quantity: 1 });
+                      }}
+                    >
+                      <View className="rounded-xl p-3 flex-row items-center gap-2.5" style={{ backgroundColor: c.cardBgAlt }}>
+                        <View className="rounded-lg items-center justify-center" style={{ width: 32, height: 32, backgroundColor: ACCENT.limeBg }}>
+                          <MaterialCommunityIcons name="history" size={16} color={ACCENT.lime} />
+                        </View>
+                        <View className="flex-1">
+                          <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 12 }} numberOfLines={1}>{item.name}</Text>
+                          <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 8 }}>{item.calories} KCAL</Text>
+                        </View>
+                      </View>
+                    </Pressable>
+                  ))}
+                </View>
+              </View>
+            )}
 
             {/* Add Custom Item — inline form */}
             {!showCustomForm ? (
