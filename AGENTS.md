@@ -112,7 +112,7 @@ git log --oneline        # See history of snapshots
 |-------|-----------|
 | Framework | Expo SDK 54 + Expo Router (file-based routing) |
 | Styling | NativeWind v4 (Tailwind CSS for RN) — requires `metro.config.js` with `withNativeWind` and `global.css` import |
-| State | Zustand (fasting store, goal store, theme store) |
+| State | Zustand (fasting store, goal store, theme store, food log store) |
 | Data Fetching | TanStack Query (QueryClientProvider in root layout) |
 | Backend | Supabase (PostgreSQL, Auth, Realtime, Edge Functions) |
 | Icons | MaterialCommunityIcons (`@expo/vector-icons`) |
@@ -186,6 +186,30 @@ Three clear phases: **Idle** (schedule selector shown) → **Fasting** (ring fil
 ### ACCENT.lime / ACCENT.cyan / ACCENT.coral
 `ACCENT.mint` is defined in the palette but never used in any UI component. All UI uses `ACCENT.lime` (#c3f400), `ACCENT.cyan` (#00daf3), or `ACCENT.coral` (#FF6B52) for the various accent roles.
 
+### Custom In-App Keyboard (No iOS System Keyboard)
+All text input uses a custom in-app QWERTY keyboard (`CustomKeyboard`) instead of the iOS system keyboard. Used for food search. Supports shift toggle (uppercase/lowercase via `arrow-up-bold` icon), backspace, space, and a magnifying glass search button. The keyboard renders inside a `<Modal>` and uses `useSafeAreaInsets` for bottom padding.
+
+### LogMealModal — Full-Screen Food Logging Modal
+Food logging happens inside a full-screen `<Modal>` (`LogMealModal`) with this layout:
+- Fixed header + search bar + search results (outside ScrollView to stay visible when keyboard shows)
+- Dimmed content area below (opacity 0.15 + overlay) when keyboard is active — tap overlay to dismiss keyboard
+- Custom keyboard at the bottom
+- Search bar is a `Pressable` (not `TextInput`) — tapping shows the custom keyboard
+- `pointerEvents: "none"` on ScrollView when keyboard showing to prevent accidental taps
+
+### Offline Support — Mutation Queue
+All mutation hooks wrap their `mutationFn` with `withOfflineFallback()` from `lib/offline-mutation.ts`. When offline or on network error:
+1. Mutation is enqueued to AsyncStorage via `enqueueMutation()` (`lib/offline-queue.ts`)
+2. `mutationFn` returns `null` (optimistic update is skipped in `onSuccess`)
+3. On reconnect, `useOfflineQueueProcessor` replays the queue against Supabase
+4. All query caches are invalidated after sync
+- Queue processor skips individual failed items (doesn't block the rest), adds 500ms delay between retries
+- Query cache is written to AsyncStorage on every change and **hydrated on startup** (filters data older than 24h)
+- `@tanstack/query-async-storage-persister` is installed but unused — hydration is manual
+
+### Food Log Staging Persistence
+`useFoodLogStore` persists `stagedItems`, `selectedMealType`, and `stagedDate` to AsyncStorage (`@fasttrack_food_log_staging`). Auto-restored on app boot via `loadFromStorage()`. `stagedDate` is stored as ISO string (not `Date` object).
+
 ### OpenFoodFacts CORS
 Direct calls from web blocked by CORS. Use Supabase Edge Function `food-search` as proxy.
 
@@ -203,6 +227,7 @@ Correct: `REFERENCES auth.users(id) ON DELETE CASCADE ON UPDATE CASCADE`
 - `fasting_hours` (16), `eating_hours` (8)
 - `notification_preferences` (JSONB)
 - `unit_preferences` (JSONB) — weight: kg/lbs, height: cm/ft, water: ml/floz
+- `quick_add_foods` (JSONB) — array of food names for quick-add grid
 
 **fasting_sessions** — `id`, `user_id`, `start_time`, `end_time`, `status`, `fasting_duration_minutes`, `fasting_schedule`, `created_at`
 
@@ -228,6 +253,7 @@ Correct: `REFERENCES auth.users(id) ON DELETE CASCADE ON UPDATE CASCADE`
 - `20250610000006_workouts.sql` — workout_goals + workout_log
 - `20250611000007_weight_log.sql` — weight tracking
 - `20250611000008_unit_preferences.sql` — unit preferences (kg/lbs, cm/ft, ml/floz)
+- `20250626000009_quick_add_foods.sql` — quick_add_foods JSONB column on profiles
 
 ### RLS
 All tables have RLS enabled. Policies use `auth.uid() = user_id`.
@@ -249,14 +275,19 @@ FastTrack/
 │       ├── index.tsx            # Home dashboard: fasting, workouts, water, macros
 │       ├── fast.tsx             # Fast tab: timer, schedule, check-ins, calendar, prev fasts
 │       ├── workouts.tsx         # Workouts tab: exercise panels, log sets
-│       ├── log-food.tsx         # Log tab: food search, meal builder, water
+│       ├── log-food.tsx         # Log tab: macros panel, Log Meal button, calendar, today's meals
 │       └── profile.tsx          # Profile tab: achievements, weight, stats, settings, sign out
 ├── components/
 │   ├── FastingTimer.tsx         # SVG progress ring (theme-aware)
 │   ├── ScheduleSelector.tsx     # Schedule presets + custom (onboarding only)
-│   ├── FoodSearch.tsx           # OpenFoodFacts search + quick-add presets
 │   ├── MealBuilder.tsx          # Meal staging area
 │   ├── MealForm.tsx             # Manual entry with date/time picker
+│   ├── LogMealModal.tsx         # Full-screen food logging modal (search, quick-add, custom form, meal builder)
+│   ├── CustomKeyboard.tsx       # In-app QWERTY keyboard (no iOS system keyboard)
+│   ├── QuantityModal.tsx        # Bottom-sheet stepper for serving quantity
+│   ├── EditQuickAddModal.tsx    # Multi-select chip grid for quick-add foods
+│   ├── MealCalendarModal.tsx    # Full month calendar with day-tap meal detail
+│   ├── BarcodeScanner.tsx       # Camera barcode scanner (wrapped in Modal)
 │   ├── WaterTracker.tsx         # Bottle presets + custom ml (supports unit prefs)
 │   ├── PreviousFasts.tsx        # Expandable list + delete + weekly calendar
 │   ├── WeeklyCalendar.tsx       # 7-day circle calendar (Mon–Sun)
@@ -271,11 +302,11 @@ FastTrack/
 │   ├── EditGoalModal.tsx        # Bottom-sheet goal editor (stepper + presets + custom)
 │   ├── LogSetModal.tsx          # Log reps + sets (stepper controls)
 │   ├── AddExerciseModal.tsx     # Add custom exercise modal
-│   ├── BarcodeScanner.tsx       # Camera barcode scanner
 │   ├── WeightTracker.tsx        # Weight logging + recent entries (supports unit prefs)
 │   ├── WeightChart.tsx          # SVG weight line chart
 │   ├── GlassPanel.tsx           # Shared glass-card wrapper
 │   ├── ProgressRing.tsx         # Reusable SVG progress ring
+│   ├── OfflineBanner.tsx        # Animated offline banner when connectivity lost
 │   ├── Toast.tsx                # Animated toast notification overlay
 │   ├── Skeleton.tsx             # Reusable loading skeleton with shimmer
 │   └── FoodLogItem.tsx          # Meal entry card (theme-aware)
@@ -292,10 +323,13 @@ FastTrack/
 │   ├── useWorkoutLog.ts         # Log sets, today totals, weekly stats, calorie calc, streaks
 │   ├── useWeightLog.ts          # Weight logging + stats
 │   ├── useFastCalendar.ts       # Monthly session fetch for calendar
+│   ├── useConnectivity.ts       # NetInfo connectivity detection
+│   ├── useOfflineQueueProcessor.ts # Replays queued mutations on reconnect
 │   └── useToast.ts              # Toast notification state
 ├── store/
 │   ├── useFastingStore.ts
-│   └── useGoalStore.ts
+│   ├── useGoalStore.ts
+│   └── useFoodLogStore.ts
 ├── lib/
 │   ├── supabase.ts
 │   ├── types.ts                 # All types including WorkoutGoal, WorkoutLogEntry
@@ -303,10 +337,13 @@ FastTrack/
 │   ├── theme-colors.ts          # Theme-aware color palette
 │   ├── dark-mode.ts             # applyTheme() CSS class toggle
 │   ├── notifications.ts
-│   └── units.ts                 # Unit conversion (kg↔lbs, cm↔ft, ml↔floz)
+│   ├── fasting-phases.ts        # Fasting phase calculator (6 phases + eating phase)
+│   ├── units.ts                 # Unit conversion (kg↔lbs, cm↔ft, ml↔floz)
+│   ├── offline-queue.ts         # AsyncStorage-backed mutation queue
+│   └── offline-mutation.ts      # withOfflineFallback() + isNetworkError() helpers
 ├── supabase/
 │   ├── schema.sql
-│   ├── migrations/              # 9 migrations
+│   ├── migrations/              # 10 migrations
 │   └── functions/
 │       ├── daily-summary/
 │       └── food-search/         # OpenFoodFacts proxy + retry logic
@@ -341,12 +378,15 @@ FastTrack/
 - **Calorie formula**: `reps × sets × calories_per_rep × (weight_kg / 70)` (uses 70kg fallback if no profile weight)
 
 ### Log Tab
-- Meal type selector at top, date/time picker
-- OpenFoodFacts search via Edge Function proxy
-- Quick-add common foods
-- Barcode scanner for food packaging
-- Meal builder staging area
-- Water tracker with bottle presets + unit preferences
+- Macros panel at top, Log Meal button opens full-screen `LogMealModal`
+- OpenFoodFacts search via Edge Function proxy + custom in-app QWERTY keyboard (no iOS system keyboard)
+- Quick-add common foods configurable via `EditQuickAddModal`
+- Barcode scanner (wrapped in Modal) for food packaging
+- Custom item form with stepper controls (no numeric TextInput)
+- Quantity stepper modal before adding to staging
+- Meal builder staging area with totals + log button
+- Full month `MealCalendarModal` with dot indicators and day-tap meal detail
+- Date/time picker bottom-sheet (hour/minute scrollers + Yesterday/Today shortcuts)
 
 ### Me Tab
 - First name display, unified achievements, weekly stats, macro progress
@@ -440,6 +480,13 @@ See [Building for iOS (Standalone App)](#building-for-ios-standalone-app) above 
 - [x] All delete confirmations use bottom-sheet modals (no inline blocks)
 - [x] Home tab panels use glass-panel class (no inline rgba)
 - [x] Content paddingBottom=85 across all tabs (flush with tab bar)
+- [x] Food page redesign — LogMealModal, CustomKeyboard, QuantityModal, EditQuickAddModal, MealCalendarModal, inline custom form with steppers, dimming overlay, tap-off keyboard dismiss
+- [x] Food search uses custom in-app QWERTY keyboard (no iOS system keyboard)
+- [x] Query cache hydration on app boot (writes to AsyncStorage on every change, reads back on startup, filters stale >24h)
+- [x] Offline mutation queue — all 8 mutation hooks wrapped with withOfflineFallback()
+- [x] Queue processor skips failed items (doesn't block the rest), 500ms delay between retries
+- [x] Food log staging persists to AsyncStorage (stagedItems, mealType, stagedDate)
+- [x] CustomKeyboard shift toggle (uppercase/lowercase)
 
 ## Next Steps
 
@@ -472,14 +519,15 @@ See [Building for iOS (Standalone App)](#building-for-ios-standalone-app) above 
 | 24 | **Weekly calendar** — Zero-style circle calendar | Done |
 | 25 | **Full month calendar** — Tap day for fast details | Done |
 | 26 | **Round 1 design consistency** — Standardized panels, buttons, modals, spacing across all screens | Done |
+| 27 | **Food page redesign** — LogMealModal, CustomKeyboard, QuantityModal, EditQuickAddModal, MealCalendarModal, inline custom form, tap-off keyboard dismiss, dimming overlay | Done |
+| 28 | **Offline support** — Query cache hydration, mutation queue (8 hooks), queue processor, food log staging persistence | Done |
 
 ### Remaining
 | # | Feature | Effort | Description |
 |---|---------|--------|-------------|
 | 1 | **Home screen widget** | Medium | iOS/Android widget showing fasting timer + time remaining |
 | 2 | **Accessibility** | Medium | Dynamic type, VoiceOver/TalkBack labels, high contrast |
-| 3 | **Offline support** | Medium | Cache data for offline food logging and timer |
-| 4 | **Multi-language support** | Large | i18n for broader audience |
-| 5 | **Social features** | Large | Share progress, friend challenges |
-| 6 | **Testing** | Medium | Unit tests for hooks, component tests, E2E |
-| 7 | **App Store deployment** | Medium | Build profiles, screenshots, store listings, submit to iOS/Android |
+| 3 | **Multi-language support** | Large | i18n for broader audience |
+| 4 | **Social features** | Large | Share progress, friend challenges |
+| 5 | **Testing** | Medium | Unit tests for hooks, component tests, E2E |
+| 6 | **App Store deployment** | Medium | Build profiles, screenshots, store listings, submit to iOS/Android |

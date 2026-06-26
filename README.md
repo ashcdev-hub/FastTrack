@@ -37,9 +37,14 @@ Expo's unified codebase reduces the overhead of native development while maintai
 - **Calorie estimation** based on reps and body weight
 
 ### Nutrition
-- **Food search** via OpenFoodFacts (with barcode scanner)
-- **Quick-add** common foods (eggs, rice, chicken, etc.)
-- **Meal builder** with macro breakdown (calories, protein, carbs, fat)
+- **Full-screen food logging** (`LogMealModal`) with search, quick-add, custom form, and meal builder
+- **Food search** via OpenFoodFacts Edge Function proxy with custom in-app QWERTY keyboard
+- **Quick-add** common foods, configurable via multi-select chip editor
+- **Custom item form** with stepper controls (no system keyboard needed)
+- **Barcode scanner** for packaged foods
+- **Quantity modal** before adding to staging
+- **Meal calendar** with month view, dot indicators, and day-tap meal details
+- **Date/time picker** bottom-sheet with Yesterday/Today shortcuts
 - **Water tracking** with selectable presets and custom input
 
 ### Profile & Settings
@@ -50,6 +55,13 @@ Expo's unified codebase reduces the overhead of native development while maintai
 - **Settings inline** (no standalone settings page)
 - **Dynamic fasting phase insights** during active fasts
 
+### Offline Support
+- **Query cache hydration** — last-known data shown on app boot without network
+- **Mutation queue** — all inserts/updates/deletes enqueue when offline, replay on reconnect
+- **Smart queue processor** — skips individual failed items, retries with delay
+- **Food log staging persistence** — meal building survives app restart
+- **Connectivity detection** via NetInfo with animated offline banner
+
 ---
 
 ## Tech Stack
@@ -59,7 +71,8 @@ Expo's unified codebase reduces the overhead of native development while maintai
 | Framework | Expo SDK 54 + Expo Router (file-based routing) |
 | UI | React Native 0.81 + NativeWind v4 (Tailwind CSS) |
 | Fonts | Inter + Space Grotesk (via `@expo-google-fonts/...`) |
-| State | Zustand (fasting, goals, theme) |
+| State | Zustand (fasting, goals, theme, food log staging) |
+| Offline | NetInfo + AsyncStorage mutation queue + query cache hydration |
 | Data Fetching | TanStack Query |
 | Backend | Supabase (PostgreSQL, Auth, Realtime, Edge Functions) |
 | Auth | Supabase Auth + expo-secure-store (native) / localStorage (web) |
@@ -141,9 +154,9 @@ FastTrack/
 │   │   └── profile.tsx     # Profile tab (with settings inline)
 │   ├── (auth)/             # Login & signup
 │   └── (onboarding)/       # Onboarding wizard
-├── components/             # 30 reusable components
-├── hooks/                  # 13 custom hooks
-├── lib/                    # Utilities, types, theme
+├── components/             # 31 reusable components
+├── hooks/                  # 15 custom hooks
+├── lib/                    # Utilities, types, theme, offline support
 ├── store/                  # Zustand stores
 └── supabase/               # Schema, migrations, edge functions
 ```
@@ -152,7 +165,7 @@ FastTrack/
 
 ## Database
 
-9 migrations covering:
+10 migrations covering:
 
 | Migration | Description |
 |-----------|-------------|
@@ -165,6 +178,7 @@ FastTrack/
 | `workouts` | Workout goals and log tables |
 | `weight_log` | Weight tracking with auto-sync to profile |
 | `unit_preferences` | User preferred units (kg/lbs, cm/ft, ml/floz) |
+| `quick_add_foods` | Quick-add food names stored on profiles |
 
 All tables have RLS enabled with `auth.uid() = user_id` policies.
 

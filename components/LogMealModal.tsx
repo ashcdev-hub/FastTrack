@@ -237,8 +237,8 @@ export function LogMealModal({ visible, onClose, userId, quickAddFoods, onSaveQu
 
         {/* Fixed Search Results */}
         {searchQuery.trim().length >= 2 && (
-          <View style={{ paddingHorizontal: 20, paddingBottom: 8, maxHeight: 200 }}>
-            <View style={{ borderRadius: 12, backgroundColor: c.cardBgAlt, padding: 10, flex: 1 }}>
+          <View style={{ paddingHorizontal: 20, paddingBottom: 8, maxHeight: 200, minHeight: 40 }}>
+            <View style={{ borderRadius: 12, backgroundColor: c.cardBgAlt, padding: 10 }}>
               {searchLoading ? (
                 <ActivityIndicator color={ACCENT.lime} />
               ) : searchError ? (
@@ -246,7 +246,8 @@ export function LogMealModal({ visible, onClose, userId, quickAddFoods, onSaveQu
                   {searchError}
                 </Text>
               ) : searchResults.length > 0 ? (
-                <ScrollView showsVerticalScrollIndicator={false} nestedScrollEnabled>
+                <ScrollView showsVerticalScrollIndicator={false} nestedScrollEnabled
+                  style={{ maxHeight: 170 }}>
                   {searchResults.map((item: any) => (
                     <Pressable
                       key={item.id}
@@ -277,8 +278,8 @@ export function LogMealModal({ visible, onClose, userId, quickAddFoods, onSaveQu
           </View>
         )}
 
-        {/* Content area with dimming overlay */}
-        <View style={{ flex: 1 }}>
+        {/* Content area with dimming */}
+        <View style={{ flex: 1, overflow: "hidden" }}>
           {showKeyboard && (
             <Pressable
               style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "rgba(0,0,0,0.4)", zIndex: 5 }}
@@ -288,7 +289,8 @@ export function LogMealModal({ visible, onClose, userId, quickAddFoods, onSaveQu
           <ScrollView
             contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 16, paddingBottom: 40 }}
             showsVerticalScrollIndicator={true}
-            style={{ opacity: showKeyboard ? 0.3 : 1 }}
+            style={{ opacity: showKeyboard ? 0.15 : 1 }}
+            pointerEvents={showKeyboard ? "none" : "auto"}
           >
             {/* Meal Type Selector */}
             <View className="flex-row gap-2 mb-4">

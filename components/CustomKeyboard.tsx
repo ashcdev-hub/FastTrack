@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Pressable, View, Text } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useThemeStore } from "@/lib/theme-store";
@@ -24,6 +24,7 @@ export function CustomKeyboard({ onKeyPress, onBackspace, onSearch }: CustomKeyb
   const { theme } = useThemeStore();
   const c = getThemeColors(theme);
   const insets = useSafeAreaInsets();
+  const [shifted, setShifted] = useState(true);
 
   const keyStyle = {
     height: KEY_H,
@@ -31,6 +32,10 @@ export function CustomKeyboard({ onKeyPress, onBackspace, onSearch }: CustomKeyb
     backgroundColor: c.buttonBg,
     alignItems: "center" as const,
     justifyContent: "center" as const,
+  };
+
+  const handleKey = (letter: string) => {
+    onKeyPress(shifted ? letter : letter.toLowerCase());
   };
 
   return (
@@ -42,18 +47,20 @@ export function CustomKeyboard({ onKeyPress, onBackspace, onSearch }: CustomKeyb
       {ROWS.map((row, ri) => (
         <View key={ri} style={{ flexDirection: "row", justifyContent: "center", marginBottom: GAP, paddingHorizontal: 4 }}>
           {row.map((letter) => (
-            <Pressable key={letter} onPress={() => onKeyPress(letter)}
+            <Pressable key={letter} onPress={() => handleKey(letter)}
               style={[keyStyle, { width: 33, marginHorizontal: GAP / 2 }]}>
-              <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 18 }}>{letter}</Text>
+              <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 18 }}>
+                {shifted ? letter : letter.toLowerCase()}
+              </Text>
             </Pressable>
           ))}
         </View>
       ))}
 
       <View style={{ flexDirection: "row", justifyContent: "center", paddingBottom: 6 + insets.bottom, paddingHorizontal: 4 }}>
-        <Pressable onPress={onBackspace}
-          style={[keyStyle, { width: 46, marginHorizontal: GAP / 2 }]}>
-          <MaterialCommunityIcons name="backspace-outline" size={22} color={c.text} />
+        <Pressable onPress={() => setShifted((s) => !s)}
+          style={[keyStyle, { width: 46, marginHorizontal: GAP / 2, backgroundColor: shifted ? c.buttonBg : ACCENT.lime }]}>
+          <MaterialCommunityIcons name="arrow-up-bold" size={22} color={shifted ? c.text : "#161e00"} />
         </Pressable>
         <Pressable onPress={() => onKeyPress(" ")}
           style={[keyStyle, { flex: 1, maxWidth: 160, marginHorizontal: GAP / 2 }]}>
