@@ -96,6 +96,15 @@ export function useProfile(userId: string | null) {
     }
   };
 
+  const saveQuickAddFoods = async (foods: string[]) => {
+    try {
+      await updateMutation.mutateAsync({ quick_add_foods: foods } as any);
+      return { error: null };
+    } catch (error) {
+      return { error };
+    }
+  };
+
   const updatePassword = async (newPassword: string) => {
     const { error } = await supabase.auth.updateUser({ password: newPassword });
     if (error) {
@@ -122,6 +131,7 @@ export function useProfile(userId: string | null) {
     updateProfile,
     updateNotificationPreferences,
     updateUnitPreferences,
+    saveQuickAddFoods,
     updatePassword,
     updateEmail,
     refetch: () => queryClient.invalidateQueries({ queryKey: ["profile", userId] }),

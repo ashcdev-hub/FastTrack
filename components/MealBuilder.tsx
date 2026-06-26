@@ -3,18 +3,7 @@ import { Pressable, View, Text } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useThemeStore } from "@/lib/theme-store";
 import { getThemeColors, MEAL_COLORS } from "@/lib/theme-colors";
-
-export type StagedItem = {
-  id: string;
-  name: string;
-  brand?: string;
-  calories: number;
-  protein_g: number;
-  carbs_g: number;
-  fat_g: number;
-  serving_size?: string;
-  quantity: number;
-};
+import type { StagedItem } from "@/store/useFoodLogStore";
 
 type MealBuilderProps = {
   items: StagedItem[];
