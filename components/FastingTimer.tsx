@@ -12,6 +12,7 @@ import Animated, {
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useThemeStore } from "@/lib/theme-store";
 import { getThemeColors, ACCENT } from "@/lib/theme-colors";
+import { getFastingPhase } from "@/lib/fasting-phases";
 
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
@@ -170,7 +171,7 @@ export function FastingTimer({
               <View className="flex-row items-center gap-1.5 px-3 py-1 rounded-full" style={{ backgroundColor: c.elevated, borderWidth: 1, borderColor: "rgba(68,73,51,0.3)" }}>
                 <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: activeColor }} />
                 <Text style={{ color: c.text, fontFamily: "SpaceGrotesk_700Bold", fontSize: 10, letterSpacing: -0.3 }}>
-                  AUTOPHAGY ACTIVE
+                  {getFastingPhase(elapsedMinutes).label}
                 </Text>
               </View>
             )}

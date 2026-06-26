@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Pressable, View, Text, ScrollView } from "react-native";
+import { Pressable, View, Text, ScrollView, Image } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useAuth } from "@/hooks/useAuth";
@@ -58,7 +58,8 @@ export default function WorkoutsScreen() {
       {/* Fixed Top App Bar */}
       <View style={{ backgroundColor: c.tabBarBg, borderBottomWidth: 1, borderBottomColor: "rgba(53,53,52,0.2)", paddingTop: 8 }}>
         <View className="flex-row justify-between items-center" style={{ height: 44, paddingHorizontal: 20 }}>
-          <View className="flex-row items-center">
+          <View className="flex-row items-center gap-2">
+            <Image source={require("../../assets/icon.png")} style={{ width: 22, height: 22, borderRadius: 5 }} />
             <Text style={{ color: ACCENT.lime, fontFamily: "Inter_800ExtraBold", fontSize: 22, letterSpacing: -0.5 }}>FastTrack</Text>
           </View>
         </View>

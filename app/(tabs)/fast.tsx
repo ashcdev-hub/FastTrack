@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Pressable, View, Text, ScrollView, TextInput, Modal } from "react-native";
+import { Pressable, View, Text, ScrollView, TextInput, Modal, Image } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useAuth } from "@/hooks/useAuth";
@@ -16,6 +16,7 @@ import { CustomScheduleModal } from "@/components/CustomScheduleModal";
 import { useThemeStore } from "@/lib/theme-store";
 import { getThemeColors, ACCENT } from "@/lib/theme-colors";
 import { scheduleFastingReminder, cancelAllNotifications, scheduleDailyFastReminder, scheduleCheckInReminder, scheduleWaterReminders, checkAndNotifyStreakMilestone } from "@/lib/notifications";
+import { getFastingPhase, getEatingPhase } from "@/lib/fasting-phases";
 import { format, addHours } from "date-fns";
 
 const PRESETS = [
@@ -177,7 +178,8 @@ export default function FastScreen() {
       {/* Fixed Top App Bar */}
       <View style={{ backgroundColor: c.tabBarBg, borderBottomWidth: 1, borderBottomColor: "rgba(53,53,52,0.2)", paddingTop: 8 }}>
         <View className="flex-row justify-between items-center" style={{ height: 44, paddingHorizontal: 20 }}>
-          <View className="flex-row items-center">
+          <View className="flex-row items-center gap-2">
+            <Image source={require("../../assets/icon.png")} style={{ width: 22, height: 22, borderRadius: 5 }} />
             <Text style={{ color: ACCENT.lime, fontFamily: "Inter_800ExtraBold", fontSize: 22, letterSpacing: -0.5 }}>FastTrack</Text>
           </View>
         </View>
@@ -374,6 +376,39 @@ export default function FastScreen() {
               </Pressable>
             </Modal>
 
+            {/* Insights Mini-Card */}
+            {(() => {
+              const elapsedEating = phase === "eating"
+                ? fastCountdown.isOver
+                  ? eatingHours * 60 + fastCountdown.totalMinutes
+                  : eatingHours * 60 - fastCountdown.totalMinutes
+                : 0;
+              const info = phase === "eating"
+                ? getEatingPhase(elapsedEating, eatingHours * 60)
+                : getFastingPhase(fastElapsedMinutes);
+              return (
+                <View className="w-full glass-panel p-5 mb-8">
+                  <View className="flex-row justify-between items-start mb-3">
+                    <View className="flex-1">
+                      <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 14 }}>{info.label}</Text>
+                      <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 12, marginTop: 4 }}>{info.description}</Text>
+                    </View>
+                    <MaterialCommunityIcons name="chart-timeline-variant" size={24} color={ACCENT.lime} style={{ opacity: 0.4 }} />
+                  </View>
+                  <View className="flex-row items-center gap-3">
+                    <View className="flex-1 h-1.5 rounded-full overflow-hidden" style={{ backgroundColor: c.cardBgAlt }}>
+                      <View className="h-full rounded-full" style={{ width: `${info.progressPct}%`, backgroundColor: ACCENT.lime }} />
+                    </View>
+                    {info.phaseCount > 1 && (
+                      <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 11 }}>
+                        Phase {info.phaseIndex + 1}/{info.phaseCount}
+                      </Text>
+                    )}
+                  </View>
+                </View>
+              );
+            })()}
+
             {/* Mood Check-in */}
             <View className="w-full rounded-xl p-5 mb-8 glass-panel">
               <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 12, letterSpacing: 1, textAlign: "center", marginBottom: 16, textTransform: "uppercase" }}>
@@ -436,19 +471,6 @@ export default function FastScreen() {
               </View>
             )}
 
-            {/* Insights Mini-Card */}
-            <View className="w-full glass-panel p-5 mb-8">
-              <View className="flex-row justify-between items-start mb-3">
-                <View className="flex-1">
-                  <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 14 }}>Peak Fat Burning</Text>
-                  <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 12, marginTop: 4 }}>Your body is currently utilizing stored fat for energy.</Text>
-                </View>
-                <MaterialCommunityIcons name="chart-timeline-variant" size={24} color={ACCENT.lime} style={{ opacity: 0.4 }} />
-              </View>
-              <View className="w-full h-1 rounded-full overflow-hidden" style={{ backgroundColor: c.cardBgAlt }}>
-                <View className="h-full rounded-full" style={{ width: "78%", backgroundColor: ACCENT.lime }} />
-              </View>
-            </View>
           </>
         )}
 
