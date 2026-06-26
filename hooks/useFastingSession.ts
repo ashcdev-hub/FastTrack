@@ -158,6 +158,24 @@ export function useFastingSession(userId: string | undefined) {
     },
   });
 
+  const discardFastMutation = useMutation({
+    mutationFn: async (sessionId: string) => {
+      const now = new Date().toISOString();
+      const { data, error } = await supabase
+        .from("fasting_sessions")
+        .update({ status: "broken", end_time: now })
+        .eq("id", sessionId)
+        .select()
+        .single();
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.setQueryData(["fasting_session", "active", userId], null);
+      queryClient.invalidateQueries({ queryKey: ["fasting_sessions", "past", userId] });
+    },
+  });
+
   const deleteFastMutation = useMutation({
     mutationFn: async (sessionId: string) => {
       const { error } = await supabase
@@ -182,6 +200,7 @@ export function useFastingSession(userId: string | undefined) {
     endFast: (sessionId: string, endTime?: Date) =>
       endFastMutation.mutateAsync({ sessionId, endTime }),
     breakFast: breakFastMutation.mutateAsync,
+    discardFast: discardFastMutation.mutateAsync,
     deleteFast: deleteFastMutation.mutateAsync,
     refetch: () => {
       queryClient.invalidateQueries({ queryKey: ["fasting_session", "active", userId] });

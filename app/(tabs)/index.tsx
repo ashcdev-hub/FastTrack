@@ -129,38 +129,47 @@ export default function HomeScreen() {
               <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 12, letterSpacing: 1, marginBottom: 12, textTransform: "uppercase" }}>
                 Workout Progress
               </Text>
-              <View className="rounded-xl p-5" style={{ backgroundColor: "rgba(28,28,30,0.8)", borderWidth: 1, borderColor: "rgba(44,44,46,1)" }}>
-                {enabledGoals.slice(0, 4).map((goal) => {
-                  const total = todayTotals[goal.exercise_type];
-                  const reps = total?.reps ?? 0;
-                  const pct = Math.min(reps / goal.daily_goal, 1);
-                  return (
-                    <View key={goal.id} className="mb-3">
-                      <View className="flex-row justify-between items-center mb-2">
-                        <View className="flex-row items-center gap-2">
-                          <MaterialCommunityIcons name="dumbbell" size={16} color={ACCENT.cyan} />
-                          <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 14, textTransform: "capitalize" }}>
-                            {goal.exercise_type}
+              <Pressable onPress={() => router.push("/(tabs)/workouts")} className="rounded-xl p-5" style={{ backgroundColor: "rgba(28,28,30,0.8)", borderWidth: 1, borderColor: "rgba(44,44,46,1)" }}>
+                <View className="flex-row justify-between">
+                  {enabledGoals.slice(0, 4).map((goal) => {
+                    const total = todayTotals[goal.exercise_type];
+                    const reps = total?.reps ?? 0;
+                    const pct = Math.min(reps / goal.daily_goal, 1);
+                    const t = pct * 100;
+                    let color: string;
+                    if (t <= 50) {
+                      const f = t / 50;
+                      const r = Math.round(255 - (255 - 255) * f);
+                      const g = Math.round(59 + (214 - 59) * f);
+                      const b = Math.round(48 + (10 - 48) * f);
+                      color = `rgb(${r},${g},${b})`;
+                    } else {
+                      const f = (t - 50) / 50;
+                      const r = Math.round(255 - (255 - 48) * f);
+                      const g = Math.round(214 - (214 - 209) * f);
+                      const b = Math.round(10 + (88 - 10) * f);
+                      color = `rgb(${r},${g},${b})`;
+                    }
+                    return (
+                      <View key={goal.id} className="flex-1 items-center">
+                        <ProgressRing size={56} strokeWidth={5} progress={pct} indicatorColor={color}>
+                          <Text style={{ color, fontFamily: "Inter_700Bold", fontSize: 10 }}>
+                            {reps}/{goal.daily_goal}
                           </Text>
-                        </View>
-                        <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 12 }}>
-                          {reps}/{goal.daily_goal}
+                        </ProgressRing>
+                        <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 11, marginTop: 6, textTransform: "capitalize" }}>
+                          {goal.exercise_type}
                         </Text>
                       </View>
-                      <View className="h-1.5 rounded-full overflow-hidden" style={{ backgroundColor: "rgba(53,53,52,0.3)" }}>
-                        <View className="h-full rounded-full" style={{ width: `${pct * 100}%`, backgroundColor: ACCENT.cyan }} />
-                      </View>
-                    </View>
-                  );
-                })}
+                    );
+                  })}
+                </View>
                 {enabledGoals.length > 4 && (
-                  <Pressable onPress={() => router.push("/(tabs)/workouts")} className="mt-2">
-                    <Text style={{ color: ACCENT.cyan, fontFamily: "Inter_700Bold", fontSize: 12, textAlign: "center" }}>
-                      +{enabledGoals.length - 2} more exercises
-                    </Text>
-                  </Pressable>
+                  <Text style={{ color: ACCENT.cyan, fontFamily: "Inter_700Bold", fontSize: 12, textAlign: "center", marginTop: 3 }}>
+                    +{enabledGoals.length - 4} more
+                  </Text>
                 )}
-              </View>
+              </Pressable>
             </View>
           )}
 

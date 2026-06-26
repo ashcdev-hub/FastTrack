@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Pressable, View, Text, ScrollView, TextInput } from "react-native";
+import { Pressable, View, Text, ScrollView, TextInput, Modal } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useAuth } from "@/hooks/useAuth";
@@ -90,7 +90,7 @@ type Phase = "idle" | "fasting" | "eating";
 
 export default function FastScreen() {
   const { user } = useAuth();
-  const { session, startFast, endFast, breakFast, deleteFast, pastSessions, streak, completedFasts } = useFastingSession(user?.id);
+  const { session, startFast, endFast, breakFast, discardFast, deleteFast, pastSessions, streak, completedFasts } = useFastingSession(user?.id);
   const { fastingHours, eatingHours, setSessionId, setStartTime, setFastingHours, setEatingHours } = useFastingStore();
   const { theme } = useThemeStore();
   const c = getThemeColors(theme);
@@ -152,6 +152,13 @@ export default function FastScreen() {
     }
   };
 
+  const confirmDiscardSession = async () => {
+    setShowEndConfirm(false);
+    if (!session) return;
+    await discardFast(session.id);
+    await cancelAllNotifications();
+  };
+
   const handleCheckIn = async () => {
     if (checkInMood === null) return;
     if (phase === "idle") return;
@@ -181,15 +188,17 @@ export default function FastScreen() {
         showsVerticalScrollIndicator={false}
       >
         {/* Current Protocol Header */}
-        <View className="items-center mb-8">
-          <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 12, letterSpacing: 1, textTransform: "uppercase" }}>
-            Current Protocol
-          </Text>
-          <View className="flex-row items-center gap-2 mt-1">
-            <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 28 }}>{scheduleLabel} Fast</Text>
-            <MaterialCommunityIcons name="lightning-bolt" size={20} color={ACCENT.lime} />
+        {(phase !== "idle" || selectedSchedule) && (
+          <View className="items-center mb-8">
+            <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 12, letterSpacing: 1, textTransform: "uppercase" }}>
+              Current Protocol
+            </Text>
+            <View className="flex-row items-center gap-2 mt-1">
+              <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 28 }}>{scheduleLabel} Fast</Text>
+              <MaterialCommunityIcons name="lightning-bolt" size={20} color={ACCENT.lime} />
+            </View>
           </View>
-        </View>
+        )}
 
         {/* Timer Ring */}
         {phase === "idle" ? (
@@ -268,28 +277,33 @@ export default function FastScreen() {
             </View>
 
             {/* Schedule Info */}
+            {selectedSchedule && (
             <View className="w-full rounded-xl p-5 mb-6 glass-panel">
               <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 12, letterSpacing: 1, marginBottom: 16, textTransform: "uppercase" }}>
                 IF YOU START NOW
               </Text>
               <View className="flex-row justify-between">
                 {[
-                  { label: "Fast starts", value: format(new Date(), "h:mm a"), color: ACCENT.lime },
-                  { label: "Eat window", value: format(addHours(new Date(), fastingHours), "h:mm a"), color: ACCENT.cyan },
-                  { label: "Window closes", value: format(addHours(addHours(new Date(), fastingHours), eatingHours), "h:mm a"), color: ACCENT.coral },
+                  { label: "Fast starts", date: new Date(), color: ACCENT.lime },
+                  { label: "Eat window", date: addHours(new Date(), fastingHours), color: ACCENT.cyan },
+                  { label: "Window closes", date: addHours(addHours(new Date(), fastingHours), eatingHours), color: ACCENT.coral },
                 ].map((item) => (
                   <View key={item.label} className="flex-1 items-center">
                     <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: item.color }} />
                     <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 12, marginTop: 6, textAlign: "center" }}>
                       {item.label}
                     </Text>
-                    <Text style={{ color: c.text, fontFamily: "Inter_400Regular", fontSize: 14, marginTop: 4, textAlign: "center" }}>
-                      {item.value}
+                    <Text style={{ color: c.text, fontFamily: "Inter_400Regular", fontSize: 15, marginTop: 4, textAlign: "center" }}>
+                      {format(item.date, "MMM d")}
+                    </Text>
+                    <Text style={{ color: c.textSecondary, fontFamily: "Inter_400Regular", fontSize: 13, marginTop: 1, textAlign: "center" }}>
+                      {format(item.date, "h:mm a")}
                     </Text>
                   </View>
                 ))}
               </View>
             </View>
+            )}
           </View>
         ) : (
           <>
@@ -333,27 +347,32 @@ export default function FastScreen() {
             </Pressable>
 
             {/* End Session Confirmation */}
-            {showEndConfirm && (
-              <View className="w-full rounded-xl p-5 mb-6 glass-panel">
-                <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 20, marginBottom: 8 }}>
-                  End Eating Window?
-                </Text>
-                <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 14, marginBottom: 8 }}>
-                  You've been eating for {eatingHours * 60 - fastCountdown.totalMinutes} min.
-                </Text>
-                <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 12, marginBottom: 20, opacity: 0.7 }}>
-                  This will complete your fasting session and your results will be saved.
-                </Text>
-                <View className="flex-row gap-3">
-                  <Pressable onPress={() => setShowEndConfirm(false)} className="flex-1 py-3 rounded-lg items-center" style={{ backgroundColor: c.buttonBg }}>
-                    <Text style={{ color: c.text, fontFamily: "Inter_700Bold" }}>Keep Eating</Text>
+            <Modal visible={showEndConfirm} transparent animationType="slide" onRequestClose={() => setShowEndConfirm(false)}>
+              <Pressable className="flex-1 justify-end" style={{ backgroundColor: c.overlay }} onPress={() => setShowEndConfirm(false)}>
+                <Pressable onStartShouldSetResponder={() => true} className="rounded-t-3xl p-6" style={{ backgroundColor: c.elevated }}>
+                  <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 20, marginBottom: 8 }}>
+                    End Eating Window?
+                  </Text>
+                  <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 14, marginBottom: 8 }}>
+                    You've been eating for {eatingHours * 60 - fastCountdown.totalMinutes} min.
+                  </Text>
+                  <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 12, marginBottom: 20, opacity: 0.7 }}>
+                    This will complete your fasting session and your results will be saved.
+                  </Text>
+                  <View className="flex-row gap-3 mb-3">
+                    <Pressable onPress={() => setShowEndConfirm(false)} className="flex-1 py-3.5 rounded-xl items-center" style={{ backgroundColor: c.buttonBg }}>
+                      <Text style={{ color: c.text, fontFamily: "Inter_700Bold" }}>Keep Eating</Text>
+                    </Pressable>
+                    <Pressable onPress={confirmEndSession} className="flex-1 py-3.5 rounded-xl items-center" style={{ backgroundColor: ACCENT.lime }}>
+                      <Text style={{ color: "#161e00", fontFamily: "Inter_700Bold" }}>End Eating Window</Text>
+                    </Pressable>
+                  </View>
+                  <Pressable onPress={confirmDiscardSession} className="w-full py-3 rounded-xl items-center" style={{ backgroundColor: ACCENT.roseBg, borderWidth: 1, borderColor: ACCENT.roseBorder }}>
+                    <Text style={{ color: ACCENT.rose, fontFamily: "Inter_700Bold", fontSize: 13 }}>Discard Fast</Text>
                   </Pressable>
-                  <Pressable onPress={confirmEndSession} className="flex-1 py-3 rounded-lg items-center" style={{ backgroundColor: ACCENT.lime }}>
-                    <Text style={{ color: "#161e00", fontFamily: "Inter_700Bold" }}>End Eating Window</Text>
-                  </Pressable>
-                </View>
-              </View>
-            )}
+                </Pressable>
+              </Pressable>
+            </Modal>
 
             {/* Mood Check-in */}
             <View className="w-full rounded-xl p-5 mb-8 glass-panel">
