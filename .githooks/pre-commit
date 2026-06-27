@@ -1,0 +1,14 @@
+#!/bin/bash
+if [ "$ALLOW_COMMIT" != "true" ]; then
+  echo ""
+  echo "============================================="
+  echo "  COMMIT BLOCKED: Not authorized"
+  echo "============================================="
+  echo ""
+  echo "The user must explicitly approve commits."
+  echo "Set ALLOW_COMMIT=true to proceed with commit."
+  echo ""
+  echo "Example: ALLOW_COMMIT=true git commit -m \"...\""
+  echo ""
+  exit 1
+fi
