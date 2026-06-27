@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Pressable, View, Text, TextInput, Image, KeyboardAvoidingView, Platform, ActivityIndicator, StyleSheet } from "react-native";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Link, router } from "expo-router";
 import { Video, ResizeMode } from "expo-av";
 import { useAuth } from "@/hooks/useAuth";
@@ -9,13 +10,14 @@ import { useThemeStore } from "@/lib/theme-store";
 const BACKGROUND_VIDEO = require("../../assets/videos/background.mp4");
 
 export default function LoginScreen() {
-  const { signIn } = useAuth();
+  const { signIn, signInWithGoogle } = useAuth();
   const { theme } = useThemeStore();
   const c = getThemeColors(theme);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
 
   const handleLogin = async (e?: string, p?: string) => {
     const loginEmail = e ?? email;
@@ -94,6 +96,29 @@ export default function LoginScreen() {
           <Text style={{ color: c.textSecondary, fontFamily: "Inter_400Regular" }} className="text-center">
             Quick Test Login
           </Text>
+        </Pressable>
+
+        <Pressable
+          onPress={async () => {
+            setGoogleLoading(true);
+            const { error: googleErr } = await signInWithGoogle();
+            setGoogleLoading(false);
+            if (googleErr) setError(googleErr.message);
+          }}
+          disabled={googleLoading}
+          className="rounded-xl py-4 mb-6 flex-row items-center justify-center gap-3"
+          style={{ backgroundColor: c.buttonBg, borderWidth: 1, borderColor: c.cardBorder }}
+        >
+          {googleLoading ? (
+            <ActivityIndicator color={c.textSecondary} />
+          ) : (
+            <>
+              <MaterialCommunityIcons name="google" size={22} color={c.textSecondary} />
+              <Text style={{ color: c.textSecondary, fontFamily: "Inter_400Regular" }} className="text-center">
+                Continue with Google
+              </Text>
+            </>
+          )}
         </Pressable>
 
         <Link href="/(auth)/signup" asChild>

@@ -1,12 +1,13 @@
 import React, { useState } from "react";
 import { Pressable, View, Text, TextInput, KeyboardAvoidingView, Platform, ActivityIndicator } from "react-native";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Link } from "expo-router";
 import { useAuth } from "@/hooks/useAuth";
 import { getThemeColors, ACCENT } from "@/lib/theme-colors";
 import { useThemeStore } from "@/lib/theme-store";
 
 export default function SignupScreen() {
-  const { signUp } = useAuth();
+  const { signUp, signInWithGoogle } = useAuth();
   const { theme } = useThemeStore();
   const c = getThemeColors(theme);
   const [displayName, setDisplayName] = useState("");
@@ -16,6 +17,7 @@ export default function SignupScreen() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
 
   const handleSignup = async () => {
     if (!displayName || !email || !password) { setError("Please fill in all fields"); return; }
@@ -83,6 +85,35 @@ export default function SignupScreen() {
             <Text style={{ color: c.textOnAccent, fontFamily: "Inter_700Bold" }} className="text-center text-lg">
               Sign Up
             </Text>
+          )}
+        </Pressable>
+
+        <View className="flex-row items-center mb-4">
+          <View className="flex-1" style={{ height: 1, backgroundColor: c.divider }} />
+          <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 13, marginHorizontal: 12 }}>or</Text>
+          <View className="flex-1" style={{ height: 1, backgroundColor: c.divider }} />
+        </View>
+
+        <Pressable
+          onPress={async () => {
+            setGoogleLoading(true);
+            const { error: googleErr } = await signInWithGoogle();
+            setGoogleLoading(false);
+            if (googleErr) setError(googleErr.message);
+          }}
+          disabled={googleLoading}
+          className="rounded-xl py-4 mb-6 flex-row items-center justify-center gap-3"
+          style={{ backgroundColor: c.buttonBg, borderWidth: 1, borderColor: c.cardBorder }}
+        >
+          {googleLoading ? (
+            <ActivityIndicator color={c.textSecondary} />
+          ) : (
+            <>
+              <MaterialCommunityIcons name="google" size={22} color={c.textSecondary} />
+              <Text style={{ color: c.textSecondary, fontFamily: "Inter_400Regular" }} className="text-center">
+                Continue with Google
+              </Text>
+            </>
           )}
         </Pressable>
 

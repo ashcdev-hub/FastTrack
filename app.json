@@ -47,19 +47,19 @@
       "favicon": "./assets/favicon.png",
       "bundler": "metro"
     },
-      "plugins": [
-        "expo-router",
-        "expo-secure-store",
-        "expo-font",
-        "expo-updates",
-        [
-          "expo-image-picker",
-          {
-            "photosPermission": "FastTrack uses your photo library to analyze food photos.",
-            "cameraPermission": "FastTrack uses your camera to capture meal photos."
-          }
-        ],
-        [
+    "plugins": [
+      "expo-router",
+      "expo-secure-store",
+      "expo-font",
+      "expo-updates",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "FastTrack uses your photo library to analyze food photos.",
+          "cameraPermission": "FastTrack uses your camera to capture meal photos."
+        }
+      ],
+      [
         "expo-camera",
         {
           "cameraPermission": "FastTrack uses the camera to scan barcodes on food packaging."
@@ -88,7 +88,8 @@
           "backgroundColor": "#000000",
           "imageWidth": 200
         }
-      ]
+      ],
+      "@react-native-google-signin/google-signin"
     ],
     "extra": {
       "eas": {

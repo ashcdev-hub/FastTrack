@@ -447,6 +447,7 @@ Note: Settings are inline in the Profile tab (no standalone settings page). All 
 ```
 EXPO_PUBLIC_SUPABASE_URL=https://zytqfjjvruehnkntojjd.supabase.co
 EXPO_PUBLIC_SUPABASE_ANON_KEY=eyJ...
+EXPO_PUBLIC_GOOGLE_AUTH_WEB_CLIENT_ID=467971760239-...
 ```
 
 ## Deployment
