@@ -3,17 +3,21 @@ import { Platform } from "react-native";
 let Notifications: typeof import("expo-notifications") | null = null;
 
 if (Platform.OS !== "web") {
-  const N = require("expo-notifications");
-  Notifications = N;
-  N.setNotificationHandler({
-    handleNotification: async () => ({
-      shouldShowAlert: true,
-      shouldPlaySound: true,
-      shouldSetBadge: false,
-      shouldShowBanner: true,
-      shouldShowList: true,
-    }),
-  });
+  try {
+    const N = require("expo-notifications");
+    Notifications = N;
+    N.setNotificationHandler({
+      handleNotification: async () => ({
+        shouldShowAlert: true,
+        shouldPlaySound: true,
+        shouldSetBadge: false,
+        shouldShowBanner: true,
+        shouldShowList: true,
+      }),
+    });
+  } catch {
+    // expo-notifications unavailable (e.g. Android Expo Go)
+  }
 }
 
 export async function setupNotifications() {

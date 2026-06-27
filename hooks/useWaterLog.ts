@@ -69,9 +69,10 @@ export function useWaterLog(userId: string | undefined) {
         data,
         ...(old ?? []),
       ]);
+      queryClient.invalidateQueries({ queryKey: ["water_log", userId] });
     },
     onError: (error) => {
-      console.error("addWater mutation failed:", error);
+      console.error("addWater mutation failed:", error instanceof Error ? error.message : String(error));
     },
   });
 

@@ -487,6 +487,14 @@ See [Building for iOS (Standalone App)](#building-for-ios-standalone-app) above 
 - [x] Queue processor skips failed items (doesn't block the rest), 500ms delay between retries
 - [x] Food log staging persists to AsyncStorage (stagedItems, mealType, stagedDate)
 - [x] CustomKeyboard shift toggle (uppercase/lowercase)
+- [x] Session Complete celebration modal — bottom-sheet with trophy, stats: fasted/ate/total time, streak, completed
+- [x] Roadmap expanded — 7 new items (watchOS, Live Activity, photo logging, My Meals, scheduled dark mode, menstrual cycle, AI coach)
+- [x] Home tab section headings moved inside glass-panel cards (Fasting Today, Workout Progress, Hydration, Weight, Daily Macros)
+- [x] Exercise icon system — 12 MingCute + Lucide icons, WorkoutIcon (SvgXml), icon picker, DB migration
+- [x] Login screen video background — looping MP4 + 75% black overlay via expo-av, app icon, updated subtitle
+- [x] Android Expo Go stable — expo-notifications require wrapped in try-catch for SDK 53+ compatibility
+- [x] Water mutation double-safety — invalidateQueries after setQueryData
+- [x] WeightChart fixes — chronological sort, deduplicated labels for 2-entry datasets
 
 ## Next Steps
 
@@ -524,6 +532,14 @@ See [Building for iOS (Standalone App)](#building-for-ios-standalone-app) above 
 | 29 | **Recent/repeat meals** — One-tap re-log from recently logged foods via RECENT grid in LogMealModal | Done |
 | 30 | **Custom notification scheduling** — Time picker (instead of presets), per-type times, day-of-week filters, eating window reminder | Done |
 | 31 | **Check-in cache fix** — Changed from `invalidateQueries` to `setQueryData` for instant UI update | Done |
+| 32 | **Session Complete celebration** — Bottom-sheet modal with trophy, stats breakdown (fasted/ate/total time, streak, completed) after ending eating window | Done |
+| 33 | **Roadmap expansion** — Added 7 new items: watchOS app, Live Activity, photo food logging, My Meals library, scheduled dark mode, menstrual cycle, AI fasting coach | Done |
+| 34 | **Home tab design consistency** — Section headings (Fasting Today, Workout Progress, Hydration, Weight, Daily Macros) moved inside glass-panel cards | Done |
+| 35 | **Exercise icon system** — 12 icons from MingCute (Apache 2.0) + Lucide (ISC), `WorkoutIcon` component via SvgXml, icon picker in AddExerciseModal with auto-guess, `icon_name` DB migration, seeded for 4 defaults | Done |
+| 36 | **Login screen video background** — Looping MP4 with dimmed overlay (75% black) via expo-av. Web skips video (auto-play restrictions). App icon + updated subtitle. | Done |
+| 37 | **Android Expo Go stability** — Wrapped `expo-notifications` require in try-catch; module unavailable on Android Expo Go (SDK 53+) no longer crashes the entire app | Done |
+| 38 | **Water sync double-safety** — Added `invalidateQueries` after `setQueryData` in useWaterLog mutation for guaranteed UI consistency | Done |
+| 39 | **WeightChart fixes** — Sort entries chronologically (oldest→newest) for correct line direction; deduplicate date labels for 2-entry datasets | Done |
 
 ### Remaining
 | # | Feature | Effort | Description |

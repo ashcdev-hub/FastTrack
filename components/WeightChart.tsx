@@ -17,13 +17,15 @@ export function WeightChart({ entries, goalWeightKg }: WeightChartProps) {
 
   if (entries.length <= 1) return null;
 
+  const sorted = [...entries].sort((a, b) => new Date(a.logged_at).getTime() - new Date(b.logged_at).getTime());
+
   const width = containerWidth;
   const height = 180;
   const padding = { top: 20, right: 20, bottom: 30, left: 40 };
   const chartW = width - padding.left - padding.right;
   const chartH = height - padding.top - padding.bottom;
 
-  const weights = entries.map((e) => e.weight_kg);
+  const weights = sorted.map((e) => e.weight_kg);
   const minW = Math.min(...weights);
   const maxW = Math.max(...weights);
   const range = maxW - minW || 1;
@@ -31,7 +33,7 @@ export function WeightChart({ entries, goalWeightKg }: WeightChartProps) {
   const yMax = maxW + range * 0.1;
   const yRange = yMax - yMin;
 
-  const points = entries.map((e, i) => ({
+  const points = sorted.map((e, i) => ({
     x: padding.left + (i / (entries.length - 1)) * chartW,
     y: padding.top + chartH - ((e.weight_kg - yMin) / yRange) * chartH,
     weight: e.weight_kg,
@@ -76,7 +78,7 @@ export function WeightChart({ entries, goalWeightKg }: WeightChartProps) {
             );
           })}
 
-          {points.length > 1 && [0, Math.floor(points.length / 2), points.length - 1].map((idx) => {
+          {points.length > 1 && [...new Set([0, Math.floor(points.length / 2), points.length - 1])].map((idx) => {
             const p = points[idx];
             const label = `${p.date.getMonth() + 1}/${p.date.getDate()}`;
             return (
