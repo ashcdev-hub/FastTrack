@@ -521,13 +521,23 @@ See [Building for iOS (Standalone App)](#building-for-ios-standalone-app) above 
 | 26 | **Round 1 design consistency** — Standardized panels, buttons, modals, spacing across all screens | Done |
 | 27 | **Food page redesign** — LogMealModal, CustomKeyboard, QuantityModal, EditQuickAddModal, MealCalendarModal, inline custom form, tap-off keyboard dismiss, dimming overlay | Done |
 | 28 | **Offline support** — Query cache hydration, mutation queue (8 hooks), queue processor, food log staging persistence | Done |
+| 29 | **Recent/repeat meals** — One-tap re-log from recently logged foods via RECENT grid in LogMealModal | Done |
+| 30 | **Custom notification scheduling** — Time picker (instead of presets), per-type times, day-of-week filters, eating window reminder | Done |
+| 31 | **Check-in cache fix** — Changed from `invalidateQueries` to `setQueryData` for instant UI update | Done |
 
 ### Remaining
 | # | Feature | Effort | Description |
 |---|---------|--------|-------------|
-| 1 | **Home screen widget** | Medium | iOS/Android widget showing fasting timer + time remaining |
-| 2 | **Accessibility** | Medium | Dynamic type, VoiceOver/TalkBack labels, high contrast |
-| 3 | **Multi-language support** | Large | i18n for broader audience |
-| 4 | **Social features** | Large | Share progress, friend challenges |
-| 5 | **Testing** | Medium | Unit tests for hooks, component tests, E2E |
-| 6 | **App Store deployment** | Medium | Build profiles, screenshots, store listings, submit to iOS/Android |
+| 1 | **Water goal & progress** | Small | Set daily water target (e.g., 2L), show progress ring on Home tab next to macros |
+| 2 | **Edit/delete foods from calendar** | Small | Allow tap-to-edit or swipe-to-delete meals inside MealCalendarModal |
+| 3 | **Auto dark mode** | Small | Follow system Appearance setting via `useColorScheme()`, with manual override |
+| 4 | **Biometric auth** | Small | Face ID / Touch ID to lock the app on launch |
+| 5 | **Home screen widget** | Medium | iOS/Android widget showing fasting timer + time remaining |
+| 6 | **Apple Health sync** | Medium | Auto-sync weight, workouts, fasting data to Apple Health / Google Fit |
+| 7 | **Fasting insights / weekly trends** | Medium | Charts showing avg fast duration, consistency %, streaks over time |
+| 8 | **Export data** | Medium | CSV export of fasting history, food log, workouts |
+| 9 | **Accessibility** | Medium | Dynamic type, VoiceOver/TalkBack labels, high contrast |
+| 10 | **Testing** | Medium | Unit tests for hooks, component tests, E2E |
+| 11 | **App Store deployment** | Medium | Build profiles, screenshots, store listings, submit to iOS/Android |
+| 12 | **Multi-language support** | Large | i18n for broader audience |
+| 13 | **Social features** | Large | Share progress, friend challenges |
