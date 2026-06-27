@@ -50,8 +50,12 @@ export function useFastCheckIns(userId: string | undefined, sessionId: string | 
         isOffline,
       );
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["fast_check_ins", sessionId] });
+    onSuccess: (data) => {
+      if (!data) return;
+      queryClient.setQueryData<FastCheckIn[]>(["fast_check_ins", sessionId], (old) => [
+        ...(old ?? []),
+        data,
+      ]);
     },
   });
 
