@@ -6,6 +6,7 @@ import { supabase } from "@/lib/supabase";
 import { useThemeStore } from "@/lib/theme-store";
 import { getThemeColors, ACCENT, MEAL_COLORS } from "@/lib/theme-colors";
 import { useFoodLogStore } from "@/store/useFoodLogStore";
+import type { StagedItem } from "@/store/useFoodLogStore";
 import { MealBuilder } from "@/components/MealBuilder";
 import { EditQuickAddModal } from "@/components/EditQuickAddModal";
 import { BarcodeScanner } from "@/components/BarcodeScanner";
@@ -86,11 +87,37 @@ export function LogMealModal({ visible, onClose, userId, quickAddFoods, recentFo
   const [searchLoading, setSearchLoading] = useState(false);
   const [searchError, setSearchError] = useState<string | null>(null);
   const debounceRef = useRef<any>(undefined);
+  const scrollRef = useRef<ScrollView>(null);
+  const prevItemCountRef = useRef(0);
+
+  useEffect(() => {
+    if (store.stagedItems.length > prevItemCountRef.current) {
+      setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 250);
+    }
+    prevItemCountRef.current = store.stagedItems.length;
+  }, [store.stagedItems.length]);
 
   const [showCustomForm, setShowCustomForm] = useState(false);
   const [showEditQuickAdd, setShowEditQuickAdd] = useState(false);
   const [showBarcodeScanner, setShowBarcodeScanner] = useState(false);
   const [showDateTimePicker, setShowDateTimePicker] = useState(false);
+  const [editingItem, setEditingItem] = useState<StagedItem | null>(null);
+  const [eQty, setEQty] = useState(1);
+  const [eCals, setECals] = useState(0);
+  const [eProtein, setEProtein] = useState(0);
+  const [eCarbs, setECarbs] = useState(0);
+  const [eFat, setEFat] = useState(0);
+
+  useEffect(() => {
+    if (editingItem) {
+      setEQty(editingItem.quantity);
+      setECals(editingItem.calories);
+      setEProtein(editingItem.protein_g);
+      setECarbs(editingItem.carbs_g);
+      setEFat(editingItem.fat_g);
+    }
+  }, [editingItem]);
+
   const [pickerDate, setPickerDate] = useState(new Date());
   const [pickerHour, setPickerHour] = useState(new Date().getHours());
   const [pickerMinute, setPickerMinute] = useState(new Date().getMinutes());
@@ -273,6 +300,7 @@ export function LogMealModal({ visible, onClose, userId, quickAddFoods, recentFo
         {/* Scrollable Content */}
         <View style={{ flex: 1 }}>
           <ScrollView
+            ref={scrollRef}
             contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 16, paddingBottom: 40 }}
             showsVerticalScrollIndicator={true}
             keyboardShouldPersistTaps="handled"
@@ -301,6 +329,20 @@ export function LogMealModal({ visible, onClose, userId, quickAddFoods, recentFo
                 );
               })}
             </View>
+
+            {/* Staged items count badge */}
+            {store.stagedItems.length > 0 && (
+              <View className="flex-row items-center mb-4 gap-2">
+                <View className="rounded-full px-3 py-1" style={{ backgroundColor: ACCENT.limeBg }}>
+                  <Text style={{ color: ACCENT.lime, fontFamily: "Inter_700Bold", fontSize: 13 }}>
+                    {store.stagedItems.length} {store.stagedItems.length === 1 ? "item" : "items"} staged
+                  </Text>
+                </View>
+                <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 12 }}>
+                  — scroll down to review
+                </Text>
+              </View>
+            )}
 
             {/* Date/Time */}
             <Pressable
@@ -546,7 +588,7 @@ export function LogMealModal({ visible, onClose, userId, quickAddFoods, recentFo
 
             {/* Meal Builder */}
             <View className="mb-2">
-              <MealBuilder items={store.stagedItems} mealType={store.selectedMealType} onRemove={store.removeItem} onLog={handleLogMeal} />
+              <MealBuilder items={store.stagedItems} mealType={store.selectedMealType} onRemove={store.removeItem} onEdit={setEditingItem} onLog={handleLogMeal} />
             </View>
           </ScrollView>
         </View>
@@ -627,6 +669,84 @@ export function LogMealModal({ visible, onClose, userId, quickAddFoods, recentFo
             <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 15, textAlign: "center" }}>
               {pickerDate.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" })}
             </Text>
+          </Pressable>
+        </Pressable>
+      </Modal>
+
+      {/* Edit Staged Item Modal */}
+      <Modal visible={!!editingItem} transparent animationType="slide" onRequestClose={() => setEditingItem(null)}>
+        <Pressable className="flex-1 justify-end" style={{ backgroundColor: c.overlay }} onPress={() => setEditingItem(null)}>
+          <Pressable className="rounded-t-3xl p-6" style={{ backgroundColor: c.elevated }} onStartShouldSetResponder={() => true}>
+            <View className="flex-row justify-between items-center mb-4">
+              <Pressable onPress={() => setEditingItem(null)}>
+                <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 15 }}>Cancel</Text>
+              </Pressable>
+              <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 20 }}>Edit Item</Text>
+              <View className="w-14" />
+            </View>
+
+            {editingItem && (
+              <>
+                <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 18, textAlign: "center", marginBottom: 6 }}>{editingItem.name}</Text>
+                {editingItem.brand ? (
+                  <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 14, textAlign: "center", marginBottom: 20 }}>{editingItem.brand}</Text>
+                ) : null}
+
+                <View className="flex-row items-center justify-center gap-4 mb-5">
+                  <Pressable onPress={() => setEQty(Math.max(0.5, eQty - 0.5))} className="w-12 h-12 rounded-full items-center justify-center" style={{ backgroundColor: c.buttonBg }}>
+                    <MaterialCommunityIcons name="minus" size={22} color={c.text} />
+                  </Pressable>
+                  <View className="items-center">
+                    <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 32, minWidth: 50, textAlign: "center" }}>{eQty}</Text>
+                    <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 11 }}>SERVINGS</Text>
+                  </View>
+                  <Pressable onPress={() => setEQty(eQty + 0.5)} className="w-12 h-12 rounded-full items-center justify-center" style={{ backgroundColor: c.buttonBg }}>
+                    <MaterialCommunityIcons name="plus" size={22} color={c.text} />
+                  </Pressable>
+                </View>
+
+                <View className="rounded-xl p-4 mb-5" style={{ backgroundColor: c.cardBg }}>
+                  {[
+                    { label: "CALORIES", val: eCals, set: setECals, step: 50, presets: [100, 200, 300, 500] },
+                    { label: "PROTEIN (g)", val: eProtein, set: setEProtein, step: 5, presets: [10, 20, 30, 50] },
+                    { label: "CARBS (g)", val: eCarbs, set: setECarbs, step: 5, presets: [10, 20, 30, 50] },
+                    { label: "FAT (g)", val: eFat, set: setEFat, step: 5, presets: [5, 10, 15, 20] },
+                  ].map((macro) => (
+                    <View key={macro.label} className="mb-4 last:mb-0">
+                      <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 12, marginBottom: 3 }}>{macro.label}</Text>
+                      <View className="flex-row items-center gap-2 rounded-xl px-3" style={{ backgroundColor: c.inputBg }}>
+                        <Pressable onPress={() => macro.set(Math.max(0, macro.val - macro.step))} className="p-2">
+                          <MaterialCommunityIcons name="minus" size={18} color={c.text} />
+                        </Pressable>
+                        <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 17, flex: 1, textAlign: "center" }}>{macro.val}</Text>
+                        <Pressable onPress={() => macro.set(macro.val + macro.step)} className="p-2">
+                          <MaterialCommunityIcons name="plus" size={18} color={c.text} />
+                        </Pressable>
+                      </View>
+                      <View className="flex-row gap-1 mt-1">
+                        {macro.presets.map((v) => (
+                          <Pressable key={v} onPress={() => macro.set(v)}
+                            className="flex-1 py-1.5 rounded-md items-center"
+                            style={{ backgroundColor: macro.val === v ? ACCENT.limeBg : c.buttonBg }}>
+                            <Text style={{ color: macro.val === v ? ACCENT.lime : c.textMuted, fontFamily: "Inter_700Bold", fontSize: 12 }}>{v}</Text>
+                          </Pressable>
+                        ))}
+                      </View>
+                    </View>
+                  ))}
+                </View>
+
+                <View className="rounded-xl p-3 mb-5" style={{ backgroundColor: ACCENT.limeBg }}>
+                  <Text style={{ color: ACCENT.lime, fontFamily: "Inter_700Bold", fontSize: 15, textAlign: "center" }}>
+                    Total: {Math.round(eCals * eQty)} kcal
+                  </Text>
+                </View>
+
+                <Pressable onPress={() => { store.updateItem(editingItem.id, { quantity: eQty, calories: eCals, protein_g: eProtein, carbs_g: eCarbs, fat_g: eFat }); setEditingItem(null); }} className="rounded-xl py-3.5 items-center" style={{ backgroundColor: ACCENT.lime }}>
+                  <Text style={{ color: "#161e00", fontFamily: "Inter_700Bold", fontSize: 16 }}>Save Changes</Text>
+                </Pressable>
+              </>
+            )}
           </Pressable>
         </Pressable>
       </Modal>

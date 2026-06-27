@@ -25,6 +25,7 @@ type FoodLogState = {
   addItem: (item: Omit<StagedItem, "id">) => void;
   removeItem: (id: string) => void;
   updateItemQuantity: (id: string, quantity: number) => void;
+  updateItem: (id: string, updates: Partial<Omit<StagedItem, "id">>) => void;
   clearStaged: () => void;
   loadFromStorage: () => Promise<void>;
 };
@@ -89,6 +90,14 @@ export const useFoodLogStore = create<FoodLogState>((set, get) => ({
     set((state) => ({
       stagedItems: state.stagedItems.map((i) =>
         i.id === id ? { ...i, quantity } : i
+      ),
+    }));
+    persist(get());
+  },
+  updateItem: (id: string, updates: Partial<Omit<StagedItem, "id">>) => {
+    set((state) => ({
+      stagedItems: state.stagedItems.map((i) =>
+        i.id === id ? { ...i, ...updates } : i
       ),
     }));
     persist(get());

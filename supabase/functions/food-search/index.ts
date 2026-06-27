@@ -24,9 +24,9 @@ async function searchOpenFoodFacts(query: string): Promise<any[]> {
   const url = `${OPENFOODFACTS_API}?search_terms=${encodeURIComponent(query.trim())}&search_simple=1&action=process&json=1&page_size=10`;
 
   let response;
-  for (let attempt = 0; attempt < 3; attempt++) {
+  for (let attempt = 0; attempt < 2; attempt++) {
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 5000);
+    const timeout = setTimeout(() => controller.abort(), 3000);
     try {
       response = await fetch(url, {
         headers: { "User-Agent": "FastTrack/1.0 (contact@fasttrack.app)" },
@@ -38,13 +38,13 @@ async function searchOpenFoodFacts(query: string): Promise<any[]> {
     } finally {
       clearTimeout(timeout);
     }
-    if (attempt < 2) await new Promise((r) => setTimeout(r, 1000 * (attempt + 1)));
+    if (attempt < 1) await new Promise((r) => setTimeout(r, 500));
   }
 
-  if (!response || !response.ok) return [];
+  if (!response || !response.ok) throw new Error("OpenFoodFacts unavailable");
 
   const data = await response.json();
-  return (data.products ?? [])
+  const products = (data.products ?? [])
     .filter((p: any) => p.product_name)
     .map((p: any) => ({
       id: p.code,
@@ -58,6 +58,9 @@ async function searchOpenFoodFacts(query: string): Promise<any[]> {
         fat: Math.round((p.nutriments?.fat_serving ?? 0) * 10) / 10,
       },
     }));
+
+  if (products.length === 0) throw new Error("OpenFoodFacts no results");
+  return products;
 }
 
 async function searchGroq(query: string): Promise<any[]> {
@@ -108,15 +111,16 @@ async function searchGroq(query: string): Promise<any[]> {
       if (attempt < 2) await new Promise((r) => setTimeout(r, 1000 * (attempt + 1)));
     }
 
-  if (!response || !response.ok) return [];
+  if (!response || !response.ok) throw new Error("Groq unavailable");
 
   const data = await response.json();
   const content = data.choices?.[0]?.message?.content;
-  if (!content) return [];
+  if (!content) throw new Error("Groq empty response");
 
   try {
     const parsed = JSON.parse(content);
     const products = parsed.products ?? [];
+    if (products.length === 0) throw new Error("Groq no results");
     return products.map((p: any, i: number) => ({
       id: `groq_${i}_${Date.now()}`,
       name: p.name ?? "Unknown",
@@ -130,7 +134,7 @@ async function searchGroq(query: string): Promise<any[]> {
       },
     }));
   } catch {
-    return [];
+    throw new Error("Groq parse failed");
   }
 }
 
@@ -194,20 +198,14 @@ Deno.serve(async (req) => {
 
     const trimmed = query.trim();
 
-    // Try OpenFoodFacts first
-    const ofProducts = await searchOpenFoodFacts(trimmed);
-    if (ofProducts.length > 0) {
-      return jsonResponse({ products: ofProducts });
-    }
-
-    // Fallback to Groq LLM
-    const groqProducts = await searchGroq(trimmed);
-    if (groqProducts.length > 0) {
-      return jsonResponse({ products: groqProducts });
-    }
-
-    // Both failed
-    return jsonResponse({ error: "Food database temporarily unavailable. Try again in a moment." });
+    // Fire both in parallel — Promise.any returns the first successful one
+    const products = await Promise.any([
+      searchOpenFoodFacts(trimmed),
+      searchGroq(trimmed),
+    ]).catch(() => {
+      throw new Error("All food data sources unavailable");
+    });
+    return jsonResponse({ products });
   } catch (error: any) {
     console.error("Food search error:", error);
     return jsonResponse({ error: error?.message ?? "Search failed" }, 500);

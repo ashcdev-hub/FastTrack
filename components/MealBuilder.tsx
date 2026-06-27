@@ -9,10 +9,11 @@ type MealBuilderProps = {
   items: StagedItem[];
   mealType: string;
   onRemove: (id: string) => void;
+  onEdit: (item: StagedItem) => void;
   onLog: () => void;
 };
 
-export function MealBuilder({ items, mealType, onRemove, onLog }: MealBuilderProps) {
+export function MealBuilder({ items, mealType, onRemove, onEdit, onLog }: MealBuilderProps) {
   const { theme } = useThemeStore();
   const c = getThemeColors(theme);
   const totals = items.reduce(
@@ -47,7 +48,7 @@ export function MealBuilder({ items, mealType, onRemove, onLog }: MealBuilderPro
       </View>
 
       {items.map((item) => (
-        <View key={item.id} className="flex-row items-center py-3" style={{ borderBottomWidth: 1, borderBottomColor: c.divider }}>
+        <Pressable key={item.id} onPress={() => onEdit(item)} className="flex-row items-center py-3" style={{ borderBottomWidth: 1, borderBottomColor: c.divider }}>
           <View className="flex-1">
             <Text style={{ color: c.text, fontFamily: "Inter_400Regular", fontSize: 15 }}>{item.name}</Text>
             {item.brand ? (
@@ -59,11 +60,14 @@ export function MealBuilder({ items, mealType, onRemove, onLog }: MealBuilderPro
               {item.serving_size ? ` · ${item.serving_size}` : ""}
             </Text>
           </View>
-          <Pressable onPress={() => onRemove(item.id)} className="p-3"
-            accessibilityRole="button" accessibilityLabel={`Remove ${item.name}`}>
-            <MaterialCommunityIcons name="delete-outline" size={22} color={c.textMuted} />
-          </Pressable>
-        </View>
+          <View className="flex-row items-center">
+            <MaterialCommunityIcons name="pencil-outline" size={16} color={c.textMuted} style={{ marginRight: 4 }} />
+            <Pressable onPress={() => onRemove(item.id)} className="p-3"
+              accessibilityRole="button" accessibilityLabel={`Remove ${item.name}`}>
+              <MaterialCommunityIcons name="delete-outline" size={22} color={c.textMuted} />
+            </Pressable>
+          </View>
+        </Pressable>
       ))}
 
       <View className="mt-5 pt-4" style={{ borderTopWidth: 1, borderTopColor: c.divider }}>
