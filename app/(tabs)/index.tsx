@@ -16,6 +16,7 @@ import { useWeightLog } from "@/hooks/useWeightLog";
 import { ProgressRing } from "@/components/ProgressRing";
 import { WeightChart } from "@/components/WeightChart";
 import { WeightTracker } from "@/components/WeightTracker";
+import { supabase } from "@/lib/supabase";
 import { useThemeStore } from "@/lib/theme-store";
 import { getThemeColors, ACCENT } from "@/lib/theme-colors";
 import { DEFAULT_UNITS } from "@/lib/units";
@@ -40,7 +41,7 @@ function useElapsedMinutes(startTime: string | null) {
 
 export default function HomeScreen() {
   const { user } = useAuth();
-  const { session } = useFastingSession(user?.id);
+  const { session, streak, completedFasts } = useFastingSession(user?.id);
   const { fastingHours, eatingHours } = useFastingStore();
   const { profile } = useProfile(user?.id ?? null);
   const { goals: workoutGoals } = useWorkoutGoals(user?.id);
@@ -78,6 +79,10 @@ export default function HomeScreen() {
 
   const [selectedWaterMl, setSelectedWaterMl] = useState<number | null>(null);
   const [showHydrationGoal, setShowHydrationGoal] = useState(false);
+  const [coachInput, setCoachInput] = useState("");
+  const [coachReply, setCoachReply] = useState<string | null>(null);
+  const [coachLoading, setCoachLoading] = useState(false);
+  const [showCoachChat, setShowCoachChat] = useState(false);
   const hydrationGoalShownRef = useRef(true);
   const hydrationGoalKey = `@fasttrack_hydration_goal_${new Date().toISOString().split("T")[0]}`;
 
@@ -107,6 +112,39 @@ export default function HomeScreen() {
     { label: "Carbs", current: totals.carbs_g, goal: goals.dailyCarbs, unit: "g", barColor: "#9cf0ff" },
     { label: "Fat", current: totals.fat_g, goal: goals.dailyFat, unit: "g", barColor: "#ffb4ab" },
   ];
+
+  const coachContext = {
+    streak,
+    completedFasts,
+    phase,
+    calories: totals.calories,
+    protein: totals.protein_g,
+    carbs: totals.carbs_g,
+    fat: totals.fat_g,
+    calorieGoal: goals.dailyCalories,
+    proteinGoal: goals.dailyProtein,
+    carbsGoal: goals.dailyCarbs,
+    fatGoal: goals.dailyFat,
+    waterMl: totalMl,
+    waterGoalMl: goals.waterGoalMl,
+    workoutReps: Object.values(todayTotals).reduce((sum, t) => sum + t.reps, 0),
+    weight: currentWeight?.toFixed(1) ?? "unknown",
+    weightChange: weightChange?.toFixed(1) ?? "unknown",
+  };
+
+  const handleAskCoach = async (question: string) => {
+    if (!question.trim() || coachLoading) return;
+    setCoachLoading(true);
+    setCoachReply(null);
+    try {
+      const { data } = await supabase.functions.invoke("ai-coach", { body: { question, context: coachContext } });
+      setCoachReply(data?.reply ?? "I'm not sure how to answer that.");
+    } catch {
+      setCoachReply("Sorry, I couldn't reach the coach. Try again in a moment.");
+    } finally {
+      setCoachLoading(false);
+    }
+  };
   const scrollRef = useRef<ScrollView>(null);
   useScrollToTop(scrollRef as any);
 
@@ -321,17 +359,66 @@ export default function HomeScreen() {
                         </Text>
                         <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 12 }}>{macro.unit}</Text>
                       </View>
-                      <View className="mt-3 h-1 rounded-full overflow-hidden" style={{ backgroundColor: "rgba(53,53,52,0.3)" }}>
-                        <View className="h-full rounded-full" style={{ width: `${pct * 100}%`, backgroundColor: macro.barColor }} />
+                        <View className="mt-3 h-1 rounded-full overflow-hidden" style={{ backgroundColor: "rgba(53,53,52,0.3)" }}>
+                          <View className="h-full rounded-full" style={{ width: `${pct * 100}%`, backgroundColor: macro.barColor }} />
+                        </View>
                       </View>
                     </View>
+                  );
+                })}
+              </View>
+            </View>
+          </View>
+
+          {/* AI Insights */}
+          <View className="mb-section-gap">
+            <View className="rounded-xl p-5 glass-panel">
+              <View className="flex-row items-center gap-2 mb-3">
+                <MaterialCommunityIcons name="lightning-bolt" size={18} color={ACCENT.lime} />
+                <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 12, letterSpacing: 1, textTransform: "uppercase" }}>
+                  AI Insights
+                </Text>
+              </View>
+              <Text style={{ color: c.text, fontFamily: "Inter_400Regular", fontSize: 14, lineHeight: 21, marginBottom: 12 }}>
+                {completedFasts > 0
+                  ? `You've completed ${completedFasts} fasts${streak > 0 ? ` with a ${streak}-day streak` : ""}.${totals.calories > 0 ? ` You've logged ${Math.round(totals.calories)} of ${goals.dailyCalories} kcal today.` : ""}`
+                  : "Start your first fast and log your meals to get personalized insights."}
+              </Text>
+
+              {!showCoachChat ? (
+                <Pressable onPress={() => setShowCoachChat(true)} className="rounded-xl py-3 items-center flex-row justify-center gap-2" style={{ backgroundColor: ACCENT.limeBg }}>
+                  <MaterialCommunityIcons name="message-text-outline" size={16} color={ACCENT.lime} />
+                  <Text style={{ color: ACCENT.lime, fontFamily: "Inter_700Bold", fontSize: 13 }}>Ask a question</Text>
+                </Pressable>
+              ) : (
+                <View>
+                  <View className="flex-row items-center gap-2 mb-3">
+                    <TextInput value={coachInput} onChangeText={setCoachInput}
+                      placeholder="Ask about fasting, nutrition, workouts..."
+                      placeholderTextColor={c.placeholder}
+                      className="flex-1 rounded-xl px-4 py-3"
+                      style={{ backgroundColor: c.inputBg, color: c.text, fontFamily: "Inter_400Regular", fontSize: 14 }}
+                      returnKeyType="send"
+                      onSubmitEditing={() => { handleAskCoach(coachInput); setCoachInput(""); }}
+                    />
+                    <Pressable onPress={() => { handleAskCoach(coachInput); setCoachInput(""); }}
+                      disabled={!coachInput.trim() || coachLoading}
+                      className="rounded-xl p-3"
+                      style={{ backgroundColor: coachInput.trim() && !coachLoading ? ACCENT.lime : c.buttonBg }}>
+                      <MaterialCommunityIcons name="send" size={18} color={coachInput.trim() && !coachLoading ? "#161e00" : c.textMuted} />
+                    </Pressable>
                   </View>
-                );
-              })}
+                  {coachLoading && <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 13 }}>Thinking...</Text>}
+                  {coachReply && (
+                    <View className="rounded-xl p-3" style={{ backgroundColor: c.elevated }}>
+                      <Text style={{ color: c.text, fontFamily: "Inter_400Regular", fontSize: 14, lineHeight: 21 }}>{coachReply}</Text>
+                    </View>
+                  )}
+                </View>
+              )}
             </View>
           </View>
         </View>
-      </View>
       </ScrollView>
 
       {/* Hydration Goal Celebration */}

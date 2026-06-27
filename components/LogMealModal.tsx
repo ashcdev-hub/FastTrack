@@ -10,6 +10,7 @@ import type { StagedItem } from "@/store/useFoodLogStore";
 import { MealBuilder } from "@/components/MealBuilder";
 import { EditQuickAddModal } from "@/components/EditQuickAddModal";
 import { BarcodeScanner } from "@/components/BarcodeScanner";
+import { FoodCamera } from "@/components/FoodCamera";
 
 const FOOD_MACROS: Record<string, { cals: number; p: number; c: number; f: number }> = {
   "Boiled Egg": { cals: 78, p: 6.3, c: 0.6, f: 5.3 },
@@ -100,6 +101,8 @@ export function LogMealModal({ visible, onClose, userId, quickAddFoods, recentFo
   const [showCustomForm, setShowCustomForm] = useState(false);
   const [showEditQuickAdd, setShowEditQuickAdd] = useState(false);
   const [showBarcodeScanner, setShowBarcodeScanner] = useState(false);
+  const [showFoodCamera, setShowFoodCamera] = useState(false);
+  const [showPhotoPicker, setShowPhotoPicker] = useState(false);
   const [showDateTimePicker, setShowDateTimePicker] = useState(false);
   const [editingItem, setEditingItem] = useState<StagedItem | null>(null);
   const [eQty, setEQty] = useState(1);
@@ -220,6 +223,37 @@ export function LogMealModal({ visible, onClose, userId, quickAddFoods, recentFo
     onClose();
   };
 
+  const handlePickPhoto = async (source: "camera" | "library") => {
+    setShowPhotoPicker(false);
+    if (source === "camera") {
+      setShowFoodCamera(true);
+      return;
+    }
+    try {
+      const { launchImageLibraryAsync } = await import("expo-image-picker");
+      const result = await launchImageLibraryAsync({
+        mediaTypes: ["images"],
+        base64: true,
+        quality: 0.6,
+      });
+      if (!result.canceled && result.assets?.[0]?.base64) {
+        setSearchLoading(true);
+        const { data } = await supabase.functions.invoke("food-photo", {
+          body: { image: result.assets[0].base64 },
+        });
+        if (data?.products) {
+          data.products.forEach((p: any) => {
+            store.addItem({ name: p.name, brand: p.brand ?? "", calories: p.nutrition.calories, protein_g: p.nutrition.protein ?? 0, carbs_g: p.nutrition.carbs ?? 0, fat_g: p.nutrition.fat ?? 0, quantity: 1 });
+          });
+        }
+      }
+    } catch (e: any) {
+      console.error("Photo picker error:", e?.message ?? e);
+    } finally {
+      setSearchLoading(false);
+    }
+  };
+
   return (
     <Modal visible={visible} animationType="slide" onRequestClose={handleClose}>
       <View style={{ flex: 1, backgroundColor: c.bg, paddingTop: insets.top }}>
@@ -251,6 +285,12 @@ export function LogMealModal({ visible, onClose, userId, quickAddFoods, recentFo
               style={{ borderRadius: 12, backgroundColor: c.inputBg, padding: 14, justifyContent: "center" }}
             >
               <MaterialCommunityIcons name="barcode-scan" size={24} color={ACCENT.lime} />
+            </Pressable>
+            <Pressable
+              onPress={() => setShowPhotoPicker(true)}
+              style={{ borderRadius: 12, backgroundColor: c.inputBg, padding: 14, justifyContent: "center" }}
+            >
+              <MaterialCommunityIcons name="camera" size={24} color={ACCENT.cyan} />
             </Pressable>
           </View>
         </View>
@@ -606,6 +646,17 @@ export function LogMealModal({ visible, onClose, userId, quickAddFoods, recentFo
         onClose={() => setShowBarcodeScanner(false)}
       />
 
+      <FoodCamera
+        visible={showFoodCamera}
+        onProductsFound={(products) => {
+          setShowFoodCamera(false);
+          products.forEach((p: any) => {
+            store.addItem({ name: p.name, brand: p.brand ?? "", calories: p.nutrition.calories, protein_g: p.nutrition.protein ?? 0, carbs_g: p.nutrition.carbs ?? 0, fat_g: p.nutrition.fat ?? 0, quantity: 1 });
+          });
+        }}
+        onClose={() => setShowFoodCamera(false)}
+      />
+
       {/* Date/Time Picker */}
       <Modal visible={showDateTimePicker} transparent animationType="slide" onRequestClose={() => setShowDateTimePicker(false)}>
         <Pressable className="flex-1 justify-end" style={{ backgroundColor: c.overlay }} onPress={() => setShowDateTimePicker(false)}>
@@ -669,6 +720,32 @@ export function LogMealModal({ visible, onClose, userId, quickAddFoods, recentFo
             <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 15, textAlign: "center" }}>
               {pickerDate.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" })}
             </Text>
+          </Pressable>
+        </Pressable>
+      </Modal>
+
+      {/* Photo Picker Modal */}
+      <Modal visible={showPhotoPicker} transparent animationType="slide" onRequestClose={() => setShowPhotoPicker(false)}>
+        <Pressable className="flex-1 justify-end" style={{ backgroundColor: c.overlay }} onPress={() => setShowPhotoPicker(false)}>
+          <Pressable className="rounded-t-3xl p-6" style={{ backgroundColor: c.elevated }} onStartShouldSetResponder={() => true}>
+            <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 20, marginBottom: 16 }}>Add Food Photo</Text>
+            <Pressable onPress={() => handlePickPhoto("camera")} className="flex-row items-center gap-3 py-4 rounded-xl px-4 mb-2" style={{ backgroundColor: c.buttonBg }}>
+              <MaterialCommunityIcons name="camera" size={24} color={ACCENT.cyan} />
+              <View>
+                <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 15 }}>Take Photo</Text>
+                <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 12 }}>Use your camera to capture a meal</Text>
+              </View>
+            </Pressable>
+            <Pressable onPress={() => handlePickPhoto("library")} className="flex-row items-center gap-3 py-4 rounded-xl px-4 mb-4" style={{ backgroundColor: c.buttonBg }}>
+              <MaterialCommunityIcons name="image-multiple-outline" size={24} color={ACCENT.lime} />
+              <View>
+                <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 15 }}>Choose from Library</Text>
+                <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 12 }}>Pick a photo from your gallery</Text>
+              </View>
+            </Pressable>
+            <Pressable onPress={() => setShowPhotoPicker(false)} className="py-3 items-center" style={{ backgroundColor: c.buttonBg }}>
+              <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 15 }}>Cancel</Text>
+            </Pressable>
           </Pressable>
         </Pressable>
       </Modal>
