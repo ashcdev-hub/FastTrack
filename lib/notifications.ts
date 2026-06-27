@@ -1,9 +1,15 @@
 import { Platform } from "react-native";
 
+// expo-notifications is unsupported on Android Expo Go (SDK 53+).
+// The native module crashes during load, so we skip it entirely on Android.
+// When moving to a development build, change this to allow Android too.
+const NOTIFICATIONS_SUPPORTED = Platform.OS === "ios";
+
 let Notifications: typeof import("expo-notifications") | null = null;
 let initPromise: Promise<void> | null = null;
 
 async function ensureNotificationsLoaded() {
+  if (!NOTIFICATIONS_SUPPORTED) return;
   if (Notifications) return;
   if (initPromise) return initPromise;
   initPromise = (async () => {
@@ -20,14 +26,13 @@ async function ensureNotificationsLoaded() {
         }),
       });
     } catch {
-      // expo-notifications unavailable (e.g. Android Expo Go SDK 53+)
+      // expo-notifications unavailable
     }
   })();
   return initPromise;
 }
 
 export async function setupNotifications() {
-  if (Platform.OS === "web") return;
   await ensureNotificationsLoaded();
   if (!Notifications) return;
 
@@ -75,7 +80,7 @@ export async function scheduleFastingReminder(
   seconds: number
 ) {
   await ensureNotificationsLoaded();
-  if (Platform.OS === "web" || !Notifications) return;
+  if (!Notifications) return;
 
   await Notifications.scheduleNotificationAsync({
     content: { title, body, sound: true },
@@ -88,15 +93,15 @@ export async function scheduleFastingReminder(
 
 export async function cancelAllNotifications() {
   await ensureNotificationsLoaded();
-  if (Platform.OS === "web" || !Notifications) return;
+  if (!Notifications) return;
   await Notifications.cancelAllScheduledNotificationsAsync();
 }
 
-// --- New: Daily fast reminder ---
+// --- Daily fast reminder ---
 
 export async function scheduleDailyFastReminder(hour: number, minute: number) {
   await ensureNotificationsLoaded();
-  if (Platform.OS === "web" || !Notifications) return;
+  if (!Notifications) return;
 
   await Notifications.scheduleNotificationAsync({
     content: {
@@ -112,11 +117,11 @@ export async function scheduleDailyFastReminder(hour: number, minute: number) {
   });
 }
 
-// --- New: Check-in reminder (halfway through fast) ---
+// --- Check-in reminder ---
 
 export async function scheduleCheckInReminder(hoursUntilMidpoint: number) {
   await ensureNotificationsLoaded();
-  if (Platform.OS === "web" || !Notifications) return;
+  if (!Notifications) return;
   if (hoursUntilMidpoint <= 0) return;
 
   const seconds = Math.round(hoursUntilMidpoint * 3600);
@@ -134,11 +139,11 @@ export async function scheduleCheckInReminder(hoursUntilMidpoint: number) {
   });
 }
 
-// --- New: Water reminders (repeating during the day) ---
+// --- Water reminders ---
 
 export async function scheduleWaterReminders(intervalHours: number) {
   await ensureNotificationsLoaded();
-  if (Platform.OS === "web" || !Notifications) return;
+  if (!Notifications) return;
   if (intervalHours <= 0 || intervalHours > 6) return;
 
   const seconds = intervalHours * 3600;
@@ -157,11 +162,11 @@ export async function scheduleWaterReminders(intervalHours: number) {
   });
 }
 
-// --- New: Eating window reminder ---
+// --- Eating window reminder ---
 
 export async function scheduleEatingWindowReminder(fastingSeconds: number, minutesBefore: number) {
   await ensureNotificationsLoaded();
-  if (Platform.OS === "web" || !Notifications) return;
+  if (!Notifications) return;
   const seconds = Math.max(fastingSeconds - minutesBefore * 60, 0);
   await Notifications.scheduleNotificationAsync({
     content: {
@@ -178,7 +183,7 @@ export async function scheduleEatingWindowReminder(fastingSeconds: number, minut
 
 export async function scheduleDailyNotification(title: string, body: string, hour: number, minute: number) {
   await ensureNotificationsLoaded();
-  if (Platform.OS === "web" || !Notifications) return;
+  if (!Notifications) return;
   await Notifications.scheduleNotificationAsync({
     content: { title, body, sound: true },
     trigger: {
@@ -189,13 +194,13 @@ export async function scheduleDailyNotification(title: string, body: string, hou
   });
 }
 
-// --- New: Streak milestone check ---
+// --- Streak milestone check ---
 
 const STREAK_MILESTONES = [3, 7, 14, 30, 50, 100];
 
 export async function checkAndNotifyStreakMilestone(completedFasts: number) {
   await ensureNotificationsLoaded();
-  if (Platform.OS === "web" || !Notifications) return;
+  if (!Notifications) return;
   if (!STREAK_MILESTONES.includes(completedFasts)) return;
 
   const messages: Record<number, string> = {
