@@ -7,10 +7,8 @@ import { useThemeStore } from "@/lib/theme-store";
 import { getThemeColors, ACCENT, MEAL_COLORS } from "@/lib/theme-colors";
 import { useFoodLogStore } from "@/store/useFoodLogStore";
 import { MealBuilder } from "@/components/MealBuilder";
-import { QuantityModal } from "@/components/QuantityModal";
 import { EditQuickAddModal } from "@/components/EditQuickAddModal";
 import { BarcodeScanner } from "@/components/BarcodeScanner";
-import { CustomKeyboard } from "@/components/CustomKeyboard";
 
 const FOOD_MACROS: Record<string, { cals: number; p: number; c: number; f: number }> = {
   "Boiled Egg": { cals: 78, p: 6.3, c: 0.6, f: 5.3 },
@@ -81,17 +79,14 @@ export function LogMealModal({ visible, onClose, userId, quickAddFoods, recentFo
   const c = getThemeColors(theme);
   const insets = useSafeAreaInsets();
   const store = useFoodLogStore();
+  const searchInputRef = useRef<TextInput>(null);
 
-  // Search state
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [searchLoading, setSearchLoading] = useState(false);
   const [searchError, setSearchError] = useState<string | null>(null);
   const debounceRef = useRef<any>(undefined);
-  const [showKeyboard, setShowKeyboard] = useState(false);
 
-  // Sub-modals
-  const [showQuantityModal, setShowQuantityModal] = useState(false);
   const [showCustomForm, setShowCustomForm] = useState(false);
   const [showEditQuickAdd, setShowEditQuickAdd] = useState(false);
   const [showBarcodeScanner, setShowBarcodeScanner] = useState(false);
@@ -100,9 +95,6 @@ export function LogMealModal({ visible, onClose, userId, quickAddFoods, recentFo
   const [pickerHour, setPickerHour] = useState(new Date().getHours());
   const [pickerMinute, setPickerMinute] = useState(new Date().getMinutes());
 
-  const pendingItemRef = useRef<{ name: string; brand: string; calories: number; protein_g: number; carbs_g: number; fat_g: number; serving_size?: string } | null>(null);
-
-  // Inline custom form state
   const [customName, setCustomName] = useState("");
   const [customBrand, setCustomBrand] = useState("");
   const [customServing, setCustomServing] = useState("");
@@ -116,19 +108,17 @@ export function LogMealModal({ visible, onClose, userId, quickAddFoods, recentFo
     setCustomCals(""); setCustomProtein(""); setCustomCarbs(""); setCustomFat("");
   };
 
-  // Reset state on open
   useEffect(() => {
     if (visible) {
       setSearchQuery("");
       setSearchResults([]);
       setSearchError(null);
       setShowCustomForm(false);
-      setShowKeyboard(false);
       resetCustomForm();
+      setTimeout(() => searchInputRef.current?.focus(), 300);
     }
   }, [visible]);
 
-  // Debounced search
   useEffect(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
     const q = searchQuery.trim();
@@ -207,73 +197,64 @@ export function LogMealModal({ visible, onClose, userId, quickAddFoods, recentFo
     <Modal visible={visible} animationType="slide" onRequestClose={handleClose}>
       <View style={{ flex: 1, backgroundColor: c.bg, paddingTop: insets.top }}>
         {/* Fixed Header */}
-        <View className="flex-row justify-between items-center px-5 py-3" style={{ borderBottomWidth: 1, borderBottomColor: c.divider }}>
-          <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 20 }}>Log Meal</Text>
+        <View className="flex-row justify-between items-center px-5 py-4" style={{ borderBottomWidth: 1, borderBottomColor: c.divider }}>
+          <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 22 }}>Log Meal</Text>
           <Pressable onPress={handleClose} className="p-1">
-            <MaterialCommunityIcons name="close" size={24} color={c.textMuted} />
+            <MaterialCommunityIcons name="close" size={26} color={c.textMuted} />
           </Pressable>
         </View>
 
         {/* Fixed Search Bar */}
         <View style={{ paddingHorizontal: 20, paddingTop: 16, paddingBottom: searchQuery.length >= 2 ? 8 : 0 }}>
-          <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
-            <Pressable
-              onPress={() => setShowKeyboard(true)}
-              style={{ flex: 1, flexDirection: "row", alignItems: "center", borderRadius: 12, backgroundColor: c.inputBg, paddingHorizontal: 12, paddingVertical: 12 }}
-            >
-              <MaterialCommunityIcons name="magnify" size={18} color={c.textMuted} />
-              {searchQuery.length > 0 ? (
-                <Text style={{ color: c.text, fontFamily: "Inter_400Regular", fontSize: 14, flex: 1, marginLeft: 8 }} numberOfLines={1}>
-                  {searchQuery}
-                </Text>
-              ) : (
-                <Text style={{ color: c.placeholder, fontFamily: "Inter_400Regular", fontSize: 14, flex: 1, marginLeft: 8 }}>
-                  Search food...
-                </Text>
-              )}
-              {searchQuery.length > 0 && (
-                <Pressable onPress={() => { setSearchQuery(""); setSearchResults([]); }} hitSlop={8}>
-                  <MaterialCommunityIcons name="close-circle" size={16} color={c.textMuted} />
-                </Pressable>
-              )}
-            </Pressable>
+          <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
+            <TextInput
+              ref={searchInputRef}
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+              placeholder="Search food..."
+              placeholderTextColor={c.placeholder}
+              className="flex-1 rounded-xl px-4 py-4"
+              style={{ backgroundColor: c.inputBg, color: c.text, fontFamily: "Inter_400Regular", fontSize: 16 }}
+              autoCapitalize="none"
+              autoCorrect={false}
+              clearButtonMode="while-editing"
+            />
             <Pressable
               onPress={() => setShowBarcodeScanner(true)}
-              style={{ borderRadius: 12, backgroundColor: c.inputBg, paddingHorizontal: 12, paddingVertical: 12, justifyContent: "center" }}
+              style={{ borderRadius: 12, backgroundColor: c.inputBg, padding: 14, justifyContent: "center" }}
             >
-              <MaterialCommunityIcons name="barcode-scan" size={22} color={ACCENT.lime} />
+              <MaterialCommunityIcons name="barcode-scan" size={24} color={ACCENT.lime} />
             </Pressable>
           </View>
         </View>
 
         {/* Fixed Search Results */}
         {searchQuery.trim().length >= 2 && (
-          <View style={{ paddingHorizontal: 20, paddingBottom: 8, maxHeight: 200, minHeight: 40 }}>
+          <View style={{ paddingHorizontal: 20, paddingBottom: 8, maxHeight: 240, minHeight: 40 }}>
             <View style={{ borderRadius: 12, backgroundColor: c.cardBgAlt, padding: 10 }}>
               {searchLoading ? (
                 <ActivityIndicator color={ACCENT.lime} />
               ) : searchError ? (
-                <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 12, textAlign: "center", paddingVertical: 6 }}>
+                <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 14, textAlign: "center", paddingVertical: 8 }}>
                   {searchError}
                 </Text>
               ) : searchResults.length > 0 ? (
-                <ScrollView showsVerticalScrollIndicator={false} nestedScrollEnabled
-                  style={{ maxHeight: 170 }}>
+                <ScrollView showsVerticalScrollIndicator={false} nestedScrollEnabled style={{ maxHeight: 200 }}>
                   {searchResults.map((item: any) => (
                     <Pressable
                       key={item.id}
                       onPress={() => {
-                        setShowKeyboard(false);
-                        pendingItemRef.current = item;
-                        setShowQuantityModal(true);
+                        store.addItem({ name: item.name, brand: item.brand, calories: item.calories, protein_g: item.protein_g, carbs_g: item.carbs_g, fat_g: item.fat_g, quantity: 1 });
+                        setSearchQuery("");
+                        setSearchResults([]);
                       }}
-                      style={{ borderRadius: 8, paddingVertical: 8, paddingHorizontal: 10, marginBottom: 4, backgroundColor: c.elevated }}
+                      style={{ borderRadius: 8, paddingVertical: 10, paddingHorizontal: 12, marginBottom: 4, backgroundColor: c.elevated }}
                     >
-                      <Text style={{ color: c.text, fontFamily: "Inter_400Regular", fontSize: 13 }}>{item.name}</Text>
+                      <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 15 }}>{item.name}</Text>
                       {item.brand ? (
-                        <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 10 }}>{item.brand}</Text>
+                        <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 12 }}>{item.brand}</Text>
                       ) : null}
-                      <Text style={{ color: c.textSecondary, fontFamily: "Inter_400Regular", fontSize: 10, marginTop: 1 }}>
+                      <Text style={{ color: c.textSecondary, fontFamily: "Inter_400Regular", fontSize: 12, marginTop: 2 }}>
                         {item.calories} kcal · P{item.protein_g}g · C{item.carbs_g}g · F{item.fat_g}g
                         {item.serving_size ? ` · ${item.serving_size}` : ""}
                       </Text>
@@ -281,7 +262,7 @@ export function LogMealModal({ visible, onClose, userId, quickAddFoods, recentFo
                   ))}
                 </ScrollView>
               ) : (
-                <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 12, textAlign: "center", paddingVertical: 6 }}>
+                <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 14, textAlign: "center", paddingVertical: 8 }}>
                   No results
                 </Text>
               )}
@@ -289,22 +270,15 @@ export function LogMealModal({ visible, onClose, userId, quickAddFoods, recentFo
           </View>
         )}
 
-        {/* Content area with dimming */}
-        <View style={{ flex: 1, overflow: "hidden" }}>
-          {showKeyboard && (
-            <Pressable
-              style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "rgba(0,0,0,0.4)", zIndex: 5 }}
-              onPress={() => setShowKeyboard(false)}
-            />
-          )}
+        {/* Scrollable Content */}
+        <View style={{ flex: 1 }}>
           <ScrollView
             contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 16, paddingBottom: 40 }}
             showsVerticalScrollIndicator={true}
-            style={{ opacity: showKeyboard ? 0.15 : 1 }}
-            pointerEvents={showKeyboard ? "none" : "auto"}
+            keyboardShouldPersistTaps="handled"
           >
             {/* Meal Type Selector */}
-            <View className="flex-row gap-2 mb-4">
+            <View className="flex-row gap-2 mb-5">
               {mealTypes.map((type) => {
                 const isActive = store.selectedMealType === type;
                 const color = MEAL_COLORS[type];
@@ -312,13 +286,13 @@ export function LogMealModal({ visible, onClose, userId, quickAddFoods, recentFo
                   <Pressable
                     key={type}
                     onPress={() => store.setSelectedMealType(type)}
-                    className="flex-1 py-2.5 rounded-lg items-center"
+                    className="flex-1 py-3 rounded-lg items-center"
                     style={{ backgroundColor: isActive ? color : c.buttonBg }}
                   >
                     <Text style={{
                       color: isActive ? (color === MEAL_COLORS.breakfast || color === MEAL_COLORS.lunch ? "#161e00" : "#FFFFFF") : c.textMuted,
                       fontFamily: isActive ? "Inter_700Bold" : "Inter_400Regular",
-                      fontSize: 10,
+                      fontSize: 13,
                       textTransform: "capitalize",
                     }}>
                       {type}
@@ -331,24 +305,24 @@ export function LogMealModal({ visible, onClose, userId, quickAddFoods, recentFo
             {/* Date/Time */}
             <Pressable
               onPress={() => { const d = new Date(store.stagedDate); setPickerDate(d); setPickerHour(d.getHours()); setPickerMinute(d.getMinutes()); setShowDateTimePicker(true); }}
-              className="rounded-xl px-4 py-3 mb-4 flex-row items-center justify-between"
+              className="rounded-xl px-5 py-4 mb-5 flex-row items-center justify-between"
               style={{ backgroundColor: c.cardBgAlt }}
             >
-              <Text style={{ color: c.text, fontFamily: "Inter_400Regular", fontSize: 13 }}>{formatDateTime(new Date(store.stagedDate))}</Text>
-              <Text style={{ color: ACCENT.lime, fontFamily: "Inter_700Bold", fontSize: 12 }}>Change</Text>
+              <Text style={{ color: c.text, fontFamily: "Inter_400Regular", fontSize: 15 }}>{formatDateTime(new Date(store.stagedDate))}</Text>
+              <Text style={{ color: ACCENT.lime, fontFamily: "Inter_700Bold", fontSize: 14 }}>Change</Text>
             </Pressable>
 
             {/* Quick-Add Favorites */}
-            <View className="mb-4">
+            <View className="mb-5">
               <View className="flex-row justify-between items-center mb-3">
-                <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 11, letterSpacing: 1, textTransform: "uppercase" }}>
+                <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 13, letterSpacing: 1, textTransform: "uppercase" }}>
                   QUICK ADD
                 </Text>
                 <Pressable onPress={() => setShowEditQuickAdd(true)}>
-                  <MaterialCommunityIcons name="pencil-outline" size={16} color={c.textMuted} />
+                  <MaterialCommunityIcons name="pencil-outline" size={18} color={c.textMuted} />
                 </Pressable>
               </View>
-              <View className="flex-row flex-wrap" style={{ marginHorizontal: -5 }}>
+              <View className="flex-row flex-wrap" style={{ marginHorizontal: -6 }}>
                 {quickAddFoods.map((foodName) => {
                   const macros = FOOD_MACROS[foodName];
                   if (!macros) return null;
@@ -356,51 +330,51 @@ export function LogMealModal({ visible, onClose, userId, quickAddFoods, recentFo
                     <Pressable
                       key={foodName}
                       className="w-1/2"
-                      style={{ paddingHorizontal: 5, marginBottom: 10 }}
+                      style={{ paddingHorizontal: 6, marginBottom: 12 }}
                       onPress={() => {
                         store.addItem({ name: foodName, brand: "", calories: macros.cals, protein_g: macros.p, carbs_g: macros.c, fat_g: macros.f, quantity: 1 });
                       }}
                     >
-                      <View className="rounded-xl p-3 flex-row items-center gap-2.5" style={{ backgroundColor: c.cardBgAlt }}>
-                        <View className="rounded-lg items-center justify-center" style={{ width: 32, height: 32, backgroundColor: ACCENT.limeBg }}>
-                          <MaterialCommunityIcons name="food-apple-outline" size={16} color={ACCENT.lime} />
+                      <View className="rounded-xl p-4 flex-row items-center gap-3" style={{ backgroundColor: c.cardBgAlt }}>
+                        <View className="rounded-lg items-center justify-center" style={{ width: 36, height: 36, backgroundColor: ACCENT.limeBg }}>
+                          <MaterialCommunityIcons name="food-apple-outline" size={18} color={ACCENT.lime} />
                         </View>
                         <View className="flex-1">
-                          <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 12 }} numberOfLines={1}>{foodName}</Text>
-                          <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 8 }}>{macros.cals} KCAL</Text>
+                          <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 14 }} numberOfLines={1}>{foodName}</Text>
+                          <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 10 }}>{macros.cals} KCAL</Text>
                         </View>
                       </View>
                     </Pressable>
                   );
                 })}
+              </View>
             </View>
-          </View>
 
             {/* Recent Foods */}
             {recentFoods.length > 0 && (
-              <View className="mb-4">
+              <View className="mb-5">
                 <View className="flex-row items-center mb-3">
-                  <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 11, letterSpacing: 1, textTransform: "uppercase" }}>
+                  <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 13, letterSpacing: 1, textTransform: "uppercase" }}>
                     RECENT
                   </Text>
                 </View>
-                <View className="flex-row flex-wrap" style={{ marginHorizontal: -5 }}>
+                <View className="flex-row flex-wrap" style={{ marginHorizontal: -6 }}>
                   {recentFoods.map((item) => (
                     <Pressable
                       key={item.name}
                       className="w-1/2"
-                      style={{ paddingHorizontal: 5, marginBottom: 10 }}
+                      style={{ paddingHorizontal: 6, marginBottom: 12 }}
                       onPress={() => {
                         store.addItem({ name: item.name, brand: item.brand ?? "", serving_size: item.serving_size ?? undefined, calories: item.calories, protein_g: item.protein_g ?? 0, carbs_g: item.carbs_g ?? 0, fat_g: item.fat_g ?? 0, quantity: 1 });
                       }}
                     >
-                      <View className="rounded-xl p-3 flex-row items-center gap-2.5" style={{ backgroundColor: c.cardBgAlt }}>
-                        <View className="rounded-lg items-center justify-center" style={{ width: 32, height: 32, backgroundColor: ACCENT.limeBg }}>
-                          <MaterialCommunityIcons name="history" size={16} color={ACCENT.lime} />
+                      <View className="rounded-xl p-4 flex-row items-center gap-3" style={{ backgroundColor: c.cardBgAlt }}>
+                        <View className="rounded-lg items-center justify-center" style={{ width: 36, height: 36, backgroundColor: ACCENT.limeBg }}>
+                          <MaterialCommunityIcons name="history" size={18} color={ACCENT.lime} />
                         </View>
                         <View className="flex-1">
-                          <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 12 }} numberOfLines={1}>{item.name}</Text>
-                          <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 8 }}>{item.calories} KCAL</Text>
+                          <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 14 }} numberOfLines={1}>{item.name}</Text>
+                          <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 10 }}>{item.calories} KCAL</Text>
                         </View>
                       </View>
                     </Pressable>
@@ -409,21 +383,21 @@ export function LogMealModal({ visible, onClose, userId, quickAddFoods, recentFo
               </View>
             )}
 
-            {/* Add Custom Item — inline form */}
+            {/* Add Custom Item */}
             {!showCustomForm ? (
               <Pressable
                 onPress={() => setShowCustomForm(true)}
-                className="rounded-xl py-2.5 mb-4 items-center"
+                className="rounded-xl py-3 mb-5 items-center"
                 style={{ backgroundColor: c.cardBgAlt }}
               >
-                <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 13 }}>+ Add Custom Item</Text>
+                <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 15 }}>+ Add Custom Item</Text>
               </Pressable>
             ) : (
-              <View className="rounded-xl p-4 mb-4" style={{ backgroundColor: c.cardBgAlt }}>
-                <View className="flex-row justify-between items-center mb-3">
-                  <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 14 }}>Custom Item</Text>
+              <View className="rounded-xl p-5 mb-5" style={{ backgroundColor: c.cardBgAlt }}>
+                <View className="flex-row justify-between items-center mb-4">
+                  <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 16 }}>Custom Item</Text>
                   <Pressable onPress={() => { setShowCustomForm(false); resetCustomForm(); }}>
-                    <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 13 }}>Cancel</Text>
+                    <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 14 }}>Cancel</Text>
                   </Pressable>
                 </View>
                 <TextInput
@@ -431,116 +405,116 @@ export function LogMealModal({ visible, onClose, userId, quickAddFoods, recentFo
                   placeholderTextColor={c.placeholder}
                   value={customName}
                   onChangeText={setCustomName}
-                  className="rounded-xl px-3 py-2.5 mb-2"
-                  style={{ backgroundColor: c.inputBg, color: c.text, fontFamily: "Inter_400Regular", fontSize: 13 }}
+                  className="rounded-xl px-4 py-3 mb-2"
+                  style={{ backgroundColor: c.inputBg, color: c.text, fontFamily: "Inter_400Regular", fontSize: 15 }}
                 />
                 <TextInput
                   placeholder="Brand"
                   placeholderTextColor={c.placeholder}
                   value={customBrand}
                   onChangeText={setCustomBrand}
-                  className="rounded-xl px-3 py-2.5 mb-2"
-                  style={{ backgroundColor: c.inputBg, color: c.text, fontFamily: "Inter_400Regular", fontSize: 13 }}
+                  className="rounded-xl px-4 py-3 mb-2"
+                  style={{ backgroundColor: c.inputBg, color: c.text, fontFamily: "Inter_400Regular", fontSize: 15 }}
                 />
                 <TextInput
                   placeholder="Serving size (e.g. 100g, 1 cup)"
                   placeholderTextColor={c.placeholder}
                   value={customServing}
                   onChangeText={setCustomServing}
-                  className="rounded-xl px-3 py-2.5 mb-3"
-                  style={{ backgroundColor: c.inputBg, color: c.text, fontFamily: "Inter_400Regular", fontSize: 13 }}
+                  className="rounded-xl px-4 py-3 mb-4"
+                  style={{ backgroundColor: c.inputBg, color: c.text, fontFamily: "Inter_400Regular", fontSize: 15 }}
                 />
-                <View className="flex-row gap-2 mb-3">
+                <View className="flex-row gap-3 mb-4">
                   <View className="flex-1">
-                    <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 10, marginBottom: 3 }}>CALORIES *</Text>
-                    <View className="flex-row items-center gap-2 rounded-xl px-2" style={{ backgroundColor: c.inputBg }}>
-                      <Pressable onPress={() => setCustomCals(String(Math.max(0, (parseInt(customCals) || 0) - 50)))} className="p-1">
-                        <MaterialCommunityIcons name="minus" size={16} color={c.text} />
+                    <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 12, marginBottom: 4 }}>CALORIES *</Text>
+                    <View className="flex-row items-center gap-2 rounded-xl px-3" style={{ backgroundColor: c.inputBg }}>
+                      <Pressable onPress={() => setCustomCals(String(Math.max(0, (parseInt(customCals) || 0) - 50)))} className="p-2">
+                        <MaterialCommunityIcons name="minus" size={18} color={c.text} />
                       </Pressable>
-                      <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 15, flex: 1, textAlign: "center" }}>
+                      <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 17, flex: 1, textAlign: "center" }}>
                         {parseInt(customCals) || 0}
                       </Text>
-                      <Pressable onPress={() => setCustomCals(String((parseInt(customCals) || 0) + 50))} className="p-1">
-                        <MaterialCommunityIcons name="plus" size={16} color={c.text} />
+                      <Pressable onPress={() => setCustomCals(String((parseInt(customCals) || 0) + 50))} className="p-2">
+                        <MaterialCommunityIcons name="plus" size={18} color={c.text} />
                       </Pressable>
                     </View>
                     <View className="flex-row gap-1 mt-1">
                       {[100, 200, 300, 500].map((v) => (
                         <Pressable key={v} onPress={() => setCustomCals(String(v))}
-                          className="flex-1 py-1 rounded-md items-center"
+                          className="flex-1 py-1.5 rounded-md items-center"
                           style={{ backgroundColor: (parseInt(customCals) || 0) === v ? ACCENT.limeBg : c.buttonBg }}>
-                          <Text style={{ color: (parseInt(customCals) || 0) === v ? ACCENT.lime : c.textMuted, fontFamily: "Inter_700Bold", fontSize: 10 }}>{v}</Text>
+                          <Text style={{ color: (parseInt(customCals) || 0) === v ? ACCENT.lime : c.textMuted, fontFamily: "Inter_700Bold", fontSize: 12 }}>{v}</Text>
                         </Pressable>
                       ))}
                     </View>
                   </View>
                   <View className="flex-1">
-                    <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 10, marginBottom: 3 }}>PROTEIN (g)</Text>
-                    <View className="flex-row items-center gap-2 rounded-xl px-2" style={{ backgroundColor: c.inputBg }}>
-                      <Pressable onPress={() => setCustomProtein(String(Math.max(0, (parseFloat(customProtein) || 0) - 5)))} className="p-1">
-                        <MaterialCommunityIcons name="minus" size={16} color={c.text} />
+                    <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 12, marginBottom: 4 }}>PROTEIN (g)</Text>
+                    <View className="flex-row items-center gap-2 rounded-xl px-3" style={{ backgroundColor: c.inputBg }}>
+                      <Pressable onPress={() => setCustomProtein(String(Math.max(0, (parseFloat(customProtein) || 0) - 5)))} className="p-2">
+                        <MaterialCommunityIcons name="minus" size={18} color={c.text} />
                       </Pressable>
-                      <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 15, flex: 1, textAlign: "center" }}>
+                      <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 17, flex: 1, textAlign: "center" }}>
                         {parseFloat(customProtein) || 0}
                       </Text>
-                      <Pressable onPress={() => setCustomProtein(String((parseFloat(customProtein) || 0) + 5))} className="p-1">
-                        <MaterialCommunityIcons name="plus" size={16} color={c.text} />
+                      <Pressable onPress={() => setCustomProtein(String((parseFloat(customProtein) || 0) + 5))} className="p-2">
+                        <MaterialCommunityIcons name="plus" size={18} color={c.text} />
                       </Pressable>
                     </View>
                     <View className="flex-row gap-1 mt-1">
                       {[10, 20, 30, 50].map((v) => (
                         <Pressable key={v} onPress={() => setCustomProtein(String(v))}
-                          className="flex-1 py-1 rounded-md items-center"
+                          className="flex-1 py-1.5 rounded-md items-center"
                           style={{ backgroundColor: (parseFloat(customProtein) || 0) === v ? ACCENT.limeBg : c.buttonBg }}>
-                          <Text style={{ color: (parseFloat(customProtein) || 0) === v ? ACCENT.lime : c.textMuted, fontFamily: "Inter_700Bold", fontSize: 10 }}>{v}</Text>
+                          <Text style={{ color: (parseFloat(customProtein) || 0) === v ? ACCENT.lime : c.textMuted, fontFamily: "Inter_700Bold", fontSize: 12 }}>{v}</Text>
                         </Pressable>
                       ))}
                     </View>
                   </View>
                 </View>
-                <View className="flex-row gap-2 mb-4">
+                <View className="flex-row gap-3 mb-5">
                   <View className="flex-1">
-                    <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 10, marginBottom: 3 }}>CARBS (g)</Text>
-                    <View className="flex-row items-center gap-2 rounded-xl px-2" style={{ backgroundColor: c.inputBg }}>
-                      <Pressable onPress={() => setCustomCarbs(String(Math.max(0, (parseFloat(customCarbs) || 0) - 5)))} className="p-1">
-                        <MaterialCommunityIcons name="minus" size={16} color={c.text} />
+                    <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 12, marginBottom: 4 }}>CARBS (g)</Text>
+                    <View className="flex-row items-center gap-2 rounded-xl px-3" style={{ backgroundColor: c.inputBg }}>
+                      <Pressable onPress={() => setCustomCarbs(String(Math.max(0, (parseFloat(customCarbs) || 0) - 5)))} className="p-2">
+                        <MaterialCommunityIcons name="minus" size={18} color={c.text} />
                       </Pressable>
-                      <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 15, flex: 1, textAlign: "center" }}>
+                      <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 17, flex: 1, textAlign: "center" }}>
                         {parseFloat(customCarbs) || 0}
                       </Text>
-                      <Pressable onPress={() => setCustomCarbs(String((parseFloat(customCarbs) || 0) + 5))} className="p-1">
-                        <MaterialCommunityIcons name="plus" size={16} color={c.text} />
+                      <Pressable onPress={() => setCustomCarbs(String((parseFloat(customCarbs) || 0) + 5))} className="p-2">
+                        <MaterialCommunityIcons name="plus" size={18} color={c.text} />
                       </Pressable>
                     </View>
                     <View className="flex-row gap-1 mt-1">
                       {[10, 20, 30, 50].map((v) => (
                         <Pressable key={v} onPress={() => setCustomCarbs(String(v))}
-                          className="flex-1 py-1 rounded-md items-center"
+                          className="flex-1 py-1.5 rounded-md items-center"
                           style={{ backgroundColor: (parseFloat(customCarbs) || 0) === v ? ACCENT.limeBg : c.buttonBg }}>
-                          <Text style={{ color: (parseFloat(customCarbs) || 0) === v ? ACCENT.lime : c.textMuted, fontFamily: "Inter_700Bold", fontSize: 10 }}>{v}</Text>
+                          <Text style={{ color: (parseFloat(customCarbs) || 0) === v ? ACCENT.lime : c.textMuted, fontFamily: "Inter_700Bold", fontSize: 12 }}>{v}</Text>
                         </Pressable>
                       ))}
                     </View>
                   </View>
                   <View className="flex-1">
-                    <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 10, marginBottom: 3 }}>FAT (g)</Text>
-                    <View className="flex-row items-center gap-2 rounded-xl px-2" style={{ backgroundColor: c.inputBg }}>
-                      <Pressable onPress={() => setCustomFat(String(Math.max(0, (parseFloat(customFat) || 0) - 5)))} className="p-1">
-                        <MaterialCommunityIcons name="minus" size={16} color={c.text} />
+                    <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 12, marginBottom: 4 }}>FAT (g)</Text>
+                    <View className="flex-row items-center gap-2 rounded-xl px-3" style={{ backgroundColor: c.inputBg }}>
+                      <Pressable onPress={() => setCustomFat(String(Math.max(0, (parseFloat(customFat) || 0) - 5)))} className="p-2">
+                        <MaterialCommunityIcons name="minus" size={18} color={c.text} />
                       </Pressable>
-                      <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 15, flex: 1, textAlign: "center" }}>
+                      <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 17, flex: 1, textAlign: "center" }}>
                         {parseFloat(customFat) || 0}
                       </Text>
-                      <Pressable onPress={() => setCustomFat(String((parseFloat(customFat) || 0) + 5))} className="p-1">
-                        <MaterialCommunityIcons name="plus" size={16} color={c.text} />
+                      <Pressable onPress={() => setCustomFat(String((parseFloat(customFat) || 0) + 5))} className="p-2">
+                        <MaterialCommunityIcons name="plus" size={18} color={c.text} />
                       </Pressable>
                     </View>
                     <View className="flex-row gap-1 mt-1">
                       {[10, 20, 30, 50].map((v) => (
                         <Pressable key={v} onPress={() => setCustomFat(String(v))}
-                          className="flex-1 py-1 rounded-md items-center"
+                          className="flex-1 py-1.5 rounded-md items-center"
                           style={{ backgroundColor: (parseFloat(customFat) || 0) === v ? ACCENT.limeBg : c.buttonBg }}>
-                          <Text style={{ color: (parseFloat(customFat) || 0) === v ? ACCENT.lime : c.textMuted, fontFamily: "Inter_700Bold", fontSize: 10 }}>{v}</Text>
+                          <Text style={{ color: (parseFloat(customFat) || 0) === v ? ACCENT.lime : c.textMuted, fontFamily: "Inter_700Bold", fontSize: 12 }}>{v}</Text>
                         </Pressable>
                       ))}
                     </View>
@@ -565,7 +539,7 @@ export function LogMealModal({ visible, onClose, userId, quickAddFoods, recentFo
                   className="rounded-xl py-3 items-center"
                   style={{ backgroundColor: ACCENT.lime, opacity: (!customName.trim() || !customCals) ? 0.5 : 1 }}
                 >
-                  <Text style={{ color: "#161e00", fontFamily: "Inter_700Bold", fontSize: 14 }}>Add to Meal</Text>
+                  <Text style={{ color: "#161e00", fontFamily: "Inter_700Bold", fontSize: 16 }}>Add to Meal</Text>
                 </Pressable>
               </View>
             )}
@@ -576,38 +550,16 @@ export function LogMealModal({ visible, onClose, userId, quickAddFoods, recentFo
             </View>
           </ScrollView>
         </View>
-
-        {/* Custom Keyboard */}
-        {showKeyboard && (
-          <CustomKeyboard
-            onKeyPress={(key) => setSearchQuery((prev) => prev + key)}
-            onBackspace={() => setSearchQuery((prev) => prev.slice(0, -1))}
-            onSearch={() => setShowKeyboard(false)}
-          />
-        )}
       </View>
 
       {/* Sub-modals */}
-      <QuantityModal
-        visible={showQuantityModal}
-        itemName={pendingItemRef.current?.name ?? ""}
-        itemCalories={pendingItemRef.current?.calories ?? 0}
-        onConfirm={(q) => {
-          const item = pendingItemRef.current;
-          if (item) { store.addItem({ ...item, quantity: q }); pendingItemRef.current = null; }
-          setShowQuantityModal(false);
-        }}
-        onCancel={() => { setShowQuantityModal(false); pendingItemRef.current = null; }}
-      />
-
       <EditQuickAddModal visible={showEditQuickAdd} selectedFoods={quickAddFoods} onSave={onSaveQuickAdd} onClose={() => setShowEditQuickAdd(false)} />
 
       <BarcodeScanner
         visible={showBarcodeScanner}
         onProductFound={(item) => {
           setShowBarcodeScanner(false);
-          pendingItemRef.current = item;
-          setShowQuantityModal(true);
+          store.addItem({ name: item.name, brand: item.brand, calories: item.calories, protein_g: item.protein_g ?? 0, carbs_g: item.carbs_g ?? 0, fat_g: item.fat_g ?? 0, quantity: 1 });
         }}
         onClose={() => setShowBarcodeScanner(false)}
       />
@@ -618,24 +570,24 @@ export function LogMealModal({ visible, onClose, userId, quickAddFoods, recentFo
           <Pressable className="rounded-t-3xl p-6" style={{ backgroundColor: c.elevated }} onStartShouldSetResponder={() => true}>
             <View className="flex-row justify-between items-center mb-4">
               <Pressable onPress={() => setShowDateTimePicker(false)}>
-                <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 14 }}>Cancel</Text>
+                <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 15 }}>Cancel</Text>
               </Pressable>
-              <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 18 }}>Select Time</Text>
+              <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 20 }}>Select Time</Text>
               <Pressable onPress={applyDateTime}>
-                <Text style={{ color: ACCENT.lime, fontFamily: "Inter_700Bold", fontSize: 14 }}>Done</Text>
+                <Text style={{ color: ACCENT.lime, fontFamily: "Inter_700Bold", fontSize: 15 }}>Done</Text>
               </Pressable>
             </View>
             <View className="flex-row justify-center gap-6 mb-6">
               <View className="items-center">
-                <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 12, marginBottom: 8 }}>Hour</Text>
-                <ScrollView className="h-32 w-16" showsVerticalScrollIndicator={false}>
+                <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 14, marginBottom: 8 }}>Hour</Text>
+                <ScrollView className="h-32 w-20" showsVerticalScrollIndicator={false}>
                   {hours.map((h) => {
                     const isDisabled = isFutureTime(pickerDate, h, pickerMinute);
                     return (
                       <Pressable key={h} onPress={() => !isDisabled && setPickerHour(h)} disabled={isDisabled}
                         className="py-2 items-center rounded-lg"
                         style={{ backgroundColor: pickerHour === h ? ACCENT.limeBg : "transparent", opacity: isDisabled ? 0.3 : 1 }}>
-                        <Text className="text-lg"
+                        <Text className="text-xl"
                           style={{ color: pickerHour === h ? ACCENT.lime : c.textMuted, fontFamily: pickerHour === h ? "Inter_700Bold" : "Inter_400Regular" }}>
                           {h.toString().padStart(2, "0")}
                         </Text>
@@ -646,15 +598,15 @@ export function LogMealModal({ visible, onClose, userId, quickAddFoods, recentFo
               </View>
               <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 24, marginTop: 24 }}>:</Text>
               <View className="items-center">
-                <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 12, marginBottom: 8 }}>Minute</Text>
-                <ScrollView className="h-32 w-16" showsVerticalScrollIndicator={false}>
+                <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 14, marginBottom: 8 }}>Minute</Text>
+                <ScrollView className="h-32 w-20" showsVerticalScrollIndicator={false}>
                   {minutes.map((m) => {
                     const isDisabled = isFutureTime(pickerDate, pickerHour, m);
                     return (
                       <Pressable key={m} onPress={() => !isDisabled && setPickerMinute(m)} disabled={isDisabled}
                         className="py-2 items-center rounded-lg"
                         style={{ backgroundColor: pickerMinute === m ? ACCENT.limeBg : "transparent", opacity: isDisabled ? 0.3 : 1 }}>
-                        <Text className="text-lg"
+                        <Text className="text-xl"
                           style={{ color: pickerMinute === m ? ACCENT.lime : c.textMuted, fontFamily: pickerMinute === m ? "Inter_700Bold" : "Inter_400Regular" }}>
                           {m.toString().padStart(2, "0")}
                         </Text>
@@ -666,13 +618,13 @@ export function LogMealModal({ visible, onClose, userId, quickAddFoods, recentFo
             </View>
             <View className="flex-row justify-center gap-3 mb-4">
               <Pressable onPress={() => { const d = new Date(pickerDate); d.setDate(d.getDate() - 1); setPickerDate(d); }} className="rounded-lg px-4 py-2" style={{ backgroundColor: c.buttonBg }}>
-                <Text style={{ color: c.text, fontFamily: "Inter_400Regular", fontSize: 14 }}>Yesterday</Text>
+                <Text style={{ color: c.text, fontFamily: "Inter_400Regular", fontSize: 15 }}>Yesterday</Text>
               </Pressable>
               <Pressable onPress={() => setPickerDate(new Date())} className="rounded-lg px-4 py-2" style={{ backgroundColor: c.buttonBg }}>
-                <Text style={{ color: c.text, fontFamily: "Inter_400Regular", fontSize: 14 }}>Today</Text>
+                <Text style={{ color: c.text, fontFamily: "Inter_400Regular", fontSize: 15 }}>Today</Text>
               </Pressable>
             </View>
-            <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 14, textAlign: "center" }}>
+            <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 15, textAlign: "center" }}>
               {pickerDate.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" })}
             </Text>
           </Pressable>

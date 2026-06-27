@@ -88,6 +88,7 @@ export function useFoodLog(userId: string | undefined) {
         ...data,
         ...(old ?? []),
       ]);
+      queryClient.invalidateQueries({ queryKey: ["food_log", userId] });
     },
   });
 
