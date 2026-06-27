@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { Pressable, View, Text, ScrollView, TextInput, Modal, Image } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
@@ -113,9 +113,30 @@ export default function FastScreen() {
 
   const [showEndConfirm, setShowEndConfirm] = useState(false);
   const [showBreakConfirm, setShowBreakConfirm] = useState(false);
+  const [showFastComplete, setShowFastComplete] = useState(false);
+  const [showEatComplete, setShowEatComplete] = useState(false);
   const [checkInMood, setCheckInMood] = useState<number | null>(null);
   const [checkInNote, setCheckInNote] = useState("");
   const [showCustomModal, setShowCustomModal] = useState(false);
+  const fastCompletePromptedRef = useRef(false);
+  const eatCompletePromptedRef = useRef(false);
+
+  useEffect(() => {
+    if (phase === "fasting" && fastCountdown.isOver && !fastCompletePromptedRef.current) {
+      fastCompletePromptedRef.current = true;
+      setShowFastComplete(true);
+    }
+    if (phase === "eating" && fastCountdown.isOver && !eatCompletePromptedRef.current) {
+      eatCompletePromptedRef.current = true;
+      setShowEatComplete(true);
+    }
+    if (phase !== "fasting") {
+      fastCompletePromptedRef.current = false;
+    }
+    if (phase !== "eating") {
+      eatCompletePromptedRef.current = false;
+    }
+  }, [phase, fastCountdown.isOver]);
 
   useEffect(() => {
     if (session) { setSessionId(session.id); setStartTime(session.start_time); }
@@ -553,6 +574,85 @@ export default function FastScreen() {
         }}
         onCancel={() => setShowCustomModal(false)}
       />
+
+      {/* Fast Complete Celebration */}
+      <Modal visible={showFastComplete} transparent animationType="slide" onRequestClose={() => setShowFastComplete(false)}>
+        <Pressable className="flex-1 justify-end" style={{ backgroundColor: c.overlay }} onPress={() => setShowFastComplete(false)}>
+          <Pressable onStartShouldSetResponder={() => true} className="rounded-t-3xl p-6" style={{ backgroundColor: c.elevated }}>
+            <View className="items-center mb-4">
+              <View style={{ width: 56, height: 56, borderRadius: 28, backgroundColor: ACCENT.limeBg, alignItems: "center", justifyContent: "center", marginBottom: 12 }}>
+                <MaterialCommunityIcons name="trophy" size={28} color={ACCENT.lime} />
+              </View>
+              <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 22 }}>Fast Complete!</Text>
+              <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 14, textAlign: "center", marginTop: 4 }}>
+                You've completed your {scheduleLabel} fast. Great work!
+              </Text>
+            </View>
+
+            <View className="flex-row justify-center gap-6 mb-5">
+              <View className="items-center">
+                <Text style={{ color: ACCENT.lime, fontFamily: "SpaceGrotesk_700Bold", fontSize: 28 }}>{fastElapsed.hours}</Text>
+                <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 12 }}>hours</Text>
+              </View>
+              <View className="items-center">
+                <Text style={{ color: ACCENT.lime, fontFamily: "SpaceGrotesk_700Bold", fontSize: 28 }}>{fastElapsed.minutes}</Text>
+                <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 12 }}>minutes</Text>
+              </View>
+            </View>
+
+            <View className="flex-row gap-3 mb-2">
+              <Pressable
+                onPress={() => { setShowFastComplete(false); handleBreakFast(); }}
+                className="flex-1 py-3.5 rounded-xl items-center"
+                style={{ backgroundColor: ACCENT.lime }}
+              >
+                <Text style={{ color: "#161e00", fontFamily: "Inter_700Bold", fontSize: 15 }}>Break Fast</Text>
+              </Pressable>
+              <Pressable
+                onPress={() => setShowFastComplete(false)}
+                className="flex-1 py-3.5 rounded-xl items-center"
+                style={{ backgroundColor: c.buttonBg }}
+              >
+                <Text style={{ color: c.textMuted, fontFamily: "Inter_700Bold", fontSize: 15 }}>Keep Fasting</Text>
+              </Pressable>
+            </View>
+          </Pressable>
+        </Pressable>
+      </Modal>
+
+      {/* Eat Complete Celebration */}
+      <Modal visible={showEatComplete} transparent animationType="slide" onRequestClose={() => setShowEatComplete(false)}>
+        <Pressable className="flex-1 justify-end" style={{ backgroundColor: c.overlay }} onPress={() => setShowEatComplete(false)}>
+          <Pressable onStartShouldSetResponder={() => true} className="rounded-t-3xl p-6" style={{ backgroundColor: c.elevated }}>
+            <View className="items-center mb-5">
+              <View style={{ width: 56, height: 56, borderRadius: 28, backgroundColor: "rgba(0,218,243,0.15)", alignItems: "center", justifyContent: "center", marginBottom: 12 }}>
+                <MaterialCommunityIcons name="check-circle" size={28} color={ACCENT.cyan} />
+              </View>
+              <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 22 }}>Eating Window Complete!</Text>
+              <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 14, textAlign: "center", marginTop: 4 }}>
+                You've completed your {eatingHours}-hour eating window. Your next fast has begun.
+              </Text>
+            </View>
+
+            <View className="flex-row gap-3 mb-2">
+              <Pressable
+                onPress={() => { setShowEatComplete(false); confirmEndSession(); }}
+                className="flex-1 py-3.5 rounded-xl items-center"
+                style={{ backgroundColor: ACCENT.cyan }}
+              >
+                <Text style={{ color: "#001e24", fontFamily: "Inter_700Bold", fontSize: 15 }}>End Session</Text>
+              </Pressable>
+              <Pressable
+                onPress={() => setShowEatComplete(false)}
+                className="flex-1 py-3.5 rounded-xl items-center"
+                style={{ backgroundColor: c.buttonBg }}
+              >
+                <Text style={{ color: c.textMuted, fontFamily: "Inter_700Bold", fontSize: 15 }}>Keep Eating</Text>
+              </Pressable>
+            </View>
+          </Pressable>
+        </Pressable>
+      </Modal>
     </SafeAreaView>
   );
 }

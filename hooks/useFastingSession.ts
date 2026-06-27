@@ -34,7 +34,7 @@ export function useFastingSession(userId: string | undefined) {
   });
 
   const { data: pastSessions = [] } = useQuery({
-    queryKey: ["fasting_sessions", "past", userId],
+    queryKey: ["fasting_sessions", "completed", userId],
     queryFn: async (): Promise<FastingSession[]> => {
       if (!userId) return [];
 
@@ -42,7 +42,7 @@ export function useFastingSession(userId: string | undefined) {
         .from("fasting_sessions")
         .select("*")
         .eq("user_id", userId)
-        .neq("status", "broken")
+        .eq("status", "completed")
         .order("end_time", { ascending: false })
         .limit(30);
 
@@ -81,7 +81,7 @@ export function useFastingSession(userId: string | undefined) {
         },
         () => {
           queryClient.invalidateQueries({ queryKey: ["fasting_session", "active", userId] });
-          queryClient.invalidateQueries({ queryKey: ["fasting_sessions", "past", userId] });
+          queryClient.invalidateQueries({ queryKey: ["fasting_sessions", "completed", userId] });
         }
       )
       .subscribe();
@@ -156,7 +156,7 @@ export function useFastingSession(userId: string | undefined) {
     },
     onSuccess: () => {
       queryClient.setQueryData(["fasting_session", "active", userId], null);
-      queryClient.invalidateQueries({ queryKey: ["fasting_sessions", "past", userId] });
+      queryClient.invalidateQueries({ queryKey: ["fasting_sessions", "completed", userId] });
     },
   });
 
@@ -207,7 +207,7 @@ export function useFastingSession(userId: string | undefined) {
     },
     onSuccess: () => {
       queryClient.setQueryData(["fasting_session", "active", userId], null);
-      queryClient.invalidateQueries({ queryKey: ["fasting_sessions", "past", userId] });
+      queryClient.invalidateQueries({ queryKey: ["fasting_sessions", "completed", userId] });
     },
   });
 
@@ -229,7 +229,7 @@ export function useFastingSession(userId: string | undefined) {
       );
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["fasting_sessions", "past", userId] });
+      queryClient.invalidateQueries({ queryKey: ["fasting_sessions", "completed", userId] });
     },
   });
 
@@ -248,7 +248,7 @@ export function useFastingSession(userId: string | undefined) {
     deleteFast: deleteFastMutation.mutateAsync,
     refetch: () => {
       queryClient.invalidateQueries({ queryKey: ["fasting_session", "active", userId] });
-      queryClient.invalidateQueries({ queryKey: ["fasting_sessions", "past", userId] });
+      queryClient.invalidateQueries({ queryKey: ["fasting_sessions", "completed", userId] });
     },
   };
 }
