@@ -6,9 +6,6 @@ import type { User, Session } from "@supabase/supabase-js";
 
 WebBrowser.maybeCompleteAuthSession();
 
-const IOS_CLIENT_ID = "467971760239-k02ta1j2psjhpttu2bt45fften9t0lf1.apps.googleusercontent.com";
-const ANDROID_CLIENT_ID = "467971760239-dogg4n6mfhghj481bqsbfovkh8lev4ld.apps.googleusercontent.com";
-
 export function useAuth() {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
@@ -51,41 +48,26 @@ export function useAuth() {
 
   const signInWithGoogle = async () => {
     try {
-      const clientId = IOS_CLIENT_ID;
-      const redirectUri = `com.googleusercontent.apps.${clientId}:/oauthredirect`;
-
-      const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?` +
-        `client_id=${encodeURIComponent(clientId)}` +
-        `&redirect_uri=${encodeURIComponent(redirectUri)}` +
-        `&response_type=id_token` +
-        `&scope=${encodeURIComponent("openid profile email")}` +
-        `&nonce=${Date.now()}`;
-
-      const result = await WebBrowser.openAuthSessionAsync(authUrl, redirectUri);
-
-      if (result.type === "success" && result.url) {
-        const fragment = result.url.split("#")[1] || "";
-        const params = new URLSearchParams(fragment);
-        const idToken = params.get("id_token");
-        if (idToken) {
-          const { error } = await supabase.auth.signInWithIdToken({
-            provider: "google",
-            token: idToken,
-          });
-          if (!error) {
-            const { data: { session: s } } = await supabase.auth.getSession();
-            if (s?.user?.user_metadata?.full_name) {
-              await supabase.auth.updateUser({
-                data: { display_name: s.user.user_metadata.full_name },
-              }).catch(() => {});
-            }
+      const redirectUrl = makeRedirectUri({ path: "/auth/callback" });
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: redirectUrl,
+        },
+      });
+      if (error) return { error };
+      if (data?.url) {
+        const result = await WebBrowser.openAuthSessionAsync(data.url, redirectUrl);
+        if (result.type === "success") {
+          const { data: { session: s } } = await supabase.auth.getSession();
+          if (s?.user?.user_metadata?.full_name) {
+            await supabase.auth.updateUser({
+              data: { display_name: s.user.user_metadata.full_name },
+            }).catch(() => {});
           }
-          return { error };
         }
-      } else if (result.type === "cancel") {
-        return { error: null };
       }
-      return { error: new Error("Google sign-in failed") };
+      return { error: null };
     } catch (e: any) {
       return { error: e };
     }
