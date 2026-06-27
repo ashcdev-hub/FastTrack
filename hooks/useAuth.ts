@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
+import { makeRedirectUri } from "expo-auth-session";
 import * as WebBrowser from "expo-web-browser";
 import * as Google from "expo-auth-session/providers/google";
 import type { User, Session } from "@supabase/supabase-js";
@@ -11,11 +12,10 @@ export function useAuth() {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const proxyUrl = "https://auth.expo.io/@ashcdev2/FastTrack";
-
   const [, googleResponse, googlePrompt] = Google.useIdTokenAuthRequest({
-    clientId: process.env.EXPO_PUBLIC_GOOGLE_AUTH_WEB_CLIENT_ID,
-    redirectUri: proxyUrl,
+    iosClientId: "467971760239-k02ta1j2psjhpttu2bt45fften9t0lf1.apps.googleusercontent.com",
+    androidClientId: "467971760239-dogg4n6mfhghj481bqsbfovkh8lev4ld.apps.googleusercontent.com",
+    webClientId: process.env.EXPO_PUBLIC_GOOGLE_AUTH_WEB_CLIENT_ID,
   });
 
   useEffect(() => {
@@ -62,7 +62,7 @@ export function useAuth() {
       password,
       options: {
         data: { display_name: displayName ?? null },
-        emailRedirectTo: proxyUrl,
+        emailRedirectTo: makeRedirectUri({ path: "/auth/callback" }),
       },
     });
     return { error };
