@@ -58,11 +58,17 @@ export default function HomeScreen() {
   const unitPrefs = profile?.unit_preferences ?? DEFAULT_UNITS;
 
   const phase = !session ? "idle" : (session.status as "idle" | "fasting" | "eating");
-  const fastStartStr = phase === "fasting" ? session!.start_time : null;
-  const elapsedMinutes = useElapsedMinutes(fastStartStr);
-  const fastPct = Math.min(elapsedMinutes / (fastingHours * 60), 1);
+  const trackStartStr = phase === "fasting"
+    ? session!.start_time
+    : phase === "eating"
+      ? session!.end_time
+      : null;
+  const elapsedMinutes = useElapsedMinutes(trackStartStr);
+  const goalMinutes = phase === "eating" ? eatingHours * 60 : fastingHours * 60;
+  const fastPct = goalMinutes > 0 ? Math.min(elapsedMinutes / goalMinutes, 1) : 0;
   const elapsedHours = Math.floor(elapsedMinutes / 60);
   const elapsedMins = elapsedMinutes % 60;
+  const isFastOver = phase !== "idle" && elapsedMinutes >= goalMinutes;
 
   const waterPct = goals.waterGoalMl > 0 ? Math.min(totalMl / goals.waterGoalMl, 1) : 0;
   const enabledGoals = workoutGoals.filter((g) => g.enabled);
@@ -98,9 +104,9 @@ export default function HomeScreen() {
           <View className="mb-section-gap">
             <View className="flex-row justify-between items-end mb-4">
               <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 12, letterSpacing: 1, textTransform: "uppercase" }}>
-                Fasting Today
+                {phase === "eating" ? "Eating Window" : "Fasting Today"}
               </Text>
-              <Text style={{ color: ACCENT.lime, fontFamily: "Inter_700Bold", fontSize: 14 }}>
+              <Text style={{ color: phase === "eating" ? ACCENT.cyan : ACCENT.lime, fontFamily: "Inter_700Bold", fontSize: 14 }}>
                 {Math.round(fastPct * 100)}%
               </Text>
             </View>
@@ -111,15 +117,15 @@ export default function HomeScreen() {
                     {elapsedHours}h {elapsedMins}m
                   </Text>
                   <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 12, letterSpacing: 1, marginTop: 4, textTransform: "uppercase" }}>
-                    {phase === "idle" ? `READY TO FAST` : `ELAPSED OF ${fastingHours}H GOAL`}
+                    {phase === "idle" ? `READY TO FAST` : phase === "eating" ? `ELAPSED OF ${eatingHours}H WINDOW` : `ELAPSED OF ${fastingHours}H GOAL`}
                   </Text>
                 </View>
-                <ProgressRing size={96} progress={fastPct} strokeWidth={8} indicatorColor={ACCENT.lime}>
-                  <MaterialCommunityIcons name="timer-outline" size={28} color={ACCENT.lime} />
+                <ProgressRing size={96} progress={fastPct} strokeWidth={8} indicatorColor={phase === "eating" ? ACCENT.cyan : ACCENT.lime}>
+                  <MaterialCommunityIcons name={phase === "eating" ? "food-apple-outline" : "timer-outline"} size={28} color={phase === "eating" ? ACCENT.cyan : ACCENT.lime} />
                 </ProgressRing>
               </View>
               <View className="mt-6 h-1 rounded-full overflow-hidden" style={{ backgroundColor: "rgba(53,53,52,0.3)" }}>
-                <View className="h-full rounded-full" style={{ width: `${fastPct * 100}%`, backgroundColor: ACCENT.lime }} />
+                <View className="h-full rounded-full" style={{ width: `${fastPct * 100}%`, backgroundColor: phase === "eating" ? ACCENT.cyan : ACCENT.lime }} />
               </View>
             </Pressable>
           </View>

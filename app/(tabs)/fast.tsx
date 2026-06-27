@@ -359,8 +359,8 @@ export default function FastScreen() {
               onPress={phase === "eating" ? () => setShowEndConfirm(true) : () => setShowBreakConfirm(true)}
               className="w-full py-4 rounded-xl flex-row items-center justify-center mb-section-gap"
               style={{
-                backgroundColor: ACCENT.lime,
-                shadowColor: ACCENT.lime,
+                backgroundColor: phase === "eating" ? ACCENT.cyan : ACCENT.lime,
+                shadowColor: phase === "eating" ? ACCENT.cyan : ACCENT.lime,
                 shadowOffset: { width: 0, height: 0 },
                 shadowOpacity: 0.15,
                 shadowRadius: 20,
