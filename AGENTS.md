@@ -97,6 +97,11 @@ eas submit --profile production --platform ios
 4. NEVER build changes that haven't been approved
 5. If the user is unhappy, go back to step 1 (Plan)
 
+### Pre-commit Hook (Safety Net):
+- A `.githooks/pre-commit` hook blocks all commits unless `ALLOW_COMMIT=true` is set.
+- This physically prevents unauthorized commits by the AI.
+- The hook is git-tracked and configured via `git config core.hooksPath .githooks`.
+
 ### If something breaks:
 ```bash
 git revert HEAD          # Undo the last commit
