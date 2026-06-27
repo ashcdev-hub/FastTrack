@@ -113,6 +113,34 @@ export function useFoodLog(userId: string | undefined) {
     },
   });
 
+  const updateEntryMutation = useMutation({
+    mutationFn: async ({ id, updates }: { id: string; updates: Partial<Pick<FoodLogEntry, "calories" | "protein_g" | "carbs_g" | "fat_g">> }) => {
+      return withOfflineFallback(
+        async () => {
+          const { data, error } = await supabase
+            .from("food_log")
+            .update(updates)
+            .eq("id", id)
+            .select()
+            .single();
+          if (error) throw error;
+          return data;
+        },
+        "food_log",
+        "update",
+        { id, ...updates },
+        isOffline,
+      );
+    },
+    onSuccess: (data) => {
+      if (!data) return;
+      queryClient.setQueryData<FoodLogEntry[]>(["food_log", userId, dateKey], (old) =>
+        (old ?? []).map((e) => (e.id === data.id ? data : e))
+      );
+      queryClient.invalidateQueries({ queryKey: ["food_log_monthly", userId] });
+    },
+  });
+
   const totals = entries.reduce(
     (acc, entry) => ({
       calories: acc.calories + (entry.calories ?? 0),
@@ -188,6 +216,7 @@ export function useFoodLog(userId: string | undefined) {
     addEntry: addEntryMutation.mutateAsync,
     addEntries: addEntriesMutation.mutateAsync,
     deleteEntry: deleteEntryMutation.mutateAsync,
+    updateEntry: updateEntryMutation.mutateAsync,
     refetch: () => queryClient.invalidateQueries({ queryKey: ["food_log", userId] }),
     refetchMonthly: () => queryClient.invalidateQueries({ queryKey: ["food_log_monthly", userId] }),
   };

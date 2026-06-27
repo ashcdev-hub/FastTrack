@@ -22,7 +22,7 @@ export default function LogFoodScreen() {
   const { user } = useAuth();
   const { profile, saveQuickAddFoods } = useProfile(user?.id ?? null);
   const unitPrefs = profile?.unit_preferences ?? DEFAULT_UNITS;
-  const { entries, totals, monthlyEntries, addEntries, deleteEntry, recentFoods, loading: foodLoading } = useFoodLog(user?.id);
+  const { entries, totals, monthlyEntries, addEntries, deleteEntry, updateEntry, recentFoods, loading: foodLoading } = useFoodLog(user?.id);
   const goals = useGoalStore();
   const { theme } = useThemeStore();
   const c = getThemeColors(theme);
@@ -166,7 +166,13 @@ export default function LogFoodScreen() {
       )}
 
       {/* Meal Calendar */}
-      <MealCalendarModal visible={showCalendarModal} entries={monthlyEntries} onClose={() => setShowCalendarModal(false)} />
+      <MealCalendarModal
+        visible={showCalendarModal}
+        entries={monthlyEntries}
+        onClose={() => setShowCalendarModal(false)}
+        onDeleteEntry={async (id) => { await deleteEntry(id); }}
+        onUpdateEntry={async (id, updates) => { await updateEntry({ id, updates }); }}
+      />
     </SafeAreaView>
   );
 }
