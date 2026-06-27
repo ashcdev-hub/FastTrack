@@ -48,7 +48,7 @@ export default function WorkoutsScreen() {
   };
   const handleUpdateGoal = async (goalId: string, dailyGoal: number) => { await updateGoal(goalId, { daily_goal: dailyGoal }); };
   const handleToggleEnabled = async (goalId: string, enabled: boolean) => { await toggleEnabled(goalId, enabled); };
-  const handleAddExercise = async (exerciseType: string, dailyGoal: number, caloriesPerRep: number) => { await addCustomExercise(exerciseType, dailyGoal, caloriesPerRep); };
+  const handleAddExercise = async (exerciseType: string, dailyGoal: number, caloriesPerRep: number, iconName?: string) => { await addCustomExercise(exerciseType, dailyGoal, caloriesPerRep, iconName); };
   const handleReinstate = async (goalId: string) => { await toggleEnabled(goalId, true); };
 
   const totalReps = Object.values(todayTotals).reduce((sum, t) => sum + t.reps, 0);

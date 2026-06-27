@@ -1,9 +1,12 @@
 import React, { useState } from "react";
-import { Pressable, View, Text, TextInput, KeyboardAvoidingView, Platform, ActivityIndicator } from "react-native";
+import { Pressable, View, Text, TextInput, Image, KeyboardAvoidingView, Platform, ActivityIndicator, StyleSheet } from "react-native";
 import { Link, router } from "expo-router";
+import { Video, ResizeMode } from "expo-av";
 import { useAuth } from "@/hooks/useAuth";
 import { getThemeColors, ACCENT } from "@/lib/theme-colors";
 import { useThemeStore } from "@/lib/theme-store";
+
+const BACKGROUND_VIDEO = require("../../assets/videos/background.mp4");
 
 export default function LoginScreen() {
   const { signIn } = useAuth();
@@ -32,13 +35,28 @@ export default function LoginScreen() {
   const inputStyle = { backgroundColor: c.inputBg, color: c.text, fontFamily: "Inter_400Regular" as const };
 
   return (
-    <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} className="flex-1" style={{ backgroundColor: c.bg }}>
-      <View className="flex-1 justify-center px-6">
-        <Text style={{ color: ACCENT.lime, fontFamily: "Inter_800ExtraBold", fontSize: 48, letterSpacing: -1, textAlign: "center", marginBottom: 8 }}>
-          FastTrack
-        </Text>
+    <View style={{ flex: 1, backgroundColor: c.bg }}>
+      {Platform.OS !== "web" && (
+        <>
+          <Video
+            source={BACKGROUND_VIDEO}
+            style={StyleSheet.absoluteFill}
+            shouldPlay
+            isLooping
+            isMuted
+            resizeMode={ResizeMode.COVER}
+          />
+          <View style={[StyleSheet.absoluteFill, { backgroundColor: "rgba(0,0,0,0.75)" }]} />
+        </>
+      )}
+      <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} className="flex-1">
+        <View className="flex-1 justify-center px-6">
+          <View className="flex-row justify-center items-center gap-3 mb-2">
+            <Image source={require("../../assets/icon.png")} style={{ width: 40, height: 40, borderRadius: 8 }} />
+            <Text style={{ color: ACCENT.lime, fontFamily: "Inter_800ExtraBold", fontSize: 48, letterSpacing: -1 }}>FastTrack</Text>
+          </View>
         <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 16 }} className="text-center mb-10">
-          Intermittent Fasting & Macro Tracker
+          Intermittent Fasting, Workouts & Macro Tracker
         </Text>
 
         {error ? (
@@ -88,5 +106,6 @@ export default function LoginScreen() {
         </Link>
       </View>
     </KeyboardAvoidingView>
+    </View>
   );
 }

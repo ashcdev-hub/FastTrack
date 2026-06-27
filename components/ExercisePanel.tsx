@@ -4,15 +4,10 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useThemeStore } from "@/lib/theme-store";
 import { getThemeColors, ACCENT } from "@/lib/theme-colors";
 import { EditGoalModal } from "@/components/EditGoalModal";
+import { WorkoutIcon } from "@/components/WorkoutIcon";
+import { getIconKeyForExercise } from "@/lib/exercise-icons";
 import type { WorkoutGoal } from "@/lib/types";
 import type { TodayTotals } from "@/hooks/useWorkoutLog";
-
-const EXERCISE_ICONS: Record<string, keyof typeof MaterialCommunityIcons.glyphMap> = {
-  pushups: "dumbbell",
-  crunches: "circle-multiple",
-  situps: "circle-multiple",
-  squats: "human",
-};
 
 const EXERCISE_CATEGORIES: Record<string, string> = {
   pushups: "UPPER BODY",
@@ -45,7 +40,7 @@ export function ExercisePanel({
   const sets = todayTotal?.sets ?? 0;
   const calories = todayTotal?.calories ?? 0;
   const progress = Math.min(reps / goal.daily_goal, 1);
-  const iconName = EXERCISE_ICONS[goal.exercise_type] ?? "dumbbell";
+  const iconKey = goal.icon_name ?? getIconKeyForExercise(goal.exercise_type);
   const category = EXERCISE_CATEGORIES[goal.exercise_type] ?? "EXERCISE";
   const isGoalMet = reps >= goal.daily_goal;
 
@@ -58,13 +53,16 @@ export function ExercisePanel({
     <View className="glass-panel p-5">
       {/* Header */}
       <View className="flex-row justify-between items-start mb-4">
-        <View>
-          <Text style={{ color: ACCENT.cyan, fontFamily: "SpaceGrotesk_700Bold", fontSize: 12, letterSpacing: 1, marginBottom: 4, textTransform: "uppercase" }}>
-            {category}
-          </Text>
-          <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 28, letterSpacing: -0.3, lineHeight: 32, textTransform: "capitalize" }}>
-            {goal.exercise_type}
-          </Text>
+        <View className="flex-row items-center gap-3">
+          <WorkoutIcon name={iconKey} size={32} color={ACCENT.lime} />
+          <View>
+            <Text style={{ color: ACCENT.cyan, fontFamily: "SpaceGrotesk_700Bold", fontSize: 12, letterSpacing: 1, marginBottom: 4, textTransform: "uppercase" }}>
+              {category}
+            </Text>
+            <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 28, letterSpacing: -0.3, lineHeight: 32, textTransform: "capitalize" }}>
+              {goal.exercise_type}
+            </Text>
+          </View>
         </View>
         <View className="flex-col items-end">
           <Text style={{ color: ACCENT.lime, fontFamily: "SpaceGrotesk_600SemiBold", fontSize: 40, letterSpacing: -1 }}>
@@ -110,8 +108,6 @@ export function ExercisePanel({
           <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 14 }}>Remove</Text>
         </Pressable>
       </View>
-
-      {}
 
       {/* Delete Confirmation Modal */}
       <Modal visible={showDeleteConfirm} transparent animationType="slide" onRequestClose={() => setShowDeleteConfirm(false)}>

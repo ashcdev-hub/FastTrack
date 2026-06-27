@@ -104,6 +104,7 @@ export type WorkoutGoal = {
   daily_goal: number;
   calories_per_rep: number;
   enabled: boolean;
+  icon_name?: string | null;
 };
 
 export type WorkoutLogEntry = {

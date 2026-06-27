@@ -5,10 +5,10 @@ import { useConnectivity } from "@/hooks/useConnectivity";
 import { withOfflineFallback } from "@/lib/offline-mutation";
 
 const DEFAULT_EXERCISES = [
-  { exercise_type: "pushups", daily_goal: 100, calories_per_rep: 0.5 },
-  { exercise_type: "crunches", daily_goal: 100, calories_per_rep: 0.3 },
-  { exercise_type: "situps", daily_goal: 50, calories_per_rep: 0.4 },
-  { exercise_type: "squats", daily_goal: 50, calories_per_rep: 0.8 },
+  { exercise_type: "pushups", daily_goal: 100, calories_per_rep: 0.5, icon_name: "weightlifting" },
+  { exercise_type: "crunches", daily_goal: 100, calories_per_rep: 0.3, icon_name: "abs" },
+  { exercise_type: "situps", daily_goal: 50, calories_per_rep: 0.4, icon_name: "abs" },
+  { exercise_type: "squats", daily_goal: 50, calories_per_rep: 0.8, icon_name: "squats" },
 ];
 
 export function useWorkoutGoals(userId: string | undefined) {
@@ -80,10 +80,12 @@ export function useWorkoutGoals(userId: string | undefined) {
       exerciseType,
       dailyGoal,
       caloriesPerRep,
+      iconName,
     }: {
       exerciseType: string;
       dailyGoal: number;
       caloriesPerRep: number;
+      iconName?: string;
     }) => {
       if (!userId) throw new Error("No user");
       return withOfflineFallback(
@@ -96,6 +98,7 @@ export function useWorkoutGoals(userId: string | undefined) {
               daily_goal: dailyGoal,
               calories_per_rep: caloriesPerRep,
               enabled: true,
+              icon_name: iconName ?? null,
             })
             .select()
             .single();
@@ -104,7 +107,7 @@ export function useWorkoutGoals(userId: string | undefined) {
         },
         "workout_goals",
         "insert",
-        { user_id: userId, exercise_type: exerciseType, daily_goal: dailyGoal, calories_per_rep: caloriesPerRep, enabled: true },
+        { user_id: userId, exercise_type: exerciseType, daily_goal: dailyGoal, calories_per_rep: caloriesPerRep, enabled: true, icon_name: iconName ?? null },
         isOffline,
       );
     },
@@ -132,13 +135,15 @@ export function useWorkoutGoals(userId: string | undefined) {
   const addCustomExercise = async (
     exerciseType: string,
     dailyGoal: number,
-    caloriesPerRep: number
+    caloriesPerRep: number,
+    iconName?: string,
   ) => {
     try {
       const data = await addCustomExerciseMutation.mutateAsync({
         exerciseType,
         dailyGoal,
         caloriesPerRep,
+        iconName,
       });
       return { error: null, data };
     } catch (error) {
