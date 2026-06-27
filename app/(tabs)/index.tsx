@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { Pressable, View, Text, TextInput, ScrollView, Image, Modal } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useAuth } from "@/hooks/useAuth";
 import { useFastingSession } from "@/hooks/useFastingSession";
 import { useFastingStore } from "@/store/useFastingStore";
@@ -20,6 +21,7 @@ import { getThemeColors, ACCENT } from "@/lib/theme-colors";
 import { DEFAULT_UNITS } from "@/lib/units";
 import { format, addHours } from "date-fns";
 import { router } from "expo-router";
+import { useScrollToTop } from "@react-navigation/native";
 
 function useElapsedMinutes(startTime: string | null) {
   const [totalMinutes, setTotalMinutes] = useState(0);
@@ -77,16 +79,27 @@ export default function HomeScreen() {
   const [selectedWaterMl, setSelectedWaterMl] = useState<number | null>(null);
   const [showHydrationGoal, setShowHydrationGoal] = useState(false);
   const hydrationGoalShownRef = useRef(false);
+  const hydrationGoalKey = `@fasttrack_hydration_goal_${new Date().toISOString().split("T")[0]}`;
+
+  useEffect(() => {
+    AsyncStorage.getItem(hydrationGoalKey).then((val) => {
+      if (val === "shown") {
+        hydrationGoalShownRef.current = true;
+      }
+    });
+  }, [hydrationGoalKey]);
 
   useEffect(() => {
     if (goals.waterGoalMl > 0 && totalMl >= goals.waterGoalMl && !hydrationGoalShownRef.current) {
       hydrationGoalShownRef.current = true;
+      AsyncStorage.setItem(hydrationGoalKey, "shown");
       setShowHydrationGoal(true);
     }
     if (totalMl < goals.waterGoalMl) {
       hydrationGoalShownRef.current = false;
+      AsyncStorage.removeItem(hydrationGoalKey);
     }
-  }, [totalMl, goals.waterGoalMl]);
+  }, [totalMl, goals.waterGoalMl, hydrationGoalKey]);
 
   const macros = [
     { label: "Calories", current: totals.calories, goal: goals.dailyCalories, unit: "kcal", barColor: ACCENT.lime },
@@ -94,6 +107,8 @@ export default function HomeScreen() {
     { label: "Carbs", current: totals.carbs_g, goal: goals.dailyCarbs, unit: "g", barColor: "#9cf0ff" },
     { label: "Fat", current: totals.fat_g, goal: goals.dailyFat, unit: "g", barColor: "#ffb4ab" },
   ];
+  const scrollRef = useRef<ScrollView>(null);
+  useScrollToTop(scrollRef as any);
 
   return (
     <SafeAreaView className="flex-1" style={{ backgroundColor: c.bg }}>
@@ -108,6 +123,7 @@ export default function HomeScreen() {
       </View>
 
       <ScrollView
+        ref={scrollRef}
         contentContainerStyle={{ paddingBottom: 85 }}
         showsVerticalScrollIndicator={false}
       >
@@ -201,12 +217,12 @@ export default function HomeScreen() {
                 </Text>
                 <View className="flex-row items-center gap-2">
                   <Text style={{ color: ACCENT.cyan, fontFamily: "SpaceGrotesk_600SemiBold", fontSize: 24, letterSpacing: -0.5 }}>
-                    {Math.round(totalMl / 100) / 10}
+                    {(totalMl / 1000).toFixed(2).replace(/\.?0+$/, '')}
                   </Text>
                   <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 14 }}>
                     / {goals.waterGoalMl / 1000}L
                   </Text>
-                  <Pressable onPress={() => router.push("/(tabs)/profile?expand=preferences")}>
+                  <Pressable onPress={() => router.replace("/(tabs)/profile?expand=preferences")}>
                     <MaterialCommunityIcons name="cog-outline" size={14} color={c.textMuted} />
                   </Pressable>
                 </View>

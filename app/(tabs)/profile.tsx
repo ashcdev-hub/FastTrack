@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef } from "react";
 import { View, Text, ScrollView, Pressable, Image } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useAuth } from "@/hooks/useAuth";
@@ -9,6 +9,7 @@ import { useToast } from "@/hooks/useToast";
 import { Toast } from "@/components/Toast";
 import { SettingsPanel } from "@/components/SettingsPanel";
 import { router, useLocalSearchParams } from "expo-router";
+import { useScrollToTop } from "@react-navigation/native";
 
 export default function ProfileScreen() {
   const { user, signOut } = useAuth();
@@ -23,6 +24,8 @@ export default function ProfileScreen() {
     if (user?.email) return user.email.split("@")[0];
     return "User";
   };
+  const scrollRef = useRef<ScrollView>(null);
+  useScrollToTop(scrollRef as any);
 
   return (
     <SafeAreaView className="flex-1" style={{ backgroundColor: c.bg }}>
@@ -39,6 +42,7 @@ export default function ProfileScreen() {
       </View>
 
       <ScrollView
+        ref={scrollRef}
         contentContainerStyle={{ paddingBottom: 85, paddingHorizontal: 20, paddingTop: 24 }}
         showsVerticalScrollIndicator={false}
       >
@@ -51,7 +55,7 @@ export default function ProfileScreen() {
           <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 12, letterSpacing: 1, marginBottom: 16, textTransform: "uppercase" }}>
             SETTINGS
           </Text>
-          <SettingsPanel userId={user?.id ?? null} initialExpand={expand} />
+          <SettingsPanel key={expand ?? 'default'} userId={user?.id ?? null} initialExpand={expand} />
         </View>
 
         <Pressable

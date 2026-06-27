@@ -18,6 +18,7 @@ import { getThemeColors, ACCENT } from "@/lib/theme-colors";
 import { scheduleFastingReminder, cancelAllNotifications, scheduleDailyFastReminder, scheduleCheckInReminder, scheduleWaterReminders, scheduleEatingWindowReminder, checkAndNotifyStreakMilestone } from "@/lib/notifications";
 import { getFastingPhase, getEatingPhase } from "@/lib/fasting-phases";
 import { format, addHours } from "date-fns";
+import { useScrollToTop } from "@react-navigation/native";
 
 const PRESETS = [
   { label: "14:10", fasting: 14, eating: 10 },
@@ -238,6 +239,8 @@ export default function FastScreen() {
   const pct = fastCountdown.totalSeconds > 0
     ? Math.min((fastElapsedMinutes * 60) / (fastCountdown.totalSeconds + fastElapsedMinutes * 60), 1)
     : 0;
+  const scrollRef = useRef<ScrollView>(null);
+  useScrollToTop(scrollRef as any);
 
   return (
     <SafeAreaView className="flex-1" style={{ backgroundColor: c.bg }}>
@@ -252,7 +255,8 @@ export default function FastScreen() {
       </View>
 
       <ScrollView
-        contentContainerStyle={{ paddingTop: 24, paddingBottom: 85, paddingHorizontal: 20 }}
+        ref={scrollRef}
+        contentContainerStyle={{ paddingBottom: 85, paddingHorizontal: 20, paddingTop: 24 }}
         showsVerticalScrollIndicator={false}
       >
         {/* Current Protocol Header */}

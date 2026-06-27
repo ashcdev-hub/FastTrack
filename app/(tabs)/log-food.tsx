@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { Pressable, View, Text, ScrollView, Image } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
@@ -16,6 +16,7 @@ import { getThemeColors, ACCENT, MEAL_COLORS } from "@/lib/theme-colors";
 import { DEFAULT_UNITS } from "@/lib/units";
 
 const DEFAULT_QUICK_ADD = ["Boiled Egg", "Coffee", "Banana", "Greek Yogurt"];
+import { useScrollToTop } from "@react-navigation/native";
 
 export default function LogFoodScreen() {
   const { user } = useAuth();
@@ -45,6 +46,8 @@ export default function LogFoodScreen() {
   ];
 
   const mealTypes: ("breakfast" | "lunch" | "dinner" | "snack")[] = ["breakfast", "lunch", "dinner", "snack"];
+  const scrollRef = useRef<ScrollView>(null);
+  useScrollToTop(scrollRef as any);
 
   return (
     <SafeAreaView className="flex-1" style={{ backgroundColor: c.bg }}>
@@ -59,6 +62,7 @@ export default function LogFoodScreen() {
       </View>
 
       <ScrollView
+        ref={scrollRef}
         contentContainerStyle={{ paddingBottom: 85, paddingHorizontal: 20, paddingTop: 24 }}
         showsVerticalScrollIndicator={false}
       >

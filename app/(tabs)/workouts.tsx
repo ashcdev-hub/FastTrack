@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { Pressable, View, Text, ScrollView, Image } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
@@ -13,6 +13,7 @@ import { LogSetModal } from "@/components/LogSetModal";
 import { AddExerciseModal } from "@/components/AddExerciseModal";
 import { WorkoutsSkeleton } from "@/components/Skeleton";
 import type { WorkoutGoal } from "@/lib/types";
+import { useScrollToTop } from "@react-navigation/native";
 
 const CATEGORIES: Record<string, string> = {
   pushups: "UPPER BODY",
@@ -52,6 +53,8 @@ export default function WorkoutsScreen() {
   const handleReinstate = async (goalId: string) => { await toggleEnabled(goalId, true); };
 
   const totalReps = Object.values(todayTotals).reduce((sum, t) => sum + t.reps, 0);
+  const scrollRef = useRef<ScrollView>(null);
+  useScrollToTop(scrollRef as any);
 
   return (
     <SafeAreaView className="flex-1" style={{ backgroundColor: c.bg }}>
@@ -66,6 +69,7 @@ export default function WorkoutsScreen() {
       </View>
 
       <ScrollView
+        ref={scrollRef}
         contentContainerStyle={{ paddingBottom: 85, paddingHorizontal: 20, paddingTop: 24 }}
         showsVerticalScrollIndicator={false}
       >

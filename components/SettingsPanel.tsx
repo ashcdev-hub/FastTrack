@@ -33,6 +33,9 @@ export function SettingsPanel({ userId, initialExpand }: SettingsPanelProps) {
   const { toast, success, error: toastError } = useToast();
 
   const [expandedSection, setExpandedSection] = useState<string | null>(initialExpand ?? null);
+  useEffect(() => {
+    if (initialExpand) setExpandedSection(initialExpand);
+  }, [initialExpand]);
   const [displayName, setDisplayName] = useState(profile?.display_name ?? "");
   const [weight, setWeight] = useState("");
   const [goalWeight, setGoalWeight] = useState("");
@@ -537,7 +540,10 @@ export function SettingsPanel({ userId, initialExpand }: SettingsPanelProps) {
           {[1500, 2000, 2500, 3000, 3500].map((ml) => (
             <Pressable
               key={ml}
-              onPress={() => updateGoals({ waterGoalMl: ml })}
+              onPress={() => {
+                updateGoals({ waterGoalMl: ml });
+                success("Daily water goal updated");
+              }}
               className="flex-1 py-3 rounded-xl items-center"
               style={{ backgroundColor: waterGoalMl === ml ? ACCENT.cyan : c.buttonBg }}
             >
