@@ -1,9 +1,11 @@
 import React, { useEffect } from "react";
+import { Platform } from "react-native";
 import { router, Tabs } from "expo-router";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useThemeStore } from "@/lib/theme-store";
 import { getThemeColors, ACCENT } from "@/lib/theme-colors";
 import { useAuth } from "@/hooks/useAuth";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const TAB_CONFIG: Record<string, { label: string; active: keyof typeof MaterialCommunityIcons.glyphMap; inactive: keyof typeof MaterialCommunityIcons.glyphMap }> = {
   index: { label: "Home", active: "view-dashboard", inactive: "view-dashboard-outline" },
@@ -17,6 +19,8 @@ export default function TabLayout() {
   const { theme } = useThemeStore();
   const c = getThemeColors(theme);
   const { session, loading } = useAuth();
+  const insets = useSafeAreaInsets();
+  const bottomInset = Platform.OS === "android" ? insets.bottom : 0;
 
   useEffect(() => {
     if (!loading && !session) {
@@ -32,9 +36,9 @@ export default function TabLayout() {
           backgroundColor: c.tabBarBg,
           borderTopColor: c.tabBarBorder,
           borderTopWidth: 1,
-          height: 85,
+          height: 85 + bottomInset,
           paddingTop: 8,
-          paddingBottom: 28,
+          paddingBottom: 28 + bottomInset,
         },
         tabBarActiveTintColor: ACCENT.lime,
         tabBarInactiveTintColor: c.tabBarInactive,
