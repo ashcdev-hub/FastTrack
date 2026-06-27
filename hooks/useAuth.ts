@@ -13,7 +13,9 @@ export function useAuth() {
   const [loading, setLoading] = useState(true);
 
   const [, googleResponse, googlePrompt] = Google.useAuthRequest({
-    clientId: process.env.EXPO_PUBLIC_GOOGLE_AUTH_WEB_CLIENT_ID,
+    androidClientId: "467971760239-dogg4n6mfhghj481bqsbfovkh8lev4ld.apps.googleusercontent.com",
+    iosClientId: "467971760239-k02ta1j2psjhpttu2bt45fften9t0lf1.apps.googleusercontent.com",
+    webClientId: process.env.EXPO_PUBLIC_GOOGLE_AUTH_WEB_CLIENT_ID,
     redirectUri: makeRedirectUri(),
   });
 
