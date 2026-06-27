@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Pressable, View, Text, ActivityIndicator, Modal } from "react-native";
 import { CameraView, useCameraPermissions } from "expo-camera";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
@@ -28,6 +28,15 @@ export function BarcodeScanner({ visible, onClose, onProductFound }: BarcodeScan
   const [error, setError] = useState<string | null>(null);
   const [lookupLoading, setLookupLoading] = useState(false);
   const scannedRef = useRef(false);
+
+  useEffect(() => {
+    if (visible) {
+      scannedRef.current = false;
+      setScanning(false);
+      setLookupLoading(false);
+      setError(null);
+    }
+  }, [visible]);
 
   const handleBarcodeScanned = async (event: { data: string; type: string }) => {
     if (scannedRef.current || lookupLoading) return;
