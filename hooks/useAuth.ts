@@ -50,24 +50,18 @@ export function useAuth() {
 
   const signInWithGoogle = async () => {
     try {
-      const redirectUrl = Linking.createURL("/auth/callback");
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: "google",
-        options: {
-          redirectTo: redirectUrl,
-          skipBrowserRedirect: true,
-        },
       });
       if (error) return { error };
       if (data?.url) {
-        const result = await WebBrowser.openAuthSessionAsync(data.url, redirectUrl);
+        const result = await WebBrowser.openAuthSessionAsync(data.url, Linking.createURL("/"));
         if (result.type === "success") {
           const { data: { session } } = await supabase.auth.getSession();
-          if (session) {
-            const name = session.user?.user_metadata?.full_name;
-            if (name) {
-              await supabase.auth.updateUser({ data: { display_name: name } }).catch(() => {});
-            }
+          if (session?.user?.user_metadata?.full_name) {
+            await supabase.auth.updateUser({
+              data: { display_name: session.user.user_metadata.full_name },
+            }).catch(() => {});
           }
         }
       }
