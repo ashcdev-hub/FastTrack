@@ -42,12 +42,7 @@ export default function Index() {
         });
       return;
     }
-    if (onboardingComplete === null) {
-      if (!session) {
-        router.replace("/(auth)/login");
-      }
-      return;
-    }
+    if (onboardingComplete === null) return;
     if (session) {
       router.replace(onboardingComplete ? "/(tabs)" : "/(onboarding)/welcome");
     } else {
