@@ -1,5 +1,5 @@
 import "../global.css";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Stack } from "expo-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useFonts } from "expo-font";
@@ -99,7 +99,7 @@ function InnerLayout() {
   const { profile, loading: profileLoading } = useProfile(user?.id ?? null);
   const { theme, loaded: themeLoaded, loadTheme } = useThemeStore();
 
-  const [fontsLoaded] = useFonts({
+  const [fontsLoaded, fontError] = useFonts({
     Inter_400Regular,
     Inter_700Bold,
     Inter_800ExtraBold,
@@ -107,6 +107,16 @@ function InnerLayout() {
     SpaceGrotesk_600SemiBold,
     SpaceGrotesk_700Bold,
   });
+  const [fontTimeout, setFontTimeout] = useState(false);
+  useEffect(() => {
+    const t = setTimeout(() => {
+      console.log("Font loading timed out after 10s");
+      setFontTimeout(true);
+    }, 10000);
+    return () => clearTimeout(t);
+  }, []);
+  if (fontError) console.error("Font loading error:", fontError);
+  const ready = fontsLoaded || fontTimeout;
 
   useEffect(() => {
     loadGoals();
@@ -129,7 +139,7 @@ function InnerLayout() {
     }
   }, [profile, profileLoading, setFastingHours, setEatingHours]);
 
-  if (!fontsLoaded) {
+  if (!ready) {
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: theme === "dark" ? "#0C0C0E" : "#F6F4EF" }}>
         <ActivityIndicator size="large" color={ACCENT.lime} />
