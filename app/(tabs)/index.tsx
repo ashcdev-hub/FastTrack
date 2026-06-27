@@ -100,10 +100,6 @@ export default function HomeScreen() {
       AsyncStorage.setItem(hydrationGoalKey, "shown");
       setShowHydrationGoal(true);
     }
-    if (totalMl < goals.waterGoalMl) {
-      hydrationGoalShownRef.current = false;
-      AsyncStorage.removeItem(hydrationGoalKey);
-    }
   }, [totalMl, goals.waterGoalMl, hydrationGoalKey]);
 
   const macros = [
