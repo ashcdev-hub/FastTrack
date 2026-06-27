@@ -8,7 +8,7 @@ import { getThemeColors, ACCENT } from "@/lib/theme-colors";
 import { useToast } from "@/hooks/useToast";
 import { Toast } from "@/components/Toast";
 import { SettingsPanel } from "@/components/SettingsPanel";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 
 export default function ProfileScreen() {
   const { user, signOut } = useAuth();
@@ -16,6 +16,7 @@ export default function ProfileScreen() {
   const { theme } = useThemeStore();
   const c = getThemeColors(theme);
   const { toast } = useToast();
+  const { expand } = useLocalSearchParams<{ expand?: string }>();
 
   const getFirstName = (): string => {
     if (profile?.display_name) return profile.display_name.split(" ")[0];
@@ -50,7 +51,7 @@ export default function ProfileScreen() {
           <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 12, letterSpacing: 1, marginBottom: 16, textTransform: "uppercase" }}>
             SETTINGS
           </Text>
-          <SettingsPanel userId={user?.id ?? null} />
+          <SettingsPanel userId={user?.id ?? null} initialExpand={expand} />
         </View>
 
         <Pressable

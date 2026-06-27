@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Pressable, View, Text, TextInput, ScrollView, Switch, Modal } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useProfile } from "@/hooks/useProfile";
+import { useGoalStore } from "@/store/useGoalStore";
 import { useThemeStore } from "@/lib/theme-store";
 import { useToast } from "@/hooks/useToast";
 import { Toast } from "@/components/Toast";
@@ -14,9 +15,10 @@ import type { Profile } from "@/lib/types";
 
 type SettingsPanelProps = {
   userId: string | null;
+  initialExpand?: string;
 };
 
-export function SettingsPanel({ userId }: SettingsPanelProps) {
+export function SettingsPanel({ userId, initialExpand }: SettingsPanelProps) {
   const {
     profile,
     updateProfile,
@@ -26,10 +28,11 @@ export function SettingsPanel({ userId }: SettingsPanelProps) {
     updateEmail,
   } = useProfile(userId);
   const { theme, toggleTheme } = useThemeStore();
+  const { waterGoalMl, updateGoals } = useGoalStore();
   const c = getThemeColors(theme);
   const { toast, success, error: toastError } = useToast();
 
-  const [expandedSection, setExpandedSection] = useState<string | null>(null);
+  const [expandedSection, setExpandedSection] = useState<string | null>(initialExpand ?? null);
   const [displayName, setDisplayName] = useState(profile?.display_name ?? "");
   const [weight, setWeight] = useState("");
   const [goalWeight, setGoalWeight] = useState("");
@@ -524,6 +527,28 @@ export function SettingsPanel({ userId }: SettingsPanelProps) {
                 }}
               >
                 {unit === "ml" ? "Milliliters (ml)" : "Fluid Ounces (fl oz)"}
+              </Text>
+            </Pressable>
+          ))}
+        </View>
+
+        <Text style={{ color: c.textSecondary, fontFamily: "Inter_400Regular" }} className="text-xs mb-2">Daily Water Goal</Text>
+        <View className="flex-row gap-2 mb-4">
+          {[1500, 2000, 2500, 3000, 3500].map((ml) => (
+            <Pressable
+              key={ml}
+              onPress={() => updateGoals({ waterGoalMl: ml })}
+              className="flex-1 py-3 rounded-xl items-center"
+              style={{ backgroundColor: waterGoalMl === ml ? ACCENT.cyan : c.buttonBg }}
+            >
+              <Text
+                className="text-sm"
+                style={{
+                  color: waterGoalMl === ml ? "#001e24" : c.textSecondary,
+                  fontFamily: "SpaceGrotesk_600SemiBold",
+                }}
+              >
+                {ml >= 1000 ? `${ml / 1000}L` : `${ml}ml`}
               </Text>
             </Pressable>
           ))}

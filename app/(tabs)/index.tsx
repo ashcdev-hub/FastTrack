@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { Pressable, View, Text, TextInput, ScrollView, Image } from "react-native";
+import React, { useEffect, useState, useRef } from "react";
+import { Pressable, View, Text, TextInput, ScrollView, Image, Modal } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useAuth } from "@/hooks/useAuth";
@@ -75,6 +75,18 @@ export default function HomeScreen() {
   const totalReps = Object.values(todayTotals).reduce((sum, t) => sum + t.reps, 0);
 
   const [selectedWaterMl, setSelectedWaterMl] = useState<number | null>(null);
+  const [showHydrationGoal, setShowHydrationGoal] = useState(false);
+  const hydrationGoalShownRef = useRef(false);
+
+  useEffect(() => {
+    if (goals.waterGoalMl > 0 && totalMl >= goals.waterGoalMl && !hydrationGoalShownRef.current) {
+      hydrationGoalShownRef.current = true;
+      setShowHydrationGoal(true);
+    }
+    if (totalMl < goals.waterGoalMl) {
+      hydrationGoalShownRef.current = false;
+    }
+  }, [totalMl, goals.waterGoalMl]);
 
   const macros = [
     { label: "Calories", current: totals.calories, goal: goals.dailyCalories, unit: "kcal", barColor: ACCENT.lime },
@@ -194,6 +206,9 @@ export default function HomeScreen() {
                   <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 14 }}>
                     / {goals.waterGoalMl / 1000}L
                   </Text>
+                  <Pressable onPress={() => router.push("/(tabs)/profile?expand=preferences")}>
+                    <MaterialCommunityIcons name="cog-outline" size={14} color={c.textMuted} />
+                  </Pressable>
                 </View>
               </View>
               <View className="h-2 rounded-full overflow-hidden mb-5" style={{ backgroundColor: "rgba(255,255,255,0.05)" }}>
@@ -302,6 +317,54 @@ export default function HomeScreen() {
         </View>
       </View>
       </ScrollView>
+
+      {/* Hydration Goal Celebration */}
+      <Modal visible={showHydrationGoal} transparent animationType="slide" onRequestClose={() => setShowHydrationGoal(false)}>
+        <Pressable className="flex-1 justify-end" style={{ backgroundColor: c.overlay }} onPress={() => setShowHydrationGoal(false)}>
+          <Pressable onStartShouldSetResponder={() => true} className="rounded-t-3xl p-6" style={{ backgroundColor: c.elevated }}>
+            <View className="items-center mb-5">
+              <View style={{ width: 56, height: 56, borderRadius: 28, backgroundColor: "rgba(0,218,243,0.15)", alignItems: "center", justifyContent: "center", marginBottom: 12 }}>
+                <MaterialCommunityIcons name="trophy" size={28} color={ACCENT.cyan} />
+              </View>
+              <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 22 }}>Hydration Goal Reached!</Text>
+              <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 14, textAlign: "center", marginTop: 4 }}>
+                You've hit your daily water target. Stay hydrated!
+              </Text>
+            </View>
+
+            <View className="items-center mb-5">
+              <View className="flex-row items-baseline gap-1">
+                <Text style={{ color: ACCENT.cyan, fontFamily: "SpaceGrotesk_600SemiBold", fontSize: 40, letterSpacing: -1 }}>
+                  {Math.round(totalMl / 100) / 10}
+                </Text>
+                <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 18 }}>
+                  / {goals.waterGoalMl / 1000}L
+                </Text>
+              </View>
+              <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 10, letterSpacing: 1, marginTop: 4, textTransform: "uppercase" }}>
+                {Math.round(totalMl)}ml of {goals.waterGoalMl}ml
+              </Text>
+            </View>
+
+            <View className="rounded-xl p-4 mb-5" style={{ backgroundColor: c.cardBg }}>
+              <View className="flex-row items-center gap-3">
+                <MaterialCommunityIcons name="water" size={20} color={ACCENT.cyan} />
+                <Text style={{ color: c.text, fontFamily: "Inter_400Regular", fontSize: 14 }}>
+                  Consistent hydration supports energy, focus, and metabolism.
+                </Text>
+              </View>
+            </View>
+
+            <Pressable
+              onPress={() => setShowHydrationGoal(false)}
+              className="py-4 rounded-xl items-center"
+              style={{ backgroundColor: ACCENT.cyan }}
+            >
+              <Text style={{ color: "#001e24", fontFamily: "Inter_700Bold", fontSize: 16 }}>Done</Text>
+            </Pressable>
+          </Pressable>
+        </Pressable>
+      </Modal>
     </SafeAreaView>
   );
 }
