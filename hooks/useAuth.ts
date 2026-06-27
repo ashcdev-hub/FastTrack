@@ -2,7 +2,10 @@ import { useEffect, useState } from "react";
 import { Platform } from "react-native";
 import { supabase } from "@/lib/supabase";
 import * as Linking from "expo-linking";
+import * as WebBrowser from "expo-web-browser";
 import type { User, Session } from "@supabase/supabase-js";
+
+WebBrowser.maybeCompleteAuthSession();
 
 export function useAuth() {
   const [user, setUser] = useState<User | null>(null);
@@ -47,28 +50,29 @@ export function useAuth() {
 
   const signInWithGoogle = async () => {
     try {
-      const { GoogleSignin } = await import("@react-native-google-signin/google-signin");
-      GoogleSignin.configure({
-        webClientId: process.env.EXPO_PUBLIC_GOOGLE_AUTH_WEB_CLIENT_ID,
+      const redirectUrl = Linking.createURL("/auth/callback");
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: redirectUrl,
+          skipBrowserRedirect: true,
+        },
       });
-      await GoogleSignin.hasPlayServices();
-      const response = await GoogleSignin.signIn();
-      if (response.data?.idToken) {
-        const { error } = await supabase.auth.signInWithIdToken({
-          provider: "google",
-          token: response.data.idToken,
-        });
-        if (!error && response.data.user?.name) {
-          const name = response.data.user.name;
-          await supabase.auth.updateUser({ data: { display_name: name } }).catch(() => {});
+      if (error) return { error };
+      if (data?.url) {
+        const result = await WebBrowser.openAuthSessionAsync(data.url, redirectUrl);
+        if (result.type === "success") {
+          const { data: { session } } = await supabase.auth.getSession();
+          if (session) {
+            const name = session.user?.user_metadata?.full_name;
+            if (name) {
+              await supabase.auth.updateUser({ data: { display_name: name } }).catch(() => {});
+            }
+          }
         }
-        return { error };
       }
-      return { error: new Error("No ID token received") };
+      return { error: null };
     } catch (e: any) {
-      if (e?.code === "ERR_REQUEST_CANCELED" || e?.message?.includes("CANCELED")) {
-        return { error: null }; // User cancelled — not an error
-      }
       return { error: e };
     }
   };
