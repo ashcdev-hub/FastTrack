@@ -122,7 +122,8 @@ git log --oneline        # See history of snapshots
 | Backend | Supabase (PostgreSQL, Auth, Realtime, Edge Functions) |
 | Icons | MaterialCommunityIcons (`@expo/vector-icons`) |
 | Animations | react-native-reanimated + react-native-svg |
-| Food Search | OpenFoodFacts API via Supabase Edge Function proxy (with Groq LLM fallback) |
+| Food Search | OpenFoodFacts API via Supabase Edge Function proxy (with Groq LLM fallback). Food photo analysis via Groq Llama 4 Scout vision model. |
+| AI Coach | Groq-powered (`llama-3.3-70b-versatile`) AI coaching via Supabase Edge Function, aware of user's fasting, nutrition, workout, and weight data. |
 | Dates | date-fns |
 | Notifications | expo-notifications (native only) |
 | Theme | Dark/light mode via Zustand + AsyncStorage + CSS class toggle |
@@ -201,7 +202,11 @@ Food logging happens inside a full-screen `<Modal>` (`LogMealModal`) with this l
 - MealBuilder staging area at the bottom with item count badge and auto-scroll on add
 - Items in the staging area are tappable — opens edit modal to adjust quantity, calories, protein, carbs, fat
 - Barcode scanner (wrapped in `Modal`) for food packaging
+- Photo capture via `FoodCamera` component (`expo-camera`) or gallery via `expo-image-picker`
 - Search uses Supabase Edge Function `food-search` (OpenFoodFacts → Groq LLM fallback) with results returned in ~1.5s via parallel execution
+
+### Groq Vision Models
+The `food-photo` Edge Function uses Groq vision models (`meta-llama/llama-4-scout-17b-16e-instruct` or `qwen/qwen3.6-27b`) for photo-based food recognition. These models must be enabled in the Groq project settings at https://console.groq.com/settings/project/limits. The Edge Function supports both base64 image data and remote image URLs.
 
 ### Offline Support — Mutation Queue
 All mutation hooks wrap their `mutationFn` with `withOfflineFallback()` from `lib/offline-mutation.ts`. When offline or on network error:
@@ -296,6 +301,7 @@ FastTrack/
 │   ├── EditQuickAddModal.tsx    # Multi-select chip grid for quick-add foods
 │   ├── MealCalendarModal.tsx    # Full month calendar with day-tap meal detail
 │   ├── BarcodeScanner.tsx       # Camera barcode scanner (wrapped in Modal)
+│   ├── FoodCamera.tsx           # Camera food photo capture for AI analysis
 │   ├── WaterTracker.tsx         # Bottle presets + custom ml (supports unit prefs)
 │   ├── PreviousFasts.tsx        # Expandable list + delete + weekly calendar
 │   ├── WeeklyCalendar.tsx       # 7-day circle calendar (Mon–Sun)
@@ -356,7 +362,9 @@ FastTrack/
 │   ├── migrations/              # 11 migrations
 │   └── functions/
 │       ├── daily-summary/
-│       └── food-search/         # OpenFoodFacts proxy + retry logic
+│       ├── food-search/         # OpenFoodFacts proxy + Groq LLM fallback
+│       ├── food-photo/          # Groq vision model for photo-based food recognition
+│       └── ai-coach/            # Groq-powered AI fasting & fitness coaching
 ├── assets/
 │   ├── screenshots/             # App screenshots for README
 │   └── videos/                  # Bundled background video for login screen
@@ -370,6 +378,14 @@ FastTrack/
 - **CLI**: `supabase login` → `supabase link --project-ref zytqfjjvruehnkntojjd` → `supabase db push --linked`
 
 ## Feature Breakdown
+
+### Home Tab
+- Fasting Today panel with elapsed time, progress ring, and progress bar
+- Workout Progress panel with circular progress rings per exercise
+- Hydration panel with bottle presets, custom ml, progress bar, and goal cog
+- Weight section with chart and tracker
+- Daily Macros panel with 2×2 grid of macronutrient progress bars
+- AI Insights panel with personalized summary and expandable chat input (powered by Groq `ai-coach` Edge Function)
 
 ### Fast Tab
 - Schedule selector (presets + custom)
@@ -394,6 +410,7 @@ FastTrack/
 - Native system keyboard for search (no custom in-app keyboard)
 - Quick-add common foods configurable via `EditQuickAddModal`
 - Barcode scanner (wrapped in Modal) for food packaging
+- Photo capture via `FoodCamera` component (`expo-camera`) or gallery via `expo-image-picker`
 - Custom item form with stepper controls (no numeric TextInput)
 - Items added directly to staging with qty 1 (no QuantityModal step)
 - Meal builder staging area with auto-scroll, editable items (tap to adjust macros), totals + log button
@@ -416,7 +433,7 @@ FastTrack/
 Note: Settings are inline in the Profile tab (no standalone settings page). All headbars are clean (no bell icons, no cog icons).
 
 ## Notifications
-- **Local push** (native only): `expo-notifications` — fast reminder, check-in reminder, water reminders, streak milestones. Scheduled on start fast, cancelled on break/end. Web silently no-ops.
+- **Local push** (native only): `expo-notifications` — fast reminder, check-in reminder, water reminders, streak milestones. Scheduled on start fast, cancelled on break/end. Web silently no-ops. **Notifications are iOS-only on Expo Go (SDK 53+ removed Android push support).**
 - **Email digest**: Supabase Edge Function `daily-summary` — nightly at user-configured time, queries food_log + water_log + workouts, sends via Resend API (only if `RESEND_API_KEY` env var is set on the edge function).
 - **Personal-team iOS builds** do not support remote APNs; local scheduled notifications only. Remote push requires a paid Apple Developer account.
 
@@ -438,7 +455,7 @@ EXPO_PUBLIC_SUPABASE_ANON_KEY=eyJ...
 - **iOS (dev)**: `npx expo run:ios --device` (build + install to plugged-in iPhone)
 - **iOS (OTA)**: `eas update --branch production --message "..."` (JS-only changes, no rebuild)
 - **iOS (App Store)**: `eas build --profile production --platform ios` + `eas submit` (requires Apple Developer Program)
-- **Edge Functions**: `supabase functions deploy daily-summary` / `supabase functions deploy food-search`
+- **Edge Functions**: `supabase functions deploy daily-summary` / `supabase functions deploy food-search` / `supabase functions deploy food-photo` / `supabase functions deploy ai-coach`
 - **TypeScript**: `npx tsc --noEmit`
 
 See [Building for iOS (Standalone App)](#building-for-ios-standalone-app) above for the full iOS build workflow.
@@ -519,6 +536,12 @@ See [Building for iOS (Standalone App)](#building-for-ios-standalone-app) above 
 - [x] Edit staged items inline in MealBuilder
 - [x] Auto-scroll to MealBuilder on item add with count badge
 - [x] Modular tracker system — documented on roadmap for future implementation
+- [x] Hydration celebration race condition fix — ref starts as true, only flips after AsyncStorage confirm
+- [x] AI Insights on Home tab — personalized summary with expandable Groq-powered chat input
+- [x] Food photo capture — `FoodCamera` component uses `expo-camera`, sends to Groq Llama 4 Scout for macro estimation
+- [x] Photo picker modal — bottom-sheet with "Take Photo" (via camera) or "Choose from Library" (via expo-image-picker)
+- [x] Groq vision Edge Function (`food-photo`) — supports base64 + image URLs, MIME detection, returns food-search format
+- [x] AI coach Edge Function (`ai-coach`) — Groq-powered with user fasting/nutrition/workout/weight context
 
 ## Next Steps
 
@@ -572,6 +595,9 @@ See [Building for iOS (Standalone App)](#building-for-ios-standalone-app) above 
 | 45 | **Food search with Groq fallback** — OpenFoodFacts + Groq run in parallel via `Promise.any`. Returns results in ~1.5s. 5s/3s timeouts on fetch calls. | Done |
 | 46 | **Edit staged items** — Tappable items in MealBuilder open bottom-sheet edit modal. Adjust quantity, calories, protein, carbs, fat with steppers and presets. | Done |
 | 47 | **Auto-scroll on add + staged count badge** — When item is added to meal, view scrolls to MealBuilder. Badge shows "3 items staged — scroll down to review" near top. | Done |
+| 48 | **AI Insights on Home tab** — Personalized summary text with expandable "Ask a question" Groq-powered chat input. Coach uses fasting, nutrition, workout, and weight context. | Done |
+| 49 | **Food photo capture and analysis** — `FoodCamera` component using `expo-camera`. Photo picker modal with "Take Photo" (camera) / "Choose from Library" (gallery). Groq Llama 4 Scout vision model. | Done |
+| 50 | **AI coach Edge Function** — `ai-coach` with Groq `llama-3.3-70b-versatile`. Accepts user data (streak, macros, water, workouts, weight) and returns personalized coaching responses. | Done |
 
 ### Remaining
 | # | Feature | Effort | Description |
