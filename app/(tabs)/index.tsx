@@ -78,13 +78,13 @@ export default function HomeScreen() {
 
   const [selectedWaterMl, setSelectedWaterMl] = useState<number | null>(null);
   const [showHydrationGoal, setShowHydrationGoal] = useState(false);
-  const hydrationGoalShownRef = useRef(false);
+  const hydrationGoalShownRef = useRef(true);
   const hydrationGoalKey = `@fasttrack_hydration_goal_${new Date().toISOString().split("T")[0]}`;
 
   useEffect(() => {
     AsyncStorage.getItem(hydrationGoalKey).then((val) => {
-      if (val === "shown") {
-        hydrationGoalShownRef.current = true;
+      if (val !== "shown") {
+        hydrationGoalShownRef.current = false;
       }
     });
   }, [hydrationGoalKey]);

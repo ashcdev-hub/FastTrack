@@ -1,4 +1,4 @@
-# FastTrack — Intermittent Fasting, Macro & Workout Tracker
+# FastTrack — Intermittent Fasting, Workouts & Macro Tracker
 
 Expo SDK 54 (React Native 0.81) + Supabase + NativeWind + Zustand + TanStack Query.
 
@@ -122,7 +122,7 @@ git log --oneline        # See history of snapshots
 | Backend | Supabase (PostgreSQL, Auth, Realtime, Edge Functions) |
 | Icons | MaterialCommunityIcons (`@expo/vector-icons`) |
 | Animations | react-native-reanimated + react-native-svg |
-| Food Search | OpenFoodFacts API via Supabase Edge Function proxy (CORS fix) |
+| Food Search | OpenFoodFacts API via Supabase Edge Function proxy (with Groq LLM fallback) |
 | Dates | date-fns |
 | Notifications | expo-notifications (native only) |
 | Theme | Dark/light mode via Zustand + AsyncStorage + CSS class toggle |
@@ -191,16 +191,17 @@ Three clear phases: **Idle** (schedule selector shown) → **Fasting** (ring fil
 ### ACCENT.lime / ACCENT.cyan / ACCENT.coral
 `ACCENT.mint` is defined in the palette but never used in any UI component. All UI uses `ACCENT.lime` (#c3f400), `ACCENT.cyan` (#00daf3), or `ACCENT.coral` (#FF6B52) for the various accent roles.
 
-### Custom In-App Keyboard (No iOS System Keyboard)
-All text input uses a custom in-app QWERTY keyboard (`CustomKeyboard`) instead of the iOS system keyboard. Used for food search. Supports shift toggle (uppercase/lowercase via `arrow-up-bold` icon), backspace, space, and a magnifying glass search button. The keyboard renders inside a `<Modal>` and uses `useSafeAreaInsets` for bottom padding.
+### Login Screen Video Background
+The login screen plays a looping MP4 background video via `expo-av`, with a 75% black overlay for dimming. On web, video is skipped (auto-play restrictions) and falls back to the solid background color. Video file is bundled at `assets/videos/background.mp4`.
 
 ### LogMealModal — Full-Screen Food Logging Modal
 Food logging happens inside a full-screen `<Modal>` (`LogMealModal`) with this layout:
-- Fixed header + search bar + search results (outside ScrollView to stay visible when keyboard shows)
-- Dimmed content area below (opacity 0.15 + overlay) when keyboard is active — tap overlay to dismiss keyboard
-- Custom keyboard at the bottom
-- Search bar is a `Pressable` (not `TextInput`) — tapping shows the custom keyboard
-- `pointerEvents: "none"` on ScrollView when keyboard showing to prevent accidental taps
+- Fixed header + native search bar (`TextInput` with system keyboard, not custom keyboard) + search results
+- Meal type selector, date/time picker, quick-add favorites, recent foods, custom item form
+- MealBuilder staging area at the bottom with item count badge and auto-scroll on add
+- Items in the staging area are tappable — opens edit modal to adjust quantity, calories, protein, carbs, fat
+- Barcode scanner (wrapped in `Modal`) for food packaging
+- Search uses Supabase Edge Function `food-search` (OpenFoodFacts → Groq LLM fallback) with results returned in ~1.5s via parallel execution
 
 ### Offline Support — Mutation Queue
 All mutation hooks wrap their `mutationFn` with `withOfflineFallback()` from `lib/offline-mutation.ts`. When offline or on network error:
@@ -259,6 +260,8 @@ Correct: `REFERENCES auth.users(id) ON DELETE CASCADE ON UPDATE CASCADE`
 - `20250611000007_weight_log.sql` — weight tracking
 - `20250611000008_unit_preferences.sql` — unit preferences (kg/lbs, cm/ft, ml/floz)
 - `20250626000009_quick_add_foods.sql` — quick_add_foods JSONB column on profiles
+- `20250626000001_onboarding_completed.sql` — onboarding_completed column on profiles
+- `20250627000010_add_workout_icon_name.sql` — icon_name column on workout_goals
 
 ### RLS
 All tables have RLS enabled. Policies use `auth.uid() = user_id`.
@@ -270,9 +273,11 @@ FastTrack/
 ├── app/
 │   ├── _layout.tsx              # Root: global.css, QueryClientProvider, Stack, theme init
 │   ├── index.tsx                # Auth redirect (login vs tabs)
+│   ├── auth/
+│   │   └── callback.tsx         # Auth callback (email confirmation redirect)
 │   ├── (auth)/
 │   │   ├── _layout.tsx          # Auth stack
-│   │   ├── login.tsx            # Email/password login
+│   │   ├── login.tsx            # Email/password login with video background
 │   │   └── signup.tsx           # Sign up with display name
 │   ├── (onboarding)/            # 4-step onboarding wizard
 │   └── (tabs)/
@@ -288,8 +293,6 @@ FastTrack/
 │   ├── MealBuilder.tsx          # Meal staging area
 │   ├── MealForm.tsx             # Manual entry with date/time picker
 │   ├── LogMealModal.tsx         # Full-screen food logging modal (search, quick-add, custom form, meal builder)
-│   ├── CustomKeyboard.tsx       # In-app QWERTY keyboard (no iOS system keyboard)
-│   ├── QuantityModal.tsx        # Bottom-sheet stepper for serving quantity
 │   ├── EditQuickAddModal.tsx    # Multi-select chip grid for quick-add foods
 │   ├── MealCalendarModal.tsx    # Full month calendar with day-tap meal detail
 │   ├── BarcodeScanner.tsx       # Camera barcode scanner (wrapped in Modal)
@@ -302,11 +305,12 @@ FastTrack/
 │   ├── CheckInPanel.tsx         # Mood + note (theme-aware)
 │   ├── CheckInTimeline.tsx      # Timeline (theme-aware)
 │   ├── MoodChart.tsx            # SVG mood graph (theme-aware)
-│   ├── SettingsPanel.tsx        # Profile, account, notifications, preferences, appearance
-│   ├── ExercisePanel.tsx        # Exercise card: progress, log, edit goal
+│   ├── SettingsPanel.tsx        # Profile, account, notifications, preferences, appearance, water goal
+│   ├── ExercisePanel.tsx        # Exercise card: progress, log, edit goal, icon
+│   ├── WorkoutIcon.tsx          # SVG workout icon (MingCute/Lucide, theme-tinted via SvgXml)
 │   ├── EditGoalModal.tsx        # Bottom-sheet goal editor (stepper + presets + custom)
 │   ├── LogSetModal.tsx          # Log reps + sets (stepper controls)
-│   ├── AddExerciseModal.tsx     # Add custom exercise modal
+│   ├── AddExerciseModal.tsx     # Add custom exercise modal with icon picker
 │   ├── WeightTracker.tsx        # Weight logging + recent entries (supports unit prefs)
 │   ├── WeightChart.tsx          # SVG weight line chart
 │   ├── GlassPanel.tsx           # Shared glass-card wrapper
@@ -343,17 +347,19 @@ FastTrack/
 │   ├── dark-mode.ts             # applyTheme() CSS class toggle
 │   ├── notifications.ts
 │   ├── fasting-phases.ts        # Fasting phase calculator (6 phases + eating phase)
+│   ├── exercise-icons.ts        # SVG markup + registry for workout icons (MingCute + Lucide)
 │   ├── units.ts                 # Unit conversion (kg↔lbs, cm↔ft, ml↔floz)
 │   ├── offline-queue.ts         # AsyncStorage-backed mutation queue
 │   └── offline-mutation.ts      # withOfflineFallback() + isNetworkError() helpers
 ├── supabase/
 │   ├── schema.sql
-│   ├── migrations/              # 10 migrations
+│   ├── migrations/              # 11 migrations
 │   └── functions/
 │       ├── daily-summary/
 │       └── food-search/         # OpenFoodFacts proxy + retry logic
 ├── assets/
-│   └── screenshots/             # App screenshots for README
+│   ├── screenshots/             # App screenshots for README
+│   └── videos/                  # Bundled background video for login screen
 └── [config files]
 ```
 
@@ -384,23 +390,25 @@ FastTrack/
 
 ### Log Tab
 - Macros panel at top, Log Meal button opens full-screen `LogMealModal`
-- OpenFoodFacts search via Edge Function proxy + custom in-app QWERTY keyboard (no iOS system keyboard)
+- OpenFoodFacts search via Edge Function proxy + Groq LLM fallback (~1.5s response)
+- Native system keyboard for search (no custom in-app keyboard)
 - Quick-add common foods configurable via `EditQuickAddModal`
 - Barcode scanner (wrapped in Modal) for food packaging
 - Custom item form with stepper controls (no numeric TextInput)
-- Quantity stepper modal before adding to staging
-- Meal builder staging area with totals + log button
+- Items added directly to staging with qty 1 (no QuantityModal step)
+- Meal builder staging area with auto-scroll, editable items (tap to adjust macros), totals + log button
 - Full month `MealCalendarModal` with dot indicators and day-tap meal detail
 - Date/time picker bottom-sheet (hour/minute scrollers + Yesterday/Today shortcuts)
 
 ### Me Tab
-- First name display, unified achievements, weekly stats, macro progress
+- First name display, unified achievements, weekly stats
 - Weight tracking with chart, goal weight, unit preferences
 
 ### Settings
 - Profile details (name, gender, age, weight, height, BMI with color coding)
 - Account (change email/password)
-- Notifications preferences
+- Notifications preferences (iOS only — Android Expo Go skips notifications)
+- Daily water goal presets (1.5L–3.5L)
 - Preferences (weight/height/water unit selectors)
 - Dark/light mode toggle
 - Sign Out
@@ -502,7 +510,15 @@ See [Building for iOS (Standalone App)](#building-for-ios-standalone-app) above 
 - [x] WeightChart fixes — chronological sort, deduplicated labels for 2-entry datasets
 - [x] Water goal & progress presets in Settings, hydration celebration modal on Home, cog link to preferences
 - [x] Roadmap updated with mobile improvements from explore agent — timer, offline queue, ErrorBoundary, cache perf, app.json cleanup
-- [ ] Modular tracker system — documented on roadmap for future implementation
+- [x] Water goal & progress presets in Settings, hydration celebration modal on Home, cog link to preferences
+- [x] Auth callback route for email confirmation redirect
+- [x] Android tab bar safe area via insets.bottom
+- [x] Android startup hang fix — auth redirect and font timeout
+- [x] Food logging redesign — native keyboard, larger fonts, no QuantityModal
+- [x] Food search Groq LLM fallback (parallel Promise.any)
+- [x] Edit staged items inline in MealBuilder
+- [x] Auto-scroll to MealBuilder on item add with count badge
+- [x] Modular tracker system — documented on roadmap for future implementation
 
 ## Next Steps
 
@@ -549,6 +565,13 @@ See [Building for iOS (Standalone App)](#building-for-ios-standalone-app) above 
 | 38 | **Water sync double-safety** — Added `invalidateQueries` after `setQueryData` in useWaterLog mutation for guaranteed UI consistency | Done |
 | 39 | **WeightChart fixes** — Sort entries chronologically (oldest→newest) for correct line direction; deduplicate date labels for 2-entry datasets | Done |
 | 40 | **Water goal & progress** — Daily water target presets (1.5L–3.5L) in Settings via goal store. Hydration Goal Reached celebration modal with trophy icon on Home tab. Cog icon on hydration panel deep-links to Preferences section. | Done |
+| 41 | **Auth callback + email signup** — `app/auth/callback.tsx` handles post-confirmation redirect. `useAuth` passes `emailRedirectTo` so Supabase redirects back to app after email confirmation. | Done |
+| 42 | **Android tab bar safe area** — Tab bar uses `insets.bottom` on Android to avoid system navigation overlay. iOS unchanged. | Done |
+| 43 | **Android startup hang fix** — `app/index.tsx` auth redirect no longer blocks when no session and no onboarding key. Font loading has 10s timeout fallback. | Done |
+| 44 | **Food logging redesign** — Native system keyboard instead of custom in-app QWERTY. Font sizes increased across the board. No QuantityModal — items added directly to staging. | Done |
+| 45 | **Food search with Groq fallback** — OpenFoodFacts + Groq run in parallel via `Promise.any`. Returns results in ~1.5s. 5s/3s timeouts on fetch calls. | Done |
+| 46 | **Edit staged items** — Tappable items in MealBuilder open bottom-sheet edit modal. Adjust quantity, calories, protein, carbs, fat with steppers and presets. | Done |
+| 47 | **Auto-scroll on add + staged count badge** — When item is added to meal, view scrolls to MealBuilder. Badge shows "3 items staged — scroll down to review" near top. | Done |
 
 ### Remaining
 | # | Feature | Effort | Description |
