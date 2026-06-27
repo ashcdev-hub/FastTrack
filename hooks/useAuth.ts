@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Platform } from "react-native";
 import { supabase } from "@/lib/supabase";
-import * as Linking from "expo-linking";
+import { makeRedirectUri } from "expo-auth-session";
 import * as WebBrowser from "expo-web-browser";
 import type { User, Session } from "@supabase/supabase-js";
 
@@ -31,7 +31,7 @@ export function useAuth() {
   }, []);
 
   const signUp = async (email: string, password: string, displayName?: string) => {
-    const redirectUrl = Linking.createURL("/auth/callback");
+    const redirectUrl = makeRedirectUri({ path: "/auth/callback" });
     const { error } = await supabase.auth.signUp({
       email,
       password,
@@ -50,19 +50,24 @@ export function useAuth() {
 
   const signInWithGoogle = async () => {
     try {
+      const redirectUrl = makeRedirectUri({ path: "/auth/callback" });
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: "google",
+        options: {
+          redirectTo: redirectUrl,
+        },
       });
       if (error) return { error };
       if (data?.url) {
-        const result = await WebBrowser.openAuthSessionAsync(data.url, Linking.createURL("/"));
+        const result = await WebBrowser.openAuthSessionAsync(data.url, redirectUrl);
         if (result.type === "success") {
-          const { data: { session } } = await supabase.auth.getSession();
-          if (session?.user?.user_metadata?.full_name) {
-            await supabase.auth.updateUser({
-              data: { display_name: session.user.user_metadata.full_name },
-            }).catch(() => {});
-          }
+          supabase.auth.getSession().then(({ data: { session } }) => {
+            if (session?.user?.user_metadata?.full_name) {
+              supabase.auth.updateUser({
+                data: { display_name: session.user.user_metadata.full_name },
+              }).catch(() => {});
+            }
+          });
         }
       }
       return { error: null };

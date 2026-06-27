@@ -5,13 +5,26 @@ import { supabase } from "@/lib/supabase";
 
 export default function AuthCallback() {
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) {
-        router.replace("/(tabs)");
-      } else {
-        router.replace("/(auth)/login");
-      }
-    });
+    let attempts = 0;
+    const maxAttempts = 20;
+
+    const check = () => {
+      supabase.auth.getSession().then(({ data: { session } }) => {
+        if (session) {
+          router.replace("/(tabs)");
+        } else {
+          attempts++;
+          if (attempts < maxAttempts) {
+            setTimeout(check, 500);
+          } else {
+            router.replace("/(auth)/login");
+          }
+        }
+      });
+    };
+
+    // Small delay to let the auth state propagate
+    setTimeout(check, 1000);
   }, []);
 
   return (
