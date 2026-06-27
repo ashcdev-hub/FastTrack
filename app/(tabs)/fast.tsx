@@ -115,6 +115,18 @@ export default function FastScreen() {
   const [showBreakConfirm, setShowBreakConfirm] = useState(false);
   const [showFastComplete, setShowFastComplete] = useState(false);
   const [showEatComplete, setShowEatComplete] = useState(false);
+  const [showSessionComplete, setShowSessionComplete] = useState(false);
+  const [sessionCompleteData, setSessionCompleteData] = useState<{
+    scheduleLabel: string;
+    fastedHours: number;
+    fastedMinutes: number;
+    eatingHours: number;
+    eatingMinutes: number;
+    totalHours: number;
+    totalMinutes: number;
+    streak: number;
+    completedFastsCount: number;
+  } | null>(null);
   const [checkInMood, setCheckInMood] = useState<number | null>(null);
   const [checkInNote, setCheckInNote] = useState("");
   const [showCustomModal, setShowCustomModal] = useState(false);
@@ -171,10 +183,39 @@ export default function FastScreen() {
   const confirmEndSession = async () => {
     setShowEndConfirm(false);
     if (!session) return;
-    const { error } = await endFast(session.id);
+    const capturedSession = session;
+    const capturedScheduleLabel = scheduleLabel;
+    const capturedFastedHours = fastElapsed.hours;
+    const capturedFastedMinutes = fastElapsed.minutes;
+    const captureTime = Date.now();
+    let eatingHoursVal = 0;
+    let eatingMinutesVal = 0;
+    if (capturedSession.end_time) {
+      const eatingMs = captureTime - new Date(capturedSession.end_time).getTime();
+      if (eatingMs > 0) {
+        eatingHoursVal = Math.floor(eatingMs / 3600000);
+        eatingMinutesVal = Math.floor((eatingMs % 3600000) / 60000);
+      }
+    }
+    const extraHours = Math.floor((capturedFastedMinutes + eatingMinutesVal) / 60);
+    const totalHours = capturedFastedHours + eatingHoursVal + extraHours;
+    const totalMinutes = (capturedFastedMinutes + eatingMinutesVal) % 60;
+    const { error } = await endFast(capturedSession.id);
     if (!error) {
       await cancelAllNotifications();
       if (notifPrefs?.streak_reminders) await checkAndNotifyStreakMilestone(completedFasts + 1);
+      setSessionCompleteData({
+        scheduleLabel: capturedScheduleLabel,
+        fastedHours: capturedFastedHours,
+        fastedMinutes: capturedFastedMinutes,
+        eatingHours: eatingHoursVal,
+        eatingMinutes: eatingMinutesVal,
+        totalHours,
+        totalMinutes,
+        streak,
+        completedFastsCount: completedFasts + 1,
+      });
+      setShowSessionComplete(true);
     }
   };
 
@@ -616,6 +657,69 @@ export default function FastScreen() {
                 <Text style={{ color: c.textMuted, fontFamily: "Inter_700Bold", fontSize: 15 }}>Keep Fasting</Text>
               </Pressable>
             </View>
+          </Pressable>
+        </Pressable>
+      </Modal>
+
+      {/* Session Complete Celebration */}
+      <Modal visible={showSessionComplete} transparent animationType="slide" onRequestClose={() => setShowSessionComplete(false)}>
+        <Pressable className="flex-1 justify-end" style={{ backgroundColor: c.overlay }} onPress={() => setShowSessionComplete(false)}>
+          <Pressable onStartShouldSetResponder={() => true} className="rounded-t-3xl p-6" style={{ backgroundColor: c.elevated }}>
+            <View className="items-center mb-5">
+              <View style={{ width: 56, height: 56, borderRadius: 28, backgroundColor: "rgba(195,244,0,0.15)", alignItems: "center", justifyContent: "center", marginBottom: 12 }}>
+                <MaterialCommunityIcons name="trophy" size={28} color={ACCENT.lime} />
+              </View>
+              <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 22 }}>Session Complete!</Text>
+              <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 14, textAlign: "center", marginTop: 4 }}>
+                You completed a {sessionCompleteData?.scheduleLabel ?? `${fastingHours}:${eatingHours}`} fast.
+              </Text>
+            </View>
+
+            <View className="rounded-xl p-4 mb-4" style={{ backgroundColor: c.cardBg }}>
+              <View className="flex-row justify-between py-2">
+                <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 14 }}>Fasted</Text>
+                <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 14 }}>
+                  {sessionCompleteData?.fastedHours ?? 0}h {sessionCompleteData?.fastedMinutes ?? 0}m
+                </Text>
+              </View>
+              <View className="h-px" style={{ backgroundColor: c.divider }} />
+              <View className="flex-row justify-between py-2">
+                <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 14 }}>Ate</Text>
+                <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 14 }}>
+                  {sessionCompleteData?.eatingHours ?? 0}h {sessionCompleteData?.eatingMinutes ?? 0}m
+                </Text>
+              </View>
+              <View className="h-px" style={{ backgroundColor: c.divider }} />
+              <View className="flex-row justify-between py-2">
+                <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 14 }}>Total</Text>
+                <Text style={{ color: ACCENT.lime, fontFamily: "Inter_700Bold", fontSize: 14 }}>
+                  {sessionCompleteData?.totalHours ?? 0}h {sessionCompleteData?.totalMinutes ?? 0}m
+                </Text>
+              </View>
+            </View>
+
+            <View className="flex-row gap-4 mb-5">
+              <View className="flex-1 items-center rounded-xl py-3" style={{ backgroundColor: c.cardBg }}>
+                <Text style={{ color: ACCENT.coral, fontFamily: "Inter_700Bold", fontSize: 18 }}>
+                  {sessionCompleteData?.streak ?? 0}
+                </Text>
+                <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 12 }}>day streak</Text>
+              </View>
+              <View className="flex-1 items-center rounded-xl py-3" style={{ backgroundColor: c.cardBg }}>
+                <Text style={{ color: ACCENT.lime, fontFamily: "Inter_700Bold", fontSize: 18 }}>
+                  {sessionCompleteData?.completedFastsCount ?? 0}
+                </Text>
+                <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 12 }}>completed</Text>
+              </View>
+            </View>
+
+            <Pressable
+              onPress={() => setShowSessionComplete(false)}
+              className="py-4 rounded-xl items-center"
+              style={{ backgroundColor: ACCENT.lime }}
+            >
+              <Text style={{ color: "#1a2e00", fontFamily: "Inter_700Bold", fontSize: 16 }}>Done</Text>
+            </Pressable>
           </Pressable>
         </Pressable>
       </Modal>
