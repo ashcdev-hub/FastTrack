@@ -1,27 +1,35 @@
 import { Platform } from "react-native";
 
 let Notifications: typeof import("expo-notifications") | null = null;
+let initPromise: Promise<void> | null = null;
 
-if (Platform.OS !== "web") {
-  try {
-    const N = require("expo-notifications");
-    Notifications = N;
-    N.setNotificationHandler({
-      handleNotification: async () => ({
-        shouldShowAlert: true,
-        shouldPlaySound: true,
-        shouldSetBadge: false,
-        shouldShowBanner: true,
-        shouldShowList: true,
-      }),
-    });
-  } catch {
-    // expo-notifications unavailable (e.g. Android Expo Go)
-  }
+async function ensureNotificationsLoaded() {
+  if (Notifications) return;
+  if (initPromise) return initPromise;
+  initPromise = (async () => {
+    try {
+      const N = await import("expo-notifications");
+      Notifications = N;
+      N.setNotificationHandler({
+        handleNotification: async () => ({
+          shouldShowAlert: true,
+          shouldPlaySound: true,
+          shouldSetBadge: false,
+          shouldShowBanner: true,
+          shouldShowList: true,
+        }),
+      });
+    } catch {
+      // expo-notifications unavailable (e.g. Android Expo Go SDK 53+)
+    }
+  })();
+  return initPromise;
 }
 
 export async function setupNotifications() {
-  if (Platform.OS === "web" || !Notifications) return;
+  if (Platform.OS === "web") return;
+  await ensureNotificationsLoaded();
+  if (!Notifications) return;
 
   const { status: existingStatus } = await Notifications.getPermissionsAsync();
   let finalStatus = existingStatus;
@@ -36,11 +44,9 @@ export async function setupNotifications() {
     return;
   }
 
-  // Listen for notification taps (foreground & background)
   Notifications.addNotificationResponseReceivedListener((response) => {
     const data = response.notification.request.content.data;
     if (data?.screen) {
-      // Deep-link handling can be added here if expo-router linking is configured
       console.log("Notification tapped:", data.screen);
     }
   });
@@ -68,6 +74,7 @@ export async function scheduleFastingReminder(
   body: string,
   seconds: number
 ) {
+  await ensureNotificationsLoaded();
   if (Platform.OS === "web" || !Notifications) return;
 
   await Notifications.scheduleNotificationAsync({
@@ -80,6 +87,7 @@ export async function scheduleFastingReminder(
 }
 
 export async function cancelAllNotifications() {
+  await ensureNotificationsLoaded();
   if (Platform.OS === "web" || !Notifications) return;
   await Notifications.cancelAllScheduledNotificationsAsync();
 }
@@ -87,6 +95,7 @@ export async function cancelAllNotifications() {
 // --- New: Daily fast reminder ---
 
 export async function scheduleDailyFastReminder(hour: number, minute: number) {
+  await ensureNotificationsLoaded();
   if (Platform.OS === "web" || !Notifications) return;
 
   await Notifications.scheduleNotificationAsync({
@@ -106,6 +115,7 @@ export async function scheduleDailyFastReminder(hour: number, minute: number) {
 // --- New: Check-in reminder (halfway through fast) ---
 
 export async function scheduleCheckInReminder(hoursUntilMidpoint: number) {
+  await ensureNotificationsLoaded();
   if (Platform.OS === "web" || !Notifications) return;
   if (hoursUntilMidpoint <= 0) return;
 
@@ -127,6 +137,7 @@ export async function scheduleCheckInReminder(hoursUntilMidpoint: number) {
 // --- New: Water reminders (repeating during the day) ---
 
 export async function scheduleWaterReminders(intervalHours: number) {
+  await ensureNotificationsLoaded();
   if (Platform.OS === "web" || !Notifications) return;
   if (intervalHours <= 0 || intervalHours > 6) return;
 
@@ -149,6 +160,7 @@ export async function scheduleWaterReminders(intervalHours: number) {
 // --- New: Eating window reminder ---
 
 export async function scheduleEatingWindowReminder(fastingSeconds: number, minutesBefore: number) {
+  await ensureNotificationsLoaded();
   if (Platform.OS === "web" || !Notifications) return;
   const seconds = Math.max(fastingSeconds - minutesBefore * 60, 0);
   await Notifications.scheduleNotificationAsync({
@@ -165,6 +177,7 @@ export async function scheduleEatingWindowReminder(fastingSeconds: number, minut
 }
 
 export async function scheduleDailyNotification(title: string, body: string, hour: number, minute: number) {
+  await ensureNotificationsLoaded();
   if (Platform.OS === "web" || !Notifications) return;
   await Notifications.scheduleNotificationAsync({
     content: { title, body, sound: true },
@@ -181,6 +194,7 @@ export async function scheduleDailyNotification(title: string, body: string, hou
 const STREAK_MILESTONES = [3, 7, 14, 30, 50, 100];
 
 export async function checkAndNotifyStreakMilestone(completedFasts: number) {
+  await ensureNotificationsLoaded();
   if (Platform.OS === "web" || !Notifications) return;
   if (!STREAK_MILESTONES.includes(completedFasts)) return;
 
