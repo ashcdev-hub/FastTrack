@@ -1,29 +1,40 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import * as WebBrowser from "expo-web-browser";
-import * as Google from "expo-auth-session/providers/google";
-import { makeRedirectUri } from "expo-auth-session";
+import { makeRedirectUri, useAuthRequest } from "expo-auth-session";
 import type { User, Session } from "@supabase/supabase-js";
 
 WebBrowser.maybeCompleteAuthSession();
 
-const proxyUrl = "https://auth.expo.io/@ashcdev2/FastTrack";
+const CLIENT_ID = "467971760239-8t1dncukb052edaprt0d83k3mu9ekq5j.apps.googleusercontent.com";
 
 export function useAuth() {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const [, googleResponse, googlePrompt] = Google.useIdTokenAuthRequest({
-    clientId: "467971760239-8t1dncukb052edaprt0d83k3mu9ekq5j.apps.googleusercontent.com",
-    redirectUri: proxyUrl,
-  });
+  const discovery = {
+    authorizationEndpoint: "https://accounts.google.com/o/oauth2/v2/auth",
+    tokenEndpoint: "https://oauth2.googleapis.com/token",
+  };
+
+  const proxyRedirect = makeRedirectUri({ useProxy: true } as any);
+
+  const [request, response, promptAsync] = useAuthRequest(
+    {
+      clientId: CLIENT_ID,
+      scopes: ["openid", "profile", "email"],
+      responseType: "id_token",
+      redirectUri: proxyRedirect,
+    },
+    discovery
+  );
 
   useEffect(() => {
-    if (googleResponse?.type === "success" && googleResponse.params?.id_token) {
+    if (response?.type === "success" && response.params?.id_token) {
       supabase.auth.signInWithIdToken({
         provider: "google",
-        token: googleResponse.params.id_token,
+        token: response.params.id_token,
       }).then(({ data: { user: u } }) => {
         if (u?.user_metadata?.full_name) {
           supabase.auth.updateUser({
@@ -32,7 +43,7 @@ export function useAuth() {
         }
       });
     }
-  }, [googleResponse]);
+  }, [response]);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -71,7 +82,7 @@ export function useAuth() {
 
   const signInWithGoogle = async () => {
     try {
-      await googlePrompt();
+      await promptAsync();
       return { error: null };
     } catch (e: any) {
       return { error: e };
