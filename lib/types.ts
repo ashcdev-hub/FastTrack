@@ -117,6 +117,31 @@ export type WorkoutLogEntry = {
   logged_at: string;
 };
 
+export type MyMealItem = {
+  id: string;
+  meal_id: string;
+  name: string;
+  brand: string | null;
+  serving_size: string | null;
+  calories: number;
+  protein_g: number | null;
+  carbs_g: number | null;
+  fat_g: number | null;
+  sort_order: number;
+};
+
+export type MyMeal = {
+  id: string;
+  user_id: string;
+  name: string;
+  description: string | null;
+  use_count: number;
+  last_used_at: string | null;
+  created_at: string;
+  updated_at: string;
+  items: MyMealItem[];
+};
+
 export type WeightLogEntry = {
   id: string;
   user_id: string;

@@ -9,8 +9,12 @@ import { useFoodLogStore } from "@/store/useFoodLogStore";
 import type { StagedItem } from "@/store/useFoodLogStore";
 import { MealBuilder } from "@/components/MealBuilder";
 import { EditQuickAddModal } from "@/components/EditQuickAddModal";
+import { MyMealsManagerModal } from "@/components/MyMealsManagerModal";
 import { BarcodeScanner } from "@/components/BarcodeScanner";
 import { FoodCamera } from "@/components/FoodCamera";
+import { Toast } from "@/components/Toast";
+import { useToast } from "@/hooks/useToast";
+import type { MyMeal } from "@/lib/types";
 
 const FOOD_MACROS: Record<string, { cals: number; p: number; c: number; f: number }> = {
   "Boiled Egg": { cals: 78, p: 6.3, c: 0.6, f: 5.3 },
@@ -68,15 +72,19 @@ type LogMealModalProps = {
   userId: string;
   quickAddFoods: string[];
   recentFoods?: RecentFoodItem[];
+  myMeals?: MyMeal[];
   onSaveQuickAdd: (foods: string[]) => void;
   onLogMeal: (entries: {
     user_id: string; name: string; brand: string | null; serving_size: string | null;
     calories: number; protein_g: number; carbs_g: number; fat_g: number;
     meal_type: string; logged_at: string; session_id: null;
   }[]) => Promise<void>;
+  onSaveAsMeal?: (name: string, items: { name: string; brand: string | null; serving_size: string | null; calories: number; protein_g: number; carbs_g: number; fat_g: number }[]) => Promise<any>;
+  onBumpMyMealUsage?: (id: string) => void;
+  onSaveItemToQuickAdd?: (name: string) => void;
 };
 
-export function LogMealModal({ visible, onClose, userId, quickAddFoods, recentFoods = [], onSaveQuickAdd, onLogMeal }: LogMealModalProps) {
+export function LogMealModal({ visible, onClose, userId, quickAddFoods, recentFoods = [], myMeals = [], onSaveQuickAdd, onLogMeal, onSaveAsMeal, onBumpMyMealUsage, onSaveItemToQuickAdd }: LogMealModalProps) {
   const { theme } = useThemeStore();
   const c = getThemeColors(theme);
   const insets = useSafeAreaInsets();
@@ -100,12 +108,16 @@ export function LogMealModal({ visible, onClose, userId, quickAddFoods, recentFo
 
   const [showCustomForm, setShowCustomForm] = useState(false);
   const [showEditQuickAdd, setShowEditQuickAdd] = useState(false);
+  const [showMyMealsManager, setShowMyMealsManager] = useState(false);
   const [showBarcodeScanner, setShowBarcodeScanner] = useState(false);
   const [showFoodCamera, setShowFoodCamera] = useState(false);
   const [showPhotoPicker, setShowPhotoPicker] = useState(false);
   const [showDateTimePicker, setShowDateTimePicker] = useState(false);
   const [editingItem, setEditingItem] = useState<StagedItem | null>(null);
   const [eQty, setEQty] = useState(1);
+  const [showSaveAsMeal, setShowSaveAsMeal] = useState(false);
+  const [saveAsMealName, setSaveAsMealName] = useState("");
+  const { toast, success, error } = useToast();
   const [eCals, setECals] = useState(0);
   const [eProtein, setEProtein] = useState(0);
   const [eCarbs, setECarbs] = useState(0);
@@ -223,6 +235,19 @@ export function LogMealModal({ visible, onClose, userId, quickAddFoods, recentFo
     onClose();
   };
 
+  const handleQuickAddItem = (item: StagedItem) => {
+    if (!FOOD_MACROS[item.name]) {
+      error(`"${item.name}" isn't available in Quick Add`);
+      return;
+    }
+    if (quickAddFoods.includes(item.name)) {
+      success(`"${item.name}" already in Quick Add`);
+      return;
+    }
+    onSaveItemToQuickAdd?.(item.name);
+    success(`"${item.name}" added to Quick Add`);
+  };
+
   const handlePickPhoto = async (source: "camera" | "library") => {
     setShowPhotoPicker(false);
     if (source === "camera") {
@@ -257,6 +282,7 @@ export function LogMealModal({ visible, onClose, userId, quickAddFoods, recentFo
   return (
     <Modal visible={visible} animationType="slide" onRequestClose={handleClose}>
       <View style={{ flex: 1, backgroundColor: c.bg, paddingTop: insets.top }}>
+        <Toast visible={toast.visible} message={toast.message} type={toast.type} />
         {/* Fixed Header */}
         <View className="flex-row justify-between items-center px-5 py-4" style={{ borderBottomWidth: 1, borderBottomColor: c.divider }}>
           <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 22 }}>Log Meal</Text>
@@ -393,6 +419,55 @@ export function LogMealModal({ visible, onClose, userId, quickAddFoods, recentFo
               <Text style={{ color: c.text, fontFamily: "Inter_400Regular", fontSize: 15 }}>{formatDateTime(new Date(store.stagedDate))}</Text>
               <Text style={{ color: ACCENT.lime, fontFamily: "Inter_700Bold", fontSize: 14 }}>Change</Text>
             </Pressable>
+
+            {/* My Meals */}
+            {myMeals.length > 0 && (
+              <View className="mb-5">
+                <View className="flex-row justify-between items-center mb-3">
+                  <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 13, letterSpacing: 1, textTransform: "uppercase" }}>
+                    MY MEALS
+                  </Text>
+                  <Pressable onPress={() => setShowMyMealsManager(true)}>
+                    <MaterialCommunityIcons name="pencil-outline" size={18} color={c.textMuted} />
+                  </Pressable>
+                </View>
+                <View className="flex-row flex-wrap" style={{ marginHorizontal: -6 }}>
+                  {myMeals.slice(0, 6).map((meal) => {
+                    const totalCals = meal.items.reduce((s, i) => s + i.calories, 0);
+                    const previewNames = meal.items.slice(0, 2).map((i) => i.name).join(", ");
+                    const overflow = meal.items.length > 2 ? ` +${meal.items.length - 2} more` : "";
+                    return (
+                      <Pressable
+                        key={meal.id}
+                        className="w-1/2"
+                        style={{ paddingHorizontal: 6, marginBottom: 12 }}
+                        onPress={() => {
+                          meal.items.forEach((item) => {
+                            store.addItem({ name: item.name, brand: item.brand ?? "", serving_size: item.serving_size ?? undefined, calories: item.calories, protein_g: item.protein_g ?? 0, carbs_g: item.carbs_g ?? 0, fat_g: item.fat_g ?? 0, quantity: 1 });
+                          });
+                          onBumpMyMealUsage?.(meal.id);
+                        }}
+                      >
+                        <View className="rounded-xl p-4" style={{ backgroundColor: c.cardBgAlt }}>
+                          <View className="flex-row items-center gap-2 mb-1">
+                            <View className="rounded-lg items-center justify-center" style={{ width: 28, height: 28, backgroundColor: ACCENT.cyanBg }}>
+                              <MaterialCommunityIcons name="bookmark-outline" size={14} color={ACCENT.cyan} />
+                            </View>
+                            <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 13, flex: 1 }} numberOfLines={1}>{meal.name}</Text>
+                          </View>
+                          <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 10, marginBottom: 1 }}>{totalCals} KCAL · {meal.items.length} {meal.items.length === 1 ? "item" : "items"}</Text>
+                          {previewNames && (
+                            <Text style={{ color: c.textSecondary, fontFamily: "Inter_400Regular", fontSize: 11 }} numberOfLines={1}>
+                              {previewNames}{overflow}
+                            </Text>
+                          )}
+                        </View>
+                      </Pressable>
+                    );
+                  })}
+                </View>
+              </View>
+            )}
 
             {/* Quick-Add Favorites */}
             <View className="mb-5">
@@ -628,7 +703,7 @@ export function LogMealModal({ visible, onClose, userId, quickAddFoods, recentFo
 
             {/* Meal Builder */}
             <View className="mb-2">
-              <MealBuilder items={store.stagedItems} mealType={store.selectedMealType} onRemove={store.removeItem} onEdit={setEditingItem} onLog={handleLogMeal} />
+              <MealBuilder items={store.stagedItems} mealType={store.selectedMealType} onRemove={store.removeItem} onEdit={setEditingItem} onLog={handleLogMeal} onSaveAsMeal={onSaveAsMeal && store.stagedItems.length > 0 ? () => setShowSaveAsMeal(true) : undefined} onSaveItemToQuickAdd={onSaveItemToQuickAdd && store.stagedItems.length > 0 ? handleQuickAddItem : undefined} />
             </View>
           </ScrollView>
         </View>
@@ -636,6 +711,8 @@ export function LogMealModal({ visible, onClose, userId, quickAddFoods, recentFo
 
       {/* Sub-modals */}
       <EditQuickAddModal visible={showEditQuickAdd} selectedFoods={quickAddFoods} onSave={onSaveQuickAdd} onClose={() => setShowEditQuickAdd(false)} />
+
+      <MyMealsManagerModal visible={showMyMealsManager} userId={userId} onClose={() => setShowMyMealsManager(false)} />
 
       <BarcodeScanner
         visible={showBarcodeScanner}
@@ -746,6 +823,50 @@ export function LogMealModal({ visible, onClose, userId, quickAddFoods, recentFo
             <Pressable onPress={() => setShowPhotoPicker(false)} className="py-3 items-center" style={{ backgroundColor: c.buttonBg }}>
               <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 15 }}>Cancel</Text>
             </Pressable>
+          </Pressable>
+        </Pressable>
+      </Modal>
+
+      {/* Save as Meal Prompt */}
+      <Modal visible={showSaveAsMeal} transparent animationType="fade" onRequestClose={() => setShowSaveAsMeal(false)}>
+        <Pressable className="flex-1 justify-center items-center" style={{ backgroundColor: c.overlay }} onPress={() => setShowSaveAsMeal(false)}>
+          <Pressable onStartShouldSetResponder={() => true} className="rounded-2xl p-6 w-80" style={{ backgroundColor: c.elevated }}>
+            <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 18, marginBottom: 4 }}>Save as Meal</Text>
+            <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 13, marginBottom: 16 }}>
+              {store.stagedItems.length} {store.stagedItems.length === 1 ? "item" : "items"} will be saved as a reusable meal template.
+            </Text>
+            <TextInput
+              value={saveAsMealName}
+              onChangeText={setSaveAsMealName}
+              placeholder="e.g. Pre-Workout Meal"
+              placeholderTextColor={c.placeholder}
+              className="rounded-xl px-4 py-3 mb-4"
+              style={{ backgroundColor: c.inputBg, color: c.text, fontFamily: "Inter_400Regular", fontSize: 15 }}
+              autoFocus
+            />
+            <View className="flex-row gap-3">
+              <Pressable onPress={() => setShowSaveAsMeal(false)} className="flex-1 py-3 rounded-xl items-center" style={{ backgroundColor: c.buttonBg }}>
+                <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 15 }}>Cancel</Text>
+              </Pressable>
+              <Pressable onPress={async () => {
+                if (!saveAsMealName.trim()) return;
+                const items = store.stagedItems.map((item) => ({
+                  name: item.name,
+                  brand: item.brand ?? null,
+                  serving_size: item.serving_size ?? null,
+                  calories: item.calories,
+                  protein_g: item.protein_g,
+                  carbs_g: item.carbs_g,
+                  fat_g: item.fat_g,
+                }));
+                await onSaveAsMeal?.(saveAsMealName.trim(), items);
+                setShowSaveAsMeal(false);
+                setSaveAsMealName("");
+                success("Meal saved!");
+              }} className="flex-1 py-3 rounded-xl items-center" style={{ backgroundColor: ACCENT.lime, opacity: saveAsMealName.trim() ? 1 : 0.5 }} disabled={!saveAsMealName.trim()}>
+                <Text style={{ color: "#161e00", fontFamily: "Inter_700Bold", fontSize: 15 }}>Save</Text>
+              </Pressable>
+            </View>
           </Pressable>
         </Pressable>
       </Modal>

@@ -1,10 +1,11 @@
 import React, { useState, useRef } from "react";
-import { Pressable, View, Text, ScrollView, Image } from "react-native";
+import { Pressable, View, Text, TextInput, ScrollView, Image, Modal } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useAuth } from "@/hooks/useAuth";
 import { useFoodLog } from "@/hooks/useFoodLog";
 import { useProfile } from "@/hooks/useProfile";
+import { useMyMeals } from "@/hooks/useMyMeals";
 import { useGoalStore } from "@/store/useGoalStore";
 import { LogMealModal } from "@/components/LogMealModal";
 import { FoodLogItem } from "@/components/FoodLogItem";
@@ -23,12 +24,16 @@ export default function LogFoodScreen() {
   const { profile, saveQuickAddFoods } = useProfile(user?.id ?? null);
   const unitPrefs = profile?.unit_preferences ?? DEFAULT_UNITS;
   const { entries, totals, monthlyEntries, addEntries, deleteEntry, updateEntry, recentFoods, loading: foodLoading } = useFoodLog(user?.id);
+  const { meals: myMeals, addMyMeal, bumpUsage: bumpMyMealUsage } = useMyMeals(user?.id);
   const goals = useGoalStore();
   const { theme } = useThemeStore();
   const c = getThemeColors(theme);
 
   const [showLogMeal, setShowLogMeal] = useState(false);
   const [showCalendarModal, setShowCalendarModal] = useState(false);
+  const [showSaveMealPrompt, setShowSaveMealPrompt] = useState(false);
+  const [saveMealPromptItems, setSaveMealPromptItems] = useState<{ name: string; brand: string | null; serving_size: string | null; calories: number; protein_g: number; carbs_g: number; fat_g: number }[]>([]);
+  const [saveMealPromptName, setSaveMealPromptName] = useState("");
 
   const quickAddFoods: string[] = profile?.quick_add_foods ?? DEFAULT_QUICK_ADD;
 
@@ -135,17 +140,27 @@ export default function LogFoodScreen() {
               if (!items || items.length === 0) return null;
               const color = MEAL_COLORS[type];
               return (
-                <View key={type} className="mb-4">
-                  <View className="flex-row items-center mb-2">
-                    <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: color, marginRight: 8 }} />
-                    <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 12, letterSpacing: 1, textTransform: "uppercase" }}>
-                      {type}
-                    </Text>
+                  <View key={type} className="mb-4">
+                    <View className="flex-row items-center justify-between mb-2">
+                      <View className="flex-row items-center">
+                        <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: color, marginRight: 8 }} />
+                        <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 12, letterSpacing: 1, textTransform: "uppercase" }}>
+                          {type}
+                        </Text>
+                      </View>
+                      <Pressable onPress={() => {
+                        setSaveMealPromptItems(items.map((e) => ({ name: e.name, brand: e.brand ?? null, serving_size: e.serving_size ?? null, calories: e.calories ?? 0, protein_g: e.protein_g ?? 0, carbs_g: e.carbs_g ?? 0, fat_g: e.fat_g ?? 0 })));
+                        setSaveMealPromptName(`${type.charAt(0).toUpperCase() + type.slice(1)} Meal`);
+                        setShowSaveMealPrompt(true);
+                      }} className="flex-row items-center gap-1">
+                        <MaterialCommunityIcons name="bookmark-outline" size={14} color={ACCENT.cyan} />
+                        <Text style={{ color: ACCENT.cyan, fontFamily: "Inter_700Bold", fontSize: 11 }}>Save</Text>
+                      </Pressable>
+                    </View>
+                    {items.map((entry) => (
+                      <FoodLogItem key={entry.id} entry={entry} onDelete={deleteEntry} />
+                    ))}
                   </View>
-                  {items.map((entry) => (
-                    <FoodLogItem key={entry.id} entry={entry} onDelete={deleteEntry} />
-                  ))}
-                </View>
               );
             })
           )}
@@ -160,8 +175,15 @@ export default function LogFoodScreen() {
           userId={user.id}
           quickAddFoods={quickAddFoods}
           recentFoods={recentFoods}
+          myMeals={myMeals}
           onSaveQuickAdd={async (foods) => { await saveQuickAddFoods(foods); }}
           onLogMeal={addEntries as any}
+          onSaveAsMeal={async (name, items) => { await addMyMeal(name, items.map((i) => ({ name: i.name, brand: i.brand, serving_size: i.serving_size, calories: i.calories, protein_g: i.protein_g, carbs_g: i.carbs_g, fat_g: i.fat_g }))); }}
+          onBumpMyMealUsage={(id) => { bumpMyMealUsage(id); }}
+          onSaveItemToQuickAdd={async (name) => {
+            const newFoods = quickAddFoods.includes(name) ? quickAddFoods : [...quickAddFoods, name];
+            await saveQuickAddFoods(newFoods);
+          }}
         />
       )}
 
@@ -172,7 +194,47 @@ export default function LogFoodScreen() {
         onClose={() => setShowCalendarModal(false)}
         onDeleteEntry={async (id) => { await deleteEntry(id); }}
         onUpdateEntry={async (id, updates) => { await updateEntry({ id, updates }); }}
+        onSaveAsMeal={(items) => {
+          setSaveMealPromptItems(items.map((e) => ({ name: e.name, brand: e.brand ?? null, serving_size: e.serving_size ?? null, calories: e.calories ?? 0, protein_g: e.protein_g ?? 0, carbs_g: e.carbs_g ?? 0, fat_g: e.fat_g ?? 0 })));
+          const date = items[0]?.logged_at ? new Date(items[0].logged_at) : new Date();
+          setSaveMealPromptName(date.toLocaleDateString("en-US", { month: "short", day: "numeric" }) + " Meals");
+          setShowSaveMealPrompt(true);
+        }}
       />
+
+      {/* Save as Meal Prompt */}
+      <Modal visible={showSaveMealPrompt} transparent animationType="fade" onRequestClose={() => setShowSaveMealPrompt(false)}>
+        <Pressable className="flex-1 justify-center items-center" style={{ backgroundColor: "rgba(0,0,0,0.5)" }} onPress={() => setShowSaveMealPrompt(false)}>
+          <Pressable onStartShouldSetResponder={() => true} className="rounded-2xl p-6 w-80" style={{ backgroundColor: c.elevated }}>
+            <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 18, marginBottom: 4 }}>Save as Meal</Text>
+            <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 13, marginBottom: 16 }}>
+              {saveMealPromptItems.length} {saveMealPromptItems.length === 1 ? "item" : "items"} will be saved as a reusable meal template.
+            </Text>
+            <TextInput
+              value={saveMealPromptName}
+              onChangeText={setSaveMealPromptName}
+              placeholder="e.g. Breakfast Meal"
+              placeholderTextColor={c.placeholder}
+              className="rounded-xl px-4 py-3 mb-4"
+              style={{ backgroundColor: c.inputBg, color: c.text, fontFamily: "Inter_400Regular", fontSize: 15 }}
+              autoFocus
+            />
+            <View className="flex-row gap-3">
+              <Pressable onPress={() => setShowSaveMealPrompt(false)} className="flex-1 py-3 rounded-xl items-center" style={{ backgroundColor: c.buttonBg }}>
+                <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 15 }}>Cancel</Text>
+              </Pressable>
+              <Pressable onPress={async () => {
+                if (!saveMealPromptName.trim()) return;
+                await addMyMeal(saveMealPromptName.trim(), saveMealPromptItems);
+                setShowSaveMealPrompt(false);
+                setSaveMealPromptName("");
+              }} className="flex-1 py-3 rounded-xl items-center" style={{ backgroundColor: saveMealPromptName.trim() ? ACCENT.lime : c.buttonBg }} disabled={!saveMealPromptName.trim()}>
+                <Text style={{ color: saveMealPromptName.trim() ? "#161e00" : c.textMuted, fontFamily: "Inter_700Bold", fontSize: 15 }}>Save</Text>
+              </Pressable>
+            </View>
+          </Pressable>
+        </Pressable>
+      </Modal>
     </SafeAreaView>
   );
 }

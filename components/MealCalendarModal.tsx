@@ -37,9 +37,10 @@ type MealCalendarModalProps = {
   onClose: () => void;
   onDeleteEntry?: (id: string) => Promise<void>;
   onUpdateEntry?: (id: string, updates: Partial<Pick<FoodLogEntry, "calories" | "protein_g" | "carbs_g" | "fat_g">>) => Promise<void>;
+  onSaveAsMeal?: (items: FoodLogEntry[]) => void;
 };
 
-export function MealCalendarModal({ visible, entries, onClose, onDeleteEntry, onUpdateEntry }: MealCalendarModalProps) {
+export function MealCalendarModal({ visible, entries, onClose, onDeleteEntry, onUpdateEntry, onSaveAsMeal }: MealCalendarModalProps) {
   const { theme } = useThemeStore();
   const c = getThemeColors(theme);
   const now = new Date();
@@ -195,6 +196,12 @@ export function MealCalendarModal({ visible, entries, onClose, onDeleteEntry, on
                   <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 11, textAlign: "center", marginTop: 4 }}>
                     +{selectedDayMeals.length - 10} more items
                   </Text>
+                )}
+                {onSaveAsMeal && selectedDayMeals.length > 0 && (
+                  <Pressable onPress={() => onSaveAsMeal(selectedDayMeals)} className="flex-row items-center justify-center gap-1.5 py-2 mt-1 rounded-lg" style={{ backgroundColor: c.buttonBg }}>
+                    <MaterialCommunityIcons name="bookmark-outline" size={14} color={ACCENT.cyan} />
+                    <Text style={{ color: ACCENT.cyan, fontFamily: "Inter_700Bold", fontSize: 12 }}>Save as Meal</Text>
+                  </Pressable>
                 )}
               </ScrollView>
             </View>
