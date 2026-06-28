@@ -254,6 +254,10 @@ Correct: `REFERENCES auth.users(id) ON DELETE CASCADE ON UPDATE CASCADE`
 
 **workout_log** — `id`, `user_id`, `exercise_type`, `reps`, `sets`, `calories_burned`, `logged_at`
 
+**my_meals** — `id`, `user_id`, `name`, `description`, `use_count`, `last_used_at`, `created_at`, `updated_at`
+
+**my_meal_items** — `id`, `meal_id`, `name`, `brand`, `serving_size`, `calories`, `protein_g`, `carbs_g`, `fat_g`, `sort_order`
+
 ### Migrations
 - `20250608000000_initial_schema.sql` — core tables
 - `20250608000001_auto_profile_trigger.sql` — auto-create profile
@@ -267,6 +271,8 @@ Correct: `REFERENCES auth.users(id) ON DELETE CASCADE ON UPDATE CASCADE`
 - `20250626000009_quick_add_foods.sql` — quick_add_foods JSONB column on profiles
 - `20250626000001_onboarding_completed.sql` — onboarding_completed column on profiles
 - `20250627000010_add_workout_icon_name.sql` — icon_name column on workout_goals
+- `20250628000011_my_meals.sql` — my_meals table (single-table v1, replaced by v2)
+- `20250628000012_my_meals_v2.sql` — my_meals (header) + my_meal_items (items) tables with RLS
 
 ### RLS
 All tables have RLS enabled. Policies use `auth.uid() = user_id`.
@@ -324,7 +330,9 @@ FastTrack/
 │   ├── OfflineBanner.tsx        # Animated offline banner when connectivity lost
 │   ├── Toast.tsx                # Animated toast notification overlay
 │   ├── Skeleton.tsx             # Reusable loading skeleton with shimmer
-│   └── FoodLogItem.tsx          # Meal entry card (theme-aware)
+│   ├── EditMyMealModal.tsx      # Create/edit meal templates with items
+  ├── MyMealsManagerModal.tsx  # Full CRUD meal template manager
+  └── FoodLogItem.tsx          # Meal entry card (theme-aware)
 ├── hooks/
 │   ├── useAuth.ts               # Auth (signup accepts displayName)
 │   ├── useFastingSession.ts     # Session CRUD + streak + realtime
@@ -336,6 +344,7 @@ FastTrack/
 │   ├── useWeeklyWaterStats.ts   # Weekly water stats
 │   ├── useWorkoutGoals.ts       # Workout goals CRUD + seed defaults
 │   ├── useWorkoutLog.ts         # Log sets, today totals, weekly stats, calorie calc, streaks
+│   ├── useMyMeals.ts            # My Meals library CRUD + offline queue
 │   ├── useWeightLog.ts          # Weight logging + stats
 │   ├── useFastCalendar.ts       # Monthly session fetch for calendar
 │   ├── useConnectivity.ts       # NetInfo connectivity detection
@@ -437,6 +446,74 @@ Note: Settings are inline in the Profile tab (no standalone settings page). All 
 - **Email digest**: Supabase Edge Function `daily-summary` — nightly at user-configured time, queries food_log + water_log + workouts, sends via Resend API (only if `RESEND_API_KEY` env var is set on the edge function).
 - **Personal-team iOS builds** do not support remote APNs; local scheduled notifications only. Remote push requires a paid Apple Developer account.
 
+## Google SSO — Implementation Attempt (Incomplete)
+
+Google Sign-In was partially implemented but **not working**. Below is what was tried, what's configured, and where it breaks.
+
+### What's configured (working)
+
+**Supabase (Management API):**
+- Google auth provider enabled `external_google_enabled: True`
+- Web Client ID set (redacted)
+- Web Client Secret stored (hashed) in Supabase config
+- `uri_allow_list`: `http://localhost:8081,exp://*,fasttrack://*,https://zytqfjjvruehnkntojjd.supabase.co`
+
+**Google Cloud Console (user-created):**
+- **Web OAuth client** named "FastTrack Web Client":
+  - Client ID: (redacted)
+  - Client Secret: (redacted)
+  - Authorized redirect URIs:
+    - `https://zytqfjjvruehnkntojjd.supabase.co/auth/v1/callback`
+    - `https://auth.expo.io/@ashcdev2/FastTrack`
+- **Android OAuth client**: (redacted)
+- **iOS OAuth client**: (redacted)
+- Consent screen in "Testing" mode (need to add test users or publish)
+
+### Current code approach (`hooks/useAuth.ts`)
+
+Uses `useAuthRequest` from `expo-auth-session` with `makeRedirectUri({ useProxy: true })` and `supabase.auth.signInWithIdToken()`. The Expo auth proxy URL `https://auth.expo.io/@ashcdev2/FastTrack` is used as the Google OAuth redirect URI. After auth, the ID token is exchanged with Supabase.
+
+### Approaches tried (all failed)
+
+| # | Approach | What happened |
+|---|----------|---------------|
+| 1 | `supabase.auth.signInWithOAuth` → `WebBrowser.openAuthSessionAsync` | "too many redirects" / redirect loop |
+| 2 | Native OAuth flow with iOS reverse client ID redirect URI | Doesn't work in Expo Go (custom URL schemes not registered) |
+| 3 | `Google.useIdTokenAuthRequest` with `iosClientId/androidClientId` (no redirectUri) | "access blocked: authorization error" (Testing mode restriction on web flow) |
+| 4 | `Google.useIdTokenAuthRequest` with proxy URL as `redirectUri` | Proxy error page — "something went wrong" |
+| 5 | Manual Google OAuth URL construction → `WebBrowser.openAuthSessionAsync` | Same errors (redirect chain issues) |
+| 6 | `signInWithOAuth` with iOS client ID configured in Supabase | "requested path is invalid" |
+| 7 | `Google.useIdTokenAuthRequest` without custom redirectUri (bare hook) | Falls back to `exp://` scheme — Google rejects as unregistered URI |
+| 8 | `useAuthRequest` base hook with `makeRedirectUri({ useProxy: true })` | "access blocked" — current state |
+
+### Root cause analysis
+
+The core challenge is **redirect URI handling in Expo Go**:
+- Google Web OAuth requires HTTPS redirect URIs, not custom schemes
+- Expo Go uses `exp://` scheme which can't be registered in Google Cloud Console
+- Expo auth proxy (`https://auth.expo.io/...`) provides a stable HTTPS URL but the proxy's redirect back to the app (via `exp://`) isn't consistently intercepted by `ASWebAuthenticationSession` on iOS
+- `makeRedirectUri({ useProxy: true })` should handle this but `useProxy` isn't in the TypeScript types and may not work correctly in Expo SDK 54
+
+### Likely fix path
+
+1. **Switch to a development build** (not Expo Go) — custom URL schemes like `fasttrack://auth/callback` work reliably in standalone/dev builds
+2. **Or use the `@react-native-google-signin/google-signin` package** in a dev build (native module)
+3. **Or use `expo-dev-client`** which allows testing native modules without leaving Expo ecosystem
+4. **Or add the user's email as a test user** in Google Cloud Console consent screen and use `supabase.auth.signInWithOAuth` with the Web client ID (may work once the Testing mode restriction is lifted)
+
+### Files modified
+- `hooks/useAuth.ts` — current state uses `useAuthRequest` + `makeRedirectUri({ useProxy: true })` + `signInWithIdToken`
+- `.env` — no longer contains Google env vars (Web Client ID deleted and recreated)
+- `app/(auth)/login.tsx` — has "Continue with Google" button wired to `signInWithGoogle()`
+- `app/(auth)/signup.tsx` — has "Continue with Google" button
+- `package.json` — `expo-auth-session`, `expo-web-browser`, `expo-crypto` installed
+
+### Dependencies installed
+- `expo-auth-session`
+- `expo-web-browser`
+- `expo-crypto`
+- `@react-native-google-signin/google-signin` (installed but unused — native module doesn't work in Expo Go)
+
 ## Spacing Convention
 - Panel-to-panel (across all tabs): `mb-section-gap` (32px)
 - Section headings: `text-lg font-bold mb-4` (16px)
@@ -446,8 +523,7 @@ Note: Settings are inline in the Profile tab (no standalone settings page). All 
 
 ```
 EXPO_PUBLIC_SUPABASE_URL=https://zytqfjjvruehnkntojjd.supabase.co
-EXPO_PUBLIC_SUPABASE_ANON_KEY=eyJ...
-```
+EXPO_PUBLIC_SUPABASE_ANON_KEY=eyJ...```
 
 ## Deployment
 
@@ -542,6 +618,7 @@ See [Building for iOS (Standalone App)](#building-for-ios-standalone-app) above 
 - [x] Photo picker modal — bottom-sheet with "Take Photo" (via camera) or "Choose from Library" (via expo-image-picker)
 - [x] Groq vision Edge Function (`food-photo`) — supports base64 + image URLs, MIME detection, returns food-search format
 - [x] AI coach Edge Function (`ai-coach`) — Groq-powered with user fasting/nutrition/workout/weight context
+- [x] My Meals library — save meal templates (multi-item collections) from MealBuilder, Today's Meals, and Meal Calendar with one-tap re-log, full CRUD manager in Profile
 
 ## Next Steps
 
@@ -598,6 +675,7 @@ See [Building for iOS (Standalone App)](#building-for-ios-standalone-app) above 
 | 48 | **AI Insights on Home tab** — Personalized summary text with expandable "Ask a question" Groq-powered chat input. Coach uses fasting, nutrition, workout, and weight context. | Done |
 | 49 | **Food photo capture and analysis** — `FoodCamera` component using `expo-camera`. Photo picker modal with "Take Photo" (camera) / "Choose from Library" (gallery). Groq Llama 4 Scout vision model. | Done |
 | 50 | **AI coach Edge Function** — `ai-coach` with Groq `llama-3.3-70b-versatile`. Accepts user data (streak, macros, water, workouts, weight) and returns personalized coaching responses. | Done |
+| 51 | **My Meals library** — `my_meals` + `my_meal_items` DB tables, `useMyMeals` hook with offline queue support, `EditMyMealModal` (meal name + item management with steppers), `MyMealsManagerModal` (full CRUD with delete confirmation), MY MEALS section in LogMealModal showing templates with item previews, "Save as Meal" button in MealBuilder, save from Today's Meals and Meal Calendar, per-item Quick Add save, bookmark-plus icon on MealBuilder items | Done |
 
 ### Remaining
 | # | Feature | Effort | Description |
@@ -622,8 +700,7 @@ See [Building for iOS (Standalone App)](#building-for-ios-standalone-app) above 
 | 18 | **watchOS companion app** | Medium | Apple Watch app showing current fasting timer, progress ring, and phase badge. Quick actions: "Break Fast", "Log Water", "Log Mood". Uses `WatchConnectivity` to sync session state from iPhone. Complications for the watch face showing elapsed time and next milestone. |
 | 19 | **Live Activity / Dynamic Island** | Medium | iOS 16+ Live Activity displaying the fasting countdown timer on the lock screen and Dynamic Island. Updates in real-time without opening the app. *Note: requires paid Apple Developer account for APNs push to update the Live Activity.* |
 | 20 | **Photo food logging** | Medium | Snap a photo of a meal and estimate macros via a vision API (OpenAI Vision, Gemini, or Apple CoreML). Presents estimated food items for confirmation/adjustment before logging. Hugely reduces friction vs manual search/entry. |
-| 21 | **My Meals library** | Small | Save reusable meals/recipes with known macros, names, and portions. One-tap log from a "My Meals" grid — distinct from recent foods (these are curated, user-named, with adjustable serving sizes). Syncs across devices via profiles table. |
-| 22 | **Scheduled dark/light mode** | Small | Auto-switch theme based on time of day (dark at sunset, light at sunrise) rather than only following system appearance. Useful since fasting is time-bound and users often check the app at night. Toggle in Profile: Manual / System / Scheduled (with time pickers). |
-| 23 | **Menstrual cycle integration** | Small | Optional cycle phase tracking with auto-suggested fasting schedule adjustments: follicular phase → longer fasts recommended, luteal phase → gentler schedule. Niche but high-value for that audience. Simple calendar-based phase input (no period tracking required). |
-| 24 | **AI fasting coach** | Large | Chat interface ("Ask Coach") that answers questions like "how am I doing?", "what should I eat to hit my protein?", "when should I start my next fast to hit my goal?", "why do I feel lightheaded?" Powered by an LLM (via Supabase Edge Function) with access to the user's fasting, food, workout, and weight data. Makes the app feel genuinely intelligent and personalized. |
-| 25 | **Social sign-in (Apple / Google)** | Medium | Add Apple Sign In and Google Sign In as authentication options alongside email/password. Uses `expo-apple-authentication` (iOS) and `expo-auth-session` / Google OAuth for cross-platform. Requires Supabase Auth configuration (enable Apple/Google providers), URL scheme setup, and a callback handler. Existing email users can later link social accounts. |
+| 21 | **Scheduled dark/light mode** | Small | Auto-switch theme based on time of day (dark at sunset, light at sunrise) rather than only following system appearance. Useful since fasting is time-bound and users often check the app at night. Toggle in Profile: Manual / System / Scheduled (with time pickers). |
+| 22 | **Menstrual cycle integration** | Small | Optional cycle phase tracking with auto-suggested fasting schedule adjustments: follicular phase → longer fasts recommended, luteal phase → gentler schedule. Niche but high-value for that audience. Simple calendar-based phase input (no period tracking required). |
+| 23 | **AI fasting coach** | Large | Chat interface ("Ask Coach") that answers questions like "how am I doing?", "what should I eat to hit my protein?", "when should I start my next fast to hit my goal?", "why do I feel lightheaded?" Powered by an LLM (via Supabase Edge Function) with access to the user's fasting, food, workout, and weight data. Makes the app feel genuinely intelligent and personalized. |
+| 24 | **Social sign-in (Apple / Google)** | Medium | Add Apple Sign In and Google Sign In as authentication options alongside email/password. Previous attempt failed due to Expo Go redirect URI limitations. **Current state**: Web OAuth client ID configured in Google Cloud + Supabase Google provider enabled; `expo-auth-session` + `expo-web-browser` + `expo-crypto` installed; "Continue with Google" button on login/signup screens wired to `signInWithGoogle()` in `useAuth.ts`. **Likely fix**: Switch to a development build (not Expo Go) where custom URL schemes like `fasttrack://auth/callback` are reliably intercepted by `ASWebAuthenticationSession`. See "Google SSO — Implementation Attempt" section above for full details on all approaches tried. |
