@@ -239,6 +239,7 @@ Correct: `REFERENCES auth.users(id) ON DELETE CASCADE ON UPDATE CASCADE`
 - `notification_preferences` (JSONB)
 - `unit_preferences` (JSONB) — weight: kg/lbs, height: cm/ft, water: ml/floz
 - `quick_add_foods` (JSONB) — array of food names for quick-add grid
+- `enabled_trackers` (JSONB) — which trackers are enabled: fasting, workouts, food, period
 
 **fasting_sessions** — `id`, `user_id`, `start_time`, `end_time`, `status`, `fasting_duration_minutes`, `fasting_schedule`, `created_at`
 
@@ -272,7 +273,7 @@ Correct: `REFERENCES auth.users(id) ON DELETE CASCADE ON UPDATE CASCADE`
 - `20250626000001_onboarding_completed.sql` — onboarding_completed column on profiles
 - `20250627000010_add_workout_icon_name.sql` — icon_name column on workout_goals
 - `20250628000011_my_meals.sql` — my_meals table (single-table v1, replaced by v2)
-- `20250628000012_my_meals_v2.sql` — my_meals (header) + my_meal_items (items) tables with RLS
+- `20250629000013_enabled_trackers.sql` — enabled_trackers JSONB column on profiles
 
 ### RLS
 All tables have RLS enabled. Policies use `auth.uid() = user_id`.
@@ -290,7 +291,7 @@ FastTrack/
 │   │   ├── _layout.tsx          # Auth stack
 │   │   ├── login.tsx            # Email/password login with video background
 │   │   └── signup.tsx           # Sign up with display name
-│   ├── (onboarding)/            # 4-step onboarding wizard
+│   ├── (onboarding)/            # 5-step onboarding wizard
 │   └── (tabs)/
 │       ├── _layout.tsx          # Bottom tabs: Home | Fast | Workout | Food | Profile
 │       ├── index.tsx            # Home dashboard: fasting, workouts, water, macros
@@ -317,7 +318,7 @@ FastTrack/
 │   ├── CheckInPanel.tsx         # Mood + note (theme-aware)
 │   ├── CheckInTimeline.tsx      # Timeline (theme-aware)
 │   ├── MoodChart.tsx            # SVG mood graph (theme-aware)
-│   ├── SettingsPanel.tsx        # Profile, account, notifications, preferences, appearance, water goal
+│   ├── SettingsPanel.tsx        # Profile, account, notifications, preferences, trackers, appearance, water goal
 │   ├── ExercisePanel.tsx        # Exercise card: progress, log, edit goal, icon
 │   ├── WorkoutIcon.tsx          # SVG workout icon (MingCute/Lucide, theme-tinted via SvgXml)
 │   ├── EditGoalModal.tsx        # Bottom-sheet goal editor (stepper + presets + custom)
@@ -351,6 +352,7 @@ FastTrack/
 │   ├── useOfflineQueueProcessor.ts # Replays queued mutations on reconnect
 │   └── useToast.ts              # Toast notification state
 ├── store/
+│   ├── useTrackerStore.ts          # Enabled trackers preferences (Zustand + AsyncStorage)
 │   ├── useFastingStore.ts
 │   ├── useGoalStore.ts
 │   └── useFoodLogStore.ts
@@ -437,6 +439,7 @@ FastTrack/
 - Notifications preferences (iOS only — Android Expo Go skips notifications)
 - Daily water goal presets (1.5L–3.5L)
 - Preferences (weight/height/water unit selectors)
+- Trackers (enable/disable Fasting, Workouts, Food, Period)
 - Dark/light mode toggle
 - Sign Out
 
@@ -621,6 +624,7 @@ See [Building for iOS (Standalone App)](#building-for-ios-standalone-app) above 
 - [x] AI coach Edge Function (`ai-coach`) — Groq-powered with user fasting/nutrition/workout/weight context
 - [x] My Meals library — save meal templates (multi-item collections) from MealBuilder, Today's Meals, and Meal Calendar with one-tap re-log, full CRUD manager in Profile
 - [x] Schedule strip inside FastingTimer ring — date/time for Started / Eat window / Window closes, tap time to toggle elapsed/remaining, larger phase badge
+- [x] Modular tracker system — `useTrackerStore` (Zustand + AsyncStorage), `enabled_trackers` JSONB on profiles, Settings → Trackers section, 5th onboarding step, tab bar filtering via `href:null`, conditional Home panels
 
 ## Next Steps
 
@@ -637,7 +641,7 @@ See [Building for iOS (Standalone App)](#building-for-ios-standalone-app) above 
 | 8 | **UI redesign** — Fresh palette, Plus Jakarta Sans, mood icons, responsive charts | Done |
 | 9 | **Bug fixes / polish** — Theme tokens, hardcoded colors, web compat | Done |
 | 10 | **Streak notifications** — Fast reminders, check-ins, water, milestones | Done |
-| 11 | **Onboarding flow** — 4-step wizard | Done |
+| 11 | **Onboarding flow** — 5-step wizard | Done |
 | 12 | **Barcode scanner** — Camera food scanning | Done |
 | 13 | **Apple Health / Google Fit** — Weight, workouts, water sync | Done |
 | 14 | **Export / reports** — CSV fasting history | Done |
@@ -680,30 +684,30 @@ See [Building for iOS (Standalone App)](#building-for-ios-standalone-app) above 
 | 51 | **My Meals library** — `my_meals` + `my_meal_items` DB tables, `useMyMeals` hook with offline queue support, `EditMyMealModal` (meal name + item management with steppers), `MyMealsManagerModal` (full CRUD with delete confirmation), MY MEALS section in LogMealModal showing templates with item previews, "Save as Meal" button in MealBuilder, save from Today's Meals and Meal Calendar, per-item Quick Add save, bookmark-plus icon on MealBuilder items | Done |
 | 52 | **Edit/delete foods from calendar** — MealCalendarModal tap-to-edit with macro steppers and swipe-to-delete with bottom-sheet confirmation. Wired to `updateEntry` and `deleteEntry` from `useFoodLog` with offline queue support. | Done |
 | 53 | **Schedule strip in timer ring** — FastingTimer center now shows date/time strip (Started · Eat window · Window closes) with Today/Tomorrow/weekday format. Tap time to toggle elapsed/remaining. Larger phase badge. | Done |
+| 54 | **Modular tracker system** — `store/useTrackerStore.ts` (Zustand + AsyncStorage), `enabled_trackers JSONB` column on profiles, Settings → Trackers section with 4 toggleable trackers (Fasting, Workouts, Food, Period), 5th onboarding step with tracker selection, tab bar filtering via `href:null` with fixed tab order, conditional Home panels (Fasting, Workouts, Food), Profile always on far right | Done |
 
 ### Remaining
 | # | Feature | Effort | Description |
 |---|---------|--------|-------------|
 | 1 | **Auto dark mode** | Small | Currently the app defaults to dark mode with a manual toggle in Profile. Integrate `useColorScheme()` from react-native to detect the system's Appearance setting and switch automatically. Keep the manual toggle as an override — when set to "System", follow the OS; when set to Light or Dark, lock to that mode. |
 | 2 | **Biometric auth** | Small | Add optional Face ID / Touch ID (or fingerprint) protection on app launch. Use `expo-local-authentication` to enroll the user's biometrics. When enabled, the app shows a lock screen on startup (or after background timeout) that requires biometric verification before revealing any data. Respects the device's enrolled biometrics — no custom passcode fallback needed. |
-| 3 | **Modular tracker system** | Large | Let users enable/disable individual trackers at onboarding or in Settings. Only enabled trackers appear in the tab bar and on the Home dashboard. Trackers: Fasting, Workouts, Food, Hydration, Weight, Period (future). Requires `useTrackerStore` (Zustand + AsyncStorage), dynamic tab filtering in `_layout.tsx`, conditional Home sections in `index.tsx`, tracker toggles in SettingsPanel, onboarding step, and `Period` tab placeholder. Existing users get all trackers enabled by default — seamless transition. |
-| 4 | **Timer performance optimization** | Small | Collapse 3–4 concurrent `setInterval(1s)` loops in `fast.tsx` and `index.tsx` into a single shared ticker per screen. Add `AppState` listener to pause timers when backgrounded to prevent battery drain and Android deep-sleep prevention. ~172K wasted re-renders per 16h fast. |
-| 5 | **Offline queue fixes** | Small | Three data-integrity bugs in `lib/offline-queue.ts` + `useOfflineQueueProcessor.ts`: (1) failed items never removed, retry forever; (2) `removeById` read-modify-write race can drop items on `pkill`; (3) no client UUIDs on insert payloads → duplicate rows on retry. Fix: dead-letter after N attempts with backoff, atomic write, per-item UUIDs. |
-| 6 | **Query-cache persistence perf** | Small | `app/_layout.tsx` re-serializes the entire query cache to AsyncStorage on every state change (debounced 1s). Switch to the installed-but-unused `@tanstack/query-async-storage-persister` for incremental writes, or skip writes for large/stale entries. |
-| 7 | **Top-level ErrorBoundary** | Small | Add an `ErrorBoundary` in `app/_layout.tsx` to catch render-time crashes and show a recovery screen. Currently any unhandled render error red-screens the entire app — no recovery path, no Sentry log. Merge into Testing (#14). |
-| 8 | **Home screen widget** | Medium | Build an iOS widget (WidgetKit via `expo-dev-menu` + native module) and/or Android widget (AppWidget) that shows the current fasting state: timer countdown/elapsed, progress ring, and phase badge. Widget refreshes periodically (e.g., every 15 min on iOS, every 30 min on Android). Tapping the widget deep-links into the Fast tab. |
-| 9 | **Apple Health sync** | Medium | Two-way sync with Apple Health (iOS) and Google Fit (Android). Write fasting sessions as "Time In Bed" (a common fasting workaround) or as AFib data. Sync weight logs (already stored locally) to Health, and pull workouts from Health into the workout log. Use `expo-health-connect` (Android) and a native HealthKit bridge (iOS). Show a sync status indicator in Profile. |
-| 10 | **Fasting insights / weekly trends** | Medium | Add a dedicated insights section (either on Home tab or a new tab) with charts showing fasting consistency over time. Include: average fast duration per week, fasting frequency (days fasted vs days skipped), streak history graph, and eating window adherence %. Use `react-native-svg` for line/bar charts (same library already used for rings). Filter by 7d / 30d / 90d. |
-| 11 | **Export data** | Medium | Allow users to download their data as CSV files. Options: export fasting history (all sessions with start/end/duration/status), food log (all entries with macros and dates), workout log (exercise type, reps, sets, calories). Generate CSVs on-device and share via the system share sheet (`expo-sharing`). Add an "Export" button in Profile settings. |
-| 12 | **Accessibility** | Medium | Support Dynamic Type (iOS) / Font Size (Android) so system font scaling affects the app. Add proper `accessibilityLabel`, `accessibilityRole`, and `accessibilityState` to all interactive elements (buttons, toggles, chips, rings). Ensure sufficient color contrast ratios across both themes. Test with VoiceOver (iOS) and TalkBack (Android). |
-| 13 | **Testing + ErrorBoundary** | Medium | Set up Jest + React Native Testing Library. Unit tests for Zustand stores, integration tests for hooks (useFastingSession, useFoodLog, useProfile), E2E smoke tests (Detox/Maestro) for login→fast→log→end. Add top-level `ErrorBoundary` in `app/_layout.tsx` to catch render-time crashes and show a recovery screen instead of red-screening. |
-| 14 | **App Store deployment + app.json cleanup** | Medium | Prepare the app for App Store and Google Play submission: distribution builds, screenshots, description, keywords, privacy policy, Apple review checklist. Also fix `app.json`: align Android `package` to `com.ashcdev2.fasttrack` (match iOS), remove duplicate `CAMERA` permission and unused `RECORD_AUDIO` permission. |
-| 15 | **Multi-language support** | Large | Internationalize the entire app using `expo-localization` to detect the device language and `i18next` (or similar) for string lookups. Extract all user-facing strings into locale files (en.json as source, fr.json, es.json, etc.). Cover: auth screens, onboarding, all tab screens, modals, settings, notifications, and error messages. Start with English + 1-2 additional languages (Spanish, French). |
-| 16 | **Social features** | Large | Add community features: share fasting achievements as images (streak, total fasts, weekly consistency) via the system share sheet. Optional "friends" system where users can follow each other's public stats (streak, total fasts, weekly avg). Lightweight challenges (e.g., "7-day streak challenge") with opt-in participation and a leaderboard. All social features must be opt-in with privacy controls. |
-| 17 | **watchOS companion app** | Medium | Apple Watch app showing current fasting timer, progress ring, and phase badge. Quick actions: "Break Fast", "Log Water", "Log Mood". Uses `WatchConnectivity` to sync session state from iPhone. Complications for the watch face showing elapsed time and next milestone. |
-| 18 | **Live Activity / Dynamic Island** | Medium | iOS 16+ Live Activity displaying the fasting countdown timer on the lock screen and Dynamic Island. Updates in real-time without opening the app. *Note: requires paid Apple Developer account for APNs push to update the Live Activity.* |
-| 19 | **Photo food logging** | Medium | Snap a photo of a meal and estimate macros via a vision API (OpenAI Vision, Gemini, or Apple CoreML). Presents estimated food items for confirmation/adjustment before logging. Hugely reduces friction vs manual search/entry. |
-| 20 | **Scheduled dark/light mode** | Small | Auto-switch theme based on time of day (dark at sunset, light at sunrise) rather than only following system appearance. Useful since fasting is time-bound and users often check the app at night. Toggle in Profile: Manual / System / Scheduled (with time pickers). |
-| 21 | **Menstrual cycle integration** | Small | Optional cycle phase tracking with auto-suggested fasting schedule adjustments: follicular phase → longer fasts recommended, luteal phase → gentler schedule. Niche but high-value for that audience. Simple calendar-based phase input (no period tracking required). |
-| 22 | **AI fasting coach** | Large | Chat interface ("Ask Coach") that answers questions like "how am I doing?", "what should I eat to hit my protein?", "when should I start my next fast to hit my goal?", "why do I feel lightheaded?" Powered by an LLM (via Supabase Edge Function) with access to the user's fasting, food, workout, and weight data. Makes the app feel genuinely intelligent and personalized. |
-| 23 | **Social sign-in (Apple / Google)** | Medium | Add Apple Sign In and Google Sign In as authentication options alongside email/password. Previous attempt failed due to Expo Go redirect URI limitations. **Current state**: Web OAuth client ID configured in Google Cloud + Supabase Google provider enabled; `expo-auth-session` + `expo-web-browser` + `expo-crypto` installed; "Continue with Google" button on login/signup screens wired to `signInWithGoogle()` in `useAuth.ts`. **Likely fix**: Switch to a development build (not Expo Go) where custom URL schemes like `fasttrack://auth/callback` are reliably intercepted by `ASWebAuthenticationSession`. See "Google SSO — Implementation Attempt" section above for full details on all approaches tried. |
+| 3 | **Timer performance optimization** | Small | Collapse 3–4 concurrent `setInterval(1s)` loops in `fast.tsx` and `index.tsx` into a single shared ticker per screen. Add `AppState` listener to pause timers when backgrounded to prevent battery drain and Android deep-sleep prevention. ~172K wasted re-renders per 16h fast. |
+| 4 | **Offline queue fixes** | Small | Three data-integrity bugs in `lib/offline-queue.ts` + `useOfflineQueueProcessor.ts`: (1) failed items never removed, retry forever; (2) `removeById` read-modify-write race can drop items on `pkill`; (3) no client UUIDs on insert payloads → duplicate rows on retry. Fix: dead-letter after N attempts with backoff, atomic write, per-item UUIDs. |
+| 5 | **Query-cache persistence perf** | Small | `app/_layout.tsx` re-serializes the entire query cache to AsyncStorage on every state change (debounced 1s). Switch to the installed-but-unused `@tanstack/query-async-storage-persister` for incremental writes, or skip writes for large/stale entries. |
+| 6 | **Top-level ErrorBoundary** | Small | Add an `ErrorBoundary` in `app/_layout.tsx` to catch render-time crashes and show a recovery screen. Currently any unhandled render error red-screens the entire app — no recovery path, no Sentry log. Merge into Testing (#14). |
+| 7 | **Home screen widget** | Medium | Build an iOS widget (WidgetKit via `expo-dev-menu` + native module) and/or Android widget (AppWidget) that shows the current fasting state: timer countdown/elapsed, progress ring, and phase badge. Widget refreshes periodically (e.g., every 15 min on iOS, every 30 min on Android). Tapping the widget deep-links into the Fast tab. |
+| 8 | **Apple Health sync** | Medium | Two-way sync with Apple Health (iOS) and Google Fit (Android). Write fasting sessions as "Time In Bed" (a common fasting workaround) or as AFib data. Sync weight logs (already stored locally) to Health, and pull workouts from Health into the workout log. Use `expo-health-connect` (Android) and a native HealthKit bridge (iOS). Show a sync status indicator in Profile. |
+| 9 | **Fasting insights / weekly trends** | Medium | Add a dedicated insights section (either on Home tab or a new tab) with charts showing fasting consistency over time. Include: average fast duration per week, fasting frequency (days fasted vs days skipped), streak history graph, and eating window adherence %. Use `react-native-svg` for line/bar charts (same library already used for rings). Filter by 7d / 30d / 90d. |
+| 10 | **Export data** | Medium | Allow users to download their data as CSV files. Options: export fasting history (all sessions with start/end/duration/status), food log (all entries with macros and dates), workout log (exercise type, reps, sets, calories). Generate CSVs on-device and share via the system share sheet (`expo-sharing`). Add an "Export" button in Profile settings. |
+| 11 | **Accessibility** | Medium | Support Dynamic Type (iOS) / Font Size (Android) so system font scaling affects the app. Add proper `accessibilityLabel`, `accessibilityRole`, and `accessibilityState` to all interactive elements (buttons, toggles, chips, rings). Ensure sufficient color contrast ratios across both themes. Test with VoiceOver (iOS) and TalkBack (Android). |
+| 12 | **Testing + ErrorBoundary** | Medium | Set up Jest + React Native Testing Library. Unit tests for Zustand stores, integration tests for hooks (useFastingSession, useFoodLog, useProfile), E2E smoke tests (Detox/Maestro) for login→fast→log→end. Add top-level `ErrorBoundary` in `app/_layout.tsx` to catch render-time crashes and show a recovery screen instead of red-screening. |
+| 13 | **App Store deployment + app.json cleanup** | Medium | Prepare the app for App Store and Google Play submission: distribution builds, screenshots, description, keywords, privacy policy, Apple review checklist. Also fix `app.json`: align Android `package` to `com.ashcdev2.fasttrack` (match iOS), remove duplicate `CAMERA` permission and unused `RECORD_AUDIO` permission. |
+| 14 | **Multi-language support** | Large | Internationalize the entire app using `expo-localization` to detect the device language and `i18next` (or similar) for string lookups. Extract all user-facing strings into locale files (en.json as source, fr.json, es.json, etc.). Cover: auth screens, onboarding, all tab screens, modals, settings, notifications, and error messages. Start with English + 1-2 additional languages (Spanish, French). |
+| 15 | **Social features** | Large | Add community features: share fasting achievements as images (streak, total fasts, weekly consistency) via the system share sheet. Optional "friends" system where users can follow each other's public stats (streak, total fasts, weekly avg). Lightweight challenges (e.g., "7-day streak challenge") with opt-in participation and a leaderboard. All social features must be opt-in with privacy controls. |
+| 16 | **watchOS companion app** | Medium | Apple Watch app showing current fasting timer, progress ring, and phase badge. Quick actions: "Break Fast", "Log Water", "Log Mood". Uses `WatchConnectivity` to sync session state from iPhone. Complications for the watch face showing elapsed time and next milestone. |
+| 17 | **Live Activity / Dynamic Island** | Medium | iOS 16+ Live Activity displaying the fasting countdown timer on the lock screen and Dynamic Island. Updates in real-time without opening the app. *Note: requires paid Apple Developer account for APNs push to update the Live Activity.* |
+| 18 | **Photo food logging** | Medium | Snap a photo of a meal and estimate macros via a vision API (OpenAI Vision, Gemini, or Apple CoreML). Presents estimated food items for confirmation/adjustment before logging. Hugely reduces friction vs manual search/entry. |
+| 19 | **Scheduled dark/light mode** | Small | Auto-switch theme based on time of day (dark at sunset, light at sunrise) rather than only following system appearance. Useful since fasting is time-bound and users often check the app at night. Toggle in Profile: Manual / System / Scheduled (with time pickers). |
+| 20 | **Menstrual cycle integration** | Small | Optional cycle phase tracking with auto-suggested fasting schedule adjustments: follicular phase → longer fasts recommended, luteal phase → gentler schedule. Niche but high-value for that audience. Simple calendar-based phase input (no period tracking required). |
+| 21 | **AI fasting coach** | Large | Chat interface ("Ask Coach") that answers questions like "how am I doing?", "what should I eat to hit my protein?", "when should I start my next fast to hit my goal?", "why do I feel lightheaded?" Powered by an LLM (via Supabase Edge Function) with access to the user's fasting, food, workout, and weight data. Makes the app feel genuinely intelligent and personalized. |
+| 22 | **Social sign-in (Apple / Google)** | Medium | Add Apple Sign In and Google Sign In as authentication options alongside email/password. Previous attempt failed due to Expo Go redirect URI limitations. **Current state**: Web OAuth client ID configured in Google Cloud + Supabase Google provider enabled; `expo-auth-session` + `expo-web-browser` + `expo-crypto` installed; "Continue with Google" button on login/signup screens wired to `signInWithGoogle()` in `useAuth.ts`. **Likely fix**: Switch to a development build (not Expo Go) where custom URL schemes like `fasttrack://auth/callback` are reliably intercepted by `ASWebAuthenticationSession`. See "Google SSO — Implementation Attempt" section above for full details on all approaches tried. |
