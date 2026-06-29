@@ -1,7 +1,7 @@
 import React from "react";
 import { View, Text } from "react-native";
 import { useThemeStore } from "@/lib/theme-store";
-import { getThemeColors, ACCENT } from "@/lib/theme-colors";
+import { getThemeColors, ACCENT, getAccentColors } from "@/lib/theme-colors";
 
 type MacroBarProps = {
   label: string;
@@ -14,6 +14,7 @@ type MacroBarProps = {
 function MacroBar({ label, current, goal, unit, color }: MacroBarProps) {
   const { theme } = useThemeStore();
   const c = getThemeColors(theme);
+  const accent = getAccentColors(theme);
   const pct = goal > 0 ? Math.min((current / goal) * 100, 100) : 0;
 
   return (
@@ -41,14 +42,15 @@ type MacroProgressProps = {
 export function MacroProgress({ calories, protein, carbs, fat }: MacroProgressProps) {
   const { theme } = useThemeStore();
   const c = getThemeColors(theme);
+  const accent = getAccentColors(theme);
 
   return (
     <View className="rounded-xl p-5 mb-6 glass-panel">
       <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 18, marginBottom: 16 }}>Today&apos;s Progress</Text>
-      <MacroBar label="Calories" current={calories.current} goal={calories.goal} unit=" kcal" color={ACCENT.lime} />
-      <MacroBar label="Protein" current={protein.current} goal={protein.goal} unit="g" color={ACCENT.lime} />
-      <MacroBar label="Carbs" current={carbs.current} goal={carbs.goal} unit="g" color={ACCENT.cyan} />
-      <MacroBar label="Fat" current={fat.current} goal={fat.goal} unit="g" color={ACCENT.coral} />
+      <MacroBar label="Calories" current={calories.current} goal={calories.goal} unit=" kcal" color={accent.lime} />
+      <MacroBar label="Protein" current={protein.current} goal={protein.goal} unit="g" color={accent.lime} />
+      <MacroBar label="Carbs" current={carbs.current} goal={carbs.goal} unit="g" color={accent.cyan} />
+      <MacroBar label="Fat" current={fat.current} goal={fat.goal} unit="g" color={accent.coral} />
     </View>
   );
 }

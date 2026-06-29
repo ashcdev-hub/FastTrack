@@ -19,7 +19,7 @@ import { WeightChart } from "@/components/WeightChart";
 import { WeightTracker } from "@/components/WeightTracker";
 import { supabase } from "@/lib/supabase";
 import { useThemeStore } from "@/lib/theme-store";
-import { getThemeColors, ACCENT } from "@/lib/theme-colors";
+import { getThemeColors, ACCENT, getAccentColors } from "@/lib/theme-colors";
 import { DEFAULT_UNITS } from "@/lib/units";
 import { format, addHours } from "date-fns";
 import { router } from "expo-router";
@@ -53,6 +53,7 @@ export default function HomeScreen() {
   const goals = useGoalStore();
   const { theme } = useThemeStore();
   const c = getThemeColors(theme);
+  const accent = getAccentColors(theme);
   const { entries: weightEntries, loading: weightLoading, addWeight: addWeightRaw, deleteWeight: deleteWeightRaw, currentWeight, weightChange } = useWeightLog(user?.id);
   const addWeight = async (kg: number) => {
     try { await addWeightRaw(kg); return { error: null }; } catch (e) { return { error: e as Error }; }
@@ -105,7 +106,7 @@ export default function HomeScreen() {
   }, [totalMl, goals.waterGoalMl, hydrationGoalKey]);
 
   const macros = [
-    { label: "Calories", current: totals.calories, goal: goals.dailyCalories, unit: "kcal", barColor: ACCENT.lime },
+    { label: "Calories", current: totals.calories, goal: goals.dailyCalories, unit: "kcal", barColor: accent.lime },
     { label: "Protein", current: totals.protein_g, goal: goals.dailyProtein, unit: "g", barColor: "#b6c9d8" },
     { label: "Carbs", current: totals.carbs_g, goal: goals.dailyCarbs, unit: "g", barColor: "#9cf0ff" },
     { label: "Fat", current: totals.fat_g, goal: goals.dailyFat, unit: "g", barColor: "#ffb4ab" },
@@ -153,7 +154,7 @@ export default function HomeScreen() {
         <View className="flex-row justify-between items-center" style={{ height: 44, paddingHorizontal: 20 }}>
           <View className="flex-row items-center gap-2">
             <Image source={require("../../assets/icon.png")} style={{ width: 22, height: 22, borderRadius: 5 }} />
-            <Text style={{ color: ACCENT.lime, fontFamily: "Inter_800ExtraBold", fontSize: 22, letterSpacing: -0.5 }}>FastTrack</Text>
+            <Text style={{ color: accent.lime, fontFamily: "Inter_800ExtraBold", fontSize: 22, letterSpacing: -0.5 }}>FastTrack</Text>
           </View>
         </View>
       </View>
@@ -172,7 +173,7 @@ export default function HomeScreen() {
                 <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 12, letterSpacing: 1, textTransform: "uppercase" }}>
                   {phase === "eating" ? "Eating Window" : "Fasting Today"}
                 </Text>
-                <Text style={{ color: phase === "eating" ? ACCENT.cyan : ACCENT.lime, fontFamily: "Inter_700Bold", fontSize: 14 }}>
+                <Text style={{ color: phase === "eating" ? accent.cyan : accent.lime, fontFamily: "Inter_700Bold", fontSize: 14 }}>
                   {Math.round(fastPct * 100)}%
                 </Text>
               </View>
@@ -185,12 +186,12 @@ export default function HomeScreen() {
                     {phase === "idle" ? `READY TO FAST` : phase === "eating" ? `ELAPSED OF ${eatingHours}H WINDOW` : `ELAPSED OF ${fastingHours}H GOAL`}
                   </Text>
                 </View>
-                <ProgressRing size={96} progress={fastPct} strokeWidth={8} indicatorColor={phase === "eating" ? ACCENT.cyan : ACCENT.lime}>
-                  <MaterialCommunityIcons name={phase === "eating" ? "food-apple-outline" : "timer-outline"} size={28} color={phase === "eating" ? ACCENT.cyan : ACCENT.lime} />
+                <ProgressRing size={96} progress={fastPct} strokeWidth={8} indicatorColor={phase === "eating" ? accent.cyan : accent.lime}>
+                  <MaterialCommunityIcons name={phase === "eating" ? "food-apple-outline" : "timer-outline"} size={28} color={phase === "eating" ? accent.cyan : accent.lime} />
                 </ProgressRing>
               </View>
               <View className="mt-6 h-1 rounded-full overflow-hidden" style={{ backgroundColor: c.progressTrack }}>
-                <View className="h-full rounded-full" style={{ width: `${fastPct * 100}%`, backgroundColor: phase === "eating" ? ACCENT.cyan : ACCENT.lime }} />
+                <View className="h-full rounded-full" style={{ width: `${fastPct * 100}%`, backgroundColor: phase === "eating" ? accent.cyan : accent.lime }} />
               </View>
             </Pressable>
           </View>
@@ -238,7 +239,7 @@ export default function HomeScreen() {
                   })}
                 </View>
                 {enabledGoals.length > 4 && (
-                  <Text style={{ color: ACCENT.cyan, fontFamily: "Inter_700Bold", fontSize: 12, textAlign: "center", marginTop: 3 }}>
+                  <Text style={{ color: accent.cyan, fontFamily: "Inter_700Bold", fontSize: 12, textAlign: "center", marginTop: 3 }}>
                     +{enabledGoals.length - 4} more
                   </Text>
                 )}
@@ -254,7 +255,7 @@ export default function HomeScreen() {
                   Hydration
                 </Text>
                 <View className="flex-row items-center gap-2">
-                  <Text style={{ color: ACCENT.cyan, fontFamily: "SpaceGrotesk_600SemiBold", fontSize: 24, letterSpacing: -0.5 }}>
+                  <Text style={{ color: accent.cyan, fontFamily: "SpaceGrotesk_600SemiBold", fontSize: 24, letterSpacing: -0.5 }}>
                     {(totalMl / 1000).toFixed(2).replace(/\.?0+$/, '')}
                   </Text>
                   <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 14 }}>
@@ -266,7 +267,7 @@ export default function HomeScreen() {
                 </View>
               </View>
               <View className="h-2 rounded-full overflow-hidden mb-5" style={{ backgroundColor: c.progressTrack }}>
-                <View className="h-full rounded-full" style={{ width: `${Math.min(totalMl / goals.waterGoalMl, 1) * 100}%`, backgroundColor: ACCENT.cyan }} />
+                <View className="h-full rounded-full" style={{ width: `${Math.min(totalMl / goals.waterGoalMl, 1) * 100}%`, backgroundColor: accent.cyan }} />
               </View>
               <View className="flex-row gap-3 mb-5 overflow-x-auto no-scrollbar">
                 {[250, 500, 750].map((ml) => {
@@ -276,10 +277,10 @@ export default function HomeScreen() {
                       key={ml}
                       onPress={() => setSelectedWaterMl(isSelected ? null : ml)}
                       className="flex-1 py-3 rounded items-center"
-                      style={{ backgroundColor: isSelected ? ACCENT.cyan : c.buttonBg, borderWidth: 1, borderColor: isSelected ? ACCENT.cyan : c.cardBorder }}
+                      style={{ backgroundColor: isSelected ? accent.cyan : c.buttonBg, borderWidth: 1, borderColor: isSelected ? accent.cyan : c.cardBorder }}
                     >
-                      <Text style={{ color: isSelected ? "#161e00" : c.text, fontFamily: "Inter_700Bold", fontSize: 14 }}>{ml}ml</Text>
-                      <Text style={{ color: isSelected ? "rgba(22,30,0,0.6)" : c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 10, textTransform: "uppercase" }}>
+                      <Text style={{ color: isSelected ? c.textOnAccent : c.text, fontFamily: "Inter_700Bold", fontSize: 14 }}>{ml}ml</Text>
+                      <Text style={{ color: isSelected ? c.textOnAccent : c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 10, textTransform: "uppercase" }}>
                         {ml === 250 ? "Small" : ml === 500 ? "Regular" : "Large"}
                       </Text>
                     </Pressable>
@@ -309,10 +310,10 @@ export default function HomeScreen() {
                 }}
                 disabled={!selectedWaterMl}
                 className="w-full py-3.5 rounded flex-row items-center justify-center"
-                style={{ backgroundColor: selectedWaterMl ? ACCENT.lime : c.buttonBg }}
+                style={{ backgroundColor: selectedWaterMl ? accent.lime : c.buttonBg }}
               >
-                <MaterialCommunityIcons name="plus" size={20} color={selectedWaterMl ? "#161e00" : c.textMuted} />
-                <Text style={{ color: selectedWaterMl ? "#161e00" : c.textMuted, fontFamily: "Inter_700Bold", fontSize: 14, marginLeft: 8 }}>
+                <MaterialCommunityIcons name="plus" size={20} color={selectedWaterMl ? c.textOnAccent : c.textMuted} />
+                <Text style={{ color: selectedWaterMl ? c.textOnAccent : c.textMuted, fontFamily: "Inter_700Bold", fontSize: 14, marginLeft: 8 }}>
                   {selectedWaterMl ? `Add ${selectedWaterMl}ml` : "Select Amount"}
                 </Text>
               </Pressable>
@@ -375,7 +376,7 @@ export default function HomeScreen() {
           <View className="mb-section-gap">
             <View className="rounded-xl p-5 glass-panel">
               <View className="flex-row items-center gap-2 mb-3">
-                <MaterialCommunityIcons name="lightning-bolt" size={18} color={ACCENT.lime} />
+                <MaterialCommunityIcons name="lightning-bolt" size={18} color={accent.lime} />
                 <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 12, letterSpacing: 1, textTransform: "uppercase" }}>
                   AI Insights
                 </Text>
@@ -387,9 +388,9 @@ export default function HomeScreen() {
               </Text>
 
               {!showCoachChat ? (
-                <Pressable onPress={() => setShowCoachChat(true)} className="rounded-xl py-3 items-center flex-row justify-center gap-2" style={{ backgroundColor: ACCENT.limeBg }}>
-                  <MaterialCommunityIcons name="message-text-outline" size={16} color={ACCENT.lime} />
-                  <Text style={{ color: ACCENT.lime, fontFamily: "Inter_700Bold", fontSize: 13 }}>Ask a question</Text>
+                <Pressable onPress={() => setShowCoachChat(true)} className="rounded-xl py-3 items-center flex-row justify-center gap-2" style={{ backgroundColor: accent.limeBg }}>
+                  <MaterialCommunityIcons name="message-text-outline" size={16} color={accent.lime} />
+                  <Text style={{ color: accent.lime, fontFamily: "Inter_700Bold", fontSize: 13 }}>Ask a question</Text>
                 </Pressable>
               ) : (
                 <View>
@@ -405,8 +406,8 @@ export default function HomeScreen() {
                     <Pressable onPress={() => { handleAskCoach(coachInput); setCoachInput(""); }}
                       disabled={!coachInput.trim() || coachLoading}
                       className="rounded-xl p-3"
-                      style={{ backgroundColor: coachInput.trim() && !coachLoading ? ACCENT.lime : c.buttonBg }}>
-                      <MaterialCommunityIcons name="send" size={18} color={coachInput.trim() && !coachLoading ? "#161e00" : c.textMuted} />
+                      style={{ backgroundColor: coachInput.trim() && !coachLoading ? accent.lime : c.buttonBg }}>
+                      <MaterialCommunityIcons name="send" size={18} color={coachInput.trim() && !coachLoading ? c.textOnAccent : c.textMuted} />
                     </Pressable>
                   </View>
                   {coachLoading && <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 13 }}>Thinking...</Text>}
@@ -429,7 +430,7 @@ export default function HomeScreen() {
           <Pressable onStartShouldSetResponder={() => true} className="rounded-t-3xl p-6" style={{ backgroundColor: c.elevated }}>
             <View className="items-center mb-5">
               <View style={{ width: 56, height: 56, borderRadius: 28, backgroundColor: "rgba(0,218,243,0.15)", alignItems: "center", justifyContent: "center", marginBottom: 12 }}>
-                <MaterialCommunityIcons name="trophy" size={28} color={ACCENT.cyan} />
+                <MaterialCommunityIcons name="trophy" size={28} color={accent.cyan} />
               </View>
               <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 22 }}>Hydration Goal Reached!</Text>
               <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 14, textAlign: "center", marginTop: 4 }}>
@@ -439,7 +440,7 @@ export default function HomeScreen() {
 
             <View className="items-center mb-5">
               <View className="flex-row items-baseline gap-1">
-                <Text style={{ color: ACCENT.cyan, fontFamily: "SpaceGrotesk_600SemiBold", fontSize: 40, letterSpacing: -1 }}>
+                <Text style={{ color: accent.cyan, fontFamily: "SpaceGrotesk_600SemiBold", fontSize: 40, letterSpacing: -1 }}>
                   {Math.round(totalMl / 100) / 10}
                 </Text>
                 <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 18 }}>
@@ -453,7 +454,7 @@ export default function HomeScreen() {
 
             <View className="rounded-xl p-4 mb-5" style={{ backgroundColor: c.cardBg }}>
               <View className="flex-row items-center gap-3">
-                <MaterialCommunityIcons name="water" size={20} color={ACCENT.cyan} />
+                <MaterialCommunityIcons name="water" size={20} color={accent.cyan} />
                 <Text style={{ color: c.text, fontFamily: "Inter_400Regular", fontSize: 14 }}>
                   Consistent hydration supports energy, focus, and metabolism.
                 </Text>
@@ -463,9 +464,9 @@ export default function HomeScreen() {
             <Pressable
               onPress={() => setShowHydrationGoal(false)}
               className="py-4 rounded-xl items-center"
-              style={{ backgroundColor: ACCENT.cyan }}
+              style={{ backgroundColor: accent.cyan }}
             >
-              <Text style={{ color: "#001e24", fontFamily: "Inter_700Bold", fontSize: 16 }}>Done</Text>
+              <Text style={{ color: c.textOnAccent, fontFamily: "Inter_700Bold", fontSize: 16 }}>Done</Text>
             </Pressable>
           </Pressable>
         </Pressable>

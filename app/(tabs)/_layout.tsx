@@ -3,7 +3,7 @@ import { Platform } from "react-native";
 import { router, Tabs } from "expo-router";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useThemeStore } from "@/lib/theme-store";
-import { getThemeColors, ACCENT } from "@/lib/theme-colors";
+import { getThemeColors, ACCENT, getAccentColors } from "@/lib/theme-colors";
 import { useAuth } from "@/hooks/useAuth";
 import { useTrackerStore } from "@/store/useTrackerStore";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -30,6 +30,7 @@ const TAB_TRACKER: Record<string, TrackerId | null> = {
 export default function TabLayout() {
   const { theme } = useThemeStore();
   const c = getThemeColors(theme);
+  const accent = getAccentColors(theme);
   const { session, loading } = useAuth();
   const { isEnabled, loaded: trackersLoaded } = useTrackerStore();
   const insets = useSafeAreaInsets();
@@ -53,7 +54,7 @@ export default function TabLayout() {
           paddingTop: 8,
           paddingBottom: 28 + bottomInset,
         },
-        tabBarActiveTintColor: ACCENT.lime,
+        tabBarActiveTintColor: accent.lime,
         tabBarInactiveTintColor: c.tabBarInactive,
         tabBarLabelStyle: {
           fontFamily: "SpaceGrotesk_700Bold",

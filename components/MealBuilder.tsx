@@ -2,7 +2,7 @@ import React from "react";
 import { Pressable, View, Text } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useThemeStore } from "@/lib/theme-store";
-import { getThemeColors, ACCENT, MEAL_COLORS } from "@/lib/theme-colors";
+import { getThemeColors, ACCENT, getAccentColors, getMealColors } from "@/lib/theme-colors";
 import type { StagedItem } from "@/store/useFoodLogStore";
 
 type MealBuilderProps = {
@@ -18,6 +18,8 @@ type MealBuilderProps = {
 export function MealBuilder({ items, mealType, onRemove, onEdit, onLog, onSaveAsMeal, onSaveItemToQuickAdd }: MealBuilderProps) {
   const { theme } = useThemeStore();
   const c = getThemeColors(theme);
+  const accent = getAccentColors(theme);
+  const mealColors = getMealColors(theme);
   const totals = items.reduce(
     (acc, item) => ({
       calories: acc.calories + item.calories * item.quantity,
@@ -28,7 +30,7 @@ export function MealBuilder({ items, mealType, onRemove, onEdit, onLog, onSaveAs
     { calories: 0, protein_g: 0, carbs_g: 0, fat_g: 0 }
   );
 
-  const color = MEAL_COLORS[mealType] ?? MEAL_COLORS.other;
+  const color = mealColors[mealType] ?? mealColors.other;
 
   if (items.length === 0) {
     return (
@@ -66,7 +68,7 @@ export function MealBuilder({ items, mealType, onRemove, onEdit, onLog, onSaveAs
             {onSaveItemToQuickAdd && (
               <Pressable onPress={() => onSaveItemToQuickAdd(item)} className="p-1 mr-1"
                 accessibilityRole="button" accessibilityLabel={`Add ${item.name} to Quick Add`}>
-                <MaterialCommunityIcons name="bookmark-plus-outline" size={18} color={ACCENT.cyan} />
+                <MaterialCommunityIcons name="bookmark-plus-outline" size={18} color={accent.cyan} />
               </Pressable>
             )}
             <MaterialCommunityIcons name="pencil-outline" size={16} color={c.textMuted} style={{ marginRight: 4 }} />
@@ -97,13 +99,13 @@ export function MealBuilder({ items, mealType, onRemove, onEdit, onLog, onSaveAs
           </Text>
         </View>
         <Pressable onPress={onLog} className="rounded-xl py-4 items-center mb-3" style={{ backgroundColor: color }}>
-          <Text style={{ color: color === MEAL_COLORS.breakfast || color === MEAL_COLORS.lunch ? "#161e00" : c.textOnDark, fontFamily: "Inter_700Bold", fontSize: 16 }}>
+          <Text style={{ color: color === mealColors.breakfast || color === mealColors.lunch ? c.textOnAccent : c.textOnDark, fontFamily: "Inter_700Bold", fontSize: 16 }}>
             Log {mealType.charAt(0).toUpperCase() + mealType.slice(1)}
           </Text>
         </Pressable>
         {onSaveAsMeal && (
           <Pressable onPress={onSaveAsMeal} className="rounded-xl py-3 items-center flex-row justify-center gap-2" style={{ backgroundColor: c.cardBgAlt }}>
-            <MaterialCommunityIcons name="bookmark-outline" size={16} color={ACCENT.cyan} />
+            <MaterialCommunityIcons name="bookmark-outline" size={16} color={accent.cyan} />
             <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 14 }}>Save as Meal</Text>
           </Pressable>
         )}

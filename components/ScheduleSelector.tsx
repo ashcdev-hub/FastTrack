@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Pressable, View, Text, TextInput } from "react-native";
 import { useThemeStore } from "@/lib/theme-store";
-import { getThemeColors, ACCENT } from "@/lib/theme-colors";
+import { getThemeColors, ACCENT, getAccentColors } from "@/lib/theme-colors";
 
 const PRESETS = [
   { label: "14:10", fasting: 14, eating: 10 },
@@ -19,6 +19,7 @@ type ScheduleSelectorProps = {
 export function ScheduleSelector({ selected, onSelect }: ScheduleSelectorProps) {
   const { theme } = useThemeStore();
   const c = getThemeColors(theme);
+  const accent = getAccentColors(theme);
   const [customMode, setCustomMode] = useState(false);
   const [customFasting, setCustomFasting] = useState("16");
   const [customEating, setCustomEating] = useState("8");
@@ -41,9 +42,9 @@ export function ScheduleSelector({ selected, onSelect }: ScheduleSelectorProps) 
               }}
               className="flex-1 rounded-xl py-4 items-center"
               style={{
-                backgroundColor: isActive ? ACCENT.lime : c.cardBgAlt,
+                backgroundColor: isActive ? accent.lime : c.cardBgAlt,
                 borderWidth: 1,
-                borderColor: isActive ? ACCENT.lime : c.cardBorder,
+                borderColor: isActive ? accent.lime : c.cardBorder,
               }}
               accessibilityRole="radio"
               accessibilityLabel={`${p.label} fasting schedule`}
@@ -51,7 +52,7 @@ export function ScheduleSelector({ selected, onSelect }: ScheduleSelectorProps) 
             >
               <Text
                 style={{
-                  color: isActive ? "#161e00" : c.text,
+                  color: isActive ? c.textOnAccent : c.text,
                   fontFamily: "Inter_700Bold",
                 }}
                 className="text-base"
@@ -82,15 +83,15 @@ export function ScheduleSelector({ selected, onSelect }: ScheduleSelectorProps) 
         }}
         className="rounded-xl items-center"
         style={{
-          backgroundColor: customMode ? ACCENT.lime : c.cardBgAlt,
+          backgroundColor: customMode ? accent.lime : c.cardBgAlt,
           borderWidth: 1,
-          borderColor: customMode ? ACCENT.lime : c.cardBorder,
+          borderColor: customMode ? accent.lime : c.cardBorder,
           paddingVertical: 10,
         }}
       >
         <Text
           style={{
-            color: customMode ? "#161e00" : c.textSecondary,
+            color: customMode ? c.textOnAccent : c.textSecondary,
             fontFamily: "Inter_700Bold",
           }}
           className="text-base"
@@ -151,9 +152,9 @@ export function ScheduleSelector({ selected, onSelect }: ScheduleSelectorProps) 
               onSelect(`${f}:${e}`, f, e);
             }}
             className="rounded-xl px-6 py-3.5 mt-5"
-            style={{ backgroundColor: ACCENT.lime }}
+            style={{ backgroundColor: accent.lime }}
           >
-            <Text style={{ color: "#161e00", fontFamily: "Inter_700Bold" }} className="text-sm">
+            <Text style={{ color: c.textOnAccent, fontFamily: "Inter_700Bold" }} className="text-sm">
               Set
             </Text>
           </Pressable>

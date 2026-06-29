@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Pressable, View, Text, TextInput } from "react-native";
 import { useThemeStore } from "@/lib/theme-store";
-import { getThemeColors, ACCENT } from "@/lib/theme-colors";
+import { getThemeColors, ACCENT, getAccentColors } from "@/lib/theme-colors";
 
 type MealFormProps = {
   onSubmit: (meal: { name: string; brand: string; calories: number; protein_g: number; carbs_g: number; fat_g: number; serving_size?: string; quantity: number }) => void;
@@ -11,6 +11,7 @@ type MealFormProps = {
 export function MealForm({ onSubmit, onCancel }: MealFormProps) {
   const { theme } = useThemeStore();
   const c = getThemeColors(theme);
+  const accent = getAccentColors(theme);
   const [name, setName] = useState("");
   const [brand, setBrand] = useState("");
   const [servingSize, setServingSize] = useState("");
@@ -71,7 +72,7 @@ export function MealForm({ onSubmit, onCancel }: MealFormProps) {
             <Text style={{ color: c.text, fontFamily: "Inter_700Bold" }} className="text-center">Cancel</Text>
           </Pressable>
         )}
-        <Pressable onPress={handleSubmit} className="flex-1 rounded-xl py-3" style={{ backgroundColor: ACCENT.lime }}>
+        <Pressable onPress={handleSubmit} className="flex-1 rounded-xl py-3" style={{ backgroundColor: accent.lime }}>
           <Text style={{ color: c.textOnAccent, fontFamily: "Inter_700Bold" }} className="text-center">Add to Meal</Text>
         </Pressable>
       </View>

@@ -14,7 +14,7 @@ import { CheckInTimeline } from "@/components/CheckInTimeline";
 import { MoodChart } from "@/components/MoodChart";
 import { CustomScheduleModal } from "@/components/CustomScheduleModal";
 import { useThemeStore } from "@/lib/theme-store";
-import { getThemeColors, ACCENT } from "@/lib/theme-colors";
+import { getThemeColors, ACCENT, getAccentColors } from "@/lib/theme-colors";
 import { scheduleFastingReminder, cancelAllNotifications, scheduleDailyFastReminder, scheduleCheckInReminder, scheduleWaterReminders, scheduleEatingWindowReminder, checkAndNotifyStreakMilestone } from "@/lib/notifications";
 import { getFastingPhase, getEatingPhase } from "@/lib/fasting-phases";
 import { format, addHours } from "date-fns";
@@ -29,9 +29,9 @@ const PRESETS = [
 ];
 
 const MOODS = [
-  { value: 4, label: "HAPPY", icon: "emoticon-happy", color: ACCENT.lime },
-  { value: 3, label: "NEUTRAL", icon: "emoticon-neutral", color: ACCENT.cyan },
-  { value: 1, label: "LOW ENERGY", icon: "emoticon-sad", color: ACCENT.coral },
+  { value: 4, label: "HAPPY", icon: "emoticon-happy", color: "#c3f400" },
+  { value: 3, label: "NEUTRAL", icon: "emoticon-neutral", color: "#00daf3" },
+  { value: 1, label: "LOW ENERGY", icon: "emoticon-sad", color: "#FF6B52" },
 ];
 
 function useCountdown(endTime: string | null) {
@@ -96,6 +96,7 @@ export default function FastScreen() {
   const { fastingHours, eatingHours, setSessionId, setStartTime, setFastingHours, setEatingHours } = useFastingStore();
   const { theme } = useThemeStore();
   const c = getThemeColors(theme);
+  const accent = getAccentColors(theme);
   const [selectedSchedule, setSelectedSchedule] = useState<string | null>(null);
   const { checkIns, addCheckIn } = useFastCheckIns(user?.id, session?.id ?? null);
   const { profile, updateFastingSchedule } = useProfile(user?.id ?? null);
@@ -261,7 +262,7 @@ export default function FastScreen() {
         <View className="flex-row justify-between items-center" style={{ height: 44, paddingHorizontal: 20 }}>
           <View className="flex-row items-center gap-2">
             <Image source={require("../../assets/icon.png")} style={{ width: 22, height: 22, borderRadius: 5 }} />
-            <Text style={{ color: ACCENT.lime, fontFamily: "Inter_800ExtraBold", fontSize: 22, letterSpacing: -0.5 }}>FastTrack</Text>
+            <Text style={{ color: accent.lime, fontFamily: "Inter_800ExtraBold", fontSize: 22, letterSpacing: -0.5 }}>FastTrack</Text>
           </View>
         </View>
       </View>
@@ -279,7 +280,7 @@ export default function FastScreen() {
             </Text>
             <View className="flex-row items-center gap-2 mt-1">
               <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 28 }}>{scheduleLabel} Fast</Text>
-              <MaterialCommunityIcons name="lightning-bolt" size={20} color={ACCENT.lime} />
+              <MaterialCommunityIcons name="lightning-bolt" size={20} color={accent.lime} />
             </View>
           </View>
         )}
@@ -306,10 +307,10 @@ export default function FastScreen() {
               onPress={handleStartFast}
               disabled={!selectedSchedule}
               className="w-full py-4 rounded-xl flex-row items-center justify-center mb-section-gap"
-              style={{ backgroundColor: selectedSchedule ? ACCENT.lime : c.buttonBg }}
+              style={{ backgroundColor: selectedSchedule ? accent.lime : c.buttonBg }}
             >
-              <MaterialCommunityIcons name="timer-outline" size={22} color={selectedSchedule ? "#161e00" : c.textMuted} />
-              <Text style={{ color: selectedSchedule ? "#161e00" : c.textMuted, fontFamily: "Inter_700Bold", fontSize: 18, marginLeft: 8 }}>
+              <MaterialCommunityIcons name="timer-outline" size={22} color={selectedSchedule ? c.textOnAccent : c.textMuted} />
+              <Text style={{ color: selectedSchedule ? c.textOnAccent : c.textMuted, fontFamily: "Inter_700Bold", fontSize: 18, marginLeft: 8 }}>
                 {selectedSchedule ? `Start ${selectedSchedule} Fast` : "Select a Schedule"}
               </Text>
             </Pressable>
@@ -336,12 +337,12 @@ export default function FastScreen() {
                         }
                       }}
                       className="flex-1 py-4 items-center rounded-xl"
-                      style={{ backgroundColor: isActive ? ACCENT.lime : c.cardBgAlt, borderWidth: 1, borderColor: isActive ? ACCENT.lime : c.cardBorder }}
+                      style={{ backgroundColor: isActive ? accent.lime : c.cardBgAlt, borderWidth: 1, borderColor: isActive ? accent.lime : c.cardBorder }}
                     >
-                      <Text style={{ color: isActive ? "#161e00" : c.text, fontFamily: "Inter_700Bold", fontSize: 16 }}>
+                      <Text style={{ color: isActive ? c.textOnAccent : c.text, fontFamily: "Inter_700Bold", fontSize: 16 }}>
                         {p.label}
                       </Text>
-                      <Text style={{ color: isActive ? "rgba(22,30,0,0.6)" : c.textMuted, fontFamily: "Inter_400Regular", fontSize: 10, marginTop: 4 }}>
+                      <Text style={{ color: isActive ? c.textOnAccent : c.textMuted, fontFamily: "Inter_400Regular", fontSize: 10, marginTop: 4 }}>
                         {p.fasting}h · {p.eating}h
                       </Text>
                     </Pressable>
@@ -352,9 +353,9 @@ export default function FastScreen() {
               <Pressable
                 onPress={() => { setSelectedSchedule(null); setShowCustomModal(true); }}
                 className="w-full py-3.5 rounded-xl items-center mb-4"
-                style={{ backgroundColor: selectedSchedule && !PRESETS.find((p) => p.label === selectedSchedule) ? ACCENT.lime : c.buttonBg, borderWidth: 1, borderColor: selectedSchedule && !PRESETS.find((p) => p.label === selectedSchedule) ? ACCENT.lime : c.cardBorder }}
+                style={{ backgroundColor: selectedSchedule && !PRESETS.find((p) => p.label === selectedSchedule) ? accent.lime : c.buttonBg, borderWidth: 1, borderColor: selectedSchedule && !PRESETS.find((p) => p.label === selectedSchedule) ? accent.lime : c.cardBorder }}
               >
-                <Text style={{ color: selectedSchedule && !PRESETS.find((p) => p.label === selectedSchedule) ? "#161e00" : c.textSecondary, fontFamily: "Inter_700Bold", fontSize: 14 }}>
+                <Text style={{ color: selectedSchedule && !PRESETS.find((p) => p.label === selectedSchedule) ? c.textOnAccent : c.textSecondary, fontFamily: "Inter_700Bold", fontSize: 14 }}>
                   {selectedSchedule && !PRESETS.find((p) => p.label === selectedSchedule) ? `Custom: ${selectedSchedule}` : "Custom Schedule"}
                 </Text>
               </Pressable>
@@ -368,9 +369,9 @@ export default function FastScreen() {
               </Text>
               <View className="flex-row justify-between">
                 {[
-                  { label: "Fast starts", date: new Date(), color: ACCENT.lime },
-                  { label: "Eat window", date: addHours(new Date(), fastingHours), color: ACCENT.cyan },
-                  { label: "Window closes", date: addHours(addHours(new Date(), fastingHours), eatingHours), color: ACCENT.coral },
+                  { label: "Fast starts", date: new Date(), color: accent.lime },
+                  { label: "Eat window", date: addHours(new Date(), fastingHours), color: accent.cyan },
+                  { label: "Window closes", date: addHours(addHours(new Date(), fastingHours), eatingHours), color: accent.coral },
                 ].map((item) => (
                   <View key={item.label} className="flex-1 items-center">
                     <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: item.color }} />
@@ -419,16 +420,16 @@ export default function FastScreen() {
               onPress={phase === "eating" ? () => setShowEndConfirm(true) : () => setShowBreakConfirm(true)}
               className="w-full py-4 rounded-xl flex-row items-center justify-center mb-section-gap"
               style={{
-                backgroundColor: phase === "eating" ? ACCENT.cyan : ACCENT.lime,
-                shadowColor: phase === "eating" ? ACCENT.cyan : ACCENT.lime,
+                backgroundColor: phase === "eating" ? accent.cyan : accent.lime,
+                shadowColor: phase === "eating" ? accent.cyan : accent.lime,
                 shadowOffset: { width: 0, height: 0 },
                 shadowOpacity: 0.15,
                 shadowRadius: 20,
                 elevation: 5,
               }}
             >
-              <MaterialCommunityIcons name="stop-circle-outline" size={22} color="#161e00" />
-              <Text style={{ color: "#161e00", fontFamily: "Inter_700Bold", fontSize: 18, marginLeft: 8 }}>
+              <MaterialCommunityIcons name="stop-circle-outline" size={22} color={c.textOnAccent} />
+              <Text style={{ color: c.textOnAccent, fontFamily: "Inter_700Bold", fontSize: 18, marginLeft: 8 }}>
                 {phase === "eating" ? "End Eating Window" : "Break Fast"}
               </Text>
             </Pressable>
@@ -445,7 +446,7 @@ export default function FastScreen() {
                   </Text>
                   <View className="flex-row items-center gap-2 mb-4">
                     <View className="flex-1 h-1.5 rounded-full overflow-hidden" style={{ backgroundColor: c.cardBgAlt }}>
-                      <View className="h-full rounded-full" style={{ width: `${Math.min(pct * 100, 100)}%`, backgroundColor: ACCENT.lime }} />
+                      <View className="h-full rounded-full" style={{ width: `${Math.min(pct * 100, 100)}%`, backgroundColor: accent.lime }} />
                     </View>
                     <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 11 }}>
                       {Math.round(pct * 100)}%
@@ -482,8 +483,8 @@ export default function FastScreen() {
                     ))}
                   </View>
                   <View className="flex-row gap-3 mb-3">
-                    <Pressable onPress={() => setShowBreakConfirm(false)} className="flex-1 py-3.5 rounded-xl items-center" style={{ backgroundColor: ACCENT.lime }}>
-                      <Text style={{ color: "#161e00", fontFamily: "Inter_700Bold" }}>Continue Fasting</Text>
+                    <Pressable onPress={() => setShowBreakConfirm(false)} className="flex-1 py-3.5 rounded-xl items-center" style={{ backgroundColor: accent.lime }}>
+                      <Text style={{ color: c.textOnAccent, fontFamily: "Inter_700Bold" }}>Continue Fasting</Text>
                     </Pressable>
                     <Pressable onPress={() => { setShowBreakConfirm(false); handleBreakFast(); }} className="flex-1 py-3.5 rounded-xl items-center" style={{ backgroundColor: c.buttonBg }}>
                       <Text style={{ color: c.textMuted, fontFamily: "Inter_700Bold" }}>Break Fast</Text>
@@ -510,8 +511,8 @@ export default function FastScreen() {
                     <Pressable onPress={() => setShowEndConfirm(false)} className="flex-1 py-3.5 rounded-xl items-center" style={{ backgroundColor: c.buttonBg }}>
                       <Text style={{ color: c.text, fontFamily: "Inter_700Bold" }}>Keep Eating</Text>
                     </Pressable>
-                    <Pressable onPress={confirmEndSession} className="flex-1 py-3.5 rounded-xl items-center" style={{ backgroundColor: ACCENT.lime }}>
-                      <Text style={{ color: "#161e00", fontFamily: "Inter_700Bold" }}>End Eating Window</Text>
+                    <Pressable onPress={confirmEndSession} className="flex-1 py-3.5 rounded-xl items-center" style={{ backgroundColor: accent.lime }}>
+                      <Text style={{ color: c.textOnAccent, fontFamily: "Inter_700Bold" }}>End Eating Window</Text>
                     </Pressable>
                   </View>
                   <Pressable onPress={confirmDiscardSession} className="w-full py-3 rounded-xl items-center" style={{ backgroundColor: ACCENT.roseBg, borderWidth: 1, borderColor: ACCENT.roseBorder }}>
@@ -538,11 +539,11 @@ export default function FastScreen() {
                       <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 14 }}>{info.label}</Text>
                       <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 12, marginTop: 4 }}>{info.description}</Text>
                     </View>
-                    <MaterialCommunityIcons name="chart-timeline-variant" size={24} color={ACCENT.lime} style={{ opacity: 0.4 }} />
+                    <MaterialCommunityIcons name="chart-timeline-variant" size={24} color={accent.lime} style={{ opacity: 0.4 }} />
                   </View>
                   <View className="flex-row items-center gap-3">
                     <View className="flex-1 h-1.5 rounded-full overflow-hidden" style={{ backgroundColor: c.cardBgAlt }}>
-                      <View className="h-full rounded-full" style={{ width: `${info.progressPct}%`, backgroundColor: ACCENT.lime }} />
+                      <View className="h-full rounded-full" style={{ width: `${info.progressPct}%`, backgroundColor: accent.lime }} />
                     </View>
                     {info.phaseCount > 1 && (
                       <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 11 }}>
@@ -598,9 +599,9 @@ export default function FastScreen() {
                 <Pressable
                   onPress={handleCheckIn}
                   disabled={checkInMood === null}
-                  style={{ padding: 14, borderRadius: 12, backgroundColor: checkInMood !== null ? ACCENT.lime : c.buttonBg }}
+                  style={{ padding: 14, borderRadius: 12, backgroundColor: checkInMood !== null ? accent.lime : c.buttonBg }}
                 >
-                  <MaterialCommunityIcons name="arrow-right" size={20} color={checkInMood !== null ? "#161e00" : c.textMuted} />
+                  <MaterialCommunityIcons name="arrow-right" size={20} color={checkInMood !== null ? c.textOnAccent : c.textMuted} />
                 </Pressable>
               </View>
             </View>
@@ -640,8 +641,8 @@ export default function FastScreen() {
         <Pressable className="flex-1 justify-end" style={{ backgroundColor: c.overlay }} onPress={() => setShowFastComplete(false)}>
           <Pressable onStartShouldSetResponder={() => true} className="rounded-t-3xl p-6" style={{ backgroundColor: c.elevated }}>
             <View className="items-center mb-4">
-              <View style={{ width: 56, height: 56, borderRadius: 28, backgroundColor: ACCENT.limeBg, alignItems: "center", justifyContent: "center", marginBottom: 12 }}>
-                <MaterialCommunityIcons name="trophy" size={28} color={ACCENT.lime} />
+              <View style={{ width: 56, height: 56, borderRadius: 28, backgroundColor: accent.limeBg, alignItems: "center", justifyContent: "center", marginBottom: 12 }}>
+                <MaterialCommunityIcons name="trophy" size={28} color={accent.lime} />
               </View>
               <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 22 }}>Fast Complete!</Text>
               <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 14, textAlign: "center", marginTop: 4 }}>
@@ -651,11 +652,11 @@ export default function FastScreen() {
 
             <View className="flex-row justify-center gap-6 mb-5">
               <View className="items-center">
-                <Text style={{ color: ACCENT.lime, fontFamily: "SpaceGrotesk_700Bold", fontSize: 28 }}>{fastElapsed.hours}</Text>
+                <Text style={{ color: accent.lime, fontFamily: "SpaceGrotesk_700Bold", fontSize: 28 }}>{fastElapsed.hours}</Text>
                 <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 12 }}>hours</Text>
               </View>
               <View className="items-center">
-                <Text style={{ color: ACCENT.lime, fontFamily: "SpaceGrotesk_700Bold", fontSize: 28 }}>{fastElapsed.minutes}</Text>
+                <Text style={{ color: accent.lime, fontFamily: "SpaceGrotesk_700Bold", fontSize: 28 }}>{fastElapsed.minutes}</Text>
                 <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 12 }}>minutes</Text>
               </View>
             </View>
@@ -664,9 +665,9 @@ export default function FastScreen() {
               <Pressable
                 onPress={() => { setShowFastComplete(false); handleBreakFast(); }}
                 className="flex-1 py-3.5 rounded-xl items-center"
-                style={{ backgroundColor: ACCENT.lime }}
+                style={{ backgroundColor: accent.lime }}
               >
-                <Text style={{ color: "#161e00", fontFamily: "Inter_700Bold", fontSize: 15 }}>Break Fast</Text>
+                <Text style={{ color: c.textOnAccent, fontFamily: "Inter_700Bold", fontSize: 15 }}>Break Fast</Text>
               </Pressable>
               <Pressable
                 onPress={() => setShowFastComplete(false)}
@@ -686,7 +687,7 @@ export default function FastScreen() {
           <Pressable onStartShouldSetResponder={() => true} className="rounded-t-3xl p-6" style={{ backgroundColor: c.elevated }}>
             <View className="items-center mb-5">
               <View style={{ width: 56, height: 56, borderRadius: 28, backgroundColor: "rgba(195,244,0,0.15)", alignItems: "center", justifyContent: "center", marginBottom: 12 }}>
-                <MaterialCommunityIcons name="trophy" size={28} color={ACCENT.lime} />
+                <MaterialCommunityIcons name="trophy" size={28} color={accent.lime} />
               </View>
               <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 22 }}>Session Complete!</Text>
               <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 14, textAlign: "center", marginTop: 4 }}>
@@ -711,7 +712,7 @@ export default function FastScreen() {
               <View className="h-px" style={{ backgroundColor: c.divider }} />
               <View className="flex-row justify-between py-2">
                 <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 14 }}>Total</Text>
-                <Text style={{ color: ACCENT.lime, fontFamily: "Inter_700Bold", fontSize: 14 }}>
+                <Text style={{ color: accent.lime, fontFamily: "Inter_700Bold", fontSize: 14 }}>
                   {sessionCompleteData?.totalHours ?? 0}h {sessionCompleteData?.totalMinutes ?? 0}m
                 </Text>
               </View>
@@ -719,13 +720,13 @@ export default function FastScreen() {
 
             <View className="flex-row gap-4 mb-5">
               <View className="flex-1 items-center rounded-xl py-3" style={{ backgroundColor: c.cardBg }}>
-                <Text style={{ color: ACCENT.coral, fontFamily: "Inter_700Bold", fontSize: 18 }}>
+                <Text style={{ color: accent.coral, fontFamily: "Inter_700Bold", fontSize: 18 }}>
                   {sessionCompleteData?.streak ?? 0}
                 </Text>
                 <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 12 }}>day streak</Text>
               </View>
               <View className="flex-1 items-center rounded-xl py-3" style={{ backgroundColor: c.cardBg }}>
-                <Text style={{ color: ACCENT.lime, fontFamily: "Inter_700Bold", fontSize: 18 }}>
+                <Text style={{ color: accent.lime, fontFamily: "Inter_700Bold", fontSize: 18 }}>
                   {sessionCompleteData?.completedFastsCount ?? 0}
                 </Text>
                 <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 12 }}>completed</Text>
@@ -735,7 +736,7 @@ export default function FastScreen() {
             <Pressable
               onPress={() => setShowSessionComplete(false)}
               className="py-4 rounded-xl items-center"
-              style={{ backgroundColor: ACCENT.lime }}
+              style={{ backgroundColor: accent.lime }}
             >
               <Text style={{ color: "#1a2e00", fontFamily: "Inter_700Bold", fontSize: 16 }}>Done</Text>
             </Pressable>
@@ -749,7 +750,7 @@ export default function FastScreen() {
           <Pressable onStartShouldSetResponder={() => true} className="rounded-t-3xl p-6" style={{ backgroundColor: c.elevated }}>
             <View className="items-center mb-5">
               <View style={{ width: 56, height: 56, borderRadius: 28, backgroundColor: "rgba(0,218,243,0.15)", alignItems: "center", justifyContent: "center", marginBottom: 12 }}>
-                <MaterialCommunityIcons name="check-circle" size={28} color={ACCENT.cyan} />
+                <MaterialCommunityIcons name="check-circle" size={28} color={accent.cyan} />
               </View>
               <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 22 }}>Eating Window Complete!</Text>
               <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 14, textAlign: "center", marginTop: 4 }}>
@@ -761,9 +762,9 @@ export default function FastScreen() {
               <Pressable
                 onPress={() => { setShowEatComplete(false); confirmEndSession(); }}
                 className="flex-1 py-3.5 rounded-xl items-center"
-                style={{ backgroundColor: ACCENT.cyan }}
+                style={{ backgroundColor: accent.cyan }}
               >
-                <Text style={{ color: "#001e24", fontFamily: "Inter_700Bold", fontSize: 15 }}>End Session</Text>
+                <Text style={{ color: c.textOnAccent, fontFamily: "Inter_700Bold", fontSize: 15 }}>End Session</Text>
               </Pressable>
               <Pressable
                 onPress={() => setShowEatComplete(false)}

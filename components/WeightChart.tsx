@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { View, Text } from "react-native";
 import Svg, { Path, Circle, Line, Text as SvgText } from "react-native-svg";
 import { useThemeStore } from "@/lib/theme-store";
-import { getThemeColors, ACCENT } from "@/lib/theme-colors";
+import { getThemeColors, ACCENT, getAccentColors } from "@/lib/theme-colors";
 import type { WeightLogEntry } from "@/lib/types";
 
 type WeightChartProps = {
@@ -13,6 +13,7 @@ type WeightChartProps = {
 export function WeightChart({ entries, goalWeightKg }: WeightChartProps) {
   const { theme } = useThemeStore();
   const c = getThemeColors(theme);
+  const accent = getAccentColors(theme);
   const [containerWidth, setContainerWidth] = useState(320);
 
   if (entries.length <= 1) return null;
@@ -43,7 +44,7 @@ export function WeightChart({ entries, goalWeightKg }: WeightChartProps) {
   const pathD = points.map((p, i) => `${i === 0 ? "M" : "L"} ${p.x} ${p.y}`).join(" ");
   const fillPathD = pathD + ` L ${points[points.length - 1].x} ${padding.top + chartH}` + ` L ${points[0].x} ${padding.top + chartH} Z`;
 
-  const lineColor = ACCENT.lime;
+  const lineColor = accent.lime;
   const fillColor = theme === "dark" ? "rgba(45,212,168,0.15)" : "rgba(45,212,168,0.1)";
   const gridColor = theme === "dark" ? "rgba(240,237,232,0.05)" : "rgba(26,24,22,0.05)";
   const labelColor = theme === "dark" ? "rgba(240,237,232,0.25)" : "rgba(26,24,22,0.25)";
@@ -90,8 +91,8 @@ export function WeightChart({ entries, goalWeightKg }: WeightChartProps) {
 
           {goalY !== null && (
             <>
-              <Line x1={padding.left} y1={goalY} x2={width - padding.right - 16} y2={goalY} stroke={ACCENT.lime} strokeWidth={1} strokeDasharray="4 4" />
-              <SvgText x={width - padding.right - 16 + 4} y={goalY + 4} fontSize={8} fill={ACCENT.lime} fontFamily="SpaceGrotesk_600SemiBold">
+              <Line x1={padding.left} y1={goalY} x2={width - padding.right - 16} y2={goalY} stroke={accent.lime} strokeWidth={1} strokeDasharray="4 4" />
+              <SvgText x={width - padding.right - 16 + 4} y={goalY + 4} fontSize={8} fill={accent.lime} fontFamily="SpaceGrotesk_600SemiBold">
                 Goal
               </SvgText>
             </>

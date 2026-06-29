@@ -28,25 +28,25 @@ const DARK = {
 const LIGHT = {
   bg: "#F5F3F0",
   surface: "#FFFFFF",
-  elevated: "#EEEAE4",
-  text: "#1C1A18",
-  textSecondary: "rgba(28,26,24,0.65)",
-  textMuted: "rgba(28,26,24,0.45)",
-  textFaint: "rgba(28,26,24,0.20)",
-  textOnAccent: "#161e00",
+  elevated: "#F0EDE8",
+  text: "#1A1714",
+  textSecondary: "#5A5650",
+  textMuted: "#7A766F",
+  textFaint: "#A09A92",
+  textOnAccent: "#FFFFFF",
   textOnDark: "#FFFFFF",
-  cardBg: "rgba(255,255,255,0.85)",
-  cardBgAlt: "#E8E4DE",
+  cardBg: "#FFFFFF",
+  cardBgAlt: "#FAF8F5",
   cardBorder: "rgba(0,0,0,0.08)",
-  inputBg: "rgba(0,0,0,0.05)",
+  inputBg: "#FAF8F5",
   inputBorder: "rgba(0,0,0,0.12)",
-  buttonBg: "rgba(0,0,0,0.06)",
+  buttonBg: "#F0EDE8",
   divider: "rgba(0,0,0,0.08)",
-  tabBarBg: "rgba(245,243,240,0.9)",
+  tabBarBg: "#F5F3F0",
   tabBarBorder: "rgba(0,0,0,0.08)",
-  tabBarInactive: "rgba(28,26,24,0.30)",
-  placeholder: "rgba(28,26,24,0.30)",
-  overlay: "rgba(0,0,0,0.3)",
+  tabBarInactive: "#8A857E",
+  placeholder: "#A09A92",
+  overlay: "rgba(0,0,0,0.4)",
   progressTrack: "rgba(0,0,0,0.08)",
 } as const;
 
@@ -54,7 +54,7 @@ export function getThemeColors(theme: Theme) {
   return theme === "dark" ? { ...DARK } : { ...LIGHT };
 }
 
-export const ACCENT = {
+const DARK_ACCENT = {
   mint: "#2DD4A8",
   mintLight: "#5EEAD4",
   mintBg: "rgba(45,212,168,0.12)",
@@ -81,12 +81,66 @@ export const ACCENT = {
   cyanBorder: "rgba(0,218,243,0.3)",
 } as const;
 
-export const MEAL_COLORS: Record<string, string> = {
-  breakfast: ACCENT.coral,
-  lunch: ACCENT.lime,
-  dinner: ACCENT.sky,
-  snack: ACCENT.lime,
-  other: "rgba(128,128,128,0.5)",
+export type AccentColors = {
+  mint: string;
+  mintLight: string;
+  mintBg: string;
+  mintBorder: string;
+  coral: string;
+  coralLight: string;
+  coralBg: string;
+  coralBorder: string;
+  rose: string;
+  roseBg: string;
+  roseBorder: string;
+  sky: string;
+  skyLight: string;
+  skyBg: string;
+  skyBorder: string;
+  amber: string;
+  amberBg: string;
+  amberBorder: string;
+  lime: string;
+  limeBg: string;
+  limeBorder: string;
+  cyan: string;
+  cyanBg: string;
+  cyanBorder: string;
 };
+
+export const ACCENT: AccentColors = DARK_ACCENT;
+
+export function getAccentColors(theme: Theme): AccentColors {
+  if (theme === "light") {
+    return {
+      ...DARK_ACCENT,
+      lime: "#3F8B3D",
+      limeBg: "rgba(63,139,61,0.12)",
+      limeBorder: "rgba(63,139,61,0.3)",
+      cyan: "#0891B2",
+      cyanBg: "rgba(8,145,178,0.10)",
+      cyanBorder: "rgba(8,145,178,0.3)",
+      coral: "#E04A35",
+      coralLight: "#FF8A75",
+      coralBg: "rgba(224,74,53,0.12)",
+      coralBorder: "rgba(224,74,53,0.3)",
+      amber: "#D97706",
+      amberBg: "rgba(217,119,6,0.10)",
+      amberBorder: "rgba(217,119,6,0.3)",
+    };
+  }
+  return { ...DARK_ACCENT };
+}
+
+export function getMealColors(theme: Theme): Record<string, string> {
+  const accent = getAccentColors(theme);
+  return {
+    breakfast: accent.coral,
+    lunch: accent.lime,
+    dinner: accent.sky,
+    snack: accent.lime,
+    other: "rgba(128,128,128,0.5)",
+  };
+}
 
 export type ThemeColors = ReturnType<typeof getThemeColors>;

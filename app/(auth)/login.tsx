@@ -4,7 +4,7 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Link, router } from "expo-router";
 import { Video, ResizeMode } from "expo-av";
 import { useAuth } from "@/hooks/useAuth";
-import { getThemeColors, ACCENT } from "@/lib/theme-colors";
+import { getThemeColors, ACCENT, getAccentColors } from "@/lib/theme-colors";
 import { useThemeStore } from "@/lib/theme-store";
 
 const BACKGROUND_VIDEO = require("../../assets/videos/background.mp4");
@@ -13,6 +13,7 @@ export default function LoginScreen() {
   const { signIn, signInWithGoogle } = useAuth();
   const { theme } = useThemeStore();
   const c = getThemeColors(theme);
+  const accent = getAccentColors(theme);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -55,7 +56,7 @@ export default function LoginScreen() {
         <View className="flex-1 justify-center px-6">
           <View className="flex-row justify-center items-center gap-3 mb-2">
             <Image source={require("../../assets/icon.png")} style={{ width: 40, height: 40, borderRadius: 8 }} />
-            <Text style={{ color: ACCENT.lime, fontFamily: "Inter_800ExtraBold", fontSize: 48, letterSpacing: -1 }}>FastTrack</Text>
+            <Text style={{ color: accent.lime, fontFamily: "Inter_800ExtraBold", fontSize: 48, letterSpacing: -1 }}>FastTrack</Text>
           </View>
         <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 16 }} className="text-center mb-10">
           Intermittent Fasting, Workouts & Macro Tracker
@@ -78,7 +79,7 @@ export default function LoginScreen() {
 
         <Pressable
           onPress={() => handleLogin()} disabled={loading}
-          className="rounded-xl py-4 mb-4" style={{ backgroundColor: ACCENT.lime }}
+          className="rounded-xl py-4 mb-4" style={{ backgroundColor: accent.lime }}
         >
           {loading ? (
             <ActivityIndicator color={c.textOnAccent} />
@@ -125,7 +126,7 @@ export default function LoginScreen() {
           <Pressable>
             <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular" }} className="text-center">
               Don&apos;t have an account?{" "}
-              <Text style={{ color: ACCENT.lime, fontFamily: "SpaceGrotesk_600SemiBold" }}>Sign Up</Text>
+              <Text style={{ color: accent.lime, fontFamily: "SpaceGrotesk_600SemiBold" }}>Sign Up</Text>
             </Text>
           </Pressable>
         </Link>

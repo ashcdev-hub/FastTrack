@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Pressable, View, Text, Modal } from "react-native";
 import { useThemeStore } from "@/lib/theme-store";
-import { getThemeColors, ACCENT } from "@/lib/theme-colors";
+import { getThemeColors, ACCENT, getAccentColors } from "@/lib/theme-colors";
 import type { WorkoutGoal } from "@/lib/types";
 
 type LogSetModalProps = {
@@ -15,6 +15,7 @@ type LogSetModalProps = {
 export function LogSetModal({ visible, goal, weightKg, onClose, onLog }: LogSetModalProps) {
   const { theme } = useThemeStore();
   const c = getThemeColors(theme);
+  const accent = getAccentColors(theme);
   const [reps, setReps] = useState(10);
   const [sets, setSets] = useState(1);
 
@@ -54,7 +55,7 @@ export function LogSetModal({ visible, goal, weightKg, onClose, onLog }: LogSetM
           <View className="flex-row gap-2 mb-5">
             {[5, 10, 15, 20, 25].map((preset) => (
               <Pressable key={preset} onPress={() => setReps(preset)} className="flex-1 py-2 rounded-lg items-center"
-                style={{ backgroundColor: reps === preset ? ACCENT.lime : c.buttonBg }}>
+                style={{ backgroundColor: reps === preset ? accent.lime : c.buttonBg }}>
                 <Text className="text-xs" style={{ color: reps === preset ? c.textOnAccent : c.textSecondary, fontFamily: "SpaceGrotesk_600SemiBold" }}>
                   {preset}
                 </Text>
@@ -78,7 +79,7 @@ export function LogSetModal({ visible, goal, weightKg, onClose, onLog }: LogSetM
           <View className="flex-row gap-2 mb-5">
             {[1, 2, 3, 4, 5].map((preset) => (
               <Pressable key={preset} onPress={() => setSets(preset)} className="flex-1 py-2 rounded-lg items-center"
-                style={{ backgroundColor: sets === preset ? ACCENT.lime : c.buttonBg }}>
+                style={{ backgroundColor: sets === preset ? accent.lime : c.buttonBg }}>
                 <Text className="text-xs" style={{ color: sets === preset ? c.textOnAccent : c.textSecondary, fontFamily: "SpaceGrotesk_600SemiBold" }}>
                   {preset}
                 </Text>
@@ -87,14 +88,14 @@ export function LogSetModal({ visible, goal, weightKg, onClose, onLog }: LogSetM
           </View>
 
           {reps > 0 && (
-            <View className="rounded-xl p-3 mb-4" style={{ backgroundColor: ACCENT.limeBg }}>
-              <Text style={{ color: ACCENT.lime, fontFamily: "SpaceGrotesk_600SemiBold" }} className="text-sm">
+            <View className="rounded-xl p-3 mb-4" style={{ backgroundColor: accent.limeBg }}>
+              <Text style={{ color: accent.lime, fontFamily: "SpaceGrotesk_600SemiBold" }} className="text-sm">
                 Estimated calories burned: {Math.round(caloriesBurned)}
               </Text>
             </View>
           )}
 
-          <Pressable onPress={handleLog} className="rounded-xl py-3" style={{ backgroundColor: ACCENT.lime }}>
+          <Pressable onPress={handleLog} className="rounded-xl py-3" style={{ backgroundColor: accent.lime }}>
             <Text style={{ color: c.textOnAccent, fontFamily: "Inter_700Bold" }} className="text-center">Log Set</Text>
           </Pressable>
         </Pressable>

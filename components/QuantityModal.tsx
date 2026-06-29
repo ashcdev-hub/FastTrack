@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Pressable, View, Text, Modal } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useThemeStore } from "@/lib/theme-store";
-import { getThemeColors, ACCENT } from "@/lib/theme-colors";
+import { getThemeColors, ACCENT, getAccentColors } from "@/lib/theme-colors";
 
 type QuantityModalProps = {
   visible: boolean;
@@ -15,6 +15,7 @@ type QuantityModalProps = {
 export function QuantityModal({ visible, itemName, itemCalories, onConfirm, onCancel }: QuantityModalProps) {
   const { theme } = useThemeStore();
   const c = getThemeColors(theme);
+  const accent = getAccentColors(theme);
   const [quantity, setQuantity] = useState(1);
 
   const presets = [1, 2, 3, 5];
@@ -74,9 +75,9 @@ export function QuantityModal({ visible, itemName, itemCalories, onConfirm, onCa
                 key={p}
                 onPress={() => setQuantity(p)}
                 className="flex-1 py-2.5 rounded-xl items-center"
-                style={{ backgroundColor: quantity === p ? ACCENT.lime : c.buttonBg }}
+                style={{ backgroundColor: quantity === p ? accent.lime : c.buttonBg }}
               >
-                <Text style={{ color: quantity === p ? "#161e00" : c.textSecondary, fontFamily: "Inter_700Bold", fontSize: 14 }}>
+                <Text style={{ color: quantity === p ? c.textOnAccent : c.textSecondary, fontFamily: "Inter_700Bold", fontSize: 14 }}>
                   {p}
                 </Text>
               </Pressable>
@@ -95,8 +96,8 @@ export function QuantityModal({ visible, itemName, itemCalories, onConfirm, onCa
             </Text>
           </View>
 
-          <Pressable onPress={handleConfirm} className="rounded-xl py-3.5 items-center" style={{ backgroundColor: ACCENT.lime }}>
-            <Text style={{ color: "#161e00", fontFamily: "Inter_700Bold", fontSize: 16 }}>
+          <Pressable onPress={handleConfirm} className="rounded-xl py-3.5 items-center" style={{ backgroundColor: accent.lime }}>
+            <Text style={{ color: c.textOnAccent, fontFamily: "Inter_700Bold", fontSize: 16 }}>
               Add {quantity > 1 ? `${quantity}× ` : ""}to Meal
             </Text>
           </Pressable>

@@ -2,7 +2,7 @@ import React, { useState, useMemo } from "react";
 import { Pressable, View, Text, ScrollView, Modal } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useThemeStore } from "@/lib/theme-store";
-import { getThemeColors, ACCENT } from "@/lib/theme-colors";
+import { getThemeColors, ACCENT, getAccentColors } from "@/lib/theme-colors";
 import type { FoodLogEntry } from "@/lib/types";
 
 const MONTH_NAMES = [
@@ -43,6 +43,7 @@ type MealCalendarModalProps = {
 export function MealCalendarModal({ visible, entries, onClose, onDeleteEntry, onUpdateEntry, onSaveAsMeal }: MealCalendarModalProps) {
   const { theme } = useThemeStore();
   const c = getThemeColors(theme);
+  const accent = getAccentColors(theme);
   const now = new Date();
   const [year, setYear] = useState(now.getFullYear());
   const [month, setMonth] = useState(now.getMonth());
@@ -143,12 +144,12 @@ export function MealCalendarModal({ visible, entries, onClose, onDeleteEntry, on
                     <View style={{
                       width: 36, height: 36, borderRadius: 18,
                       borderWidth: isSelected ? 2 : isToday ? 1.5 : 0,
-                      borderColor: isSelected ? ACCENT.lime : isToday ? ACCENT.lime : "transparent",
-                      backgroundColor: hasMeals ? ACCENT.cyanBg : "transparent",
+                      borderColor: isSelected ? accent.lime : isToday ? accent.lime : "transparent",
+                      backgroundColor: hasMeals ? accent.cyanBg : "transparent",
                       alignItems: "center", justifyContent: "center",
                       opacity: isCurrentMonth ? 1 : 0.2,
                     }}>
-                      <Text style={{ color: hasMeals ? ACCENT.cyan : c.text, fontFamily: "Inter_400Regular", fontSize: 14 }}>
+                      <Text style={{ color: hasMeals ? accent.cyan : c.text, fontFamily: "Inter_400Regular", fontSize: 14 }}>
                         {date.getDate()}
                       </Text>
                     </View>
@@ -174,7 +175,7 @@ export function MealCalendarModal({ visible, entries, onClose, onDeleteEntry, on
                         onPress={() => handleEdit(entry)}
                         className="flex-row items-center gap-2 flex-1"
                       >
-                        <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: ACCENT.cyan }} />
+                        <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: accent.cyan }} />
                         <View className="flex-1">
                           <Text style={{ color: c.text, fontFamily: "Inter_400Regular", fontSize: 13 }} numberOfLines={1}>
                             {entry.name}
@@ -199,8 +200,8 @@ export function MealCalendarModal({ visible, entries, onClose, onDeleteEntry, on
                 )}
                 {onSaveAsMeal && selectedDayMeals.length > 0 && (
                   <Pressable onPress={() => onSaveAsMeal(selectedDayMeals)} className="flex-row items-center justify-center gap-1.5 py-2 mt-1 rounded-lg" style={{ backgroundColor: c.buttonBg }}>
-                    <MaterialCommunityIcons name="bookmark-outline" size={14} color={ACCENT.cyan} />
-                    <Text style={{ color: ACCENT.cyan, fontFamily: "Inter_700Bold", fontSize: 12 }}>Save as Meal</Text>
+                    <MaterialCommunityIcons name="bookmark-outline" size={14} color={accent.cyan} />
+                    <Text style={{ color: accent.cyan, fontFamily: "Inter_700Bold", fontSize: 12 }}>Save as Meal</Text>
                   </Pressable>
                 )}
               </ScrollView>
@@ -253,8 +254,8 @@ export function MealCalendarModal({ visible, entries, onClose, onDeleteEntry, on
                         {macro.presets.map((v) => (
                           <Pressable key={v} onPress={() => macro.set(v)}
                             className="flex-1 py-1.5 rounded-md items-center"
-                            style={{ backgroundColor: macro.val === v ? ACCENT.limeBg : c.buttonBg }}>
-                            <Text style={{ color: macro.val === v ? ACCENT.lime : c.textMuted, fontFamily: "Inter_700Bold", fontSize: 12 }}>{v}</Text>
+                            style={{ backgroundColor: macro.val === v ? accent.limeBg : c.buttonBg }}>
+                            <Text style={{ color: macro.val === v ? accent.lime : c.textMuted, fontFamily: "Inter_700Bold", fontSize: 12 }}>{v}</Text>
                           </Pressable>
                         ))}
                       </View>
@@ -263,8 +264,8 @@ export function MealCalendarModal({ visible, entries, onClose, onDeleteEntry, on
                 </View>
 
                 <Pressable onPress={handleSaveEdit} disabled={saving}
-                  className="rounded-xl py-3.5 items-center" style={{ backgroundColor: ACCENT.lime, opacity: saving ? 0.5 : 1 }}>
-                  <Text style={{ color: "#161e00", fontFamily: "Inter_700Bold", fontSize: 16 }}>
+                  className="rounded-xl py-3.5 items-center" style={{ backgroundColor: accent.lime, opacity: saving ? 0.5 : 1 }}>
+                  <Text style={{ color: c.textOnAccent, fontFamily: "Inter_700Bold", fontSize: 16 }}>
                     {saving ? "Saving..." : "Save Changes"}
                   </Text>
                 </Pressable>

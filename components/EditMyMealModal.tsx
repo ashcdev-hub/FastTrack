@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Pressable, View, Text, TextInput, ScrollView, Modal } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useThemeStore } from "@/lib/theme-store";
-import { getThemeColors, ACCENT } from "@/lib/theme-colors";
+import { getThemeColors, ACCENT, getAccentColors } from "@/lib/theme-colors";
 import type { MyMeal, MyMealItem } from "@/lib/types";
 
 type ItemForm = {
@@ -25,6 +25,7 @@ type EditMyMealModalProps = {
 export function EditMyMealModal({ visible, meal, onSave, onClose }: EditMyMealModalProps) {
   const { theme } = useThemeStore();
   const c = getThemeColors(theme);
+  const accent = getAccentColors(theme);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [items, setItems] = useState<ItemForm[]>([]);
@@ -141,7 +142,7 @@ export function EditMyMealModal({ visible, meal, onSave, onClose }: EditMyMealMo
               {meal ? "Edit Meal" : "New Meal"}
             </Text>
             <Pressable onPress={handleSave} disabled={saving || !name.trim()}>
-              <Text style={{ color: name.trim() ? ACCENT.lime : c.textMuted, fontFamily: "Inter_700Bold", fontSize: 15, opacity: name.trim() ? 1 : 0.5 }}>
+              <Text style={{ color: name.trim() ? accent.lime : c.textMuted, fontFamily: "Inter_700Bold", fontSize: 15, opacity: name.trim() ? 1 : 0.5 }}>
                 {saving ? "Saving..." : "Save"}
               </Text>
             </Pressable>
@@ -175,7 +176,7 @@ export function EditMyMealModal({ visible, meal, onSave, onClose }: EditMyMealMo
                 ITEMS ({items.length}) — {totalCals} kcal total
               </Text>
               <Pressable onPress={() => setShowAddItem(true)}>
-                <Text style={{ color: ACCENT.cyan, fontFamily: "Inter_700Bold", fontSize: 13 }}>+ Add Item</Text>
+                <Text style={{ color: accent.cyan, fontFamily: "Inter_700Bold", fontSize: 13 }}>+ Add Item</Text>
               </Pressable>
             </View>
 
@@ -241,8 +242,8 @@ export function EditMyMealModal({ visible, meal, onSave, onClose }: EditMyMealMo
                       {macro.presets.map((v) => (
                         <Pressable key={v} onPress={() => macro.set(v)}
                           className="flex-1 py-1 rounded-md items-center"
-                          style={{ backgroundColor: macro.val === v ? ACCENT.limeBg : c.buttonBg }}>
-                          <Text style={{ color: macro.val === v ? ACCENT.lime : c.textMuted, fontFamily: "Inter_700Bold", fontSize: 11 }}>{v}</Text>
+                          style={{ backgroundColor: macro.val === v ? accent.limeBg : c.buttonBg }}>
+                          <Text style={{ color: macro.val === v ? accent.lime : c.textMuted, fontFamily: "Inter_700Bold", fontSize: 11 }}>{v}</Text>
                         </Pressable>
                       ))}
                     </View>
@@ -253,15 +254,15 @@ export function EditMyMealModal({ visible, meal, onSave, onClose }: EditMyMealMo
                   <Pressable onPress={() => setShowAddItem(false)} className="flex-1 py-2 rounded-xl items-center" style={{ backgroundColor: c.buttonBg }}>
                     <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 14 }}>Cancel</Text>
                   </Pressable>
-                  <Pressable onPress={handleAddItem} className="flex-1 py-2 rounded-xl items-center" style={{ backgroundColor: ACCENT.lime, opacity: newName.trim() ? 1 : 0.5 }} disabled={!newName.trim()}>
-                    <Text style={{ color: "#161e00", fontFamily: "Inter_700Bold", fontSize: 14 }}>Add</Text>
+                  <Pressable onPress={handleAddItem} className="flex-1 py-2 rounded-xl items-center" style={{ backgroundColor: accent.lime, opacity: newName.trim() ? 1 : 0.5 }} disabled={!newName.trim()}>
+                    <Text style={{ color: c.textOnAccent, fontFamily: "Inter_700Bold", fontSize: 14 }}>Add</Text>
                   </Pressable>
                 </View>
               </View>
             )}
 
-            <Pressable onPress={handleSave} disabled={saving || !name.trim()} className="rounded-xl py-3.5 items-center mb-4" style={{ backgroundColor: name.trim() ? ACCENT.lime : c.buttonBg }}>
-              <Text style={{ color: name.trim() ? "#161e00" : c.textMuted, fontFamily: "Inter_700Bold", fontSize: 16 }}>
+            <Pressable onPress={handleSave} disabled={saving || !name.trim()} className="rounded-xl py-3.5 items-center mb-4" style={{ backgroundColor: name.trim() ? accent.lime : c.buttonBg }}>
+              <Text style={{ color: name.trim() ? c.textOnAccent : c.textMuted, fontFamily: "Inter_700Bold", fontSize: 16 }}>
                 {saving ? "Saving..." : meal ? "Save Changes" : "Create Meal"}
               </Text>
             </Pressable>

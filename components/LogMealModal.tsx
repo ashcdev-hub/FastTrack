@@ -4,7 +4,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { supabase } from "@/lib/supabase";
 import { useThemeStore } from "@/lib/theme-store";
-import { getThemeColors, ACCENT, MEAL_COLORS } from "@/lib/theme-colors";
+import { getThemeColors, ACCENT, getAccentColors, getMealColors } from "@/lib/theme-colors";
 import { useFoodLogStore } from "@/store/useFoodLogStore";
 import type { StagedItem } from "@/store/useFoodLogStore";
 import { MealBuilder } from "@/components/MealBuilder";
@@ -87,6 +87,8 @@ type LogMealModalProps = {
 export function LogMealModal({ visible, onClose, userId, quickAddFoods, recentFoods = [], myMeals = [], onSaveQuickAdd, onLogMeal, onSaveAsMeal, onBumpMyMealUsage, onSaveItemToQuickAdd }: LogMealModalProps) {
   const { theme } = useThemeStore();
   const c = getThemeColors(theme);
+  const accent = getAccentColors(theme);
+  const mealColors = getMealColors(theme);
   const insets = useSafeAreaInsets();
   const store = useFoodLogStore();
   const searchInputRef = useRef<TextInput>(null);
@@ -310,13 +312,13 @@ export function LogMealModal({ visible, onClose, userId, quickAddFoods, recentFo
               onPress={() => setShowBarcodeScanner(true)}
               style={{ borderRadius: 12, backgroundColor: c.inputBg, padding: 14, justifyContent: "center" }}
             >
-              <MaterialCommunityIcons name="barcode-scan" size={24} color={ACCENT.lime} />
+              <MaterialCommunityIcons name="barcode-scan" size={24} color={accent.lime} />
             </Pressable>
             <Pressable
               onPress={() => setShowPhotoPicker(true)}
               style={{ borderRadius: 12, backgroundColor: c.inputBg, padding: 14, justifyContent: "center" }}
             >
-              <MaterialCommunityIcons name="camera" size={24} color={ACCENT.cyan} />
+              <MaterialCommunityIcons name="camera" size={24} color={accent.cyan} />
             </Pressable>
           </View>
         </View>
@@ -326,7 +328,7 @@ export function LogMealModal({ visible, onClose, userId, quickAddFoods, recentFo
           <View style={{ paddingHorizontal: 20, paddingBottom: 8, maxHeight: 240, minHeight: 40 }}>
             <View style={{ borderRadius: 12, backgroundColor: c.cardBgAlt, padding: 10 }}>
               {searchLoading ? (
-                <ActivityIndicator color={ACCENT.lime} />
+                <ActivityIndicator color={accent.lime} />
               ) : searchError ? (
                 <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 14, textAlign: "center", paddingVertical: 8 }}>
                   {searchError}
@@ -375,7 +377,7 @@ export function LogMealModal({ visible, onClose, userId, quickAddFoods, recentFo
             <View className="flex-row gap-2 mb-5">
               {mealTypes.map((type) => {
                 const isActive = store.selectedMealType === type;
-                const color = MEAL_COLORS[type];
+                const color = mealColors[type];
                 return (
                   <Pressable
                     key={type}
@@ -384,7 +386,7 @@ export function LogMealModal({ visible, onClose, userId, quickAddFoods, recentFo
                     style={{ backgroundColor: isActive ? color : c.buttonBg }}
                   >
                     <Text style={{
-                      color: isActive ? (color === MEAL_COLORS.breakfast || color === MEAL_COLORS.lunch ? "#161e00" : "#FFFFFF") : c.textMuted,
+                      color: isActive ? (color === mealColors.breakfast || color === mealColors.lunch ? c.textOnAccent : "#FFFFFF") : c.textMuted,
                       fontFamily: isActive ? "Inter_700Bold" : "Inter_400Regular",
                       fontSize: 13,
                       textTransform: "capitalize",
@@ -399,8 +401,8 @@ export function LogMealModal({ visible, onClose, userId, quickAddFoods, recentFo
             {/* Staged items count badge */}
             {store.stagedItems.length > 0 && (
               <View className="flex-row items-center mb-4 gap-2">
-                <View className="rounded-full px-3 py-1" style={{ backgroundColor: ACCENT.limeBg }}>
-                  <Text style={{ color: ACCENT.lime, fontFamily: "Inter_700Bold", fontSize: 13 }}>
+                <View className="rounded-full px-3 py-1" style={{ backgroundColor: accent.limeBg }}>
+                  <Text style={{ color: accent.lime, fontFamily: "Inter_700Bold", fontSize: 13 }}>
                     {store.stagedItems.length} {store.stagedItems.length === 1 ? "item" : "items"} staged
                   </Text>
                 </View>
@@ -417,7 +419,7 @@ export function LogMealModal({ visible, onClose, userId, quickAddFoods, recentFo
               style={{ backgroundColor: c.cardBgAlt }}
             >
               <Text style={{ color: c.text, fontFamily: "Inter_400Regular", fontSize: 15 }}>{formatDateTime(new Date(store.stagedDate))}</Text>
-              <Text style={{ color: ACCENT.lime, fontFamily: "Inter_700Bold", fontSize: 14 }}>Change</Text>
+              <Text style={{ color: accent.lime, fontFamily: "Inter_700Bold", fontSize: 14 }}>Change</Text>
             </Pressable>
 
             {/* My Meals */}
@@ -450,8 +452,8 @@ export function LogMealModal({ visible, onClose, userId, quickAddFoods, recentFo
                       >
                         <View className="rounded-xl p-4" style={{ backgroundColor: c.cardBgAlt }}>
                           <View className="flex-row items-center gap-2 mb-1">
-                            <View className="rounded-lg items-center justify-center" style={{ width: 28, height: 28, backgroundColor: ACCENT.cyanBg }}>
-                              <MaterialCommunityIcons name="bookmark-outline" size={14} color={ACCENT.cyan} />
+                            <View className="rounded-lg items-center justify-center" style={{ width: 28, height: 28, backgroundColor: accent.cyanBg }}>
+                              <MaterialCommunityIcons name="bookmark-outline" size={14} color={accent.cyan} />
                             </View>
                             <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 13, flex: 1 }} numberOfLines={1}>{meal.name}</Text>
                           </View>
@@ -493,8 +495,8 @@ export function LogMealModal({ visible, onClose, userId, quickAddFoods, recentFo
                       }}
                     >
                       <View className="rounded-xl p-4 flex-row items-center gap-3" style={{ backgroundColor: c.cardBgAlt }}>
-                        <View className="rounded-lg items-center justify-center" style={{ width: 36, height: 36, backgroundColor: ACCENT.limeBg }}>
-                          <MaterialCommunityIcons name="food-apple-outline" size={18} color={ACCENT.lime} />
+                        <View className="rounded-lg items-center justify-center" style={{ width: 36, height: 36, backgroundColor: accent.limeBg }}>
+                          <MaterialCommunityIcons name="food-apple-outline" size={18} color={accent.lime} />
                         </View>
                         <View className="flex-1">
                           <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 14 }} numberOfLines={1}>{foodName}</Text>
@@ -526,8 +528,8 @@ export function LogMealModal({ visible, onClose, userId, quickAddFoods, recentFo
                       }}
                     >
                       <View className="rounded-xl p-4 flex-row items-center gap-3" style={{ backgroundColor: c.cardBgAlt }}>
-                        <View className="rounded-lg items-center justify-center" style={{ width: 36, height: 36, backgroundColor: ACCENT.limeBg }}>
-                          <MaterialCommunityIcons name="history" size={18} color={ACCENT.lime} />
+                        <View className="rounded-lg items-center justify-center" style={{ width: 36, height: 36, backgroundColor: accent.limeBg }}>
+                          <MaterialCommunityIcons name="history" size={18} color={accent.lime} />
                         </View>
                         <View className="flex-1">
                           <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 14 }} numberOfLines={1}>{item.name}</Text>
@@ -599,8 +601,8 @@ export function LogMealModal({ visible, onClose, userId, quickAddFoods, recentFo
                       {[100, 200, 300, 500].map((v) => (
                         <Pressable key={v} onPress={() => setCustomCals(String(v))}
                           className="flex-1 py-1.5 rounded-md items-center"
-                          style={{ backgroundColor: (parseInt(customCals) || 0) === v ? ACCENT.limeBg : c.buttonBg }}>
-                          <Text style={{ color: (parseInt(customCals) || 0) === v ? ACCENT.lime : c.textMuted, fontFamily: "Inter_700Bold", fontSize: 12 }}>{v}</Text>
+                          style={{ backgroundColor: (parseInt(customCals) || 0) === v ? accent.limeBg : c.buttonBg }}>
+                          <Text style={{ color: (parseInt(customCals) || 0) === v ? accent.lime : c.textMuted, fontFamily: "Inter_700Bold", fontSize: 12 }}>{v}</Text>
                         </Pressable>
                       ))}
                     </View>
@@ -622,8 +624,8 @@ export function LogMealModal({ visible, onClose, userId, quickAddFoods, recentFo
                       {[10, 20, 30, 50].map((v) => (
                         <Pressable key={v} onPress={() => setCustomProtein(String(v))}
                           className="flex-1 py-1.5 rounded-md items-center"
-                          style={{ backgroundColor: (parseFloat(customProtein) || 0) === v ? ACCENT.limeBg : c.buttonBg }}>
-                          <Text style={{ color: (parseFloat(customProtein) || 0) === v ? ACCENT.lime : c.textMuted, fontFamily: "Inter_700Bold", fontSize: 12 }}>{v}</Text>
+                          style={{ backgroundColor: (parseFloat(customProtein) || 0) === v ? accent.limeBg : c.buttonBg }}>
+                          <Text style={{ color: (parseFloat(customProtein) || 0) === v ? accent.lime : c.textMuted, fontFamily: "Inter_700Bold", fontSize: 12 }}>{v}</Text>
                         </Pressable>
                       ))}
                     </View>
@@ -647,8 +649,8 @@ export function LogMealModal({ visible, onClose, userId, quickAddFoods, recentFo
                       {[10, 20, 30, 50].map((v) => (
                         <Pressable key={v} onPress={() => setCustomCarbs(String(v))}
                           className="flex-1 py-1.5 rounded-md items-center"
-                          style={{ backgroundColor: (parseFloat(customCarbs) || 0) === v ? ACCENT.limeBg : c.buttonBg }}>
-                          <Text style={{ color: (parseFloat(customCarbs) || 0) === v ? ACCENT.lime : c.textMuted, fontFamily: "Inter_700Bold", fontSize: 12 }}>{v}</Text>
+                          style={{ backgroundColor: (parseFloat(customCarbs) || 0) === v ? accent.limeBg : c.buttonBg }}>
+                          <Text style={{ color: (parseFloat(customCarbs) || 0) === v ? accent.lime : c.textMuted, fontFamily: "Inter_700Bold", fontSize: 12 }}>{v}</Text>
                         </Pressable>
                       ))}
                     </View>
@@ -670,8 +672,8 @@ export function LogMealModal({ visible, onClose, userId, quickAddFoods, recentFo
                       {[10, 20, 30, 50].map((v) => (
                         <Pressable key={v} onPress={() => setCustomFat(String(v))}
                           className="flex-1 py-1.5 rounded-md items-center"
-                          style={{ backgroundColor: (parseFloat(customFat) || 0) === v ? ACCENT.limeBg : c.buttonBg }}>
-                          <Text style={{ color: (parseFloat(customFat) || 0) === v ? ACCENT.lime : c.textMuted, fontFamily: "Inter_700Bold", fontSize: 12 }}>{v}</Text>
+                          style={{ backgroundColor: (parseFloat(customFat) || 0) === v ? accent.limeBg : c.buttonBg }}>
+                          <Text style={{ color: (parseFloat(customFat) || 0) === v ? accent.lime : c.textMuted, fontFamily: "Inter_700Bold", fontSize: 12 }}>{v}</Text>
                         </Pressable>
                       ))}
                     </View>
@@ -694,9 +696,9 @@ export function LogMealModal({ visible, onClose, userId, quickAddFoods, recentFo
                     setShowCustomForm(false);
                   }}
                   className="rounded-xl py-3 items-center"
-                  style={{ backgroundColor: ACCENT.lime, opacity: (!customName.trim() || !customCals) ? 0.5 : 1 }}
+                  style={{ backgroundColor: accent.lime, opacity: (!customName.trim() || !customCals) ? 0.5 : 1 }}
                 >
-                  <Text style={{ color: "#161e00", fontFamily: "Inter_700Bold", fontSize: 16 }}>Add to Meal</Text>
+                  <Text style={{ color: c.textOnAccent, fontFamily: "Inter_700Bold", fontSize: 16 }}>Add to Meal</Text>
                 </Pressable>
               </View>
             )}
@@ -744,7 +746,7 @@ export function LogMealModal({ visible, onClose, userId, quickAddFoods, recentFo
               </Pressable>
               <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 20 }}>Select Time</Text>
               <Pressable onPress={applyDateTime}>
-                <Text style={{ color: ACCENT.lime, fontFamily: "Inter_700Bold", fontSize: 15 }}>Done</Text>
+                <Text style={{ color: accent.lime, fontFamily: "Inter_700Bold", fontSize: 15 }}>Done</Text>
               </Pressable>
             </View>
             <View className="flex-row justify-center gap-6 mb-6">
@@ -756,9 +758,9 @@ export function LogMealModal({ visible, onClose, userId, quickAddFoods, recentFo
                     return (
                       <Pressable key={h} onPress={() => !isDisabled && setPickerHour(h)} disabled={isDisabled}
                         className="py-2 items-center rounded-lg"
-                        style={{ backgroundColor: pickerHour === h ? ACCENT.limeBg : "transparent", opacity: isDisabled ? 0.3 : 1 }}>
+                        style={{ backgroundColor: pickerHour === h ? accent.limeBg : "transparent", opacity: isDisabled ? 0.3 : 1 }}>
                         <Text className="text-xl"
-                          style={{ color: pickerHour === h ? ACCENT.lime : c.textMuted, fontFamily: pickerHour === h ? "Inter_700Bold" : "Inter_400Regular" }}>
+                          style={{ color: pickerHour === h ? accent.lime : c.textMuted, fontFamily: pickerHour === h ? "Inter_700Bold" : "Inter_400Regular" }}>
                           {h.toString().padStart(2, "0")}
                         </Text>
                       </Pressable>
@@ -775,9 +777,9 @@ export function LogMealModal({ visible, onClose, userId, quickAddFoods, recentFo
                     return (
                       <Pressable key={m} onPress={() => !isDisabled && setPickerMinute(m)} disabled={isDisabled}
                         className="py-2 items-center rounded-lg"
-                        style={{ backgroundColor: pickerMinute === m ? ACCENT.limeBg : "transparent", opacity: isDisabled ? 0.3 : 1 }}>
+                        style={{ backgroundColor: pickerMinute === m ? accent.limeBg : "transparent", opacity: isDisabled ? 0.3 : 1 }}>
                         <Text className="text-xl"
-                          style={{ color: pickerMinute === m ? ACCENT.lime : c.textMuted, fontFamily: pickerMinute === m ? "Inter_700Bold" : "Inter_400Regular" }}>
+                          style={{ color: pickerMinute === m ? accent.lime : c.textMuted, fontFamily: pickerMinute === m ? "Inter_700Bold" : "Inter_400Regular" }}>
                           {m.toString().padStart(2, "0")}
                         </Text>
                       </Pressable>
@@ -807,14 +809,14 @@ export function LogMealModal({ visible, onClose, userId, quickAddFoods, recentFo
           <Pressable className="rounded-t-3xl p-6" style={{ backgroundColor: c.elevated }} onStartShouldSetResponder={() => true}>
             <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 20, marginBottom: 16 }}>Add Food Photo</Text>
             <Pressable onPress={() => handlePickPhoto("camera")} className="flex-row items-center gap-3 py-4 rounded-xl px-4 mb-2" style={{ backgroundColor: c.buttonBg }}>
-              <MaterialCommunityIcons name="camera" size={24} color={ACCENT.cyan} />
+              <MaterialCommunityIcons name="camera" size={24} color={accent.cyan} />
               <View>
                 <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 15 }}>Take Photo</Text>
                 <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 12 }}>Use your camera to capture a meal</Text>
               </View>
             </Pressable>
             <Pressable onPress={() => handlePickPhoto("library")} className="flex-row items-center gap-3 py-4 rounded-xl px-4 mb-4" style={{ backgroundColor: c.buttonBg }}>
-              <MaterialCommunityIcons name="image-multiple-outline" size={24} color={ACCENT.lime} />
+              <MaterialCommunityIcons name="image-multiple-outline" size={24} color={accent.lime} />
               <View>
                 <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 15 }}>Choose from Library</Text>
                 <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 12 }}>Pick a photo from your gallery</Text>
@@ -863,8 +865,8 @@ export function LogMealModal({ visible, onClose, userId, quickAddFoods, recentFo
                 setShowSaveAsMeal(false);
                 setSaveAsMealName("");
                 success("Meal saved!");
-              }} className="flex-1 py-3 rounded-xl items-center" style={{ backgroundColor: ACCENT.lime, opacity: saveAsMealName.trim() ? 1 : 0.5 }} disabled={!saveAsMealName.trim()}>
-                <Text style={{ color: "#161e00", fontFamily: "Inter_700Bold", fontSize: 15 }}>Save</Text>
+              }} className="flex-1 py-3 rounded-xl items-center" style={{ backgroundColor: accent.lime, opacity: saveAsMealName.trim() ? 1 : 0.5 }} disabled={!saveAsMealName.trim()}>
+                <Text style={{ color: c.textOnAccent, fontFamily: "Inter_700Bold", fontSize: 15 }}>Save</Text>
               </Pressable>
             </View>
           </Pressable>
@@ -925,8 +927,8 @@ export function LogMealModal({ visible, onClose, userId, quickAddFoods, recentFo
                         {macro.presets.map((v) => (
                           <Pressable key={v} onPress={() => macro.set(v)}
                             className="flex-1 py-1.5 rounded-md items-center"
-                            style={{ backgroundColor: macro.val === v ? ACCENT.limeBg : c.buttonBg }}>
-                            <Text style={{ color: macro.val === v ? ACCENT.lime : c.textMuted, fontFamily: "Inter_700Bold", fontSize: 12 }}>{v}</Text>
+                            style={{ backgroundColor: macro.val === v ? accent.limeBg : c.buttonBg }}>
+                            <Text style={{ color: macro.val === v ? accent.lime : c.textMuted, fontFamily: "Inter_700Bold", fontSize: 12 }}>{v}</Text>
                           </Pressable>
                         ))}
                       </View>
@@ -934,14 +936,14 @@ export function LogMealModal({ visible, onClose, userId, quickAddFoods, recentFo
                   ))}
                 </View>
 
-                <View className="rounded-xl p-3 mb-5" style={{ backgroundColor: ACCENT.limeBg }}>
-                  <Text style={{ color: ACCENT.lime, fontFamily: "Inter_700Bold", fontSize: 15, textAlign: "center" }}>
+                <View className="rounded-xl p-3 mb-5" style={{ backgroundColor: accent.limeBg }}>
+                  <Text style={{ color: accent.lime, fontFamily: "Inter_700Bold", fontSize: 15, textAlign: "center" }}>
                     Total: {Math.round(eCals * eQty)} kcal
                   </Text>
                 </View>
 
-                <Pressable onPress={() => { store.updateItem(editingItem.id, { quantity: eQty, calories: eCals, protein_g: eProtein, carbs_g: eCarbs, fat_g: eFat }); setEditingItem(null); }} className="rounded-xl py-3.5 items-center" style={{ backgroundColor: ACCENT.lime }}>
-                  <Text style={{ color: "#161e00", fontFamily: "Inter_700Bold", fontSize: 16 }}>Save Changes</Text>
+                <Pressable onPress={() => { store.updateItem(editingItem.id, { quantity: eQty, calories: eCals, protein_g: eProtein, carbs_g: eCarbs, fat_g: eFat }); setEditingItem(null); }} className="rounded-xl py-3.5 items-center" style={{ backgroundColor: accent.lime }}>
+                  <Text style={{ color: c.textOnAccent, fontFamily: "Inter_700Bold", fontSize: 16 }}>Save Changes</Text>
                 </Pressable>
               </>
             )}

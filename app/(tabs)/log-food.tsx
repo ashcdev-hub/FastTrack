@@ -13,7 +13,7 @@ import { MealCalendarModal } from "@/components/MealCalendarModal";
 import { LogFoodSkeleton } from "@/components/Skeleton";
 import { ProgressRing } from "@/components/ProgressRing";
 import { useThemeStore } from "@/lib/theme-store";
-import { getThemeColors, ACCENT, MEAL_COLORS } from "@/lib/theme-colors";
+import { getThemeColors, ACCENT, getAccentColors, getMealColors } from "@/lib/theme-colors";
 import { DEFAULT_UNITS } from "@/lib/units";
 
 const DEFAULT_QUICK_ADD = ["Boiled Egg", "Coffee", "Banana", "Greek Yogurt"];
@@ -28,6 +28,8 @@ export default function LogFoodScreen() {
   const goals = useGoalStore();
   const { theme } = useThemeStore();
   const c = getThemeColors(theme);
+  const accent = getAccentColors(theme);
+  const mealColors = getMealColors(theme);
 
   const [showLogMeal, setShowLogMeal] = useState(false);
   const [showCalendarModal, setShowCalendarModal] = useState(false);
@@ -45,8 +47,8 @@ export default function LogFoodScreen() {
 
   const remainingKcal = Math.max(goals.dailyCalories - totals.calories, 0);
   const macroRings = [
-    { label: "PRO", current: totals.protein_g, goal: goals.dailyProtein, color: ACCENT.lime },
-    { label: "CARB", current: totals.carbs_g, goal: goals.dailyCarbs, color: ACCENT.cyan },
+    { label: "PRO", current: totals.protein_g, goal: goals.dailyProtein, color: accent.lime },
+    { label: "CARB", current: totals.carbs_g, goal: goals.dailyCarbs, color: accent.cyan },
     { label: "FAT", current: totals.fat_g, goal: goals.dailyFat, color: "#ffb4ab" },
   ];
 
@@ -61,7 +63,7 @@ export default function LogFoodScreen() {
         <View className="flex-row justify-between items-center" style={{ height: 44, paddingHorizontal: 20 }}>
           <View className="flex-row items-center gap-2">
             <Image source={require("../../assets/icon.png")} style={{ width: 22, height: 22, borderRadius: 5 }} />
-            <Text style={{ color: ACCENT.lime, fontFamily: "Inter_800ExtraBold", fontSize: 22, letterSpacing: -0.5 }}>FastTrack</Text>
+            <Text style={{ color: accent.lime, fontFamily: "Inter_800ExtraBold", fontSize: 22, letterSpacing: -0.5 }}>FastTrack</Text>
           </View>
         </View>
       </View>
@@ -107,10 +109,10 @@ export default function LogFoodScreen() {
         <Pressable
           onPress={() => setShowLogMeal(true)}
           className="rounded-xl py-4 mb-section-gap items-center flex-row justify-center gap-2"
-          style={{ backgroundColor: ACCENT.lime }}
+          style={{ backgroundColor: accent.lime }}
         >
-          <MaterialCommunityIcons name="plus-circle-outline" size={22} color="#161e00" />
-          <Text style={{ color: "#161e00", fontFamily: "Inter_800ExtraBold", fontSize: 17 }}>
+          <MaterialCommunityIcons name="plus-circle-outline" size={22} color={c.textOnAccent} />
+          <Text style={{ color: c.textOnAccent, fontFamily: "Inter_800ExtraBold", fontSize: 17 }}>
             Log Meal
           </Text>
         </Pressable>
@@ -138,7 +140,7 @@ export default function LogFoodScreen() {
             mealTypes.map((type) => {
               const items = mealsByType[type];
               if (!items || items.length === 0) return null;
-              const color = MEAL_COLORS[type];
+              const color = mealColors[type];
               return (
                   <View key={type} className="mb-4">
                     <View className="flex-row items-center justify-between mb-2">
@@ -153,8 +155,8 @@ export default function LogFoodScreen() {
                         setSaveMealPromptName(`${type.charAt(0).toUpperCase() + type.slice(1)} Meal`);
                         setShowSaveMealPrompt(true);
                       }} className="flex-row items-center gap-1">
-                        <MaterialCommunityIcons name="bookmark-outline" size={14} color={ACCENT.cyan} />
-                        <Text style={{ color: ACCENT.cyan, fontFamily: "Inter_700Bold", fontSize: 11 }}>Save</Text>
+                        <MaterialCommunityIcons name="bookmark-outline" size={14} color={accent.cyan} />
+                        <Text style={{ color: accent.cyan, fontFamily: "Inter_700Bold", fontSize: 11 }}>Save</Text>
                       </Pressable>
                     </View>
                     {items.map((entry) => (
@@ -228,8 +230,8 @@ export default function LogFoodScreen() {
                 await addMyMeal(saveMealPromptName.trim(), saveMealPromptItems);
                 setShowSaveMealPrompt(false);
                 setSaveMealPromptName("");
-              }} className="flex-1 py-3 rounded-xl items-center" style={{ backgroundColor: saveMealPromptName.trim() ? ACCENT.lime : c.buttonBg }} disabled={!saveMealPromptName.trim()}>
-                <Text style={{ color: saveMealPromptName.trim() ? "#161e00" : c.textMuted, fontFamily: "Inter_700Bold", fontSize: 15 }}>Save</Text>
+              }} className="flex-1 py-3 rounded-xl items-center" style={{ backgroundColor: saveMealPromptName.trim() ? accent.lime : c.buttonBg }} disabled={!saveMealPromptName.trim()}>
+                <Text style={{ color: saveMealPromptName.trim() ? c.textOnAccent : c.textMuted, fontFamily: "Inter_700Bold", fontSize: 15 }}>Save</Text>
               </Pressable>
             </View>
           </Pressable>

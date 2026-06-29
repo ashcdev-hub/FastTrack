@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { View, Text, Pressable } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useThemeStore } from "@/lib/theme-store";
-import { getThemeColors, ACCENT } from "@/lib/theme-colors";
+import { getThemeColors, ACCENT, getAccentColors } from "@/lib/theme-colors";
 import type { FastingSession } from "@/lib/types";
 
 type WeeklyCalendarProps = {
@@ -39,6 +39,7 @@ function isSameDay(a: Date, b: Date): boolean {
 export function WeeklyCalendar({ pastSessions, fastingHours, onViewCalendar }: WeeklyCalendarProps) {
   const { theme } = useThemeStore();
   const c = getThemeColors(theme);
+  const accent = getAccentColors(theme);
   const [tooltipIndex, setTooltipIndex] = useState<number | null>(null);
 
   const weekDates = getWeekDates();
@@ -86,16 +87,16 @@ export function WeeklyCalendar({ pastSessions, fastingHours, onViewCalendar }: W
                 height: 32,
                 borderRadius: 16,
                 borderWidth: day.hasFast ? 0 : 1.5,
-                borderColor: day.isToday ? ACCENT.lime : c.textFaint,
+                borderColor: day.isToday ? accent.lime : c.textFaint,
                 backgroundColor: day.hasFast
-                  ? day.goalMet ? ACCENT.lime : ACCENT.coral
+                  ? day.goalMet ? accent.lime : accent.coral
                   : "transparent",
                 alignItems: "center",
                 justifyContent: "center",
               }}
             >
               {day.hasFast && day.goalMet && (
-                <Text style={{ color: "#161e00" }} className="text-xs">✓</Text>
+                <Text style={{ color: c.textOnAccent }} className="text-xs">✓</Text>
               )}
               {day.hasFast && !day.goalMet && (
                 <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: "rgba(255,255,255,0.6)" }} />
@@ -124,12 +125,12 @@ export function WeeklyCalendar({ pastSessions, fastingHours, onViewCalendar }: W
             <View
               className="px-2 py-1 rounded-lg"
               style={{
-                backgroundColor: dayData[tooltipIndex].goalMet ? ACCENT.limeBg : ACCENT.coralBg,
+                backgroundColor: dayData[tooltipIndex].goalMet ? accent.limeBg : accent.coralBg,
               }}
             >
               <Text
                 style={{
-                  color: dayData[tooltipIndex].goalMet ? ACCENT.lime : ACCENT.coral,
+                  color: dayData[tooltipIndex].goalMet ? accent.lime : accent.coral,
                   fontFamily: "SpaceGrotesk_600SemiBold",
                 }}
                 className="text-xs"
@@ -142,7 +143,7 @@ export function WeeklyCalendar({ pastSessions, fastingHours, onViewCalendar }: W
       )}
 
       <Pressable onPress={onViewCalendar} className="mt-3 items-center">
-        <Text style={{ color: ACCENT.lime, fontFamily: "SpaceGrotesk_600SemiBold" }} className="text-sm">
+        <Text style={{ color: accent.lime, fontFamily: "SpaceGrotesk_600SemiBold" }} className="text-sm">
           View Calendar →
         </Text>
       </Pressable>

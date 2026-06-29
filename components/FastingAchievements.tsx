@@ -2,7 +2,7 @@ import React from "react";
 import { View, Text } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useThemeStore } from "@/lib/theme-store";
-import { getThemeColors, ACCENT } from "@/lib/theme-colors";
+import { getThemeColors, ACCENT, getAccentColors } from "@/lib/theme-colors";
 
 type FastingAchievementsProps = {
   streak: number;
@@ -38,6 +38,7 @@ export function FastingAchievements({
 }: FastingAchievementsProps) {
   const { theme } = useThemeStore();
   const c = getThemeColors(theme);
+  const accent = getAccentColors(theme);
 
   const nextFastingMilestone =
     FASTING_MILESTONES.find((m) => m.count > completedFasts) ??
@@ -57,8 +58,8 @@ export function FastingAchievements({
 
       <View className="flex-row gap-3 mb-4">
         <View className="flex-1 glass-panel items-center py-4">
-          <MaterialCommunityIcons name="fire" size={28} color={ACCENT.lime} />
-          <Text style={{ color: ACCENT.lime, fontFamily: "Inter_700Bold" }} className="text-2xl mt-1">
+          <MaterialCommunityIcons name="fire" size={28} color={accent.lime} />
+          <Text style={{ color: accent.lime, fontFamily: "Inter_700Bold" }} className="text-2xl mt-1">
             {streak}
           </Text>
           <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular" }} className="text-xs mt-1">
@@ -67,8 +68,8 @@ export function FastingAchievements({
         </View>
 
         <View className="flex-1 glass-panel items-center py-4">
-          <MaterialCommunityIcons name="calendar-check" size={28} color={ACCENT.cyan} />
-          <Text style={{ color: ACCENT.cyan, fontFamily: "Inter_700Bold" }} className="text-2xl mt-1">
+          <MaterialCommunityIcons name="calendar-check" size={28} color={accent.cyan} />
+          <Text style={{ color: accent.cyan, fontFamily: "Inter_700Bold" }} className="text-2xl mt-1">
             {completedFasts}
           </Text>
           <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular" }} className="text-xs mt-1">
@@ -77,8 +78,8 @@ export function FastingAchievements({
         </View>
 
         <View className="flex-1 glass-panel items-center py-4">
-          <MaterialCommunityIcons name="arm-flex" size={28} color={ACCENT.coral} />
-          <Text style={{ color: ACCENT.coral, fontFamily: "Inter_700Bold" }} className="text-2xl mt-1">
+          <MaterialCommunityIcons name="arm-flex" size={28} color={accent.coral} />
+          <Text style={{ color: accent.coral, fontFamily: "Inter_700Bold" }} className="text-2xl mt-1">
             {pushupStreak}
           </Text>
           <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular" }} className="text-xs mt-1">
@@ -99,7 +100,7 @@ export function FastingAchievements({
         <View className="h-2 rounded-full overflow-hidden" style={{ backgroundColor: c.cardBgAlt }}>
           <View
             className="h-full rounded-full"
-            style={{ width: `${fastingProgress * 100}%`, backgroundColor: ACCENT.lime }}
+            style={{ width: `${fastingProgress * 100}%`, backgroundColor: accent.lime }}
           />
         </View>
       </View>
@@ -116,7 +117,7 @@ export function FastingAchievements({
         <View className="h-2 rounded-full overflow-hidden" style={{ backgroundColor: c.cardBgAlt }}>
           <View
             className="h-full rounded-full"
-            style={{ width: `${pushupProgress * 100}%`, backgroundColor: ACCENT.lime }}
+            style={{ width: `${pushupProgress * 100}%`, backgroundColor: accent.lime }}
           />
         </View>
       </View>

@@ -6,7 +6,7 @@ import { useGoalStore } from "@/store/useGoalStore";
 import { useThemeStore } from "@/lib/theme-store";
 import { useToast } from "@/hooks/useToast";
 import { Toast } from "@/components/Toast";
-import { getThemeColors, ACCENT } from "@/lib/theme-colors";
+import { getThemeColors, ACCENT, getAccentColors } from "@/lib/theme-colors";
 import { router } from "expo-router";
 import { cancelAllNotifications, scheduleDailyFastReminder, scheduleDailyNotification } from "@/lib/notifications";
 import { DEFAULT_UNITS, displayWeight, displayHeight, weightUnitLabel, heightUnitLabel, parseWeightInput } from "@/lib/units";
@@ -33,6 +33,7 @@ export function SettingsPanel({ userId, initialExpand }: SettingsPanelProps) {
   const { enabled } = useTrackerStore();
   const { waterGoalMl, updateGoals } = useGoalStore();
   const c = getThemeColors(theme);
+  const accent = getAccentColors(theme);
   const { toast, success, error: toastError } = useToast();
 
   const [expandedSection, setExpandedSection] = useState<string | null>(initialExpand ?? null);
@@ -179,9 +180,9 @@ export function SettingsPanel({ userId, initialExpand }: SettingsPanelProps) {
 
   const bmiColors = bmiCategory
     ? bmiCategory === "Normal"
-      ? { bg: ACCENT.limeBg, text: ACCENT.lime }
+      ? { bg: accent.limeBg, text: accent.lime }
       : bmiCategory === "Overweight"
-        ? { bg: ACCENT.amberBg, text: ACCENT.amber }
+        ? { bg: accent.amberBg, text: accent.amber }
         : { bg: ACCENT.roseBg, text: ACCENT.rose }
     : null;
 
@@ -272,8 +273,8 @@ export function SettingsPanel({ userId, initialExpand }: SettingsPanelProps) {
           </View>
         )}
 
-        <Pressable onPress={handleSaveProfile} className="rounded-xl py-3 items-center" style={{ backgroundColor: ACCENT.lime }}>
-          <Text style={{ color: "#161e00", fontFamily: "Inter_700Bold" }}>Save Profile</Text>
+        <Pressable onPress={handleSaveProfile} className="rounded-xl py-3 items-center" style={{ backgroundColor: accent.lime }}>
+          <Text style={{ color: c.textOnAccent, fontFamily: "Inter_700Bold" }}>Save Profile</Text>
         </Pressable>
       </SectionCard>
 
@@ -299,7 +300,7 @@ export function SettingsPanel({ userId, initialExpand }: SettingsPanelProps) {
           <Switch
             value={notifications.fasting_reminders}
             onValueChange={(value) => setNotifications((prev: Profile["notification_preferences"]) => ({ ...prev, fasting_reminders: value }))}
-            trackColor={{ false: c.buttonBg, true: ACCENT.lime }}
+            trackColor={{ false: c.buttonBg, true: accent.lime }}
             thumbColor="#FFFFFF"
           />
         </View>
@@ -319,7 +320,7 @@ export function SettingsPanel({ userId, initialExpand }: SettingsPanelProps) {
           <Switch
             value={notifications.eating_reminders}
             onValueChange={(value) => setNotifications((prev: Profile["notification_preferences"]) => ({ ...prev, eating_reminders: value }))}
-            trackColor={{ false: c.buttonBg, true: ACCENT.lime }}
+            trackColor={{ false: c.buttonBg, true: accent.lime }}
             thumbColor="#FFFFFF"
           />
         </View>
@@ -330,7 +331,7 @@ export function SettingsPanel({ userId, initialExpand }: SettingsPanelProps) {
           <Switch
             value={notifications.checkin_reminders}
             onValueChange={(value) => setNotifications((prev: Profile["notification_preferences"]) => ({ ...prev, checkin_reminders: value }))}
-            trackColor={{ false: c.buttonBg, true: ACCENT.lime }}
+            trackColor={{ false: c.buttonBg, true: accent.lime }}
             thumbColor="#FFFFFF"
           />
         </View>
@@ -339,13 +340,13 @@ export function SettingsPanel({ userId, initialExpand }: SettingsPanelProps) {
             <Pressable onPress={() => setNotifications((prev: Profile["notification_preferences"]) => ({ ...prev, checkin_mode: prev.checkin_mode === "midway" ? "custom" : "midway" }))}
               className="flex-row items-center gap-2 mb-2"
             >
-              <MaterialCommunityIcons name={notifications.checkin_mode === "midway" ? "radiobox-marked" : "radiobox-blank"} size={18} color={notifications.checkin_mode === "midway" ? ACCENT.lime : c.textMuted} />
+              <MaterialCommunityIcons name={notifications.checkin_mode === "midway" ? "radiobox-marked" : "radiobox-blank"} size={18} color={notifications.checkin_mode === "midway" ? accent.lime : c.textMuted} />
               <Text style={{ color: c.textSecondary, fontFamily: "Inter_400Regular", fontSize: 13 }}>Midway through fast</Text>
             </Pressable>
             <Pressable onPress={() => setNotifications((prev: Profile["notification_preferences"]) => ({ ...prev, checkin_mode: prev.checkin_mode === "custom" ? "midway" : "custom" }))}
               className="flex-row items-center gap-2 mb-2"
             >
-              <MaterialCommunityIcons name={notifications.checkin_mode === "custom" ? "radiobox-marked" : "radiobox-blank"} size={18} color={notifications.checkin_mode === "custom" ? ACCENT.lime : c.textMuted} />
+              <MaterialCommunityIcons name={notifications.checkin_mode === "custom" ? "radiobox-marked" : "radiobox-blank"} size={18} color={notifications.checkin_mode === "custom" ? accent.lime : c.textMuted} />
               <Text style={{ color: c.textSecondary, fontFamily: "Inter_400Regular", fontSize: 13 }}>Custom time</Text>
             </Pressable>
             {notifications.checkin_mode === "custom" && (
@@ -366,7 +367,7 @@ export function SettingsPanel({ userId, initialExpand }: SettingsPanelProps) {
           <Switch
             value={notifications.streak_reminders}
             onValueChange={(value) => setNotifications((prev: Profile["notification_preferences"]) => ({ ...prev, streak_reminders: value }))}
-            trackColor={{ false: c.buttonBg, true: ACCENT.lime }}
+            trackColor={{ false: c.buttonBg, true: accent.lime }}
             thumbColor="#FFFFFF"
           />
         </View>
@@ -377,7 +378,7 @@ export function SettingsPanel({ userId, initialExpand }: SettingsPanelProps) {
           <Switch
             value={notifications.water_reminders}
             onValueChange={(value) => setNotifications((prev: Profile["notification_preferences"]) => ({ ...prev, water_reminders: value }))}
-            trackColor={{ false: c.buttonBg, true: ACCENT.lime }}
+            trackColor={{ false: c.buttonBg, true: accent.lime }}
             thumbColor="#FFFFFF"
           />
         </View>
@@ -390,9 +391,9 @@ export function SettingsPanel({ userId, initialExpand }: SettingsPanelProps) {
                 return (
                   <Pressable key={h} onPress={() => setNotifications((prev: Profile["notification_preferences"]) => ({ ...prev, water_interval_hours: h }))}
                     className="flex-1 py-2 rounded-lg items-center"
-                    style={{ backgroundColor: isActive ? ACCENT.lime : c.buttonBg }}
+                    style={{ backgroundColor: isActive ? accent.lime : c.buttonBg }}
                   >
-                    <Text style={{ color: isActive ? "#161e00" : c.textSecondary, fontFamily: "SpaceGrotesk_600SemiBold", fontSize: 12 }}>{h}h</Text>
+                    <Text style={{ color: isActive ? c.textOnAccent : c.textSecondary, fontFamily: "SpaceGrotesk_600SemiBold", fontSize: 12 }}>{h}h</Text>
                   </Pressable>
                 );
               })}
@@ -406,7 +407,7 @@ export function SettingsPanel({ userId, initialExpand }: SettingsPanelProps) {
           <Switch
             value={notifications.daily_digest}
             onValueChange={(value) => setNotifications((prev: Profile["notification_preferences"]) => ({ ...prev, daily_digest: value }))}
-            trackColor={{ false: c.buttonBg, true: ACCENT.lime }}
+            trackColor={{ false: c.buttonBg, true: accent.lime }}
             thumbColor="#FFFFFF"
           />
         </View>
@@ -417,7 +418,7 @@ export function SettingsPanel({ userId, initialExpand }: SettingsPanelProps) {
           <Switch
             value={notifications.eat_window_reminder}
             onValueChange={(value) => setNotifications((prev: Profile["notification_preferences"]) => ({ ...prev, eat_window_reminder: value }))}
-            trackColor={{ false: c.buttonBg, true: ACCENT.lime }}
+            trackColor={{ false: c.buttonBg, true: accent.lime }}
             thumbColor="#FFFFFF"
           />
         </View>
@@ -438,9 +439,9 @@ export function SettingsPanel({ userId, initialExpand }: SettingsPanelProps) {
               {[5, 15, 30, 60].map((v) => (
                 <Pressable key={v} onPress={() => setNotifications((prev: Profile["notification_preferences"]) => ({ ...prev, eat_window_reminder_minutes: v }))}
                   className="flex-1 py-2 rounded-lg items-center"
-                  style={{ backgroundColor: (notifications.eat_window_reminder_minutes ?? 15) === v ? ACCENT.lime : c.buttonBg }}
+                  style={{ backgroundColor: (notifications.eat_window_reminder_minutes ?? 15) === v ? accent.lime : c.buttonBg }}
                 >
-                  <Text style={{ color: (notifications.eat_window_reminder_minutes ?? 15) === v ? "#161e00" : c.textSecondary, fontFamily: "SpaceGrotesk_600SemiBold", fontSize: 12 }}>{v}m</Text>
+                  <Text style={{ color: (notifications.eat_window_reminder_minutes ?? 15) === v ? c.textOnAccent : c.textSecondary, fontFamily: "SpaceGrotesk_600SemiBold", fontSize: 12 }}>{v}m</Text>
                 </Pressable>
               ))}
             </View>
@@ -457,17 +458,17 @@ export function SettingsPanel({ userId, initialExpand }: SettingsPanelProps) {
               return (
                 <Pressable key={day} onPress={() => toggleDay(day)}
                   className="flex-1 py-2.5 rounded-lg items-center"
-                  style={{ backgroundColor: isActive ? ACCENT.lime : c.buttonBg }}
+                  style={{ backgroundColor: isActive ? accent.lime : c.buttonBg }}
                 >
-                  <Text style={{ color: isActive ? "#161e00" : c.textSecondary, fontFamily: "SpaceGrotesk_600SemiBold", fontSize: 12 }}>{label}</Text>
+                  <Text style={{ color: isActive ? c.textOnAccent : c.textSecondary, fontFamily: "SpaceGrotesk_600SemiBold", fontSize: 12 }}>{label}</Text>
                 </Pressable>
               );
             })}
           </View>
         </View>
 
-        <Pressable onPress={handleSaveNotifications} className="rounded-xl py-3 items-center mt-3" style={{ backgroundColor: ACCENT.lime }}>
-          <Text style={{ color: "#161e00", fontFamily: "Inter_700Bold" }}>Save Preferences</Text>
+        <Pressable onPress={handleSaveNotifications} className="rounded-xl py-3 items-center mt-3" style={{ backgroundColor: accent.lime }}>
+          <Text style={{ color: c.textOnAccent, fontFamily: "Inter_700Bold" }}>Save Preferences</Text>
         </Pressable>
       </SectionCard>
 
@@ -479,12 +480,12 @@ export function SettingsPanel({ userId, initialExpand }: SettingsPanelProps) {
               key={unit}
               onPress={() => setUnitPrefs({ ...unitPrefs, weight: unit })}
               className="flex-1 py-3 rounded-xl items-center"
-              style={{ backgroundColor: unitPrefs.weight === unit ? ACCENT.lime : c.buttonBg }}
+              style={{ backgroundColor: unitPrefs.weight === unit ? accent.lime : c.buttonBg }}
             >
               <Text
                 className="text-sm"
                 style={{
-                  color: unitPrefs.weight === unit ? "#161e00" : c.textSecondary,
+                  color: unitPrefs.weight === unit ? c.textOnAccent : c.textSecondary,
                   fontFamily: "SpaceGrotesk_600SemiBold",
                 }}
               >
@@ -501,12 +502,12 @@ export function SettingsPanel({ userId, initialExpand }: SettingsPanelProps) {
               key={unit}
               onPress={() => setUnitPrefs({ ...unitPrefs, height: unit })}
               className="flex-1 py-3 rounded-xl items-center"
-              style={{ backgroundColor: unitPrefs.height === unit ? ACCENT.lime : c.buttonBg }}
+              style={{ backgroundColor: unitPrefs.height === unit ? accent.lime : c.buttonBg }}
             >
               <Text
                 className="text-sm"
                 style={{
-                  color: unitPrefs.height === unit ? "#161e00" : c.textSecondary,
+                  color: unitPrefs.height === unit ? c.textOnAccent : c.textSecondary,
                   fontFamily: "SpaceGrotesk_600SemiBold",
                 }}
               >
@@ -523,12 +524,12 @@ export function SettingsPanel({ userId, initialExpand }: SettingsPanelProps) {
               key={unit}
               onPress={() => setUnitPrefs({ ...unitPrefs, water: unit })}
               className="flex-1 py-3 rounded-xl items-center"
-              style={{ backgroundColor: unitPrefs.water === unit ? ACCENT.lime : c.buttonBg }}
+              style={{ backgroundColor: unitPrefs.water === unit ? accent.lime : c.buttonBg }}
             >
               <Text
                 className="text-sm"
                 style={{
-                  color: unitPrefs.water === unit ? "#161e00" : c.textSecondary,
+                  color: unitPrefs.water === unit ? c.textOnAccent : c.textSecondary,
                   fontFamily: "SpaceGrotesk_600SemiBold",
                 }}
               >
@@ -548,12 +549,12 @@ export function SettingsPanel({ userId, initialExpand }: SettingsPanelProps) {
                 success("Daily water goal updated");
               }}
               className="flex-1 py-3 rounded-xl items-center"
-              style={{ backgroundColor: waterGoalMl === ml ? ACCENT.cyan : c.buttonBg }}
+              style={{ backgroundColor: waterGoalMl === ml ? accent.cyan : c.buttonBg }}
             >
               <Text
                 className="text-sm"
                 style={{
-                  color: waterGoalMl === ml ? "#001e24" : c.textSecondary,
+                  color: waterGoalMl === ml ? c.textOnAccent : c.textSecondary,
                   fontFamily: "SpaceGrotesk_600SemiBold",
                 }}
               >
@@ -570,9 +571,9 @@ export function SettingsPanel({ userId, initialExpand }: SettingsPanelProps) {
             else success("Preferences updated");
           }}
           className="rounded-xl py-3 items-center"
-          style={{ backgroundColor: ACCENT.lime }}
+          style={{ backgroundColor: accent.lime }}
         >
-          <Text style={{ color: "#161e00", fontFamily: "Inter_700Bold" }}>Save Preferences</Text>
+          <Text style={{ color: c.textOnAccent, fontFamily: "Inter_700Bold" }}>Save Preferences</Text>
         </Pressable>
       </SectionCard>
 
@@ -588,8 +589,8 @@ export function SettingsPanel({ userId, initialExpand }: SettingsPanelProps) {
         ]).map((t) => (
           <View key={t.id} className="flex-row justify-between items-center py-3" style={{ borderBottomWidth: 1, borderBottomColor: c.divider }}>
             <View className="flex-row items-center gap-3 flex-1">
-              <View className="rounded-lg items-center justify-center" style={{ width: 32, height: 32, backgroundColor: ACCENT.cyanBg }}>
-                <MaterialCommunityIcons name={t.icon as any} size={18} color={ACCENT.cyan} />
+              <View className="rounded-lg items-center justify-center" style={{ width: 32, height: 32, backgroundColor: accent.cyanBg }}>
+                <MaterialCommunityIcons name={t.icon as any} size={18} color={accent.cyan} />
               </View>
               <View className="flex-1">
                 <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 14 }}>{t.label}</Text>
@@ -604,7 +605,7 @@ export function SettingsPanel({ userId, initialExpand }: SettingsPanelProps) {
                 useTrackerStore.getState().setEnabled(t.id, v);
                 updateTrackerPreferences({ ...enabled, [t.id]: v });
               }}
-              trackColor={{ false: c.buttonBg, true: ACCENT.lime }}
+              trackColor={{ false: c.buttonBg, true: accent.lime }}
               thumbColor="#FFFFFF"
             />
           </View>
@@ -627,13 +628,13 @@ export function SettingsPanel({ userId, initialExpand }: SettingsPanelProps) {
                 key={option.id}
                 onPress={() => setMode(option.id)}
                 className="flex-1 py-3 rounded-xl items-center"
-                style={{ backgroundColor: isActive ? ACCENT.lime : c.buttonBg }}
+                style={{ backgroundColor: isActive ? accent.lime : c.buttonBg }}
               >
-                <MaterialCommunityIcons name={option.icon as any} size={20} color={isActive ? "#161e00" : c.textSecondary} />
+                <MaterialCommunityIcons name={option.icon as any} size={20} color={isActive ? c.textOnAccent : c.textSecondary} />
                 <Text
                   className="text-xs mt-1"
                   style={{
-                    color: isActive ? "#161e00" : c.textSecondary,
+                    color: isActive ? c.textOnAccent : c.textSecondary,
                     fontFamily: "SpaceGrotesk_600SemiBold",
                   }}
                 >
@@ -655,7 +656,7 @@ export function SettingsPanel({ userId, initialExpand }: SettingsPanelProps) {
               </Pressable>
               <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 18 }}>Select Time</Text>
               <Pressable onPress={applyTimePicker}>
-                <Text style={{ color: ACCENT.lime, fontFamily: "Inter_700Bold", fontSize: 14 }}>Done</Text>
+                <Text style={{ color: accent.lime, fontFamily: "Inter_700Bold", fontSize: 14 }}>Done</Text>
               </Pressable>
             </View>
             <View className="flex-row justify-center gap-6 mb-4">
@@ -665,9 +666,9 @@ export function SettingsPanel({ userId, initialExpand }: SettingsPanelProps) {
                   {hours.map((h) => (
                     <Pressable key={h} onPress={() => setPickerHour(h)}
                       className="py-2 items-center rounded-lg"
-                      style={{ backgroundColor: pickerHour === h ? ACCENT.limeBg : "transparent" }}
+                      style={{ backgroundColor: pickerHour === h ? accent.limeBg : "transparent" }}
                     >
-                      <Text style={{ color: pickerHour === h ? ACCENT.lime : c.textMuted, fontFamily: pickerHour === h ? "Inter_700Bold" : "Inter_400Regular", fontSize: 18, textAlign: "center" }}>
+                      <Text style={{ color: pickerHour === h ? accent.lime : c.textMuted, fontFamily: pickerHour === h ? "Inter_700Bold" : "Inter_400Regular", fontSize: 18, textAlign: "center" }}>
                         {h.toString().padStart(2, "0")}
                       </Text>
                     </Pressable>
@@ -681,9 +682,9 @@ export function SettingsPanel({ userId, initialExpand }: SettingsPanelProps) {
                   {minutes.map((m) => (
                     <Pressable key={m} onPress={() => setPickerMinute(m)}
                       className="py-2 items-center rounded-lg"
-                      style={{ backgroundColor: pickerMinute === m ? ACCENT.limeBg : "transparent" }}
+                      style={{ backgroundColor: pickerMinute === m ? accent.limeBg : "transparent" }}
                     >
-                      <Text style={{ color: pickerMinute === m ? ACCENT.lime : c.textMuted, fontFamily: pickerMinute === m ? "Inter_700Bold" : "Inter_400Regular", fontSize: 18, textAlign: "center" }}>
+                      <Text style={{ color: pickerMinute === m ? accent.lime : c.textMuted, fontFamily: pickerMinute === m ? "Inter_700Bold" : "Inter_400Regular", fontSize: 18, textAlign: "center" }}>
                         {m.toString().padStart(2, "0")}
                       </Text>
                     </Pressable>

@@ -2,7 +2,7 @@ import React from "react";
 import { View, Text } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useThemeStore } from "@/lib/theme-store";
-import { getThemeColors, ACCENT } from "@/lib/theme-colors";
+import { getThemeColors, ACCENT, getAccentColors } from "@/lib/theme-colors";
 import { displayWater, DEFAULT_UNITS } from "@/lib/units";
 import type { WeeklyFastingStats } from "@/hooks/useWeeklyFastingStats";
 import type { WeeklyWaterStats } from "@/hooks/useWeeklyWaterStats";
@@ -27,6 +27,7 @@ function formatDuration(min: number): string {
 export function WeeklyStats({ fasting, water, workouts, unitPrefs = DEFAULT_UNITS }: WeeklyStatsProps) {
   const { theme } = useThemeStore();
   const c = getThemeColors(theme);
+  const accent = getAccentColors(theme);
 
   return (
     <View className="mb-6">
@@ -36,8 +37,8 @@ export function WeeklyStats({ fasting, water, workouts, unitPrefs = DEFAULT_UNIT
 
       <View className="flex-row gap-3 mb-3">
         <View className="flex-1 glass-panel items-center py-4">
-          <MaterialCommunityIcons name="timer-outline" size={24} color={ACCENT.lime} />
-          <Text style={{ color: ACCENT.lime, fontFamily: "Inter_700Bold" }} className="text-xl mt-1">
+          <MaterialCommunityIcons name="timer-outline" size={24} color={accent.lime} />
+          <Text style={{ color: accent.lime, fontFamily: "Inter_700Bold" }} className="text-xl mt-1">
             {formatDuration(fasting.avgDurationMin)}
           </Text>
           <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular" }} className="text-xs mt-1 text-center">
@@ -46,8 +47,8 @@ export function WeeklyStats({ fasting, water, workouts, unitPrefs = DEFAULT_UNIT
         </View>
 
         <View className="flex-1 glass-panel items-center py-4">
-          <MaterialCommunityIcons name="trending-up" size={24} color={ACCENT.coral} />
-          <Text style={{ color: ACCENT.coral, fontFamily: "Inter_700Bold" }} className="text-xl mt-1">
+          <MaterialCommunityIcons name="trending-up" size={24} color={accent.coral} />
+          <Text style={{ color: accent.coral, fontFamily: "Inter_700Bold" }} className="text-xl mt-1">
             {formatDuration(fasting.longestFastMin)}
           </Text>
           <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular" }} className="text-xs mt-1 text-center">
@@ -56,8 +57,8 @@ export function WeeklyStats({ fasting, water, workouts, unitPrefs = DEFAULT_UNIT
         </View>
 
         <View className="flex-1 glass-panel items-center py-4">
-          <MaterialCommunityIcons name="target" size={24} color={ACCENT.cyan} />
-          <Text style={{ color: ACCENT.cyan, fontFamily: "Inter_700Bold" }} className="text-xl mt-1">
+          <MaterialCommunityIcons name="target" size={24} color={accent.cyan} />
+          <Text style={{ color: accent.cyan, fontFamily: "Inter_700Bold" }} className="text-xl mt-1">
             {fasting.totalFastingHours}h
           </Text>
           <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular" }} className="text-xs mt-1 text-center">
@@ -68,8 +69,8 @@ export function WeeklyStats({ fasting, water, workouts, unitPrefs = DEFAULT_UNIT
 
       <View className="flex-row gap-3 mb-3">
         <View className="flex-1 glass-panel items-center py-4">
-          <MaterialCommunityIcons name="water" size={24} color={ACCENT.cyan} />
-          <Text style={{ color: ACCENT.cyan, fontFamily: "Inter_700Bold" }} className="text-xl mt-1">
+          <MaterialCommunityIcons name="water" size={24} color={accent.cyan} />
+          <Text style={{ color: accent.cyan, fontFamily: "Inter_700Bold" }} className="text-xl mt-1">
             {displayWater(water.dailyAverageMl, unitPrefs)}
           </Text>
           <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular" }} className="text-xs mt-1 text-center">
@@ -78,8 +79,8 @@ export function WeeklyStats({ fasting, water, workouts, unitPrefs = DEFAULT_UNIT
         </View>
 
         <View className="flex-1 glass-panel items-center py-4">
-          <MaterialCommunityIcons name="target" size={24} color={ACCENT.lime} />
-          <Text style={{ color: ACCENT.lime, fontFamily: "Inter_700Bold" }} className="text-xl mt-1">
+          <MaterialCommunityIcons name="target" size={24} color={accent.lime} />
+          <Text style={{ color: accent.lime, fontFamily: "Inter_700Bold" }} className="text-xl mt-1">
             {water.goalHitRate}%
           </Text>
           <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular" }} className="text-xs mt-1 text-center">
@@ -91,8 +92,8 @@ export function WeeklyStats({ fasting, water, workouts, unitPrefs = DEFAULT_UNIT
       {workouts && (
         <View className="flex-row gap-3">
           <View className="flex-1 glass-panel items-center py-4">
-            <MaterialCommunityIcons name="dumbbell" size={24} color={ACCENT.lime} />
-            <Text style={{ color: ACCENT.lime, fontFamily: "Inter_700Bold" }} className="text-xl mt-1">
+            <MaterialCommunityIcons name="dumbbell" size={24} color={accent.lime} />
+            <Text style={{ color: accent.lime, fontFamily: "Inter_700Bold" }} className="text-xl mt-1">
               {workouts.totalReps}
             </Text>
             <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular" }} className="text-xs mt-1 text-center">
@@ -101,8 +102,8 @@ export function WeeklyStats({ fasting, water, workouts, unitPrefs = DEFAULT_UNIT
           </View>
 
           <View className="flex-1 glass-panel items-center py-4">
-            <MaterialCommunityIcons name="fire" size={24} color={ACCENT.coral} />
-            <Text style={{ color: ACCENT.coral, fontFamily: "Inter_700Bold" }} className="text-xl mt-1">
+            <MaterialCommunityIcons name="fire" size={24} color={accent.coral} />
+            <Text style={{ color: accent.coral, fontFamily: "Inter_700Bold" }} className="text-xl mt-1">
               {Math.round(workouts.totalCalories)}
             </Text>
             <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular" }} className="text-xs mt-1 text-center">

@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Pressable, View, Text, Modal } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useThemeStore } from "@/lib/theme-store";
-import { getThemeColors, ACCENT } from "@/lib/theme-colors";
+import { getThemeColors, ACCENT, getAccentColors } from "@/lib/theme-colors";
 import { EditGoalModal } from "@/components/EditGoalModal";
 import { WorkoutIcon } from "@/components/WorkoutIcon";
 import { getIconKeyForExercise } from "@/lib/exercise-icons";
@@ -33,6 +33,7 @@ export function ExercisePanel({
 }: ExercisePanelProps) {
   const { theme } = useThemeStore();
   const c = getThemeColors(theme);
+  const accent = getAccentColors(theme);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
@@ -54,9 +55,9 @@ export function ExercisePanel({
       {/* Header */}
       <View className="flex-row justify-between items-start mb-4">
         <View className="flex-row items-center gap-3">
-          <WorkoutIcon name={iconKey} size={32} color={ACCENT.lime} />
+          <WorkoutIcon name={iconKey} size={32} color={accent.lime} />
           <View>
-            <Text style={{ color: ACCENT.cyan, fontFamily: "SpaceGrotesk_700Bold", fontSize: 12, letterSpacing: 1, marginBottom: 4, textTransform: "uppercase" }}>
+            <Text style={{ color: accent.cyan, fontFamily: "SpaceGrotesk_700Bold", fontSize: 12, letterSpacing: 1, marginBottom: 4, textTransform: "uppercase" }}>
               {category}
             </Text>
             <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 28, letterSpacing: -0.3, lineHeight: 32, textTransform: "capitalize" }}>
@@ -65,7 +66,7 @@ export function ExercisePanel({
           </View>
         </View>
         <View className="flex-col items-end">
-          <Text style={{ color: ACCENT.lime, fontFamily: "SpaceGrotesk_600SemiBold", fontSize: 40, letterSpacing: -1 }}>
+          <Text style={{ color: accent.lime, fontFamily: "SpaceGrotesk_600SemiBold", fontSize: 40, letterSpacing: -1 }}>
             {reps}<Text style={{ fontFamily: "SpaceGrotesk_700Bold", fontSize: 12, color: c.textMuted, marginLeft: 4 }}>/ {goal.daily_goal}</Text>
           </Text>
         </View>
@@ -75,7 +76,7 @@ export function ExercisePanel({
       <View className="w-full h-1 rounded-full overflow-hidden mb-6" style={{ backgroundColor: "rgba(53,53,52,0.3)" }}>
         <View
           className="h-full rounded-full"
-          style={{ width: `${progress * 100}%`, backgroundColor: isGoalMet ? ACCENT.cyan : ACCENT.lime }}
+          style={{ width: `${progress * 100}%`, backgroundColor: isGoalMet ? accent.cyan : accent.lime }}
         />
       </View>
 

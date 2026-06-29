@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Pressable, View, Text, Modal } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useThemeStore } from "@/lib/theme-store";
-import { getThemeColors, ACCENT } from "@/lib/theme-colors";
+import { getThemeColors, ACCENT, getAccentColors } from "@/lib/theme-colors";
 import { useFastCalendar } from "@/hooks/useFastCalendar";
 import type { FastingSession } from "@/lib/types";
 
@@ -57,6 +57,7 @@ function isSameDay(a: Date, b: Date): boolean {
 export function FastCalendar({ visible, userId, fastingHours, onClose }: FastCalendarProps) {
   const { theme } = useThemeStore();
   const c = getThemeColors(theme);
+  const accent = getAccentColors(theme);
   const now = new Date();
   const [year, setYear] = useState(now.getFullYear());
   const [month, setMonth] = useState(now.getMonth());
@@ -139,9 +140,9 @@ export function FastCalendar({ visible, userId, fastingHours, onClose }: FastCal
                         height: 36,
                         borderRadius: 18,
                         borderWidth: isSelected ? 2 : isToday ? 1.5 : 0,
-                        borderColor: isSelected ? ACCENT.lime : isToday ? ACCENT.lime : "transparent",
+                        borderColor: isSelected ? accent.lime : isToday ? accent.lime : "transparent",
                         backgroundColor: hasFast
-                          ? goalMet ? ACCENT.lime : ACCENT.coral
+                          ? goalMet ? accent.lime : accent.coral
                           : "transparent",
                         alignItems: "center",
                         justifyContent: "center",
@@ -150,7 +151,7 @@ export function FastCalendar({ visible, userId, fastingHours, onClose }: FastCal
                     >
                       <Text
                         style={{
-                          color: hasFast ? "#161e00" : c.text,
+                          color: hasFast ? c.textOnAccent : c.text,
                           fontFamily: "Inter_400Regular",
                         }}
                         className="text-sm"
@@ -186,7 +187,7 @@ export function FastCalendar({ visible, userId, fastingHours, onClose }: FastCal
                             width: 8,
                             height: 8,
                             borderRadius: 4,
-                            backgroundColor: met ? ACCENT.lime : ACCENT.coral,
+                            backgroundColor: met ? accent.lime : accent.coral,
                           }}
                         />
                         <Text style={{ color: c.text, fontFamily: "Inter_400Regular" }} className="text-sm">
@@ -195,7 +196,7 @@ export function FastCalendar({ visible, userId, fastingHours, onClose }: FastCal
                       </View>
                       <Text
                         style={{
-                          color: met ? ACCENT.lime : ACCENT.coral,
+                          color: met ? accent.lime : accent.coral,
                           fontFamily: "SpaceGrotesk_600SemiBold",
                         }}
                         className="text-xs"

@@ -7,7 +7,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { cancelAllNotifications, scheduleDailyFastReminder, setupNotifications } from "@/lib/notifications";
 import { useFastingStore } from "@/store/useFastingStore";
 import { useThemeStore } from "@/lib/theme-store";
-import { getThemeColors, ACCENT } from "@/lib/theme-colors";
+import { getThemeColors, ACCENT, getAccentColors } from "@/lib/theme-colors";
 
 const ONBOARDING_KEY = "@fasttrack_onboarding_done";
 
@@ -18,6 +18,7 @@ export default function RemindersScreen() {
   const { fastingHours } = useFastingStore();
   const { theme } = useThemeStore();
   const c = getThemeColors(theme);
+  const accent = getAccentColors(theme);
 
   const [fastingReminders, setFastingReminders] = useState(true);
   const [checkinReminders, setCheckinReminders] = useState(true);
@@ -78,7 +79,7 @@ export default function RemindersScreen() {
           <Switch
             value={fastingReminders}
             onValueChange={setFastingReminders}
-            trackColor={{ false: c.buttonBg, true: ACCENT.lime }}
+            trackColor={{ false: c.buttonBg, true: accent.lime }}
             thumbColor="#FFFFFF"
           />
         </View>
@@ -87,7 +88,7 @@ export default function RemindersScreen() {
           <Switch
             value={checkinReminders}
             onValueChange={setCheckinReminders}
-            trackColor={{ false: c.buttonBg, true: ACCENT.lime }}
+            trackColor={{ false: c.buttonBg, true: accent.lime }}
             thumbColor="#FFFFFF"
           />
         </View>
@@ -96,7 +97,7 @@ export default function RemindersScreen() {
           <Switch
             value={waterReminders}
             onValueChange={setWaterReminders}
-            trackColor={{ false: c.buttonBg, true: ACCENT.lime }}
+            trackColor={{ false: c.buttonBg, true: accent.lime }}
             thumbColor="#FFFFFF"
           />
         </View>
@@ -115,7 +116,7 @@ export default function RemindersScreen() {
               key={time}
               onPress={() => setReminderTime(time)}
               className="flex-1 py-2.5 rounded-lg items-center"
-              style={{ backgroundColor: isActive ? ACCENT.lime : c.buttonBg }}
+              style={{ backgroundColor: isActive ? accent.lime : c.buttonBg }}
             >
               <Text style={{ color: isActive ? c.textOnAccent : c.textSecondary, fontFamily: "SpaceGrotesk_600SemiBold" }} className="text-xs">
                 {label}
@@ -129,7 +130,7 @@ export default function RemindersScreen() {
       <Pressable
         onPress={handleComplete} disabled={saving}
         className="rounded-xl py-4"
-        style={{ backgroundColor: ACCENT.lime }}
+        style={{ backgroundColor: accent.lime }}
       >
         <Text style={{ color: c.textOnAccent, fontFamily: "Inter_700Bold" }} className="text-center text-lg">
           Start Tracking
@@ -142,7 +143,7 @@ export default function RemindersScreen() {
         <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: c.textFaint }} />
         <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: c.textFaint }} />
         <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: c.textFaint }} />
-        <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: ACCENT.lime }} />
+        <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: accent.lime }} />
       </View>
     </ScrollView>
   );

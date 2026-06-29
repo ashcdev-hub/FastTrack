@@ -8,7 +8,7 @@ import { useMyMeals } from "@/hooks/useMyMeals";
 import { MyMealsManagerModal } from "@/components/MyMealsManagerModal";
 import { useTrackerStore } from "@/store/useTrackerStore";
 import { useThemeStore } from "@/lib/theme-store";
-import { getThemeColors, ACCENT } from "@/lib/theme-colors";
+import { getThemeColors, ACCENT, getAccentColors } from "@/lib/theme-colors";
 import { useToast } from "@/hooks/useToast";
 import { Toast } from "@/components/Toast";
 import { SettingsPanel } from "@/components/SettingsPanel";
@@ -22,6 +22,7 @@ export default function ProfileScreen() {
   const { isEnabled } = useTrackerStore();
   const { theme } = useThemeStore();
   const c = getThemeColors(theme);
+  const accent = getAccentColors(theme);
   const { toast } = useToast();
   const { expand } = useLocalSearchParams<{ expand?: string }>();
 
@@ -44,7 +45,7 @@ export default function ProfileScreen() {
         <View className="flex-row items-center" style={{ height: 44, paddingHorizontal: 20 }}>
           <View className="flex-row items-center gap-2">
             <Image source={require("../../assets/icon.png")} style={{ width: 22, height: 22, borderRadius: 5 }} />
-            <Text style={{ color: ACCENT.lime, fontFamily: "Inter_800ExtraBold", fontSize: 22, letterSpacing: -0.5 }}>FastTrack</Text>
+            <Text style={{ color: accent.lime, fontFamily: "Inter_800ExtraBold", fontSize: 22, letterSpacing: -0.5 }}>FastTrack</Text>
           </View>
         </View>
       </View>
@@ -73,8 +74,8 @@ export default function ProfileScreen() {
           </Text>
           <Pressable onPress={() => setShowMyMealsManager(true)} className="rounded-xl p-5 flex-row items-center justify-between" style={{ backgroundColor: c.cardBgAlt }}>
             <View className="flex-row items-center gap-3">
-              <View className="rounded-lg items-center justify-center" style={{ width: 36, height: 36, backgroundColor: ACCENT.cyanBg }}>
-                <MaterialCommunityIcons name="bookmark-outline" size={18} color={ACCENT.cyan} />
+              <View className="rounded-lg items-center justify-center" style={{ width: 36, height: 36, backgroundColor: accent.cyanBg }}>
+                <MaterialCommunityIcons name="bookmark-outline" size={18} color={accent.cyan} />
               </View>
               <View>
                 <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 15 }}>My Meals</Text>

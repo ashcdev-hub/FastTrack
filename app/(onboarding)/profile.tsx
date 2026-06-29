@@ -4,7 +4,7 @@ import { useRouter } from "expo-router";
 import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
 import { useThemeStore } from "@/lib/theme-store";
-import { getThemeColors, ACCENT } from "@/lib/theme-colors";
+import { getThemeColors, ACCENT, getAccentColors } from "@/lib/theme-colors";
 import { DEFAULT_UNITS, weightUnitLabel, heightUnitLabel, parseWeightInput, parseHeightInput, displayWeight, displayHeight } from "@/lib/units";
 import type { UnitPreferences } from "@/lib/units";
 
@@ -14,6 +14,7 @@ export default function ProfileScreen() {
   const { profile, updateProfile, updateUnitPreferences } = useProfile(user?.id ?? null);
   const { theme } = useThemeStore();
   const c = getThemeColors(theme);
+  const accent = getAccentColors(theme);
 
   const [displayName, setDisplayName] = useState("");
   const [age, setAge] = useState("");
@@ -111,7 +112,7 @@ export default function ProfileScreen() {
             key={g}
             onPress={() => setGender(gender === g ? null : g)}
             className="flex-1 py-3 rounded-xl items-center"
-            style={{ backgroundColor: gender === g ? ACCENT.lime : c.buttonBg }}
+            style={{ backgroundColor: gender === g ? accent.lime : c.buttonBg }}
           >
             <Text
               className="text-sm capitalize"
@@ -133,7 +134,7 @@ export default function ProfileScreen() {
             key={unit}
             onPress={() => setUnitPrefs({ ...unitPrefs, weight: unit })}
             className="flex-1 py-3 rounded-xl items-center"
-            style={{ backgroundColor: unitPrefs.weight === unit ? ACCENT.lime : c.buttonBg }}
+            style={{ backgroundColor: unitPrefs.weight === unit ? accent.lime : c.buttonBg }}
           >
             <Text className="text-sm" style={{ color: unitPrefs.weight === unit ? c.textOnAccent : c.textSecondary, fontFamily: "SpaceGrotesk_600SemiBold" }}>
               {unit === "kg" ? "Kilograms" : "Pounds"}
@@ -147,7 +148,7 @@ export default function ProfileScreen() {
             key={unit}
             onPress={() => setUnitPrefs({ ...unitPrefs, height: unit })}
             className="flex-1 py-3 rounded-xl items-center"
-            style={{ backgroundColor: unitPrefs.height === unit ? ACCENT.lime : c.buttonBg }}
+            style={{ backgroundColor: unitPrefs.height === unit ? accent.lime : c.buttonBg }}
           >
             <Text className="text-sm" style={{ color: unitPrefs.height === unit ? c.textOnAccent : c.textSecondary, fontFamily: "SpaceGrotesk_600SemiBold" }}>
               {unit === "cm" ? "Centimeters" : "Feet/Inches"}
@@ -194,7 +195,7 @@ export default function ProfileScreen() {
       <Pressable
         onPress={handleContinue} disabled={saving}
         className="rounded-xl py-4"
-        style={{ backgroundColor: ACCENT.lime }}
+        style={{ backgroundColor: accent.lime }}
       >
         <Text style={{ color: c.textOnAccent, fontFamily: "Inter_700Bold" }} className="text-center text-lg">
           Continue
@@ -204,7 +205,7 @@ export default function ProfileScreen() {
       {/* Step indicator */}
       <View className="flex-row gap-2 mt-10 justify-center">
         <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: c.textFaint }} />
-        <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: ACCENT.lime }} />
+        <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: accent.lime }} />
         <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: c.textFaint }} />
         <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: c.textFaint }} />
         <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: c.textFaint }} />

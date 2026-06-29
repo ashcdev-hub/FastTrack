@@ -1,4 +1,4 @@
-import { getThemeColors, ACCENT, MEAL_COLORS } from "../theme-colors";
+import { getThemeColors, ACCENT, getMealColors } from "../theme-colors";
 
 const EXPECTED_KEYS = [
   "bg",
@@ -108,18 +108,19 @@ describe("ACCENT palette", () => {
   });
 });
 
-describe("MEAL_COLORS", () => {
+describe("getMealColors", () => {
   test("contains all 5 meal types", () => {
-    expect(MEAL_COLORS).toHaveProperty("breakfast");
-    expect(MEAL_COLORS).toHaveProperty("lunch");
-    expect(MEAL_COLORS).toHaveProperty("dinner");
-    expect(MEAL_COLORS).toHaveProperty("snack");
-    expect(MEAL_COLORS).toHaveProperty("other");
+    const mc = getMealColors("dark");
+    expect(mc).toHaveProperty("breakfast");
+    expect(mc).toHaveProperty("lunch");
+    expect(mc).toHaveProperty("dinner");
+    expect(mc).toHaveProperty("snack");
+    expect(mc).toHaveProperty("other");
   });
 
-  test("breakfast, lunch, and dinner reuse accent colors", () => {
-    expect(MEAL_COLORS.breakfast).toBe(ACCENT.coral);
-    expect(MEAL_COLORS.lunch).toBe(ACCENT.lime);
-    expect(MEAL_COLORS.dinner).toBe(ACCENT.sky);
+  test("breakfast and dinner reuse accent colors", () => {
+    const mc = getMealColors("dark");
+    expect(mc.breakfast).toBe(ACCENT.coral);
+    expect(mc.dinner).toBe(ACCENT.sky);
   });
 });

@@ -23,7 +23,7 @@ import { useProfile } from "@/hooks/useProfile";
 import { useThemeStore } from "@/lib/theme-store";
 import { useTrackerStore } from "@/store/useTrackerStore";
 import { applyTheme } from "@/lib/dark-mode";
-import { getThemeColors, ACCENT } from "@/lib/theme-colors";
+import { getThemeColors, ACCENT, getAccentColors } from "@/lib/theme-colors";
 import { setupNotifications } from "@/lib/notifications";
 import { View, ActivityIndicator } from "react-native";
 import { OfflineBanner } from "@/components/OfflineBanner";
@@ -102,6 +102,7 @@ function InnerLayout() {
   const { theme, loaded: themeLoaded, loadTheme, setResolvedTheme, mode } = useThemeStore();
   const systemScheme = useColorScheme();
   const { setFromProfile, loadTrackers } = useTrackerStore();
+  const accent = getAccentColors(theme);
 
   const [fontsLoaded, fontError] = useFonts({
     Inter_400Regular,
@@ -155,7 +156,7 @@ function InnerLayout() {
   if (!ready) {
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: theme === "dark" ? "#0C0C0E" : "#F6F4EF" }}>
-        <ActivityIndicator size="large" color={ACCENT.lime} />
+        <ActivityIndicator size="large" color={accent.lime} />
       </View>
     );
   }

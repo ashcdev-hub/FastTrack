@@ -3,7 +3,7 @@ import { View, Text } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { format } from "date-fns";
 import { useThemeStore } from "@/lib/theme-store";
-import { getThemeColors, ACCENT } from "@/lib/theme-colors";
+import { getThemeColors, ACCENT, getAccentColors } from "@/lib/theme-colors";
 import type { FastCheckIn } from "@/lib/types";
 
 const MOODS: Record<number, { label: string; icon: keyof typeof MaterialCommunityIcons.glyphMap; color: string }> = {
@@ -21,6 +21,9 @@ type CheckInTimelineProps = {
 export function CheckInTimeline({ checkIns }: CheckInTimelineProps) {
   const { theme } = useThemeStore();
   const tc = getThemeColors(theme);
+  const accent = getAccentColors(theme);
+// accent defined below
+// accent defined below
   if (checkIns.length === 0) return null;
 
   return (

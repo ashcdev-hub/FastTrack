@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Pressable, View, Text, TextInput, Modal } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useThemeStore } from "@/lib/theme-store";
-import { getThemeColors, ACCENT } from "@/lib/theme-colors";
+import { getThemeColors, ACCENT, getAccentColors } from "@/lib/theme-colors";
 
 type EditGoalModalProps = {
   visible: boolean;
@@ -15,6 +15,7 @@ type EditGoalModalProps = {
 export function EditGoalModal({ visible, currentGoal, exerciseName, onSave, onCancel }: EditGoalModalProps) {
   const { theme } = useThemeStore();
   const c = getThemeColors(theme);
+  const accent = getAccentColors(theme);
   const [goalInput, setGoalInput] = useState(String(currentGoal));
   const [customMode, setCustomMode] = useState(false);
 
@@ -71,18 +72,18 @@ export function EditGoalModal({ visible, currentGoal, exerciseName, onSave, onCa
                   key={preset}
                   onPress={() => { setGoalInput(String(preset)); setCustomMode(false); }}
                   className="flex-1 py-2.5 rounded-lg items-center"
-                  style={{ backgroundColor: isActive ? ACCENT.lime : c.buttonBg }}
+                  style={{ backgroundColor: isActive ? accent.lime : c.buttonBg }}
                 >
-                  <Text style={{ color: isActive ? "#161e00" : c.textMuted, fontFamily: "SpaceGrotesk_600SemiBold", fontSize: 13 }}>{preset}</Text>
+                  <Text style={{ color: isActive ? c.textOnAccent : c.textMuted, fontFamily: "SpaceGrotesk_600SemiBold", fontSize: 13 }}>{preset}</Text>
                 </Pressable>
               );
             })}
             <Pressable
               onPress={() => setCustomMode(true)}
               className="flex-1 py-2.5 rounded-lg items-center"
-              style={{ backgroundColor: customMode ? ACCENT.lime : c.buttonBg }}
+              style={{ backgroundColor: customMode ? accent.lime : c.buttonBg }}
             >
-              <Text style={{ color: customMode ? "#161e00" : c.textMuted, fontFamily: "SpaceGrotesk_600SemiBold", fontSize: 13 }}>Custom</Text>
+              <Text style={{ color: customMode ? c.textOnAccent : c.textMuted, fontFamily: "SpaceGrotesk_600SemiBold", fontSize: 13 }}>Custom</Text>
             </Pressable>
           </View>
 
@@ -102,8 +103,8 @@ export function EditGoalModal({ visible, currentGoal, exerciseName, onSave, onCa
             <Pressable onPress={onCancel} className="flex-1 py-3 rounded-xl items-center" style={{ backgroundColor: c.buttonBg }}>
               <Text style={{ color: c.text, fontFamily: "Inter_700Bold" }}>Cancel</Text>
             </Pressable>
-            <Pressable onPress={handleSave} className="flex-1 py-3 rounded-xl items-center" style={{ backgroundColor: ACCENT.lime }}>
-              <Text style={{ color: "#161e00", fontFamily: "Inter_700Bold" }}>Save</Text>
+            <Pressable onPress={handleSave} className="flex-1 py-3 rounded-xl items-center" style={{ backgroundColor: accent.lime }}>
+              <Text style={{ color: c.textOnAccent, fontFamily: "Inter_700Bold" }}>Save</Text>
             </Pressable>
           </View>
         </Pressable>

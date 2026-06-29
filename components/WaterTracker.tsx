@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Pressable, View, Text, TextInput } from "react-native";
 import { useThemeStore } from "@/lib/theme-store";
-import { getThemeColors, ACCENT } from "@/lib/theme-colors";
+import { getThemeColors, ACCENT, getAccentColors } from "@/lib/theme-colors";
 import { displayWater, displayWaterBottle, waterUnitLabel, mlToFlOz, flozToMl, DEFAULT_UNITS } from "@/lib/units";
 import type { UnitPreferences } from "@/lib/units";
 
@@ -17,6 +17,7 @@ const BOTTLE_SIZES_ML = [250, 330, 500, 750, 1000];
 export function WaterTracker({ currentMl, goalMl, onAdd, unitPrefs = DEFAULT_UNITS }: WaterTrackerProps) {
   const { theme } = useThemeStore();
   const c = getThemeColors(theme);
+  const accent = getAccentColors(theme);
   const [customInput, setCustomInput] = useState("");
 
   const pct = goalMl > 0 ? Math.min((currentMl / goalMl) * 100, 100) : 0;
@@ -32,7 +33,7 @@ export function WaterTracker({ currentMl, goalMl, onAdd, unitPrefs = DEFAULT_UNI
   };
 
   return (
-    <View className="rounded-xl p-5 glass-panel" style={{ borderLeftWidth: 4, borderLeftColor: ACCENT.cyan }}>
+    <View className="rounded-xl p-5 glass-panel" style={{ borderLeftWidth: 4, borderLeftColor: accent.cyan }}>
       <View className="flex-row justify-between items-center mb-3">
         <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 18 }}>Water</Text>
         <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 14 }}>
@@ -46,7 +47,7 @@ export function WaterTracker({ currentMl, goalMl, onAdd, unitPrefs = DEFAULT_UNI
         accessibilityRole="progressbar"
         accessibilityValue={{ min: 0, max: goalMl, now: currentMl, text: `${displayWater(currentMl, unitPrefs)} of ${displayWater(goalMl, unitPrefs)}` }}
       >
-        <View className="h-full rounded-full" style={{ width: `${pct}%`, backgroundColor: ACCENT.cyan }} />
+        <View className="h-full rounded-full" style={{ width: `${pct}%`, backgroundColor: accent.cyan }} />
       </View>
 
       {remainingMl > 0 ? (
@@ -54,7 +55,7 @@ export function WaterTracker({ currentMl, goalMl, onAdd, unitPrefs = DEFAULT_UNI
           {displayWater(remainingMl, unitPrefs)} remaining
         </Text>
       ) : (
-        <Text style={{ color: ACCENT.lime, fontFamily: "Inter_700Bold", fontSize: 12, marginBottom: 16 }}>
+        <Text style={{ color: accent.lime, fontFamily: "Inter_700Bold", fontSize: 12, marginBottom: 16 }}>
           Goal reached!
         </Text>
       )}
@@ -67,12 +68,12 @@ export function WaterTracker({ currentMl, goalMl, onAdd, unitPrefs = DEFAULT_UNI
           <Pressable
             key={ml}
             onPress={() => onAdd(ml)}
-            style={{ backgroundColor: ACCENT.cyanBg, borderWidth: 1, borderColor: ACCENT.cyanBorder }}
+            style={{ backgroundColor: accent.cyanBg, borderWidth: 1, borderColor: accent.cyanBorder }}
             className="rounded-xl px-4 py-2.5"
             accessibilityRole="button"
             accessibilityLabel={`Add ${displayWaterBottle(ml, unitPrefs)} of water`}
           >
-            <Text style={{ color: ACCENT.cyan, fontFamily: "Inter_700Bold", fontSize: 14 }}>
+            <Text style={{ color: accent.cyan, fontFamily: "Inter_700Bold", fontSize: 14 }}>
               +{displayWaterBottle(ml, unitPrefs)}
             </Text>
           </Pressable>
@@ -101,9 +102,9 @@ export function WaterTracker({ currentMl, goalMl, onAdd, unitPrefs = DEFAULT_UNI
           onPress={handleCustomAdd}
           disabled={!customInput || Number(customInput) <= 0}
           className="rounded-xl px-5 py-3"
-          style={{ backgroundColor: customInput && Number(customInput) > 0 ? ACCENT.cyan : c.buttonBg }}
+          style={{ backgroundColor: customInput && Number(customInput) > 0 ? accent.cyan : c.buttonBg }}
         >
-          <Text style={{ fontFamily: "Inter_700Bold", color: customInput && Number(customInput) > 0 ? "#161e00" : c.textMuted }}>
+          <Text style={{ fontFamily: "Inter_700Bold", color: customInput && Number(customInput) > 0 ? c.textOnAccent : c.textMuted }}>
             Add
           </Text>
         </Pressable>

@@ -3,7 +3,7 @@ import { Pressable, View, Text, TextInput, ScrollView, ActivityIndicator, Modal 
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { supabase } from "@/lib/supabase";
 import { useThemeStore } from "@/lib/theme-store";
-import { getThemeColors, ACCENT } from "@/lib/theme-colors";
+import { getThemeColors, ACCENT, getAccentColors } from "@/lib/theme-colors";
 
 type FoodItem = {
   id: string;
@@ -25,6 +25,7 @@ type SearchFoodModalProps = {
 export function SearchFoodModal({ visible, onSelect, onClose }: SearchFoodModalProps) {
   const { theme } = useThemeStore();
   const c = getThemeColors(theme);
+  const accent = getAccentColors(theme);
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<FoodItem[]>([]);
   const [loading, setLoading] = useState(false);
@@ -89,13 +90,13 @@ export function SearchFoodModal({ visible, onSelect, onClose }: SearchFoodModalP
                 onPress={search}
                 disabled={loading}
                 className="rounded-xl px-5 py-3 items-center justify-center"
-                style={{ backgroundColor: ACCENT.lime, opacity: loading ? 0.5 : 1 }}
+                style={{ backgroundColor: accent.lime, opacity: loading ? 0.5 : 1 }}
               >
-                <MaterialCommunityIcons name="magnify" size={20} color="#161e00" />
+                <MaterialCommunityIcons name="magnify" size={20} color={c.textOnAccent} />
               </Pressable>
             </View>
 
-            {loading && <ActivityIndicator color={ACCENT.lime} />}
+            {loading && <ActivityIndicator color={accent.lime} />}
 
             {error && (
               <View className="rounded-xl p-3 mb-3" style={{ backgroundColor: ACCENT.roseBg }}>

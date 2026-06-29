@@ -4,7 +4,7 @@ import { CameraView, useCameraPermissions } from "expo-camera";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { supabase } from "@/lib/supabase";
 import { useThemeStore } from "@/lib/theme-store";
-import { getThemeColors, ACCENT } from "@/lib/theme-colors";
+import { getThemeColors, ACCENT, getAccentColors } from "@/lib/theme-colors";
 
 type FoodCameraProps = {
   visible: boolean;
@@ -15,6 +15,7 @@ type FoodCameraProps = {
 export function FoodCamera({ visible, onClose, onProductsFound }: FoodCameraProps) {
   const { theme } = useThemeStore();
   const c = getThemeColors(theme);
+  const accent = getAccentColors(theme);
   const [permission, requestPermission] = useCameraPermissions();
   const [analyzing, setAnalyzing] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -48,7 +49,7 @@ export function FoodCamera({ visible, onClose, onProductsFound }: FoodCameraProp
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
       {!permission ? (
         <View className="flex-1 items-center justify-center" style={{ backgroundColor: c.bg }}>
-          <ActivityIndicator size="large" color={ACCENT.lime} />
+          <ActivityIndicator size="large" color={accent.lime} />
         </View>
       ) : !permission.granted ? (
         <View className="flex-1 items-center justify-center px-8" style={{ backgroundColor: c.bg }}>
@@ -58,8 +59,8 @@ export function FoodCamera({ visible, onClose, onProductsFound }: FoodCameraProp
           <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 14, textAlign: "center", marginBottom: 24 }}>
             Allow camera access to take food photos for AI analysis
           </Text>
-          <Pressable onPress={requestPermission} className="rounded-xl py-3 px-8" style={{ backgroundColor: ACCENT.lime }}>
-            <Text style={{ color: "#161e00", fontFamily: "Inter_700Bold", fontSize: 15 }}>Grant Permission</Text>
+          <Pressable onPress={requestPermission} className="rounded-xl py-3 px-8" style={{ backgroundColor: accent.lime }}>
+            <Text style={{ color: c.textOnAccent, fontFamily: "Inter_700Bold", fontSize: 15 }}>Grant Permission</Text>
           </Pressable>
           <Pressable onPress={onClose} className="mt-4">
             <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 14 }}>Cancel</Text>
@@ -78,7 +79,7 @@ export function FoodCamera({ visible, onClose, onProductsFound }: FoodCameraProp
               </View>
 
               <View className="flex-1 justify-center items-center">
-                <View style={{ width: 220, height: 220, borderWidth: 2, borderColor: ACCENT.lime, borderRadius: 12, borderStyle: "dashed", opacity: 0.6 }} />
+                <View style={{ width: 220, height: 220, borderWidth: 2, borderColor: accent.lime, borderRadius: 12, borderStyle: "dashed", opacity: 0.6 }} />
                 <Text style={{ color: "#FFFFFF", fontFamily: "Inter_400Regular", fontSize: 14, marginTop: 16, opacity: 0.8 }}>
                   Frame the food in the square
                 </Text>
@@ -93,12 +94,12 @@ export function FoodCamera({ visible, onClose, onProductsFound }: FoodCameraProp
                 <Pressable
                   onPress={handleCapture}
                   disabled={analyzing}
-                  style={{ width: 72, height: 72, borderRadius: 36, backgroundColor: analyzing ? "rgba(195,244,0,0.4)" : ACCENT.lime, alignItems: "center", justifyContent: "center" }}
+                  style={{ width: 72, height: 72, borderRadius: 36, backgroundColor: analyzing ? "rgba(195,244,0,0.4)" : accent.lime, alignItems: "center", justifyContent: "center" }}
                 >
                   {analyzing ? (
-                    <ActivityIndicator size="small" color="#161e00" />
+                    <ActivityIndicator size="small" color={c.textOnAccent} />
                   ) : (
-                    <MaterialCommunityIcons name="camera" size={32} color="#161e00" />
+                    <MaterialCommunityIcons name="camera" size={32} color={c.textOnAccent} />
                   )}
                 </Pressable>
                 {analyzing && (

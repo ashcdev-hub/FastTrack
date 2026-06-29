@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Pressable, View, Text, TextInput, Modal } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useThemeStore } from "@/lib/theme-store";
-import { getThemeColors, ACCENT } from "@/lib/theme-colors";
+import { getThemeColors, ACCENT, getAccentColors } from "@/lib/theme-colors";
 import { useToast } from "@/hooks/useToast";
 import { Toast } from "@/components/Toast";
 import { displayWeight, displayWeightChange, weightUnitLabel, parseWeightInput, DEFAULT_UNITS } from "@/lib/units";
@@ -22,6 +22,7 @@ type WeightTrackerProps = {
 export function WeightTracker({ entries, currentWeight, weightChange, onAddWeight, onDeleteWeight, loading, unitPrefs = DEFAULT_UNITS }: WeightTrackerProps) {
   const { theme } = useThemeStore();
   const c = getThemeColors(theme);
+  const accent = getAccentColors(theme);
   const { toast, success, error: toastError } = useToast();
   const [inputValue, setInputValue] = useState("");
   const [saving, setSaving] = useState(false);
@@ -59,7 +60,7 @@ export function WeightTracker({ entries, currentWeight, weightChange, onAddWeigh
         </View>
         {weightChange !== null && weightChange !== 0 && (
           <View className="items-end">
-            <Text style={{ color: weightChange < 0 ? ACCENT.lime : ACCENT.rose, fontFamily: "SpaceGrotesk_600SemiBold" }} className="text-lg">
+            <Text style={{ color: weightChange < 0 ? accent.lime : ACCENT.rose, fontFamily: "SpaceGrotesk_600SemiBold" }} className="text-lg">
               {weightChange < 0 ? "↓" : "↑"} {displayWeightChange(weightChange, unitPrefs)} {unitLabel}
             </Text>
             <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular" }} className="text-xs">this month</Text>
@@ -84,7 +85,7 @@ export function WeightTracker({ entries, currentWeight, weightChange, onAddWeigh
         <Pressable
           onPress={handleLog} disabled={!inputValue || parseFloat(inputValue) <= 0 || saving}
           className="rounded-xl px-5 py-3"
-          style={{ backgroundColor: inputValue && parseFloat(inputValue) > 0 && !saving ? ACCENT.lime : c.buttonBg }}
+          style={{ backgroundColor: inputValue && parseFloat(inputValue) > 0 && !saving ? accent.lime : c.buttonBg }}
         >
           <Text style={{
             fontFamily: "Inter_700Bold",

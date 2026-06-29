@@ -4,7 +4,7 @@ import { CameraView, useCameraPermissions } from "expo-camera";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { supabase } from "@/lib/supabase";
 import { useThemeStore } from "@/lib/theme-store";
-import { getThemeColors, ACCENT } from "@/lib/theme-colors";
+import { getThemeColors, ACCENT, getAccentColors } from "@/lib/theme-colors";
 
 type BarcodeScannerProps = {
   visible: boolean;
@@ -23,6 +23,7 @@ type BarcodeScannerProps = {
 export function BarcodeScanner({ visible, onClose, onProductFound }: BarcodeScannerProps) {
   const { theme } = useThemeStore();
   const c = getThemeColors(theme);
+  const accent = getAccentColors(theme);
   const [permission, requestPermission] = useCameraPermissions();
   const [scanning, setScanning] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -90,7 +91,7 @@ export function BarcodeScanner({ visible, onClose, onProductFound }: BarcodeScan
       {/* Permission not yet determined */}
       {!permission ? (
         <View className="flex-1 items-center justify-center" style={{ backgroundColor: c.bg }}>
-          <ActivityIndicator size="large" color={ACCENT.lime} />
+          <ActivityIndicator size="large" color={accent.lime} />
         </View>
       ) : !permission.granted ? (
         <View className="flex-1 items-center justify-center px-8" style={{ backgroundColor: c.bg }}>
@@ -103,7 +104,7 @@ export function BarcodeScanner({ visible, onClose, onProductFound }: BarcodeScan
           <Pressable
             onPress={requestPermission}
             className="rounded-xl py-3 px-8"
-            style={{ backgroundColor: ACCENT.lime }}
+            style={{ backgroundColor: accent.lime }}
           >
             <Text style={{ color: c.textOnAccent, fontFamily: "Inter_700Bold" }}>
               Grant Permission
@@ -140,14 +141,14 @@ export function BarcodeScanner({ visible, onClose, onProductFound }: BarcodeScan
 
               <View
                 style={{
-                  width: 260, height: 260, borderWidth: 2, borderColor: ACCENT.lime,
+                  width: 260, height: 260, borderWidth: 2, borderColor: accent.lime,
                   borderRadius: 16, backgroundColor: "transparent",
                 }}
               >
-                <View style={{ position: "absolute", top: -1, left: -1, width: 32, height: 32, borderTopWidth: 3, borderLeftWidth: 3, borderColor: ACCENT.lime, borderTopLeftRadius: 16 }} />
-                <View style={{ position: "absolute", top: -1, right: -1, width: 32, height: 32, borderTopWidth: 3, borderRightWidth: 3, borderColor: ACCENT.lime, borderTopRightRadius: 16 }} />
-                <View style={{ position: "absolute", bottom: -1, left: -1, width: 32, height: 32, borderBottomWidth: 3, borderLeftWidth: 3, borderColor: ACCENT.lime, borderBottomLeftRadius: 16 }} />
-                <View style={{ position: "absolute", bottom: -1, right: -1, width: 32, height: 32, borderBottomWidth: 3, borderRightWidth: 3, borderColor: ACCENT.lime, borderBottomRightRadius: 16 }} />
+                <View style={{ position: "absolute", top: -1, left: -1, width: 32, height: 32, borderTopWidth: 3, borderLeftWidth: 3, borderColor: accent.lime, borderTopLeftRadius: 16 }} />
+                <View style={{ position: "absolute", top: -1, right: -1, width: 32, height: 32, borderTopWidth: 3, borderRightWidth: 3, borderColor: accent.lime, borderTopRightRadius: 16 }} />
+                <View style={{ position: "absolute", bottom: -1, left: -1, width: 32, height: 32, borderBottomWidth: 3, borderLeftWidth: 3, borderColor: accent.lime, borderBottomLeftRadius: 16 }} />
+                <View style={{ position: "absolute", bottom: -1, right: -1, width: 32, height: 32, borderBottomWidth: 3, borderRightWidth: 3, borderColor: accent.lime, borderBottomRightRadius: 16 }} />
               </View>
 
               <Text
@@ -161,7 +162,7 @@ export function BarcodeScanner({ visible, onClose, onProductFound }: BarcodeScan
                 <View className="absolute bottom-32 left-8 right-8 items-center">
                   {lookupLoading ? (
                     <View className="flex-row items-center gap-2 rounded-xl px-5 py-3" style={{ backgroundColor: "rgba(0,0,0,0.7)" }}>
-                      <ActivityIndicator size="small" color={ACCENT.lime} />
+                      <ActivityIndicator size="small" color={accent.lime} />
                       <Text style={{ color: "#FFFFFF", fontFamily: "Inter_400Regular" }} className="text-sm">
                         Looking up product...
                       </Text>

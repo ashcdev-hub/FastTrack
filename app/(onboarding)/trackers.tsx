@@ -6,7 +6,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
 import { useTrackerStore, DEFAULT_TRACKERS } from "@/store/useTrackerStore";
 import { useThemeStore } from "@/lib/theme-store";
-import { getThemeColors, ACCENT } from "@/lib/theme-colors";
+import { getThemeColors, ACCENT, getAccentColors } from "@/lib/theme-colors";
 import type { TrackerId } from "@/lib/types";
 
 const TRACKERS: { id: TrackerId; label: string; icon: string; description: string }[] = [
@@ -23,6 +23,7 @@ export default function TrackersScreen() {
   const { setEnabled, enabled } = useTrackerStore();
   const { theme } = useThemeStore();
   const c = getThemeColors(theme);
+  const accent = getAccentColors(theme);
 
   const [trackers, setTrackers] = useState<Record<TrackerId, boolean>>({ ...DEFAULT_TRACKERS, ...enabled });
 
@@ -60,8 +61,8 @@ export default function TrackersScreen() {
             className="flex-row items-center p-4"
             style={{ borderBottomWidth: i < TRACKERS.length - 1 ? 1 : 0, borderBottomColor: c.divider }}
           >
-            <View className="rounded-lg items-center justify-center mr-3" style={{ width: 36, height: 36, backgroundColor: ACCENT.cyanBg }}>
-              <MaterialCommunityIcons name={t.icon as any} size={20} color={ACCENT.cyan} />
+            <View className="rounded-lg items-center justify-center mr-3" style={{ width: 36, height: 36, backgroundColor: accent.cyanBg }}>
+              <MaterialCommunityIcons name={t.icon as any} size={20} color={accent.cyan} />
             </View>
             <View className="flex-1">
               <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 15 }}>{t.label}</Text>
@@ -72,7 +73,7 @@ export default function TrackersScreen() {
             <Switch
               value={trackers[t.id]}
               onValueChange={() => toggle(t.id)}
-              trackColor={{ false: c.buttonBg, true: ACCENT.lime }}
+              trackColor={{ false: c.buttonBg, true: accent.lime }}
               thumbColor="#FFFFFF"
             />
           </View>
@@ -82,7 +83,7 @@ export default function TrackersScreen() {
       <Pressable
         onPress={handleContinue}
         className="rounded-xl py-4"
-        style={{ backgroundColor: ACCENT.lime }}
+        style={{ backgroundColor: accent.lime }}
       >
         <Text style={{ color: c.textOnAccent, fontFamily: "Inter_700Bold" }} className="text-center text-lg">
           Continue
@@ -94,7 +95,7 @@ export default function TrackersScreen() {
         <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: c.textFaint }} />
         <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: c.textFaint }} />
         <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: c.textFaint }} />
-        <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: ACCENT.lime }} />
+        <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: accent.lime }} />
         <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: c.textFaint }} />
       </View>
     </ScrollView>

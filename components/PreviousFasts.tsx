@@ -8,7 +8,7 @@ import { MoodChart } from "@/components/MoodChart";
 import { WeeklyCalendar } from "@/components/WeeklyCalendar";
 import { FastCalendar } from "@/components/FastCalendar";
 import { useThemeStore } from "@/lib/theme-store";
-import { getThemeColors, ACCENT } from "@/lib/theme-colors";
+import { getThemeColors, ACCENT, getAccentColors } from "@/lib/theme-colors";
 import { useAuth } from "@/hooks/useAuth";
 import type { FastingSession } from "@/lib/types";
 
@@ -23,6 +23,7 @@ const DEFAULT_LIMIT = 5;
 export function PreviousFasts({ sessions, fastingHours, onDelete }: PreviousFastsProps) {
   const { theme } = useThemeStore();
   const c = getThemeColors(theme);
+  const accent = getAccentColors(theme);
   const { user } = useAuth();
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<FastingSession | null>(null);
@@ -69,7 +70,7 @@ export function PreviousFasts({ sessions, fastingHours, onDelete }: PreviousFast
                   height: 48,
                   borderRadius: 4,
                   marginRight: 12,
-                  backgroundColor: goalMet ? ACCENT.lime : ACCENT.coral,
+                  backgroundColor: goalMet ? accent.lime : accent.coral,
                 }}
               />
               <View className="flex-1">
@@ -78,8 +79,8 @@ export function PreviousFasts({ sessions, fastingHours, onDelete }: PreviousFast
                     {format(start, "EEE, MMM d")}
                   </Text>
                   {s.fasting_schedule && (
-                    <View className="ml-2 px-2 py-0.5 rounded-md" style={{ backgroundColor: ACCENT.cyanBg }}>
-                      <Text style={{ color: ACCENT.cyan, fontFamily: "Inter_700Bold" }} className="text-[10px]">
+                    <View className="ml-2 px-2 py-0.5 rounded-md" style={{ backgroundColor: accent.cyanBg }}>
+                      <Text style={{ color: accent.cyan, fontFamily: "Inter_700Bold" }} className="text-[10px]">
                         {s.fasting_schedule}
                       </Text>
                     </View>
@@ -94,7 +95,7 @@ export function PreviousFasts({ sessions, fastingHours, onDelete }: PreviousFast
                   {hrs}h {mins}m
                 </Text>
                 <Text
-                  style={{ color: goalMet ? ACCENT.lime : ACCENT.coral, fontFamily: "Inter_400Regular" }}
+                  style={{ color: goalMet ? accent.lime : accent.coral, fontFamily: "Inter_400Regular" }}
                   className="text-xs"
                 >
                   {goalMet
@@ -122,7 +123,7 @@ export function PreviousFasts({ sessions, fastingHours, onDelete }: PreviousFast
 
       {hasMore && (
         <Pressable onPress={() => setShowAll(!showAll)} className="mt-2 items-center py-2">
-          <Text style={{ color: ACCENT.lime, fontFamily: "SpaceGrotesk_600SemiBold" }} className="text-sm">
+          <Text style={{ color: accent.lime, fontFamily: "SpaceGrotesk_600SemiBold" }} className="text-sm">
             {showAll ? "← Show Less" : `Show All ${sessions.length} Fasts →`}
           </Text>
         </Pressable>
@@ -164,14 +165,15 @@ function SessionDetail({ sessionId, schedule }: { sessionId: string; schedule?: 
   const { checkIns } = useSessionCheckIns(undefined, sessionId);
   const { theme } = useThemeStore();
   const c = getThemeColors(theme);
+  const accent = getAccentColors(theme);
 
   return (
     <View className="glass-panel p-4 mt-2">
       {schedule && (
         <View className="flex-row items-center mb-3">
           <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular" }} className="text-xs">Schedule:</Text>
-          <View className="ml-2 px-2 py-0.5 rounded-md" style={{ backgroundColor: ACCENT.cyanBg }}>
-            <Text style={{ color: ACCENT.cyan, fontFamily: "Inter_700Bold" }} className="text-xs">{schedule}</Text>
+          <View className="ml-2 px-2 py-0.5 rounded-md" style={{ backgroundColor: accent.cyanBg }}>
+            <Text style={{ color: accent.cyan, fontFamily: "Inter_700Bold" }} className="text-xs">{schedule}</Text>
           </View>
         </View>
       )}

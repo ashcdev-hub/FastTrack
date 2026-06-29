@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Pressable, View, Text, Modal } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useThemeStore } from "@/lib/theme-store";
-import { getThemeColors, ACCENT } from "@/lib/theme-colors";
+import { getThemeColors, ACCENT, getAccentColors } from "@/lib/theme-colors";
 
 const PRESETS = [
   { label: "14:10", fasting: 14, eating: 10 },
@@ -20,6 +20,7 @@ type CustomScheduleModalProps = {
 export function CustomScheduleModal({ visible, onSelect, onCancel }: CustomScheduleModalProps) {
   const { theme } = useThemeStore();
   const c = getThemeColors(theme);
+  const accent = getAccentColors(theme);
   const [fasting, setFasting] = useState(16);
   const [eating, setEating] = useState(8);
 
@@ -112,9 +113,9 @@ export function CustomScheduleModal({ visible, onSelect, onCancel }: CustomSched
                   key={p.label}
                   onPress={() => { setFasting(p.fasting); setEating(p.eating); }}
                   className="flex-1 py-2.5 rounded-lg items-center"
-                  style={{ backgroundColor: isActive ? ACCENT.lime : c.buttonBg }}
+                  style={{ backgroundColor: isActive ? accent.lime : c.buttonBg }}
                 >
-                  <Text style={{ color: isActive ? "#161e00" : c.text, fontFamily: "Inter_700Bold", fontSize: 13 }}>
+                  <Text style={{ color: isActive ? c.textOnAccent : c.text, fontFamily: "Inter_700Bold", fontSize: 13 }}>
                     {p.label}
                   </Text>
                 </Pressable>
@@ -126,8 +127,8 @@ export function CustomScheduleModal({ visible, onSelect, onCancel }: CustomSched
             <Pressable onPress={onCancel} className="flex-1 py-3.5 rounded-xl items-center" style={{ backgroundColor: c.buttonBg }}>
               <Text style={{ color: c.text, fontFamily: "Inter_700Bold" }}>Cancel</Text>
             </Pressable>
-            <Pressable onPress={handleSet} className="flex-1 py-3.5 rounded-xl items-center" style={{ backgroundColor: ACCENT.lime }}>
-              <Text style={{ color: "#161e00", fontFamily: "Inter_700Bold" }}>Apply Schedule</Text>
+            <Pressable onPress={handleSet} className="flex-1 py-3.5 rounded-xl items-center" style={{ backgroundColor: accent.lime }}>
+              <Text style={{ color: c.textOnAccent, fontFamily: "Inter_700Bold" }}>Apply Schedule</Text>
             </Pressable>
           </View>
         </Pressable>

@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Animated, Text, Platform } from "react-native";
-import { getThemeColors, ACCENT } from "@/lib/theme-colors";
+import { getThemeColors, ACCENT, getAccentColors } from "@/lib/theme-colors";
 import { useThemeStore } from "@/lib/theme-store";
 import type { ToastType } from "@/hooks/useToast";
 
@@ -13,6 +13,7 @@ type ToastProps = {
 export function Toast({ visible, message, type }: ToastProps) {
   const { theme } = useThemeStore();
   const c = getThemeColors(theme);
+  const accent = getAccentColors(theme);
   const opacity = useRef(new Animated.Value(0)).current;
   const [rendered, setRendered] = useState(false);
 
@@ -29,7 +30,7 @@ export function Toast({ visible, message, type }: ToastProps) {
 
   if (!rendered) return null;
 
-  const bgColor = type === "success" ? ACCENT.lime : ACCENT.rose;
+  const bgColor = type === "success" ? accent.lime : ACCENT.rose;
   const textColor = type === "success" ? c.textOnAccent : c.textOnDark;
 
   return (

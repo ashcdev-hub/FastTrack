@@ -2,7 +2,7 @@ import React from "react";
 import { View, Text, Pressable } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useThemeStore } from "@/lib/theme-store";
-import { getThemeColors, MEAL_COLORS } from "@/lib/theme-colors";
+import { getThemeColors, getAccentColors, getMealColors } from "@/lib/theme-colors";
 
 type FoodLogEntry = {
   id: string;
@@ -25,7 +25,8 @@ type FoodLogItemProps = {
 export function FoodLogItem({ entry, onDelete }: FoodLogItemProps) {
   const { theme } = useThemeStore();
   const c = getThemeColors(theme);
-  const color = MEAL_COLORS[entry.meal_type] ?? MEAL_COLORS.other;
+  const mealColors = getMealColors(theme);
+  const color = mealColors[entry.meal_type] ?? mealColors.other;
 
   return (
     <View className="glass-panel p-4 mb-2 flex-row items-center">

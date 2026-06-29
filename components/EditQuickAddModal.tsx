@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Pressable, View, Text, ScrollView, Modal } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useThemeStore } from "@/lib/theme-store";
-import { getThemeColors, ACCENT } from "@/lib/theme-colors";
+import { getThemeColors, ACCENT, getAccentColors } from "@/lib/theme-colors";
 
 const ALL_FOODS = [
   "Boiled Egg", "Fried Egg", "Scrambled Eggs",
@@ -25,6 +25,7 @@ type EditQuickAddModalProps = {
 export function EditQuickAddModal({ visible, selectedFoods, onSave, onClose }: EditQuickAddModalProps) {
   const { theme } = useThemeStore();
   const c = getThemeColors(theme);
+  const accent = getAccentColors(theme);
   const [selected, setSelected] = useState<string[]>(selectedFoods);
 
   const toggle = (food: string) => {
@@ -45,7 +46,7 @@ export function EditQuickAddModal({ visible, selectedFoods, onSave, onClose }: E
           <View className="flex-row justify-between items-center mb-4">
             <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 20 }}>Quick Add Foods</Text>
             <Pressable onPress={handleSave}>
-              <Text style={{ color: ACCENT.lime, fontFamily: "Inter_700Bold", fontSize: 14 }}>Done</Text>
+              <Text style={{ color: accent.lime, fontFamily: "Inter_700Bold", fontSize: 14 }}>Done</Text>
             </Pressable>
           </View>
           <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 13, marginBottom: 16 }}>
@@ -61,15 +62,15 @@ export function EditQuickAddModal({ visible, selectedFoods, onSave, onClose }: E
                     key={food}
                     onPress={() => toggle(food)}
                     style={{
-                      backgroundColor: isOn ? ACCENT.lime : c.inputBg,
+                      backgroundColor: isOn ? accent.lime : c.inputBg,
                       borderWidth: 1,
-                      borderColor: isOn ? ACCENT.lime : c.cardBorder,
+                      borderColor: isOn ? accent.lime : c.cardBorder,
                     }}
                     className="rounded-xl px-3.5 py-2.5"
                   >
                     <View className="flex-row items-center gap-1.5">
-                      {isOn && <MaterialCommunityIcons name="check" size={14} color="#161e00" />}
-                      <Text style={{ color: isOn ? "#161e00" : c.text, fontFamily: isOn ? "Inter_700Bold" : "Inter_400Regular", fontSize: 13 }}>
+                      {isOn && <MaterialCommunityIcons name="check" size={14} color={c.textOnAccent} />}
+                      <Text style={{ color: isOn ? c.textOnAccent : c.text, fontFamily: isOn ? "Inter_700Bold" : "Inter_400Regular", fontSize: 13 }}>
                         {food}
                       </Text>
                     </View>
@@ -79,8 +80,8 @@ export function EditQuickAddModal({ visible, selectedFoods, onSave, onClose }: E
             </View>
           </ScrollView>
 
-          <Pressable onPress={handleSave} className="rounded-xl py-3.5 items-center mt-4" style={{ backgroundColor: ACCENT.lime }}>
-            <Text style={{ color: "#161e00", fontFamily: "Inter_700Bold", fontSize: 16 }}>
+          <Pressable onPress={handleSave} className="rounded-xl py-3.5 items-center mt-4" style={{ backgroundColor: accent.lime }}>
+            <Text style={{ color: c.textOnAccent, fontFamily: "Inter_700Bold", fontSize: 16 }}>
               Save ({selected.length} selected)
             </Text>
           </Pressable>

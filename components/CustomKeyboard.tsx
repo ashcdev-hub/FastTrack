@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Pressable, View, Text } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useThemeStore } from "@/lib/theme-store";
-import { getThemeColors, ACCENT } from "@/lib/theme-colors";
+import { getThemeColors, getAccentColors } from "@/lib/theme-colors";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const ROWS = [
@@ -23,6 +23,7 @@ type CustomKeyboardProps = {
 export function CustomKeyboard({ onKeyPress, onBackspace, onSearch }: CustomKeyboardProps) {
   const { theme } = useThemeStore();
   const c = getThemeColors(theme);
+  const accent = getAccentColors(theme);
   const insets = useSafeAreaInsets();
   const [shifted, setShifted] = useState(true);
 
@@ -59,16 +60,16 @@ export function CustomKeyboard({ onKeyPress, onBackspace, onSearch }: CustomKeyb
 
       <View style={{ flexDirection: "row", justifyContent: "center", paddingBottom: 6 + insets.bottom, paddingHorizontal: 4 }}>
         <Pressable onPress={() => setShifted((s) => !s)}
-          style={[keyStyle, { width: 46, marginHorizontal: GAP / 2, backgroundColor: shifted ? c.buttonBg : ACCENT.lime }]}>
-          <MaterialCommunityIcons name="arrow-up-bold" size={22} color={shifted ? c.text : "#161e00"} />
+          style={[keyStyle, { width: 46, marginHorizontal: GAP / 2, backgroundColor: shifted ? c.buttonBg : accent.lime }]}>
+          <MaterialCommunityIcons name="arrow-up-bold" size={22} color={shifted ? c.text : c.textOnAccent} />
         </Pressable>
         <Pressable onPress={() => onKeyPress(" ")}
           style={[keyStyle, { flex: 1, maxWidth: 160, marginHorizontal: GAP / 2 }]}>
           <Text style={{ color: c.textMuted, fontFamily: "Inter_700Bold", fontSize: 12, letterSpacing: 1 }}>SPACE</Text>
         </Pressable>
         <Pressable onPress={onSearch}
-          style={[keyStyle, { width: 60, marginHorizontal: GAP / 2, backgroundColor: ACCENT.lime }]}>
-          <MaterialCommunityIcons name="magnify" size={24} color="#161e00" />
+          style={[keyStyle, { width: 60, marginHorizontal: GAP / 2, backgroundColor: accent.lime }]}>
+          <MaterialCommunityIcons name="magnify" size={24} color={c.textOnAccent} />
         </Pressable>
       </View>
     </View>

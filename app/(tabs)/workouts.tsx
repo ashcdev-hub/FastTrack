@@ -7,7 +7,7 @@ import { useProfile } from "@/hooks/useProfile";
 import { useWorkoutGoals } from "@/hooks/useWorkoutGoals";
 import { useWorkoutLog } from "@/hooks/useWorkoutLog";
 import { useThemeStore } from "@/lib/theme-store";
-import { getThemeColors, ACCENT } from "@/lib/theme-colors";
+import { getThemeColors, ACCENT, getAccentColors } from "@/lib/theme-colors";
 import { ExercisePanel } from "@/components/ExercisePanel";
 import { LogSetModal } from "@/components/LogSetModal";
 import { AddExerciseModal } from "@/components/AddExerciseModal";
@@ -29,6 +29,7 @@ export default function WorkoutsScreen() {
   const { todayTotals, logSet } = useWorkoutLog(user?.id, profile?.weight_kg ?? null);
   const { theme } = useThemeStore();
   const c = getThemeColors(theme);
+  const accent = getAccentColors(theme);
 
   const [selectedGoal, setSelectedGoal] = useState<WorkoutGoal | null>(null);
   const [showLogModal, setShowLogModal] = useState(false);
@@ -63,7 +64,7 @@ export default function WorkoutsScreen() {
         <View className="flex-row justify-between items-center" style={{ height: 44, paddingHorizontal: 20 }}>
           <View className="flex-row items-center gap-2">
             <Image source={require("../../assets/icon.png")} style={{ width: 22, height: 22, borderRadius: 5 }} />
-            <Text style={{ color: ACCENT.lime, fontFamily: "Inter_800ExtraBold", fontSize: 22, letterSpacing: -0.5 }}>FastTrack</Text>
+            <Text style={{ color: accent.lime, fontFamily: "Inter_800ExtraBold", fontSize: 22, letterSpacing: -0.5 }}>FastTrack</Text>
           </View>
         </View>
       </View>
@@ -112,7 +113,7 @@ export default function WorkoutsScreen() {
           className="w-full border-2 border-dashed py-8 rounded-xl flex-col items-center justify-center gap-2 mt-8"
           style={{ borderColor: "rgba(68,73,51,0.4)" }}
         >
-          <MaterialCommunityIcons name="plus-circle-outline" size={28} color={ACCENT.lime} />
+          <MaterialCommunityIcons name="plus-circle-outline" size={28} color={accent.lime} />
           <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 12, letterSpacing: 1, textTransform: "uppercase" }}>
             Add Custom Exercise
           </Text>
@@ -121,7 +122,7 @@ export default function WorkoutsScreen() {
         {/* Motivation Banner */}
         <View className="mt-section-gap glass-panel overflow-hidden">
           <View className="flex-col items-center justify-center p-6">
-            <Text style={{ color: ACCENT.lime, fontFamily: "SpaceGrotesk_700Bold", fontSize: 12, letterSpacing: 1, marginBottom: 4, textTransform: "uppercase" }}>
+            <Text style={{ color: accent.lime, fontFamily: "SpaceGrotesk_700Bold", fontSize: 12, letterSpacing: 1, marginBottom: 4, textTransform: "uppercase" }}>
               INSIGHT
             </Text>
             <Text style={{ color: c.text, fontFamily: "Inter_400Regular", fontSize: 14, textAlign: "center", maxWidth: 240 }}>

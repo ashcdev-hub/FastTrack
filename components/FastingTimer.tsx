@@ -11,7 +11,7 @@ import Animated, {
 } from "react-native-reanimated";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useThemeStore } from "@/lib/theme-store";
-import { getThemeColors, ACCENT } from "@/lib/theme-colors";
+import { getThemeColors, ACCENT, getAccentColors } from "@/lib/theme-colors";
 import { getFastingPhase } from "@/lib/fasting-phases";
 import { isSameDay, addDays, format } from "date-fns";
 
@@ -63,6 +63,7 @@ export function FastingTimer({
 }: FastingTimerProps) {
   const { theme } = useThemeStore();
   const c = getThemeColors(theme);
+  const accent = getAccentColors(theme);
   const [showElapsed, setShowElapsed] = useState(false);
   const size = 320;
   const strokeWidth = 6;
@@ -72,7 +73,7 @@ export function FastingTimer({
   const progress = useSharedValue(0);
   const glowOpacity = useSharedValue(0);
 
-  const activeColor = status === "eating" ? ACCENT.cyan : ACCENT.lime;
+  const activeColor = status === "eating" ? accent.cyan : accent.lime;
 
   useEffect(() => {
     const pct = totalMinutes > 0 ? elapsedMinutes / totalMinutes : 0;
@@ -115,14 +116,14 @@ export function FastingTimer({
   const scheduleColumns =
     status === "fasting" && startedAt
       ? [
-          { label: "Started", date: startedAt, color: ACCENT.lime },
-          { label: "Eat window", date: eatWindowOpensAt!, color: ACCENT.cyan },
-          { label: "Window closes", date: windowClosesAt!, color: ACCENT.coral },
+          { label: "Started", date: startedAt, color: accent.lime },
+          { label: "Eat window", date: eatWindowOpensAt!, color: accent.cyan },
+          { label: "Window closes", date: windowClosesAt!, color: accent.coral },
         ]
       : status === "eating" && eatWindowOpensAt
         ? [
-            { label: "Started eating", date: eatWindowOpensAt, color: ACCENT.cyan },
-            { label: "Window closes", date: windowClosesAt!, color: ACCENT.coral },
+            { label: "Started eating", date: eatWindowOpensAt, color: accent.cyan },
+            { label: "Window closes", date: windowClosesAt!, color: accent.coral },
           ]
         : null;
 

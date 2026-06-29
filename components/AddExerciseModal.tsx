@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Pressable, View, Text, TextInput, Modal, ScrollView } from "react-native";
 import { useThemeStore } from "@/lib/theme-store";
-import { getThemeColors, ACCENT } from "@/lib/theme-colors";
+import { getThemeColors, ACCENT, getAccentColors } from "@/lib/theme-colors";
 import { WorkoutIcon } from "@/components/WorkoutIcon";
 import { ICON_DEFS, getIconKeyForExercise } from "@/lib/exercise-icons";
 import type { WorkoutGoal } from "@/lib/types";
@@ -17,6 +17,7 @@ type AddExerciseModalProps = {
 export function AddExerciseModal({ visible, onClose, onAdd, disabledGoals, onReinstate }: AddExerciseModalProps) {
   const { theme } = useThemeStore();
   const c = getThemeColors(theme);
+  const accent = getAccentColors(theme);
   const [exerciseType, setExerciseType] = useState("");
   const [dailyGoal, setDailyGoal] = useState("100");
   const [caloriesPerRep, setCaloriesPerRep] = useState("0.5");
@@ -28,9 +29,9 @@ export function AddExerciseModal({ visible, onClose, onAdd, disabledGoals, onRei
     }
   }, [exerciseType]);
 
-  const iconColor = (anchor: string) => (selectedIcon === anchor ? ACCENT.lime : c.textMuted);
+  const iconColor = (anchor: string) => (selectedIcon === anchor ? accent.lime : c.textMuted);
   const iconBg = (anchor: string) => (selectedIcon === anchor ? "rgba(195,244,0,0.12)" : "transparent");
-  const iconBorder = (anchor: string) => (selectedIcon === anchor ? ACCENT.limeBorder : "rgba(255,255,255,0.06)");
+  const iconBorder = (anchor: string) => (selectedIcon === anchor ? accent.limeBorder : "rgba(255,255,255,0.06)");
 
   const handleAdd = () => {
     if (!exerciseType.trim()) return;
@@ -74,7 +75,7 @@ export function AddExerciseModal({ visible, onClose, onAdd, disabledGoals, onRei
                           </Text>
                         </View>
                       </View>
-                      <Pressable onPress={() => onReinstate(goal.id)} className="rounded-lg px-3 py-1.5" style={{ backgroundColor: ACCENT.lime }}>
+                      <Pressable onPress={() => onReinstate(goal.id)} className="rounded-lg px-3 py-1.5" style={{ backgroundColor: accent.lime }}>
                         <Text style={{ color: c.textOnAccent, fontFamily: "SpaceGrotesk_600SemiBold" }} className="text-xs">Reinstate</Text>
                       </Pressable>
                     </View>
@@ -115,7 +116,7 @@ export function AddExerciseModal({ visible, onClose, onAdd, disabledGoals, onRei
             className="rounded-xl px-4 py-3 mb-4" style={inputStyle} />
 
           <Pressable onPress={handleAdd} disabled={!exerciseType.trim()} className="rounded-xl py-3"
-            style={{ backgroundColor: exerciseType.trim() ? ACCENT.lime : c.buttonBg }}>
+            style={{ backgroundColor: exerciseType.trim() ? accent.lime : c.buttonBg }}>
             <Text style={{ color: exerciseType.trim() ? c.textOnAccent : c.textMuted, fontFamily: "Inter_700Bold" }} className="text-center">
               Add Exercise
             </Text>

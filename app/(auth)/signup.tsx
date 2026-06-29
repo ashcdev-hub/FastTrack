@@ -3,13 +3,14 @@ import { Pressable, View, Text, TextInput, KeyboardAvoidingView, Platform, Activ
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Link } from "expo-router";
 import { useAuth } from "@/hooks/useAuth";
-import { getThemeColors, ACCENT } from "@/lib/theme-colors";
+import { getThemeColors, ACCENT, getAccentColors } from "@/lib/theme-colors";
 import { useThemeStore } from "@/lib/theme-store";
 
 export default function SignupScreen() {
   const { signUp, signInWithGoogle } = useAuth();
   const { theme } = useThemeStore();
   const c = getThemeColors(theme);
+  const accent = getAccentColors(theme);
   const [displayName, setDisplayName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -43,7 +44,7 @@ export default function SignupScreen() {
           We sent a confirmation link to {email}
         </Text>
         <Link href="/(auth)/login" asChild>
-          <Pressable className="rounded-xl py-4" style={{ backgroundColor: ACCENT.lime }}>
+          <Pressable className="rounded-xl py-4" style={{ backgroundColor: accent.lime }}>
             <Text style={{ color: c.textOnAccent, fontFamily: "Inter_700Bold" }} className="text-center text-lg">
               Back to Sign In
             </Text>
@@ -78,7 +79,7 @@ export default function SignupScreen() {
         <TextInput value={confirmPassword} onChangeText={setConfirmPassword} placeholder="Confirm Password" placeholderTextColor={c.placeholder}
           secureTextEntry className="rounded-xl px-4 py-4 mb-6" style={inputStyle} />
 
-        <Pressable onPress={handleSignup} disabled={loading} className="rounded-xl py-4 mb-4" style={{ backgroundColor: ACCENT.lime }}>
+        <Pressable onPress={handleSignup} disabled={loading} className="rounded-xl py-4 mb-4" style={{ backgroundColor: accent.lime }}>
           {loading ? (
             <ActivityIndicator color={c.textOnAccent} />
           ) : (
@@ -121,7 +122,7 @@ export default function SignupScreen() {
           <Pressable>
             <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular" }} className="text-center">
               Already have an account?{" "}
-              <Text style={{ color: ACCENT.lime, fontFamily: "SpaceGrotesk_600SemiBold" }}>Sign In</Text>
+              <Text style={{ color: accent.lime, fontFamily: "SpaceGrotesk_600SemiBold" }}>Sign In</Text>
             </Text>
           </Pressable>
         </Link>

@@ -3,7 +3,7 @@ import { Pressable, View, Text, Image, ImageSourcePropType } from "react-native"
 import { useRouter } from "expo-router";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useThemeStore } from "@/lib/theme-store";
-import { getThemeColors, ACCENT } from "@/lib/theme-colors";
+import { getThemeColors, ACCENT, getAccentColors } from "@/lib/theme-colors";
 
 type AppHeaderProps = {
   title?: string;
@@ -16,6 +16,7 @@ export function AppHeader({ title, showLogo = false, logoIcon, logoImage }: AppH
   const router = useRouter();
   const { theme } = useThemeStore();
   const c = getThemeColors(theme);
+  const accent = getAccentColors(theme);
 
   if (showLogo) {
     return (
@@ -41,12 +42,12 @@ export function AppHeader({ title, showLogo = false, logoIcon, logoImage }: AppH
               width: 40,
               height: 40,
               borderRadius: 12,
-              backgroundColor: ACCENT.limeBg,
+              backgroundColor: accent.limeBg,
               alignItems: "center",
               justifyContent: "center",
             }}
           >
-            <MaterialCommunityIcons name="circle-small" size={22} color={ACCENT.lime} />
+            <MaterialCommunityIcons name="circle-small" size={22} color={accent.lime} />
           </View>
         )}
 

@@ -6,7 +6,7 @@ import { useProfile } from "@/hooks/useProfile";
 import { useFastingStore } from "@/store/useFastingStore";
 import { ScheduleSelector } from "@/components/ScheduleSelector";
 import { useThemeStore } from "@/lib/theme-store";
-import { getThemeColors, ACCENT } from "@/lib/theme-colors";
+import { getThemeColors, ACCENT, getAccentColors } from "@/lib/theme-colors";
 
 export default function ScheduleScreen() {
   const router = useRouter();
@@ -15,6 +15,7 @@ export default function ScheduleScreen() {
   const { setFastingHours, setEatingHours } = useFastingStore();
   const { theme } = useThemeStore();
   const c = getThemeColors(theme);
+  const accent = getAccentColors(theme);
 
   const [selectedSchedule, setSelectedSchedule] = useState<string | null>("16:8");
 
@@ -50,7 +51,7 @@ export default function ScheduleScreen() {
       <Pressable
         onPress={handleContinue}
         className="rounded-xl py-4"
-        style={{ backgroundColor: ACCENT.lime }}
+        style={{ backgroundColor: accent.lime }}
       >
         <Text style={{ color: c.textOnAccent, fontFamily: "Inter_700Bold" }} className="text-center text-lg">
           Continue
@@ -61,7 +62,7 @@ export default function ScheduleScreen() {
       <View className="flex-row gap-2 mt-10 justify-center">
         <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: c.textFaint }} />
         <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: c.textFaint }} />
-        <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: ACCENT.lime }} />
+        <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: accent.lime }} />
         <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: c.textFaint }} />
         <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: c.textFaint }} />
       </View>

@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Pressable, View, Text, TextInput } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useThemeStore } from "@/lib/theme-store";
-import { getThemeColors, ACCENT } from "@/lib/theme-colors";
+import { getThemeColors, ACCENT, getAccentColors } from "@/lib/theme-colors";
 
 const MOODS = [
   { value: 1, label: "Terrible", icon: "emoticon-sad-outline" as const, color: ACCENT.rose },
@@ -20,6 +20,9 @@ type CheckInPanelProps = {
 export function CheckInPanel({ phase, onSubmit }: CheckInPanelProps) {
   const { theme } = useThemeStore();
   const c = getThemeColors(theme);
+  const accent = getAccentColors(theme);
+// accent defined below
+// accent defined below
   const [selectedMood, setSelectedMood] = useState<number | null>(null);
   const [note, setNote] = useState("");
   const [submitted, setSubmitted] = useState(false);
@@ -121,7 +124,7 @@ export function CheckInPanel({ phase, onSubmit }: CheckInPanelProps) {
           <MaterialCommunityIcons
             name="arrow-right"
             size={18}
-            color={selectedMood !== null ? "#161e00" : c.textMuted}
+            color={selectedMood !== null ? c.textOnAccent : c.textMuted}
           />
         </Pressable>
       </View>

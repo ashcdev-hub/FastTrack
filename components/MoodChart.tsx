@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { View, Text } from "react-native";
 import Svg, { Circle, Line, Text as SvgText } from "react-native-svg";
 import { useThemeStore } from "@/lib/theme-store";
-import { getThemeColors, ACCENT } from "@/lib/theme-colors";
+import { getThemeColors, ACCENT, getAccentColors } from "@/lib/theme-colors";
 import type { FastCheckIn } from "@/lib/types";
 
 type MoodChartProps = {
@@ -21,6 +21,9 @@ const MOOD_COLORS: Record<number, string> = {
 export function MoodChart({ checkIns }: MoodChartProps) {
   const { theme } = useThemeStore();
   const c = getThemeColors(theme);
+  const accent = getAccentColors(theme);
+// accent defined below
+// accent defined below
   const [containerWidth, setContainerWidth] = useState(320);
 
   if (checkIns.length <= 2) return null;

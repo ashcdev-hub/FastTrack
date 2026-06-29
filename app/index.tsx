@@ -4,7 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { View, ActivityIndicator } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { supabase } from "@/lib/supabase";
-import { getThemeColors, ACCENT } from "@/lib/theme-colors";
+import { getThemeColors, ACCENT, getAccentColors } from "@/lib/theme-colors";
 import { useThemeStore } from "@/lib/theme-store";
 
 const ONBOARDING_KEY = "@fasttrack_onboarding_done";
@@ -13,6 +13,7 @@ export default function Index() {
   const { session, loading, user } = useAuth();
   const { theme } = useThemeStore();
   const c = getThemeColors(theme);
+  const accent = getAccentColors(theme);
   const [onboardingComplete, setOnboardingComplete] = useState<boolean | null>(null);
 
   useEffect(() => {
@@ -57,7 +58,7 @@ export default function Index() {
 
   return (
     <View style={{ flex: 1, backgroundColor: c.bg, alignItems: "center", justifyContent: "center" }}>
-      <ActivityIndicator size="large" color={ACCENT.lime} />
+      <ActivityIndicator size="large" color={accent.lime} />
     </View>
   );
 }

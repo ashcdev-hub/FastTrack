@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Pressable, View, Text, ScrollView, Modal, ActivityIndicator } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useThemeStore } from "@/lib/theme-store";
-import { getThemeColors, ACCENT } from "@/lib/theme-colors";
+import { getThemeColors, ACCENT, getAccentColors } from "@/lib/theme-colors";
 import { useMyMeals } from "@/hooks/useMyMeals";
 import { EditMyMealModal } from "@/components/EditMyMealModal";
 import type { MyMeal, MyMealItem } from "@/lib/types";
@@ -16,6 +16,7 @@ type MyMealsManagerModalProps = {
 export function MyMealsManagerModal({ visible, userId, onClose }: MyMealsManagerModalProps) {
   const { theme } = useThemeStore();
   const c = getThemeColors(theme);
+  const accent = getAccentColors(theme);
   const { meals, loading, addMyMeal, updateMyMeal, deleteMyMeal } = useMyMeals(userId);
 
   const [showEdit, setShowEdit] = useState(false);
@@ -57,18 +58,18 @@ export function MyMealsManagerModal({ visible, userId, onClose }: MyMealsManager
             <View className="flex-row justify-between items-center mb-4">
               <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 20 }}>My Meals</Text>
               <Pressable onPress={handleAdd}>
-                <Text style={{ color: ACCENT.lime, fontFamily: "Inter_700Bold", fontSize: 14 }}>Add</Text>
+                <Text style={{ color: accent.lime, fontFamily: "Inter_700Bold", fontSize: 14 }}>Add</Text>
               </Pressable>
             </View>
 
             {loading ? (
               <View className="py-12 items-center">
-                <ActivityIndicator size="large" color={ACCENT.lime} />
+                <ActivityIndicator size="large" color={accent.lime} />
               </View>
             ) : meals.length === 0 ? (
               <View className="glass-panel p-6 items-center rounded-xl">
-                <View className="rounded-full items-center justify-center mb-4" style={{ width: 56, height: 56, backgroundColor: ACCENT.cyanBg }}>
-                  <MaterialCommunityIcons name="bookmark-outline" size={28} color={ACCENT.cyan} />
+                <View className="rounded-full items-center justify-center mb-4" style={{ width: 56, height: 56, backgroundColor: accent.cyanBg }}>
+                  <MaterialCommunityIcons name="bookmark-outline" size={28} color={accent.cyan} />
                 </View>
                 <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 15, textAlign: "center" }}>
                   Save your first meal from the Food tab
@@ -80,8 +81,8 @@ export function MyMealsManagerModal({ visible, userId, onClose }: MyMealsManager
                   const totalCals = mealTotalCals(meal);
                   return (
                     <View key={meal.id} className="flex-row items-center py-3" style={{ borderBottomWidth: 1, borderBottomColor: c.divider }}>
-                      <View className="rounded-lg items-center justify-center mr-3" style={{ width: 36, height: 36, backgroundColor: ACCENT.cyanBg }}>
-                        <MaterialCommunityIcons name="bookmark-outline" size={18} color={ACCENT.cyan} />
+                      <View className="rounded-lg items-center justify-center mr-3" style={{ width: 36, height: 36, backgroundColor: accent.cyanBg }}>
+                        <MaterialCommunityIcons name="bookmark-outline" size={18} color={accent.cyan} />
                       </View>
                       <View className="flex-1">
                         <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 14 }} numberOfLines={1}>{meal.name}</Text>
