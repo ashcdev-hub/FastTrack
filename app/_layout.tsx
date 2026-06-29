@@ -1,6 +1,7 @@
 import "../global.css";
 import { useEffect, useState } from "react";
 import { Stack } from "expo-router";
+import { useColorScheme } from "react-native";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useFonts } from "expo-font";
 import {
@@ -98,7 +99,8 @@ function InnerLayout() {
   const setFastingHours = useFastingStore((s) => s.setFastingHours);
   const setEatingHours = useFastingStore((s) => s.setEatingHours);
   const { profile, loading: profileLoading } = useProfile(user?.id ?? null);
-  const { theme, loaded: themeLoaded, loadTheme } = useThemeStore();
+  const { theme, loaded: themeLoaded, loadTheme, setResolvedTheme, mode } = useThemeStore();
+  const systemScheme = useColorScheme();
   const { setFromProfile, loadTrackers } = useTrackerStore();
 
   const [fontsLoaded, fontError] = useFonts({
@@ -128,6 +130,11 @@ function InnerLayout() {
     useFoodLogStore.getState().loadFromStorage();
     loadTrackers();
   }, []);
+
+  useEffect(() => {
+    const resolved = mode === "system" ? (systemScheme ?? "dark") : mode;
+    setResolvedTheme(resolved);
+  }, [mode, systemScheme, setResolvedTheme]);
 
   useEffect(() => {
     if (themeLoaded) {

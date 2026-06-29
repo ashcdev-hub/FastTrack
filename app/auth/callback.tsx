@@ -2,8 +2,12 @@ import { useEffect } from "react";
 import { View, ActivityIndicator } from "react-native";
 import { router } from "expo-router";
 import { supabase } from "@/lib/supabase";
+import { useThemeStore } from "@/lib/theme-store";
+import { getThemeColors } from "@/lib/theme-colors";
 
 export default function AuthCallback() {
+  const { theme } = useThemeStore();
+  const c = getThemeColors(theme);
   useEffect(() => {
     let attempts = 0;
     const maxAttempts = 20;
@@ -28,7 +32,7 @@ export default function AuthCallback() {
   }, []);
 
   return (
-    <View style={{ flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: "#131313" }}>
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: c.bg }}>
       <ActivityIndicator size="large" color="#c3f400" />
     </View>
   );

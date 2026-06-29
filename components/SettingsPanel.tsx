@@ -29,7 +29,7 @@ export function SettingsPanel({ userId, initialExpand }: SettingsPanelProps) {
     updateEmail,
     updateTrackerPreferences,
   } = useProfile(userId);
-  const { theme, toggleTheme } = useThemeStore();
+  const { mode, setMode, theme } = useThemeStore();
   const { enabled } = useTrackerStore();
   const { waterGoalMl, updateGoals } = useGoalStore();
   const c = getThemeColors(theme);
@@ -612,14 +612,36 @@ export function SettingsPanel({ userId, initialExpand }: SettingsPanelProps) {
       </SectionCard>
 
       <SectionCard section="appearance" title="Appearance">
-        <View className="flex-row justify-between items-center py-3">
-          <Text style={{ color: c.text, fontFamily: "Inter_400Regular" }} className="text-sm">Dark Mode</Text>
-          <Switch
-            value={theme === "dark"}
-            onValueChange={toggleTheme}
-            trackColor={{ false: c.buttonBg, true: ACCENT.lime }}
-            thumbColor="#FFFFFF"
-          />
+        <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular" }} className="text-xs mb-3">
+          Choose your preferred appearance. System follows your device settings.
+        </Text>
+        <View className="flex-row gap-2">
+          {[
+            { id: "system" as const, label: "System", icon: "theme-light-dark" },
+            { id: "dark" as const, label: "Dark", icon: "weather-night" },
+            { id: "light" as const, label: "Light", icon: "weather-sunny" },
+          ].map((option) => {
+            const isActive = mode === option.id;
+            return (
+              <Pressable
+                key={option.id}
+                onPress={() => setMode(option.id)}
+                className="flex-1 py-3 rounded-xl items-center"
+                style={{ backgroundColor: isActive ? ACCENT.lime : c.buttonBg }}
+              >
+                <MaterialCommunityIcons name={option.icon as any} size={20} color={isActive ? "#161e00" : c.textSecondary} />
+                <Text
+                  className="text-xs mt-1"
+                  style={{
+                    color: isActive ? "#161e00" : c.textSecondary,
+                    fontFamily: "SpaceGrotesk_600SemiBold",
+                  }}
+                >
+                  {option.label}
+                </Text>
+              </Pressable>
+            );
+          })}
         </View>
       </SectionCard>
 

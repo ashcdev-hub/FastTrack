@@ -1,47 +1,47 @@
 import { create } from "zustand";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-type Theme = "dark" | "light";
+export type ThemeMode = "dark" | "light" | "system";
 
 type ThemeStore = {
-  theme: Theme;
+  mode: ThemeMode;
+  theme: "dark" | "light";
   loaded: boolean;
-  setTheme: (theme: Theme) => Promise<void>;
+  setMode: (mode: ThemeMode) => Promise<void>;
+  setResolvedTheme: (theme: "dark" | "light") => void;
   loadTheme: () => Promise<void>;
-  toggleTheme: () => Promise<void>;
 };
 
 const THEME_KEY = "@fasttrack_theme";
 
 export const useThemeStore = create<ThemeStore>((set, get) => ({
+  mode: "dark",
   theme: "dark",
   loaded: false,
 
   loadTheme: async () => {
     try {
       const saved = await AsyncStorage.getItem(THEME_KEY);
-      if (saved === "light" || saved === "dark") {
-        set({ theme: saved, loaded: true });
+      if (saved === "light" || saved === "dark" || saved === "system") {
+        set({ mode: saved, theme: saved === "system" ? "dark" : saved, loaded: true });
       } else {
-        set({ theme: "dark", loaded: true });
+        set({ mode: "dark", theme: "dark", loaded: true });
       }
     } catch {
-      set({ theme: "dark", loaded: true });
+      set({ mode: "dark", theme: "dark", loaded: true });
     }
   },
 
-  setTheme: async (theme) => {
-    set({ theme });
+  setMode: async (mode) => {
+    set({ mode });
     try {
-      await AsyncStorage.setItem(THEME_KEY, theme);
+      await AsyncStorage.setItem(THEME_KEY, mode);
     } catch (e) {
       console.error("Failed to save theme:", e);
     }
   },
 
-  toggleTheme: async () => {
-    const current = get().theme;
-    const next = current === "dark" ? "light" : "dark";
-    await get().setTheme(next);
+  setResolvedTheme: (theme) => {
+    set({ theme });
   },
 }));

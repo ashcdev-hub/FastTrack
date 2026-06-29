@@ -17,9 +17,9 @@ export function GlassPanel({ children, className = "", style, ...props }: GlassP
       className={`rounded-xl ${className}`}
       style={[
         {
-          backgroundColor: "rgba(28, 28, 30, 0.8)",
+          backgroundColor: c.cardBg,
           borderWidth: 1,
-          borderColor: "rgba(44, 44, 46, 1)",
+          borderColor: c.cardBorder,
         },
         style,
       ]}

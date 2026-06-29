@@ -134,7 +134,7 @@ export function FastingTimer({
           cy={size / 2}
           r={radius}
           fill="none"
-          stroke="#1c1b1b"
+          stroke={c.cardBgAlt}
           strokeWidth={strokeWidth}
         />
         {status !== "idle" && (
@@ -153,7 +153,7 @@ export function FastingTimer({
           cy={size / 2}
           r={radius}
           fill="none"
-          stroke={status === "idle" ? "rgba(255,255,255,0.08)" : "rgba(255,255,255,0.05)"}
+          stroke={c.progressTrack}
           strokeWidth={strokeWidth}
           strokeDasharray={circumference}
           strokeDashoffset={status === "idle" ? circumference : 0}

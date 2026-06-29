@@ -149,7 +149,7 @@ export default function HomeScreen() {
   return (
     <SafeAreaView className="flex-1" style={{ backgroundColor: c.bg }}>
       {/* Fixed Top App Bar */}
-      <View style={{ backgroundColor: c.tabBarBg, borderBottomWidth: 1, borderBottomColor: "rgba(53,53,52,0.2)", paddingTop: 8 }}>
+      <View style={{ backgroundColor: c.tabBarBg, borderBottomWidth: 1, borderBottomColor: c.tabBarBorder, paddingTop: 8 }}>
         <View className="flex-row justify-between items-center" style={{ height: 44, paddingHorizontal: 20 }}>
           <View className="flex-row items-center gap-2">
             <Image source={require("../../assets/icon.png")} style={{ width: 22, height: 22, borderRadius: 5 }} />
@@ -189,7 +189,7 @@ export default function HomeScreen() {
                   <MaterialCommunityIcons name={phase === "eating" ? "food-apple-outline" : "timer-outline"} size={28} color={phase === "eating" ? ACCENT.cyan : ACCENT.lime} />
                 </ProgressRing>
               </View>
-              <View className="mt-6 h-1 rounded-full overflow-hidden" style={{ backgroundColor: "rgba(53,53,52,0.3)" }}>
+              <View className="mt-6 h-1 rounded-full overflow-hidden" style={{ backgroundColor: c.progressTrack }}>
                 <View className="h-full rounded-full" style={{ width: `${fastPct * 100}%`, backgroundColor: phase === "eating" ? ACCENT.cyan : ACCENT.lime }} />
               </View>
             </Pressable>
@@ -265,7 +265,7 @@ export default function HomeScreen() {
                   </Pressable>
                 </View>
               </View>
-              <View className="h-2 rounded-full overflow-hidden mb-5" style={{ backgroundColor: "rgba(255,255,255,0.05)" }}>
+              <View className="h-2 rounded-full overflow-hidden mb-5" style={{ backgroundColor: c.progressTrack }}>
                 <View className="h-full rounded-full" style={{ width: `${Math.min(totalMl / goals.waterGoalMl, 1) * 100}%`, backgroundColor: ACCENT.cyan }} />
               </View>
               <View className="flex-row gap-3 mb-5 overflow-x-auto no-scrollbar">
@@ -276,7 +276,7 @@ export default function HomeScreen() {
                       key={ml}
                       onPress={() => setSelectedWaterMl(isSelected ? null : ml)}
                       className="flex-1 py-3 rounded items-center"
-                      style={{ backgroundColor: isSelected ? ACCENT.cyan : "rgba(255,255,255,0.05)", borderWidth: 1, borderColor: isSelected ? ACCENT.cyan : "rgba(255,255,255,0.08)" }}
+                      style={{ backgroundColor: isSelected ? ACCENT.cyan : c.buttonBg, borderWidth: 1, borderColor: isSelected ? ACCENT.cyan : c.cardBorder }}
                     >
                       <Text style={{ color: isSelected ? "#161e00" : c.text, fontFamily: "Inter_700Bold", fontSize: 14 }}>{ml}ml</Text>
                       <Text style={{ color: isSelected ? "rgba(22,30,0,0.6)" : c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 10, textTransform: "uppercase" }}>
@@ -359,7 +359,7 @@ export default function HomeScreen() {
                         </Text>
                         <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 12 }}>{macro.unit}</Text>
                       </View>
-                        <View className="mt-3 h-1 rounded-full overflow-hidden" style={{ backgroundColor: "rgba(53,53,52,0.3)" }}>
+                        <View className="mt-3 h-1 rounded-full overflow-hidden" style={{ backgroundColor: c.progressTrack }}>
                           <View className="h-full rounded-full" style={{ width: `${pct * 100}%`, backgroundColor: macro.barColor }} />
                         </View>
                       </View>

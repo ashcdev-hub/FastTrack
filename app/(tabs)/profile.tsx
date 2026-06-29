@@ -40,7 +40,7 @@ export default function ProfileScreen() {
       <Toast visible={toast.visible} message={toast.message} type={toast.type} />
 
       {/* Fixed Top App Bar */}
-      <View style={{ backgroundColor: c.tabBarBg, borderBottomWidth: 1, borderBottomColor: "rgba(53,53,52,0.2)", paddingTop: 8 }}>
+      <View style={{ backgroundColor: c.tabBarBg, borderBottomWidth: 1, borderBottomColor: c.tabBarBorder, paddingTop: 8 }}>
         <View className="flex-row items-center" style={{ height: 44, paddingHorizontal: 20 }}>
           <View className="flex-row items-center gap-2">
             <Image source={require("../../assets/icon.png")} style={{ width: 22, height: 22, borderRadius: 5 }} />

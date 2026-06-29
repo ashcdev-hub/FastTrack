@@ -1,6 +1,8 @@
 import React from "react";
 import { View } from "react-native";
 import Svg, { Circle } from "react-native-svg";
+import { useThemeStore } from "@/lib/theme-store";
+import { getThemeColors } from "@/lib/theme-colors";
 
 type ProgressRingProps = {
   size?: number;
@@ -15,10 +17,13 @@ export function ProgressRing({
   size = 48,
   strokeWidth = 6,
   progress,
-  trackColor = "rgba(255,255,255,0.1)",
+  trackColor,
   indicatorColor = "#c3f400",
   children,
 }: ProgressRingProps) {
+  const { theme } = useThemeStore();
+  const c = getThemeColors(theme);
+  const track = trackColor ?? c.progressTrack;
   const radius = (size - strokeWidth) / 2;
   const circumference = 2 * Math.PI * radius;
   const offset = circumference * (1 - Math.min(progress, 1));
@@ -31,7 +36,7 @@ export function ProgressRing({
           cy={size / 2}
           r={radius}
           fill="none"
-          stroke={trackColor}
+          stroke={track}
           strokeWidth={strokeWidth}
         />
         <Circle

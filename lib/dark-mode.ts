@@ -9,4 +9,6 @@ export function applyTheme(theme: "dark" | "light") {
   } else {
     root.classList.remove("dark");
   }
+
+  root.style.backgroundColor = theme === "dark" ? "#131313" : "#F5F3F0";
 }

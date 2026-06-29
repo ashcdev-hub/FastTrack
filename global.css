@@ -4,15 +4,22 @@
 
 :root {
   --css-interop-darkMode: "class dark";
+  --glass-bg: rgba(255, 255, 255, 0.85);
+  --glass-border: rgba(0, 0, 0, 0.08);
+}
+
+.dark {
+  --glass-bg: rgba(28, 28, 30, 0.8);
+  --glass-border: rgba(44, 44, 46, 1);
 }
 
 @layer components {
   .glass-panel {
-    background: rgba(28, 28, 30, 0.8);
+    background: var(--glass-bg);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
     border-width: 1px;
-    border-color: rgba(44, 44, 46, 1);
+    border-color: var(--glass-border);
   }
 
   .progress-ring-track {
