@@ -13,6 +13,7 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useThemeStore } from "@/lib/theme-store";
 import { getThemeColors, ACCENT } from "@/lib/theme-colors";
 import { getFastingPhase } from "@/lib/fasting-phases";
+import { isSameDay, addDays, format } from "date-fns";
 
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
@@ -28,7 +29,21 @@ type FastingTimerProps = {
   elapsedSeconds: number;
   isOver?: boolean;
   schedule?: string | null;
+  startedAt?: Date | null;
+  eatWindowOpensAt?: Date | null;
+  windowClosesAt?: Date | null;
 };
+
+function formatScheduleDate(date: Date): string {
+  const today = new Date();
+  if (isSameDay(date, today)) return "Today";
+  if (isSameDay(date, addDays(today, 1))) return "Tomorrow";
+  return format(date, "EEE");
+}
+
+function formatScheduleTime(date: Date): string {
+  return format(date, "h:mm a");
+}
 
 export function FastingTimer({
   status,
@@ -42,6 +57,9 @@ export function FastingTimer({
   elapsedSeconds,
   isOver = false,
   schedule,
+  startedAt,
+  eatWindowOpensAt,
+  windowClosesAt,
 }: FastingTimerProps) {
   const { theme } = useThemeStore();
   const c = getThemeColors(theme);
@@ -93,6 +111,20 @@ export function FastingTimer({
     : isOver
       ? `+${pad(hours)}:${pad(minutes)}:${pad(seconds)}`
       : `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
+
+  const scheduleColumns =
+    status === "fasting" && startedAt
+      ? [
+          { label: "Started", date: startedAt, color: ACCENT.lime },
+          { label: "Eat window", date: eatWindowOpensAt!, color: ACCENT.cyan },
+          { label: "Window closes", date: windowClosesAt!, color: ACCENT.coral },
+        ]
+      : status === "eating" && eatWindowOpensAt
+        ? [
+            { label: "Started eating", date: eatWindowOpensAt, color: ACCENT.cyan },
+            { label: "Window closes", date: windowClosesAt!, color: ACCENT.coral },
+          ]
+        : null;
 
   return (
     <View className="items-center justify-center" style={{ width: size, height: size }}>
@@ -146,7 +178,7 @@ export function FastingTimer({
       </Svg>
 
       {/* Center content */}
-      <View className="absolute z-10 items-center">
+      <View className="absolute z-10 items-center justify-center" style={{ width: size * 0.75 }}>
         {status === "idle" ? (
           <>
             <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 12, letterSpacing: 1, marginBottom: 8 }}>
@@ -158,39 +190,58 @@ export function FastingTimer({
           </>
         ) : (
           <>
-            <Pressable onPress={() => setShowElapsed((prev) => !prev)} className="items-center">
-              <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 12, letterSpacing: 1, marginBottom: 8, textTransform: "uppercase" }}>
-                {showElapsed ? "ELAPSED" : "REMAINING"}
-              </Text>
-              <Text style={{ color: c.text, fontFamily: "SpaceGrotesk_600SemiBold", fontSize: 40, letterSpacing: -1, marginBottom: 12 }}>
-                {displayTime}
-              </Text>
-            </Pressable>
+            {/* Swap button in top-right corner */}
+            <View className="absolute" style={{ top: -24, right: -8 }}>
+              <Pressable onPress={() => setShowElapsed((prev) => !prev)} className="p-1">
+                <MaterialCommunityIcons name="swap-horizontal-bold" size={16} color={c.textMuted} />
+              </Pressable>
+            </View>
 
+            {/* Time display */}
+            <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 10, letterSpacing: 1, marginBottom: 4, textTransform: "uppercase" }}>
+              {showElapsed ? "ELAPSED" : "REMAINING"}
+            </Text>
+            <Text style={{ color: c.text, fontFamily: "SpaceGrotesk_600SemiBold", fontSize: 36, letterSpacing: -1, marginBottom: 8 }}>
+              {displayTime}
+            </Text>
+
+            {/* Phase badge */}
             {status === "fasting" && (
-              <View className="flex-row items-center gap-1.5 px-3 py-1 rounded-full" style={{ backgroundColor: c.elevated, borderWidth: 1, borderColor: "rgba(68,73,51,0.3)" }}>
-                <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: activeColor }} />
-                <Text style={{ color: c.text, fontFamily: "SpaceGrotesk_700Bold", fontSize: 10, letterSpacing: -0.3 }}>
+              <View className="flex-row items-center gap-1.5 px-2.5 py-1 rounded-full" style={{ backgroundColor: c.elevated, borderWidth: 1, borderColor: "rgba(68,73,51,0.3)" }}>
+                <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: activeColor }} />
+                <Text style={{ color: c.text, fontFamily: "SpaceGrotesk_700Bold", fontSize: 9, letterSpacing: -0.3 }}>
                   {getFastingPhase(elapsedMinutes).label}
                 </Text>
               </View>
             )}
-
             {status === "eating" && (
-              <View className="flex-row items-center gap-1.5 px-3 py-1 rounded-full" style={{ backgroundColor: c.elevated, borderWidth: 1, borderColor: "rgba(50,80,90,0.3)" }}>
-                <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: activeColor }} />
-                <Text style={{ color: c.text, fontFamily: "SpaceGrotesk_700Bold", fontSize: 10, letterSpacing: -0.3 }}>
+              <View className="flex-row items-center gap-1.5 px-2.5 py-1 rounded-full" style={{ backgroundColor: c.elevated, borderWidth: 1, borderColor: "rgba(50,80,90,0.3)" }}>
+                <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: activeColor }} />
+                <Text style={{ color: c.text, fontFamily: "SpaceGrotesk_700Bold", fontSize: 9, letterSpacing: -0.3 }}>
                   EATING WINDOW
                 </Text>
               </View>
             )}
 
-            <Pressable onPress={() => setShowElapsed((prev) => !prev)} className="flex-row items-center mt-3">
-              <MaterialCommunityIcons name="swap-horizontal-bold" size={12} color={c.textMuted} />
-              <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 12, marginLeft: 4 }}>
-                {showElapsed ? "remaining" : isOver ? "over schedule" : "elapsed"}
-              </Text>
-            </Pressable>
+            {/* Schedule strip */}
+            {scheduleColumns && (
+              <View className="flex-row justify-between mt-4" style={{ width: "100%" }}>
+                {scheduleColumns.map((col) => (
+                  <View key={col.label} className="items-center" style={{ flex: 1 }}>
+                    <View style={{ width: 5, height: 5, borderRadius: 2.5, backgroundColor: col.color, marginBottom: 3 }} />
+                    <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 8, textAlign: "center" }}>
+                      {col.label}
+                    </Text>
+                    <Text style={{ color: c.textSecondary, fontFamily: "Inter_400Regular", fontSize: 9, textAlign: "center", marginTop: 1 }}>
+                      {formatScheduleDate(col.date)}
+                    </Text>
+                    <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 10, textAlign: "center" }}>
+                      {formatScheduleTime(col.date)}
+                    </Text>
+                  </View>
+                ))}
+              </View>
+            )}
           </>
         )}
       </View>

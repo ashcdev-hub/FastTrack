@@ -112,6 +112,18 @@ export default function FastScreen() {
   const fastElapsedMinutes = useElapsedMinutes(fastStartStr);
   const fastElapsed = useElapsed(fastStartStr);
 
+  const startedAtDate = session?.start_time ? new Date(session.start_time) : null;
+  const eatWindowOpensDate = phase === "fasting" && session?.start_time
+    ? addHours(new Date(session.start_time), fastingHours)
+    : phase === "eating" && session?.end_time
+      ? new Date(session.end_time)
+      : null;
+  const windowClosesDate = phase === "fasting" && session?.start_time
+    ? addHours(addHours(new Date(session.start_time), fastingHours), eatingHours)
+    : phase === "eating" && session?.end_time
+      ? addHours(new Date(session.end_time), eatingHours)
+      : null;
+
   const [showEndConfirm, setShowEndConfirm] = useState(false);
   const [showBreakConfirm, setShowBreakConfirm] = useState(false);
   const [showFastComplete, setShowFastComplete] = useState(false);
@@ -394,6 +406,9 @@ export default function FastScreen() {
                   elapsedSeconds={fastElapsed.seconds}
                   isOver={fastCountdown.isOver}
                   schedule={session?.fasting_schedule}
+                  startedAt={startedAtDate}
+                  eatWindowOpensAt={eatWindowOpensDate}
+                  windowClosesAt={windowClosesDate}
                 />
                 {/* FastingTimer now renders its own Stitch content */}
               </View>
