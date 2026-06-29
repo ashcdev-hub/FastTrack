@@ -400,6 +400,7 @@ FastTrack/
 - Schedule selector (presets + custom)
 - Start/break/end fast with bottom-sheet confirmations (end eating window + discard fast)
 - Timer counts DOWN, progress ring fills UP
+- Schedule strip inside timer ring shows date/time for Started, Eat window, Window closes (tap time to toggle elapsed/remaining)
 - Check-ins with mood chart + timeline
 - Weekly calendar (7-day circle view)
 - Full month calendar modal (tap day for details)
@@ -619,6 +620,7 @@ See [Building for iOS (Standalone App)](#building-for-ios-standalone-app) above 
 - [x] Groq vision Edge Function (`food-photo`) — supports base64 + image URLs, MIME detection, returns food-search format
 - [x] AI coach Edge Function (`ai-coach`) — Groq-powered with user fasting/nutrition/workout/weight context
 - [x] My Meals library — save meal templates (multi-item collections) from MealBuilder, Today's Meals, and Meal Calendar with one-tap re-log, full CRUD manager in Profile
+- [x] Schedule strip inside FastingTimer ring — date/time for Started / Eat window / Window closes, tap time to toggle elapsed/remaining, larger phase badge
 
 ## Next Steps
 
@@ -677,6 +679,7 @@ See [Building for iOS (Standalone App)](#building-for-ios-standalone-app) above 
 | 50 | **AI coach Edge Function** — `ai-coach` with Groq `llama-3.3-70b-versatile`. Accepts user data (streak, macros, water, workouts, weight) and returns personalized coaching responses. | Done |
 | 51 | **My Meals library** — `my_meals` + `my_meal_items` DB tables, `useMyMeals` hook with offline queue support, `EditMyMealModal` (meal name + item management with steppers), `MyMealsManagerModal` (full CRUD with delete confirmation), MY MEALS section in LogMealModal showing templates with item previews, "Save as Meal" button in MealBuilder, save from Today's Meals and Meal Calendar, per-item Quick Add save, bookmark-plus icon on MealBuilder items | Done |
 | 52 | **Edit/delete foods from calendar** — MealCalendarModal tap-to-edit with macro steppers and swipe-to-delete with bottom-sheet confirmation. Wired to `updateEntry` and `deleteEntry` from `useFoodLog` with offline queue support. | Done |
+| 53 | **Schedule strip in timer ring** — FastingTimer center now shows date/time strip (Started · Eat window · Window closes) with Today/Tomorrow/weekday format. Tap time to toggle elapsed/remaining. Larger phase badge. | Done |
 
 ### Remaining
 | # | Feature | Effort | Description |
