@@ -141,6 +141,7 @@ export default function RemindersScreen() {
         <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: c.textFaint }} />
         <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: c.textFaint }} />
         <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: c.textFaint }} />
+        <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: c.textFaint }} />
         <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: ACCENT.lime }} />
       </View>
     </ScrollView>

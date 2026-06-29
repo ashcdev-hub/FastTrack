@@ -5,7 +5,9 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useThemeStore } from "@/lib/theme-store";
 import { getThemeColors, ACCENT } from "@/lib/theme-colors";
 import { useAuth } from "@/hooks/useAuth";
+import { useTrackerStore } from "@/store/useTrackerStore";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import type { TrackerId } from "@/lib/types";
 
 const TAB_CONFIG: Record<string, { label: string; active: keyof typeof MaterialCommunityIcons.glyphMap; inactive: keyof typeof MaterialCommunityIcons.glyphMap }> = {
   index: { label: "Home", active: "view-dashboard", inactive: "view-dashboard-outline" },
@@ -15,10 +17,21 @@ const TAB_CONFIG: Record<string, { label: string; active: keyof typeof MaterialC
   profile: { label: "Profile", active: "account-circle", inactive: "account-circle-outline" },
 };
 
+const TAB_ORDER = ["index", "fast", "workouts", "log-food", "profile"];
+
+const TAB_TRACKER: Record<string, TrackerId | null> = {
+  index: null,
+  fast: "fasting",
+  workouts: "workouts",
+  "log-food": "food",
+  profile: null,
+};
+
 export default function TabLayout() {
   const { theme } = useThemeStore();
   const c = getThemeColors(theme);
   const { session, loading } = useAuth();
+  const { isEnabled, loaded: trackersLoaded } = useTrackerStore();
   const insets = useSafeAreaInsets();
   const bottomInset = Platform.OS === "android" ? insets.bottom : 0;
 
@@ -50,22 +63,28 @@ export default function TabLayout() {
         },
       }}
     >
-      {Object.entries(TAB_CONFIG).map(([name, config]) => (
-        <Tabs.Screen
-          key={name}
-          name={name}
-          options={{
-            title: config.label,
-            tabBarIcon: ({ color, focused }) => (
-              <MaterialCommunityIcons
-                name={focused ? config.active : config.inactive}
-                size={22}
-                color={color}
-              />
-            ),
-          }}
-        />
-      ))}
+      {TAB_ORDER.map((name) => {
+        const config = TAB_CONFIG[name];
+        const tracker = TAB_TRACKER[name];
+        const visible = tracker === null || !trackersLoaded || isEnabled(tracker);
+        return (
+          <Tabs.Screen
+            key={name}
+            name={name}
+            options={{
+              href: visible ? undefined : null,
+              title: config.label,
+              tabBarIcon: ({ color, focused }) => (
+                <MaterialCommunityIcons
+                  name={focused ? config.active : config.inactive}
+                  size={22}
+                  color={color}
+                />
+              ),
+            }}
+          />
+        );
+      })}
     </Tabs>
   );
 }

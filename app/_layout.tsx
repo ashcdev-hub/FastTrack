@@ -20,6 +20,7 @@ import { useFoodLogStore } from "@/store/useFoodLogStore";
 import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
 import { useThemeStore } from "@/lib/theme-store";
+import { useTrackerStore } from "@/store/useTrackerStore";
 import { applyTheme } from "@/lib/dark-mode";
 import { getThemeColors, ACCENT } from "@/lib/theme-colors";
 import { setupNotifications } from "@/lib/notifications";
@@ -98,6 +99,7 @@ function InnerLayout() {
   const setEatingHours = useFastingStore((s) => s.setEatingHours);
   const { profile, loading: profileLoading } = useProfile(user?.id ?? null);
   const { theme, loaded: themeLoaded, loadTheme } = useThemeStore();
+  const { setFromProfile, loadTrackers } = useTrackerStore();
 
   const [fontsLoaded, fontError] = useFonts({
     Inter_400Regular,
@@ -124,6 +126,7 @@ function InnerLayout() {
     setupNotifications();
     useFastingStore.getState().restoreTimer();
     useFoodLogStore.getState().loadFromStorage();
+    loadTrackers();
   }, []);
 
   useEffect(() => {
@@ -136,8 +139,11 @@ function InnerLayout() {
     if (profile && !profileLoading) {
       setFastingHours(profile.fasting_hours ?? 16);
       setEatingHours(profile.eating_hours ?? 8);
+      if (profile.enabled_trackers) {
+        setFromProfile(profile.enabled_trackers);
+      }
     }
-  }, [profile, profileLoading, setFastingHours, setEatingHours]);
+  }, [profile, profileLoading, setFastingHours, setEatingHours, setFromProfile]);
 
   if (!ready) {
     return (

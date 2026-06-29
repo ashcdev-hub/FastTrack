@@ -24,7 +24,7 @@ export default function ScheduleScreen() {
     setFastingHours(fasting);
     setEatingHours(eating);
     await updateFastingSchedule(fasting, eating);
-    router.push("/(onboarding)/reminders");
+    router.push("/(onboarding)/trackers");
   };
 
   return (
@@ -62,6 +62,7 @@ export default function ScheduleScreen() {
         <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: c.textFaint }} />
         <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: c.textFaint }} />
         <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: ACCENT.lime }} />
+        <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: c.textFaint }} />
         <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: c.textFaint }} />
       </View>
     </ScrollView>

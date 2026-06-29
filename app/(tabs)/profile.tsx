@@ -6,6 +6,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
 import { useMyMeals } from "@/hooks/useMyMeals";
 import { MyMealsManagerModal } from "@/components/MyMealsManagerModal";
+import { useTrackerStore } from "@/store/useTrackerStore";
 import { useThemeStore } from "@/lib/theme-store";
 import { getThemeColors, ACCENT } from "@/lib/theme-colors";
 import { useToast } from "@/hooks/useToast";
@@ -18,6 +19,7 @@ export default function ProfileScreen() {
   const { user, signOut } = useAuth();
   const { profile } = useProfile(user?.id ?? null);
   const { meals: myMeals } = useMyMeals(user?.id ?? undefined);
+  const { isEnabled } = useTrackerStore();
   const { theme } = useThemeStore();
   const c = getThemeColors(theme);
   const { toast } = useToast();
@@ -64,6 +66,7 @@ export default function ProfileScreen() {
           <SettingsPanel key={expand ?? 'default'} userId={user?.id ?? null} initialExpand={expand} />
         </View>
 
+        {isEnabled('food') && (
         <View className="mb-4">
           <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 12, letterSpacing: 1, marginBottom: 12, textTransform: "uppercase" }}>
             MY DATA
@@ -81,6 +84,7 @@ export default function ProfileScreen() {
             <MaterialCommunityIcons name="chevron-right" size={20} color={c.textMuted} />
           </Pressable>
         </View>
+        )}
 
         <Pressable
           onPress={async () => {

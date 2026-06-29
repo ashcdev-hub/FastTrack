@@ -13,6 +13,7 @@ import { useFoodLog } from "@/hooks/useFoodLog";
 import { useGoalStore } from "@/store/useGoalStore";
 import { useProfile } from "@/hooks/useProfile";
 import { useWeightLog } from "@/hooks/useWeightLog";
+import { useTrackerStore } from "@/store/useTrackerStore";
 import { ProgressRing } from "@/components/ProgressRing";
 import { WeightChart } from "@/components/WeightChart";
 import { WeightTracker } from "@/components/WeightTracker";
@@ -44,6 +45,7 @@ export default function HomeScreen() {
   const { session, streak, completedFasts } = useFastingSession(user?.id);
   const { fastingHours, eatingHours } = useFastingStore();
   const { profile } = useProfile(user?.id ?? null);
+  const { isEnabled } = useTrackerStore();
   const { goals: workoutGoals } = useWorkoutGoals(user?.id);
   const { todayTotals } = useWorkoutLog(user?.id, profile?.weight_kg ?? null);
   const { totalMl, addWater } = useWaterLog(user?.id);
@@ -163,6 +165,7 @@ export default function HomeScreen() {
       >
         <View style={{ paddingHorizontal: 20, paddingTop: 24 }}>
           {/* Fasting Today */}
+          {isEnabled('fasting') ? (
           <View className="mb-section-gap">
             <Pressable onPress={() => router.push("/(tabs)/fast")} className="rounded-xl p-6 glass-panel">
               <View className="flex-row justify-between items-center mb-4">
@@ -191,9 +194,10 @@ export default function HomeScreen() {
               </View>
             </Pressable>
           </View>
+          ) : null}
 
           {/* Workout Progress */}
-          {enabledGoals.length > 0 && (
+          {isEnabled('workouts') && enabledGoals.length > 0 ? (
             <View className="mb-section-gap">
               <Pressable onPress={() => router.push("/(tabs)/workouts")} className="rounded-xl p-5 glass-panel">
                 <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 12, letterSpacing: 1, marginBottom: 16, textTransform: "uppercase" }}>
@@ -240,7 +244,7 @@ export default function HomeScreen() {
                 )}
               </Pressable>
             </View>
-          )}
+          ) : null}
 
           {/* Hydration */}
           <View className="mb-section-gap">
@@ -334,7 +338,7 @@ export default function HomeScreen() {
             </View>
           </View>
 
-          {/* Daily Macros */}
+          {isEnabled('food') ? (
           <View className="mb-section-gap">
             <View className="rounded-xl p-5 glass-panel">
               <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 12, letterSpacing: 1, marginBottom: 16, textTransform: "uppercase" }}>
@@ -365,6 +369,7 @@ export default function HomeScreen() {
               </View>
             </View>
           </View>
+          ) : null}
 
           {/* AI Insights */}
           <View className="mb-section-gap">
@@ -409,7 +414,8 @@ export default function HomeScreen() {
                     <View className="rounded-xl p-3" style={{ backgroundColor: c.elevated }}>
                       <Text style={{ color: c.text, fontFamily: "Inter_400Regular", fontSize: 14, lineHeight: 21 }}>{coachReply}</Text>
                     </View>
-                  )}
+          )}
+
                 </View>
               )}
             </View>

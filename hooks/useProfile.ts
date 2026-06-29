@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
-import type { Profile } from "@/lib/types";
+import type { Profile, TrackerId } from "@/lib/types";
 import { useConnectivity } from "@/hooks/useConnectivity";
 import { withOfflineFallback } from "@/lib/offline-mutation";
 
@@ -117,6 +117,15 @@ export function useProfile(userId: string | null) {
     }
   };
 
+  const updateTrackerPreferences = async (trackers: Record<TrackerId, boolean>) => {
+    try {
+      await updateMutation.mutateAsync({ enabled_trackers: trackers } as any);
+      return { error: null };
+    } catch (error) {
+      return { error };
+    }
+  };
+
   const updatePassword = async (newPassword: string) => {
     const { error } = await supabase.auth.updateUser({ password: newPassword });
     if (error) {
@@ -144,6 +153,7 @@ export function useProfile(userId: string | null) {
     updateNotificationPreferences,
     updateUnitPreferences,
     saveQuickAddFoods,
+    updateTrackerPreferences,
     updatePassword,
     updateEmail,
     refetch: () => queryClient.invalidateQueries({ queryKey: ["profile", userId] }),

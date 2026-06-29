@@ -11,7 +11,8 @@ import { router } from "expo-router";
 import { cancelAllNotifications, scheduleDailyFastReminder, scheduleDailyNotification } from "@/lib/notifications";
 import { DEFAULT_UNITS, displayWeight, displayHeight, weightUnitLabel, heightUnitLabel, parseWeightInput } from "@/lib/units";
 import type { UnitPreferences } from "@/lib/units";
-import type { Profile } from "@/lib/types";
+import type { Profile, TrackerId } from "@/lib/types";
+import { useTrackerStore } from "@/store/useTrackerStore";
 
 type SettingsPanelProps = {
   userId: string | null;
@@ -26,8 +27,10 @@ export function SettingsPanel({ userId, initialExpand }: SettingsPanelProps) {
     updateUnitPreferences,
     updatePassword,
     updateEmail,
+    updateTrackerPreferences,
   } = useProfile(userId);
   const { theme, toggleTheme } = useThemeStore();
+  const { enabled } = useTrackerStore();
   const { waterGoalMl, updateGoals } = useGoalStore();
   const c = getThemeColors(theme);
   const { toast, success, error: toastError } = useToast();
@@ -571,6 +574,41 @@ export function SettingsPanel({ userId, initialExpand }: SettingsPanelProps) {
         >
           <Text style={{ color: "#161e00", fontFamily: "Inter_700Bold" }}>Save Preferences</Text>
         </Pressable>
+      </SectionCard>
+
+      <SectionCard section="trackers" title="Trackers">
+        <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular" }} className="text-xs mb-3">
+          Choose which trackers appear in the app. Hidden trackers keep your data — you can re-enable anytime.
+        </Text>
+        {([
+          { id: "fasting" as TrackerId, label: "Fasting", icon: "timer-outline" },
+          { id: "workouts" as TrackerId, label: "Workouts", icon: "dumbbell" },
+          { id: "food" as TrackerId, label: "Food", icon: "food-apple-outline" },
+          { id: "period" as TrackerId, label: "Period", icon: "calendar-heart" },
+        ]).map((t) => (
+          <View key={t.id} className="flex-row justify-between items-center py-3" style={{ borderBottomWidth: 1, borderBottomColor: c.divider }}>
+            <View className="flex-row items-center gap-3 flex-1">
+              <View className="rounded-lg items-center justify-center" style={{ width: 32, height: 32, backgroundColor: ACCENT.cyanBg }}>
+                <MaterialCommunityIcons name={t.icon as any} size={18} color={ACCENT.cyan} />
+              </View>
+              <View className="flex-1">
+                <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 14 }}>{t.label}</Text>
+                {t.id === "period" && (
+                  <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 11 }}>Coming soon</Text>
+                )}
+              </View>
+            </View>
+            <Switch
+              value={enabled[t.id]}
+              onValueChange={(v) => {
+                useTrackerStore.getState().setEnabled(t.id, v);
+                updateTrackerPreferences({ ...enabled, [t.id]: v });
+              }}
+              trackColor={{ false: c.buttonBg, true: ACCENT.lime }}
+              thumbColor="#FFFFFF"
+            />
+          </View>
+        ))}
       </SectionCard>
 
       <SectionCard section="appearance" title="Appearance">

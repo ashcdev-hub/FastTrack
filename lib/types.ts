@@ -43,6 +43,8 @@ export type DailySummary = {
   generated_at: string;
 };
 
+export type TrackerId = "fasting" | "workouts" | "food" | "period";
+
 export type Profile = {
   id: string;
   email: string;
@@ -83,6 +85,7 @@ export type Profile = {
   goal_weight_kg: number | null;
   onboarding_completed: boolean | null;
   quick_add_foods: string[] | null;
+  enabled_trackers?: Record<TrackerId, boolean>;
   created_at: string;
   updated_at: string;
 };
