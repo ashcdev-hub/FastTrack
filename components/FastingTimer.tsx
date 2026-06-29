@@ -178,7 +178,7 @@ export function FastingTimer({
       </Svg>
 
       {/* Center content */}
-      <View className="absolute z-10 items-center justify-center" style={{ width: size * 0.75 }}>
+      <View className="absolute z-10 items-center" style={{ width: size * 0.76 }}>
         {status === "idle" ? (
           <>
             <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 12, letterSpacing: 1, marginBottom: 8 }}>
@@ -190,34 +190,29 @@ export function FastingTimer({
           </>
         ) : (
           <>
-            {/* Swap button in top-right corner */}
-            <View className="absolute" style={{ top: -24, right: -8 }}>
-              <Pressable onPress={() => setShowElapsed((prev) => !prev)} className="p-1">
-                <MaterialCommunityIcons name="swap-horizontal-bold" size={16} color={c.textMuted} />
-              </Pressable>
-            </View>
-
-            {/* Time display */}
-            <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 10, letterSpacing: 1, marginBottom: 4, textTransform: "uppercase" }}>
-              {showElapsed ? "ELAPSED" : "REMAINING"}
-            </Text>
-            <Text style={{ color: c.text, fontFamily: "SpaceGrotesk_600SemiBold", fontSize: 36, letterSpacing: -1, marginBottom: 8 }}>
-              {displayTime}
-            </Text>
+            {/* Time display — pressable to toggle elapsed/remaining */}
+            <Pressable onPress={() => setShowElapsed((prev) => !prev)} className="items-center">
+              <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 11, letterSpacing: 1, marginBottom: 6, textTransform: "uppercase" }}>
+                {showElapsed ? "ELAPSED" : "REMAINING"}
+              </Text>
+              <Text style={{ color: c.text, fontFamily: "SpaceGrotesk_600SemiBold", fontSize: 38, letterSpacing: -1, marginBottom: 10 }}>
+                {displayTime}
+              </Text>
+            </Pressable>
 
             {/* Phase badge */}
             {status === "fasting" && (
-              <View className="flex-row items-center gap-1.5 px-2.5 py-1 rounded-full" style={{ backgroundColor: c.elevated, borderWidth: 1, borderColor: "rgba(68,73,51,0.3)" }}>
+              <View className="flex-row items-center gap-1.5 px-3 py-1.5 rounded-full" style={{ backgroundColor: c.elevated, borderWidth: 1, borderColor: "rgba(68,73,51,0.3)" }}>
                 <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: activeColor }} />
-                <Text style={{ color: c.text, fontFamily: "SpaceGrotesk_700Bold", fontSize: 9, letterSpacing: -0.3 }}>
+                <Text style={{ color: c.text, fontFamily: "SpaceGrotesk_700Bold", fontSize: 10 }}>
                   {getFastingPhase(elapsedMinutes).label}
                 </Text>
               </View>
             )}
             {status === "eating" && (
-              <View className="flex-row items-center gap-1.5 px-2.5 py-1 rounded-full" style={{ backgroundColor: c.elevated, borderWidth: 1, borderColor: "rgba(50,80,90,0.3)" }}>
+              <View className="flex-row items-center gap-1.5 px-3 py-1.5 rounded-full" style={{ backgroundColor: c.elevated, borderWidth: 1, borderColor: "rgba(50,80,90,0.3)" }}>
                 <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: activeColor }} />
-                <Text style={{ color: c.text, fontFamily: "SpaceGrotesk_700Bold", fontSize: 9, letterSpacing: -0.3 }}>
+                <Text style={{ color: c.text, fontFamily: "SpaceGrotesk_700Bold", fontSize: 10 }}>
                   EATING WINDOW
                 </Text>
               </View>
@@ -225,17 +220,17 @@ export function FastingTimer({
 
             {/* Schedule strip */}
             {scheduleColumns && (
-              <View className="flex-row justify-between mt-4" style={{ width: "100%" }}>
+              <View className="flex-row justify-between mt-5" style={{ width: "100%" }}>
                 {scheduleColumns.map((col) => (
                   <View key={col.label} className="items-center" style={{ flex: 1 }}>
-                    <View style={{ width: 5, height: 5, borderRadius: 2.5, backgroundColor: col.color, marginBottom: 3 }} />
-                    <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 8, textAlign: "center" }}>
+                    <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: col.color, marginBottom: 4 }} />
+                    <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 10, textAlign: "center", marginBottom: 2 }}>
                       {col.label}
                     </Text>
-                    <Text style={{ color: c.textSecondary, fontFamily: "Inter_400Regular", fontSize: 9, textAlign: "center", marginTop: 1 }}>
+                    <Text style={{ color: c.textSecondary, fontFamily: "Inter_400Regular", fontSize: 12, textAlign: "center" }}>
                       {formatScheduleDate(col.date)}
                     </Text>
-                    <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 10, textAlign: "center" }}>
+                    <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 12, textAlign: "center" }}>
                       {formatScheduleTime(col.date)}
                     </Text>
                   </View>
