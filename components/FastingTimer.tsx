@@ -202,17 +202,17 @@ export function FastingTimer({
 
             {/* Phase badge */}
             {status === "fasting" && (
-              <View className="flex-row items-center gap-1.5 px-3 py-1.5 rounded-full" style={{ backgroundColor: c.elevated, borderWidth: 1, borderColor: "rgba(68,73,51,0.3)" }}>
-                <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: activeColor }} />
-                <Text style={{ color: c.text, fontFamily: "SpaceGrotesk_700Bold", fontSize: 10 }}>
+              <View className="flex-row items-center gap-2 px-4 py-2 rounded-full" style={{ backgroundColor: c.elevated, borderWidth: 1, borderColor: "rgba(68,73,51,0.3)" }}>
+                <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: activeColor }} />
+                <Text style={{ color: c.text, fontFamily: "SpaceGrotesk_700Bold", fontSize: 12 }}>
                   {getFastingPhase(elapsedMinutes).label}
                 </Text>
               </View>
             )}
             {status === "eating" && (
-              <View className="flex-row items-center gap-1.5 px-3 py-1.5 rounded-full" style={{ backgroundColor: c.elevated, borderWidth: 1, borderColor: "rgba(50,80,90,0.3)" }}>
-                <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: activeColor }} />
-                <Text style={{ color: c.text, fontFamily: "SpaceGrotesk_700Bold", fontSize: 10 }}>
+              <View className="flex-row items-center gap-2 px-4 py-2 rounded-full" style={{ backgroundColor: c.elevated, borderWidth: 1, borderColor: "rgba(50,80,90,0.3)" }}>
+                <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: activeColor }} />
+                <Text style={{ color: c.text, fontFamily: "SpaceGrotesk_700Bold", fontSize: 12 }}>
                   EATING WINDOW
                 </Text>
               </View>
