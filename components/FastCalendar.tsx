@@ -82,8 +82,14 @@ export function FastCalendar({ visible, userId, fastingHours, onClose }: FastCal
 
   const getSessionsForDay = (date: Date): FastingSession[] => {
     return sessions.filter((s) => {
-      const d = new Date(s.end_time ?? s.start_time);
-      return isSameDay(d, date);
+      if (!s.end_time || !s.start_time) return false;
+      const start = new Date(s.start_time);
+      const end = new Date(s.end_time);
+      start.setHours(0, 0, 0, 0);
+      end.setHours(0, 0, 0, 0);
+      const check = new Date(date);
+      check.setHours(0, 0, 0, 0);
+      return check >= start && check <= end;
     });
   };
 
@@ -116,7 +122,7 @@ export function FastCalendar({ visible, userId, fastingHours, onClose }: FastCal
           </View>
 
           {weeks.map((week, rowIdx) => (
-            <View key={rowIdx} className="flex-row mb-1">
+            <View key={rowIdx} className="flex-row" style={{ height: 44, alignItems: "flex-start" }}>
               {week.map((date, colIdx) => {
                 const isCurrentMonth = date.getMonth() === month;
                 const isToday = isSameDay(date, now);
@@ -127,39 +133,64 @@ export function FastCalendar({ visible, userId, fastingHours, onClose }: FastCal
                   const hrs = (s.fasting_duration_minutes ?? 0) / 60;
                   return hrs >= fastingHours;
                 });
+                const nextDay = colIdx < 6 ? week[colIdx + 1] : null;
+                const nextSessions = nextDay ? getSessionsForDay(nextDay) : [];
+                const nextMonthOk = nextDay?.getMonth() === month;
+                const sharedIds = new Set(daySessions.map((s) => s.id));
+                const sharedCount = nextSessions.filter((s) => sharedIds.has(s.id)).length;
+                const showLine = sharedCount > 0 && isCurrentMonth && nextMonthOk;
+                const isTransition = daySessions.length > 1 || nextSessions.length > 1;
 
                 return (
-                  <Pressable
-                    key={rowIdx * 7 + colIdx}
-                    onPress={() => setSelectedDate(isSelected ? null : date)}
-                    className="flex-1 items-center py-1.5"
-                  >
-                    <View
-                      style={{
-                        width: 36,
-                        height: 36,
-                        borderRadius: 18,
-                        borderWidth: isSelected ? 2 : isToday ? 1.5 : 0,
-                        borderColor: isSelected ? accent.lime : isToday ? accent.lime : "transparent",
-                        backgroundColor: hasFast
-                          ? goalMet ? accent.lime : accent.coral
-                          : "transparent",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        opacity: isCurrentMonth ? 1 : 0.2,
-                      }}
-                    >
-                      <Text
-                        style={{
-                          color: hasFast ? c.textOnAccent : c.text,
-                          fontFamily: "Inter_400Regular",
-                        }}
-                        className="text-sm"
+                  <React.Fragment key={rowIdx * 7 + colIdx}>
+                    <View className="items-center" style={{ width: 32 }}>
+                      <Pressable
+                        onPress={() => setSelectedDate(isSelected ? null : date)}
+                        className="py-1.5"
                       >
-                        {date.getDate()}
-                      </Text>
+                        <View
+                          style={{
+                            width: 32,
+                            height: 32,
+                            borderRadius: 16,
+                            borderWidth: isSelected ? 2 : isToday ? 1.5 : 0,
+                            borderColor: isSelected ? accent.lime : isToday ? accent.lime : "transparent",
+                            backgroundColor: hasFast
+                              ? goalMet ? accent.lime : accent.coral
+                              : "transparent",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            opacity: isCurrentMonth ? 1 : 0.2,
+                          }}
+                        >
+                          <Text
+                            style={{
+                              color: hasFast ? c.textOnAccent : c.text,
+                              fontFamily: "Inter_400Regular",
+                            }}
+                            className="text-sm"
+                          >
+                            {date.getDate()}
+                          </Text>
+                        </View>
+                      </Pressable>
                     </View>
-                  </Pressable>
+                    {colIdx < 6 && (
+                      <View style={{ flex: 1, height: 44, justifyContent: "center" }}>
+                        {showLine ? (
+                          isTransition ? (
+                            <View className="flex-row items-center" style={{ height: 2 }}>
+                              <View style={{ flex: 1, height: 2, backgroundColor: goalMet ? accent.lime : accent.coral, borderTopLeftRadius: 1, borderBottomLeftRadius: 1 }} />
+                              <View style={{ width: 4 }} />
+                              <View style={{ flex: 1, height: 2, backgroundColor: nextSessions.some((s) => (s.fasting_duration_minutes ?? 0) / 60 >= fastingHours) ? accent.lime : accent.coral, borderTopRightRadius: 1, borderBottomRightRadius: 1 }} />
+                            </View>
+                          ) : (
+                            <View style={{ height: 2, backgroundColor: goalMet ? accent.lime : accent.coral, borderRadius: 1 }} />
+                          )
+                        ) : null}
+                      </View>
+                    )}
+                  </React.Fragment>
                 );
               })}
             </View>

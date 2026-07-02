@@ -47,8 +47,14 @@ export function WeeklyCalendar({ pastSessions, fastingHours, onViewCalendar }: W
 
   const dayData = weekDates.map((date) => {
     const daySessions = pastSessions.filter((s) => {
-      const sessionDate = new Date(s.end_time ?? s.start_time);
-      return isSameDay(sessionDate, date);
+      if (!s.end_time || !s.start_time) return false;
+      const start = new Date(s.start_time);
+      const end = new Date(s.end_time);
+      start.setHours(0, 0, 0, 0);
+      end.setHours(0, 0, 0, 0);
+      const check = new Date(date);
+      check.setHours(0, 0, 0, 0);
+      return check >= start && check <= end;
     });
 
     const hasFast = daySessions.length > 0;
@@ -59,51 +65,80 @@ export function WeeklyCalendar({ pastSessions, fastingHours, onViewCalendar }: W
     const isToday = isSameDay(date, now);
     const bestSession = daySessions[0];
 
-    return { date, hasFast, goalMet, isToday, session: bestSession };
+    return { date, hasFast, goalMet, isToday, session: bestSession, sessions: daySessions };
   });
+
+  function getLineColor(goalMet: boolean): string {
+    return goalMet ? accent.lime : accent.coral;
+  }
 
   return (
     <View className="mb-4">
-      <View className="flex-row justify-between items-start px-1">
-        {dayData.map((day, i) => (
-          <Pressable
-            key={i}
-            onPress={() => setTooltipIndex(tooltipIndex === i ? null : (day.hasFast ? i : null))}
-            className="items-center"
-            style={{ minWidth: 40 }}
-          >
-            <Text
-              style={{
-                color: day.isToday ? c.text : c.textMuted,
-                fontFamily: day.isToday ? "Inter_700Bold" : "Inter_400Regular",
-              }}
-              className="text-[10px] mb-1.5"
-            >
-              {DAY_LABELS[i]}
-            </Text>
-            <View
-              style={{
-                width: 32,
-                height: 32,
-                borderRadius: 16,
-                borderWidth: day.hasFast ? 0 : 1.5,
-                borderColor: day.isToday ? accent.lime : c.textFaint,
-                backgroundColor: day.hasFast
-                  ? day.goalMet ? accent.lime : accent.coral
-                  : "transparent",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              {day.hasFast && day.goalMet && (
-                <Text style={{ color: c.textOnAccent }} className="text-xs">✓</Text>
+      <View className="flex-row" style={{ height: 56, alignItems: "flex-start" }}>
+        {dayData.map((day, i) => {
+          const sessionsCur = day.sessions;
+          const sessionsNext = i < 6 ? dayData[i + 1].sessions : [];
+          const sharedIds = new Set(sessionsCur.map((s) => s.id));
+          const sharedCount = sessionsNext.filter((s) => sharedIds.has(s.id)).length;
+          const showLine = sharedCount > 0;
+          const isTransition = sessionsCur.length > 1 || sessionsNext.length > 1;
+
+          return (
+            <React.Fragment key={i}>
+              <View className="items-center" style={{ width: 36 }}>
+                <Text
+                  style={{
+                    color: day.isToday ? c.text : c.textMuted,
+                    fontFamily: day.isToday ? "Inter_700Bold" : "Inter_400Regular",
+                  }}
+                  className="text-[10px] mb-1.5"
+                >
+                  {DAY_LABELS[i]}
+                </Text>
+                <Pressable
+                  onPress={() => setTooltipIndex(tooltipIndex === i ? null : (day.hasFast ? i : null))}
+                >
+                  <View
+                    style={{
+                      width: 32,
+                      height: 32,
+                      borderRadius: 16,
+                      borderWidth: day.hasFast ? 0 : 1.5,
+                      borderColor: day.isToday ? accent.lime : c.textFaint,
+                      backgroundColor: day.hasFast
+                        ? day.goalMet ? accent.lime : accent.coral
+                        : "transparent",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    {day.hasFast && day.goalMet && (
+                      <Text style={{ color: c.textOnAccent }} className="text-xs">✓</Text>
+                    )}
+                    {day.hasFast && !day.goalMet && (
+                      <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: "rgba(255,255,255,0.6)" }} />
+                    )}
+                  </View>
+                </Pressable>
+              </View>
+              {i < 6 && (
+                <View style={{ flex: 1, height: 56, justifyContent: "center" }}>
+                  {showLine ? (
+                    isTransition ? (
+                      <View className="flex-row items-center" style={{ height: 2 }}>
+                        <View style={{ flex: 1, height: 2, backgroundColor: getLineColor(day.goalMet), borderTopLeftRadius: 1, borderBottomLeftRadius: 1 }} />
+                        <View style={{ width: 4 }} />
+                        <View style={{ flex: 1, height: 2, backgroundColor: getLineColor(dayData[i + 1].goalMet), borderTopRightRadius: 1, borderBottomRightRadius: 1 }} />
+                      </View>
+                    ) : (
+                      <View style={{ height: 2, backgroundColor: getLineColor(day.goalMet), borderRadius: 1 }} />
+                    )
+                  ) : null}
+                </View>
               )}
-              {day.hasFast && !day.goalMet && (
-                <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: "rgba(255,255,255,0.6)" }} />
-              )}
-            </View>
-          </Pressable>
-        ))}
+            </React.Fragment>
+          );
+        })}
       </View>
 
       {tooltipIndex !== null && dayData[tooltipIndex]?.session && (
