@@ -430,8 +430,8 @@ FastTrack/
 - Schedule strip inside timer ring shows date/time for Started, Eat window, Window closes (tap time to toggle elapsed/remaining)
 - Notifications reschedule automatically when start time is edited
 - Check-ins with mood chart + timeline
-- Weekly calendar (7-day circle view)
-- Full month calendar modal (tap day for details)
+- Weekly calendar (7-day circle view) with connecting lines between consecutive fasting days
+- Full month calendar modal (tap day for details) with session-aware connecting lines
 - Previous fasts with limit (5 default) + Show All toggle, expandable detail + delete
 
 ### Workouts Tab
@@ -670,6 +670,7 @@ See [Building for iOS (Standalone App)](#building-for-ios-standalone-app) above 
 - [x] Custom fasting start time — date/time picker bottom-sheet (up to 3 days back) when starting fast, live schedule preview, `updateStartTime` mutation with notification rescheduling
 - [x] Timer performance optimization — collapsed 4 concurrent `setInterval(1s)` into 2 (1 per screen), added AppState listener to pause timers when backgrounded, extracted `useFastingTimer` shared hook, removed ~96 lines of duplicated interval code
 - [x] Menstrual cycle tracker — period_log table, cycle phase detection (menstrual/follicular/ovulatory/luteal), ovulation prediction, fertile window, CycleWheel SVG ring, PeriodCalendar month grid, PeriodLogModal symptom/flow logging, CycleInsights fasting tips, PeriodSettingsModal, AI coach cycle context, 6 components, 3 hooks, 1 migration
+- [x] Connecting lines on calendar dots — session-ID-aware lines between consecutive fasting day dots on both WeeklyCalendar and FastCalendar; solid lines for continuous fasts, gap lines with per-segment coloring for transition days where one fast ends and another starts
 
 ## Next Steps
 
@@ -734,6 +735,7 @@ See [Building for iOS (Standalone App)](#building-for-ios-standalone-app) above 
 | 56 | **Custom fasting start time** — Date/time picker bottom-sheet (up to 3 days back) when starting a fast, with live schedule preview panel that updates as you adjust. Edit start time during active fast via pencil icon in timer ring schedule strip. `updateStartTime` mutation on session repositions the timeline and reschedules all notifications. | Done |
 | 57 | **Timer performance optimization** — Collapsed 4 concurrent `setInterval(1s)` loops in `fast.tsx` and `index.tsx` into a single shared ticker per screen. Added `AppState` listener to pause timers when backgrounded to prevent battery drain and Android deep-sleep prevention. Extracted `useFastingTimer` shared hook into `hooks/`, removed ~96 lines of duplicated interval code. | Done |
 | 58 | **Menstrual cycle tracker** — `period_log` table, cycle phase detection (menstrual/follicular/ovulatory/luteal), ovulation prediction, fertile window calculation with confidence scoring, `CycleWheel` SVG ring with phase arcs, `PeriodCalendar` month grid with phase-colored cells, `PeriodLogModal` bottom-sheet for flow/cramps/mood/energy/symptoms logging, `CycleInsights` phase-aware fasting recommendations, `PeriodSettingsModal` stepper configuration. 6 components, 3 hooks, 1 migration, tab bar integration, Home panel, AI coach context. 18 files, +1520 lines. | Done |
+| 59 | **Connecting lines on calendar dots** — session-ID-aware lines between consecutive fasting day dots on both WeeklyCalendar and FastCalendar; solid lines for continuous fasts, gap lines with per-segment coloring for transition days where one fast ends and another starts | Done |
 
 ### Remaining
 | # | Feature | Effort | Description |
