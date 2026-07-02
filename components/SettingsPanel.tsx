@@ -594,9 +594,6 @@ export function SettingsPanel({ userId, initialExpand }: SettingsPanelProps) {
               </View>
               <View className="flex-1">
                 <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 14 }}>{t.label}</Text>
-                {t.id === "period" && (
-                  <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 11 }}>Coming soon</Text>
-                )}
               </View>
             </View>
             <Switch

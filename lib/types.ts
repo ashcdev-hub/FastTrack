@@ -152,3 +152,40 @@ export type WeightLogEntry = {
   logged_at: string;
   created_at: string;
 };
+
+export type PeriodLogEntry = {
+  id: string;
+  user_id: string;
+  log_date: string;
+  flow_intensity: "spotting" | "light" | "medium" | "heavy" | null;
+  cramps: "none" | "mild" | "moderate" | "severe" | null;
+  mood: "happy" | "neutral" | "irritable" | "sad" | "anxious" | "energetic" | "fatigued" | null;
+  energy: "high" | "normal" | "low" | null;
+  headache: boolean;
+  bloating: boolean;
+  cravings: boolean;
+  notes: string | null;
+  created_at: string;
+};
+
+export type PeriodSettings = {
+  cycle_length: number;
+  period_duration: number;
+  luteal_phase_length: number;
+};
+
+export type CyclePhase = "menstrual" | "follicular" | "ovulatory" | "luteal";
+
+export type CycleInfo = {
+  phase: CyclePhase;
+  dayOfCycle: number;
+  totalCycleDays: number;
+  phaseDay: number;
+  phaseTotalDays: number;
+  nextPeriodDate: string | null;
+  ovulationDate: string | null;
+  fertileStart: string | null;
+  fertileEnd: string | null;
+  isFertile: boolean;
+  confidence: number;
+};

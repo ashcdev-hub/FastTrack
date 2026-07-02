@@ -127,6 +127,9 @@ export function getAccentColors(theme: Theme): AccentColors {
       amber: "#D97706",
       amberBg: "rgba(217,119,6,0.10)",
       amberBorder: "rgba(217,119,6,0.3)",
+      rose: "#C62828",
+      roseBg: "rgba(198,40,40,0.12)",
+      roseBorder: "rgba(198,40,40,0.3)",
     };
   }
   return { ...DARK_ACCENT };

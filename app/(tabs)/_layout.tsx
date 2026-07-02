@@ -14,16 +14,18 @@ const TAB_CONFIG: Record<string, { label: string; active: keyof typeof MaterialC
   fast: { label: "Fast", active: "timer", inactive: "timer-outline" },
   workouts: { label: "Workout", active: "dumbbell", inactive: "dumbbell" },
   "log-food": { label: "Food", active: "food-apple", inactive: "food-apple-outline" },
+  period: { label: "Period", active: "calendar-heart", inactive: "calendar-heart-outline" },
   profile: { label: "Profile", active: "account-circle", inactive: "account-circle-outline" },
 };
 
-const TAB_ORDER = ["index", "fast", "workouts", "log-food", "profile"];
+const TAB_ORDER = ["index", "fast", "workouts", "log-food", "period", "profile"];
 
 const TAB_TRACKER: Record<string, TrackerId | null> = {
   index: null,
   fast: "fasting",
   workouts: "workouts",
   "log-food": "food",
+  period: "period",
   profile: null,
 };
 

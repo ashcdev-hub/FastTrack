@@ -13,7 +13,7 @@ const TRACKERS: { id: TrackerId; label: string; icon: string; description: strin
   { id: "fasting", label: "Fasting", icon: "timer-outline", description: "Track your fasting sessions and phases" },
   { id: "workouts", label: "Workouts", icon: "dumbbell", description: "Log exercises and track your progress" },
   { id: "food", label: "Food", icon: "food-apple-outline", description: "Log meals and track your macros" },
-  { id: "period", label: "Period", icon: "calendar-heart", description: "Track your menstrual cycle (coming soon)" },
+  { id: "period", label: "Period", icon: "calendar-heart", description: "Track your menstrual cycle and get phase-aware fasting tips" },
 ];
 
 export default function TrackersScreen() {

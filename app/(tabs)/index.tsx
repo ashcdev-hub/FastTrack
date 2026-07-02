@@ -11,6 +11,9 @@ import { useWorkoutGoals } from "@/hooks/useWorkoutGoals";
 import { useWorkoutLog } from "@/hooks/useWorkoutLog";
 import { useWaterLog } from "@/hooks/useWaterLog";
 import { useFoodLog } from "@/hooks/useFoodLog";
+import { usePeriodLog } from "@/hooks/usePeriodLog";
+import { useCycleTracker } from "@/hooks/useCycleTracker";
+import { usePeriodSettings } from "@/hooks/usePeriodSettings";
 import { useGoalStore } from "@/store/useGoalStore";
 import { useProfile } from "@/hooks/useProfile";
 import { useWeightLog } from "@/hooks/useWeightLog";
@@ -25,6 +28,8 @@ import { DEFAULT_UNITS } from "@/lib/units";
 import { format, addHours } from "date-fns";
 import { router } from "expo-router";
 import { useScrollToTop } from "@react-navigation/native";
+import { CyclePhaseBadge } from "@/components/CyclePhaseBadge";
+import { getPhaseDef } from "@/lib/cycle-phases";
 
 export default function HomeScreen() {
   const { user } = useAuth();
@@ -36,6 +41,9 @@ export default function HomeScreen() {
   const { todayTotals } = useWorkoutLog(user?.id, profile?.weight_kg ?? null);
   const { totalMl, addWater } = useWaterLog(user?.id);
   const { totals } = useFoodLog(user?.id);
+  const { entries: periodEntries, entriesByDate: periodEntriesByDate } = usePeriodLog(user?.id);
+  const { settings: periodSettings } = usePeriodSettings(user?.id);
+  const { cycleInfo } = useCycleTracker(periodEntries, periodSettings);
   const goals = useGoalStore();
   const { theme } = useThemeStore();
   const c = getThemeColors(theme);
@@ -115,6 +123,11 @@ export default function HomeScreen() {
     workoutReps: Object.values(todayTotals).reduce((sum, t) => sum + t.reps, 0),
     weight: currentWeight?.toFixed(1) ?? "unknown",
     weightChange: weightChange?.toFixed(1) ?? "unknown",
+    cyclePhase: cycleInfo.phase,
+    cycleDay: cycleInfo.dayOfCycle,
+    cycleTotalDays: cycleInfo.totalCycleDays,
+    nextPeriodDate: cycleInfo.nextPeriodDate,
+    isFertile: cycleInfo.isFertile,
   };
 
   const handleAskCoach = async (question: string) => {
@@ -181,6 +194,23 @@ export default function HomeScreen() {
               </View>
             </Pressable>
           </View>
+          ) : null}
+
+          {/* Cycle Phase */}
+          {isEnabled('period') && cycleInfo.dayOfCycle > 0 ? (
+            <View className="mb-section-gap">
+              <View className="rounded-xl p-5 glass-panel">
+                <View className="flex-row justify-between items-center mb-3">
+                  <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 12, letterSpacing: 1, textTransform: "uppercase" }}>
+                    Cycle Phase
+                  </Text>
+                  <CyclePhaseBadge phase={cycleInfo.phase} dayOfCycle={cycleInfo.dayOfCycle} totalCycleDays={cycleInfo.totalCycleDays} size="sm" />
+                </View>
+                <Text style={{ color: c.textSecondary, fontFamily: "Inter_400Regular", fontSize: 13, lineHeight: 18 }}>
+                  {getPhaseDef(cycleInfo.phase).fastingSuggestion}
+                </Text>
+              </View>
+            </View>
           ) : null}
 
           {/* Workout Progress */}
