@@ -5,6 +5,7 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useAuth } from "@/hooks/useAuth";
 import { useFastingSession } from "@/hooks/useFastingSession";
+import { useFastingTimer } from "@/hooks/useFastingTimer";
 import { useFastingStore } from "@/store/useFastingStore";
 import { useWorkoutGoals } from "@/hooks/useWorkoutGoals";
 import { useWorkoutLog } from "@/hooks/useWorkoutLog";
@@ -24,21 +25,6 @@ import { DEFAULT_UNITS } from "@/lib/units";
 import { format, addHours } from "date-fns";
 import { router } from "expo-router";
 import { useScrollToTop } from "@react-navigation/native";
-
-function useElapsedMinutes(startTime: string | null) {
-  const [totalMinutes, setTotalMinutes] = useState(0);
-  useEffect(() => {
-    if (!startTime) { setTotalMinutes(0); return; }
-    const tick = () => {
-      const diff = Date.now() - new Date(startTime).getTime();
-      setTotalMinutes(Math.max(0, Math.floor(diff / 60000)));
-    };
-    tick();
-    const interval = setInterval(tick, 1000);
-    return () => clearInterval(interval);
-  }, [startTime]);
-  return totalMinutes;
-}
 
 export default function HomeScreen() {
   const { user } = useAuth();
@@ -69,7 +55,7 @@ export default function HomeScreen() {
     : phase === "eating"
       ? session!.end_time
       : null;
-  const elapsedMinutes = useElapsedMinutes(trackStartStr);
+  const { elapsedMinutes } = useFastingTimer(trackStartStr, null);
   const goalMinutes = phase === "eating" ? eatingHours * 60 : fastingHours * 60;
   const fastPct = goalMinutes > 0 ? Math.min(elapsedMinutes / goalMinutes, 1) : 0;
   const elapsedHours = Math.floor(elapsedMinutes / 60);

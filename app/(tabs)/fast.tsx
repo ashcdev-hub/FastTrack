@@ -4,6 +4,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useAuth } from "@/hooks/useAuth";
 import { useFastingSession } from "@/hooks/useFastingSession";
+import { useFastingTimer } from "@/hooks/useFastingTimer";
 import { useFastingStore } from "@/store/useFastingStore";
 import { useFastCheckIns } from "@/hooks/useFastCheckIns";
 import { useProfile } from "@/hooks/useProfile";
@@ -34,60 +35,6 @@ const MOODS = [
   { value: 1, label: "LOW ENERGY", icon: "emoticon-sad", color: "#FF6B52" },
 ];
 
-function useCountdown(endTime: string | null) {
-  const [remaining, setRemaining] = useState({ hours: 0, minutes: 0, seconds: 0, totalSeconds: 0, totalMinutes: 0, isOver: false });
-  useEffect(() => {
-    if (!endTime) { setRemaining({ hours: 0, minutes: 0, seconds: 0, totalSeconds: 0, totalMinutes: 0, isOver: false }); return; }
-    const tick = () => {
-      const diff = new Date(endTime).getTime() - Date.now();
-      const isOver = diff < 0;
-      const totalSeconds = Math.floor(Math.abs(diff) / 1000);
-      const hours = Math.floor(totalSeconds / 3600);
-      const minutes = Math.floor((totalSeconds % 3600) / 60);
-      const seconds = totalSeconds % 60;
-      const totalMinutes = Math.floor(totalSeconds / 60);
-      setRemaining({ hours, minutes, seconds, totalSeconds, totalMinutes, isOver });
-    };
-    tick();
-    const interval = setInterval(tick, 1000);
-    return () => clearInterval(interval);
-  }, [endTime]);
-  return remaining;
-}
-
-function useElapsedMinutes(startTime: string | null) {
-  const [totalMinutes, setTotalMinutes] = useState(0);
-  useEffect(() => {
-    if (!startTime) { setTotalMinutes(0); return; }
-    const tick = () => {
-      const diff = Date.now() - new Date(startTime).getTime();
-      setTotalMinutes(Math.max(0, Math.floor(diff / 60000)));
-    };
-    tick();
-    const interval = setInterval(tick, 1000);
-    return () => clearInterval(interval);
-  }, [startTime]);
-  return totalMinutes;
-}
-
-function useElapsed(startTime: string | null) {
-  const [elapsed, setElapsed] = useState({ hours: 0, minutes: 0, seconds: 0 });
-  useEffect(() => {
-    if (!startTime) { setElapsed({ hours: 0, minutes: 0, seconds: 0 }); return; }
-    const tick = () => {
-      const diff = Math.max(0, Math.floor((Date.now() - new Date(startTime).getTime()) / 1000));
-      const hours = Math.floor(diff / 3600);
-      const minutes = Math.floor((diff % 3600) / 60);
-      const seconds = diff % 60;
-      setElapsed({ hours, minutes, seconds });
-    };
-    tick();
-    const interval = setInterval(tick, 1000);
-    return () => clearInterval(interval);
-  }, [startTime]);
-  return elapsed;
-}
-
 type Phase = "idle" | "fasting" | "eating";
 
 export default function FastScreen() {
@@ -109,9 +56,7 @@ export default function FastScreen() {
     : phase === "eating" && session?.end_time
       ? addHours(new Date(session.end_time), eatingHours).toISOString()
       : null;
-  const fastCountdown = useCountdown(eatWindowEndStr);
-  const fastElapsedMinutes = useElapsedMinutes(fastStartStr);
-  const fastElapsed = useElapsed(fastStartStr);
+  const { countdown: fastCountdown, elapsed: fastElapsed, elapsedMinutes: fastElapsedMinutes } = useFastingTimer(fastStartStr, eatWindowEndStr);
 
   const startedAtDate = session?.start_time ? new Date(session.start_time) : null;
   const eatWindowOpensDate = phase === "fasting" && session?.start_time
