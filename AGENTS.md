@@ -246,6 +246,7 @@ Correct: `REFERENCES auth.users(id) ON DELETE CASCADE ON UPDATE CASCADE`
 - `unit_preferences` (JSONB) — weight: kg/lbs, height: cm/ft, water: ml/floz
 - `quick_add_foods` (JSONB) — array of food names for quick-add grid
 - `enabled_trackers` (JSONB) — which trackers are enabled: fasting, workouts, food, period
+- `period_settings` (JSONB) — cycle_length, period_duration, luteal_phase_length
 
 **fasting_sessions** — `id`, `user_id`, `start_time`, `end_time`, `status`, `fasting_duration_minutes`, `fasting_schedule`, `created_at`
 
@@ -265,6 +266,8 @@ Correct: `REFERENCES auth.users(id) ON DELETE CASCADE ON UPDATE CASCADE`
 
 **my_meal_items** — `id`, `meal_id`, `name`, `brand`, `serving_size`, `calories`, `protein_g`, `carbs_g`, `fat_g`, `sort_order`
 
+**period_log** — `id`, `user_id`, `log_date`, `flow_intensity`, `cramps`, `mood`, `energy`, `headache`, `bloating`, `cravings`, `notes`, `created_at`
+
 ### Migrations
 - `20250608000000_initial_schema.sql` — core tables
 - `20250608000001_auto_profile_trigger.sql` — auto-create profile
@@ -280,6 +283,7 @@ Correct: `REFERENCES auth.users(id) ON DELETE CASCADE ON UPDATE CASCADE`
 - `20250627000010_add_workout_icon_name.sql` — icon_name column on workout_goals
 - `20250628000011_my_meals.sql` — my_meals table (single-table v1, replaced by v2)
 - `20250629000013_enabled_trackers.sql` — enabled_trackers JSONB column on profiles
+- `20250702000014_period_tracker.sql` — period_log table + period_settings JSONB column
 
 ### RLS
 All tables have RLS enabled. Policies use `auth.uid() = user_id`.
@@ -339,7 +343,13 @@ FastTrack/
 │   ├── Skeleton.tsx             # Reusable loading skeleton with shimmer
 │   ├── EditMyMealModal.tsx      # Create/edit meal templates with items
   ├── MyMealsManagerModal.tsx  # Full CRUD meal template manager
-  └── FoodLogItem.tsx          # Meal entry card (theme-aware)
+  ├── FoodLogItem.tsx          # Meal entry card (theme-aware)
+  ├── CyclePhaseBadge.tsx      # Cycle phase pill badge (theme-aware)
+  ├── PeriodCalendar.tsx       # Full month grid with phase-colored days
+  ├── CycleWheel.tsx           # SVG cycle phase ring (200px, animated)
+  ├── PeriodLogModal.tsx       # Bottom-sheet period symptom logging
+  ├── CycleInsights.tsx        # Phase-aware fasting tips panel
+  └── PeriodSettingsModal.tsx  # Cycle config with steppers + presets
 ├── hooks/
 │   ├── useAuth.ts               # Auth (signup accepts displayName)
 │   ├── useFastingSession.ts     # Session CRUD + streak + realtime
@@ -357,7 +367,11 @@ FastTrack/
 │   ├── useFastCalendar.ts       # Monthly session fetch for calendar
 │   ├── useConnectivity.ts       # NetInfo connectivity detection
 │   ├── useOfflineQueueProcessor.ts # Replays queued mutations on reconnect
-│   └── useToast.ts              # Toast notification state
+│   ├── useOfflineQueueProcessor.ts # Replays queued mutations on reconnect
+│   ├── useToast.ts              # Toast notification state
+│   ├── usePeriodLog.ts          # Period log CRUD + offline queue
+│   ├── useCycleTracker.ts       # Cycle phase detection + prediction
+│   └── usePeriodSettings.ts     # Period settings on profile
 ├── store/
 │   ├── useTrackerStore.ts          # Enabled trackers preferences (Zustand + AsyncStorage)
 │   ├── useFastingStore.ts
@@ -371,13 +385,15 @@ FastTrack/
 │   ├── dark-mode.ts             # applyTheme() CSS class toggle
 │   ├── notifications.ts
 │   ├── fasting-phases.ts        # Fasting phase calculator (6 phases + eating phase)
+│   ├── cycle-phases.ts          # Cycle phase detection + prediction + fertile window
 │   ├── exercise-icons.ts        # SVG markup + registry for workout icons (MingCute + Lucide)
 │   ├── units.ts                 # Unit conversion (kg↔lbs, cm↔ft, ml↔floz)
 │   ├── offline-queue.ts         # AsyncStorage-backed mutation queue
 │   └── offline-mutation.ts      # withOfflineFallback() + isNetworkError() helpers
 ├── supabase/
 │   ├── schema.sql
-│   ├── migrations/              # 11 migrations
+│   ├── migrations/              # 14 migrations
+│   └── functions/
 │   └── functions/
 │       ├── daily-summary/
 │       ├── food-search/         # OpenFoodFacts proxy + Groq LLM fallback
@@ -442,6 +458,21 @@ FastTrack/
 ### Me Tab
 - First name display, unified achievements, weekly stats
 - Weight tracking with chart, goal weight, unit preferences
+
+### Period Tab
+- CycleWheel SVG ring (200px) showing animated phase arcs (rose/sky/cyan/amber) with progress to next period
+- PeriodCalendar full month grid with phase-colored day cells, predicted period dates, symptom dot indicators
+- PeriodLogModal bottom-sheet for logging: flow intensity (4 levels), cramps, mood (7 options), energy (3 levels), headache/bloating/cravings toggles, free-text notes
+- CycleInsights panel with phase-aware fasting recommendations and period countdown
+- Cycle phase detection (menstrual/follicular/ovulatory/luteal) using user's logged history and configured settings
+- Ovulation prediction: count backwards from predicted next period using luteal phase length
+- Fertile window: 6-day window (5 days before ovulation through ovulation day)
+- Prediction confidence scored from cycle variability (0-1)
+- PeriodSettingsModal: configure cycle length (21-45), period duration (2-10), luteal phase (10-17) with steppers + presets
+- Past Periods history list with start/end dates
+- Home tab: Cycle Phase panel with phase badge and fasting tip
+- AI coach context includes cycle phase, day, and fertile status
+- Tab controlled by tracker toggle (hidden when disabled)
 
 ### Settings
 - Profile details (name, gender, age, weight, height, BMI with color coding)
@@ -638,6 +669,7 @@ See [Building for iOS (Standalone App)](#building-for-ios-standalone-app) above 
 - [x] Light mode redesign + auto dark mode — new LIGHT palette, `getAccentColors`/`getMealColors`, System/Dark/Light toggle, 52+ components updated
 - [x] Custom fasting start time — date/time picker bottom-sheet (up to 3 days back) when starting fast, live schedule preview, `updateStartTime` mutation with notification rescheduling
 - [x] Timer performance optimization — collapsed 4 concurrent `setInterval(1s)` into 2 (1 per screen), added AppState listener to pause timers when backgrounded, extracted `useFastingTimer` shared hook, removed ~96 lines of duplicated interval code
+- [x] Menstrual cycle tracker — period_log table, cycle phase detection (menstrual/follicular/ovulatory/luteal), ovulation prediction, fertile window, CycleWheel SVG ring, PeriodCalendar month grid, PeriodLogModal symptom/flow logging, CycleInsights fasting tips, PeriodSettingsModal, AI coach cycle context, 6 components, 3 hooks, 1 migration
 
 ## Next Steps
 
@@ -701,6 +733,7 @@ See [Building for iOS (Standalone App)](#building-for-ios-standalone-app) above 
 | 55 | **Light mode redesign + auto dark mode** — Complete light mode overhaul: new LIGHT palette with solid warm grays (WCAG AA), opaque white cards, `getAccentColors(theme)` for theme-aware accents (forest green in light, neon lime in dark), `getMealColors(theme)`. Auto dark mode with System/Dark/Light toggle. CSS variable-based glass-panel. 52+ components updated. | Done |
 | 56 | **Custom fasting start time** — Date/time picker bottom-sheet (up to 3 days back) when starting a fast, with live schedule preview panel that updates as you adjust. Edit start time during active fast via pencil icon in timer ring schedule strip. `updateStartTime` mutation on session repositions the timeline and reschedules all notifications. | Done |
 | 57 | **Timer performance optimization** — Collapsed 4 concurrent `setInterval(1s)` loops in `fast.tsx` and `index.tsx` into a single shared ticker per screen. Added `AppState` listener to pause timers when backgrounded to prevent battery drain and Android deep-sleep prevention. Extracted `useFastingTimer` shared hook into `hooks/`, removed ~96 lines of duplicated interval code. | Done |
+| 58 | **Menstrual cycle tracker** — `period_log` table, cycle phase detection (menstrual/follicular/ovulatory/luteal), ovulation prediction, fertile window calculation with confidence scoring, `CycleWheel` SVG ring with phase arcs, `PeriodCalendar` month grid with phase-colored cells, `PeriodLogModal` bottom-sheet for flow/cramps/mood/energy/symptoms logging, `CycleInsights` phase-aware fasting recommendations, `PeriodSettingsModal` stepper configuration. 6 components, 3 hooks, 1 migration, tab bar integration, Home panel, AI coach context. 18 files, +1520 lines. | Done |
 
 ### Remaining
 | # | Feature | Effort | Description |
@@ -722,6 +755,5 @@ See [Building for iOS (Standalone App)](#building-for-ios-standalone-app) above 
 | 15 | **Live Activity / Dynamic Island** | Medium | iOS 16+ Live Activity displaying the fasting countdown timer on the lock screen and Dynamic Island. Updates in real-time without opening the app. *Note: requires paid Apple Developer account for APNs push to update the Live Activity.* |
 | 16 | **Photo food logging** | Medium | Snap a photo of a meal and estimate macros via a vision API (OpenAI Vision, Gemini, or Apple CoreML). Presents estimated food items for confirmation/adjustment before logging. Hugely reduces friction vs manual search/entry. |
 | 17 | **Scheduled dark/light mode** | Small | Auto-switch theme based on time of day (dark at sunset, light at sunrise) rather than only following system appearance. Useful since fasting is time-bound and users often check the app at night. Toggle in Profile: Manual / System / Scheduled (with time pickers). |
-| 18 | **Menstrual cycle integration** | Small | Optional cycle phase tracking with auto-suggested fasting schedule adjustments: follicular phase → longer fasts recommended, luteal phase → gentler schedule. Niche but high-value for that audience. Simple calendar-based phase input (no period tracking required). |
-| 19 | **AI fasting coach** | Large | Chat interface ("Ask Coach") that answers questions like "how am I doing?", "what should I eat to hit my protein?", "when should I start my next fast to hit my goal?", "why do I feel lightheaded?" Powered by an LLM (via Supabase Edge Function) with access to the user's fasting, food, workout, and weight data. Makes the app feel genuinely intelligent and personalized. |
-| 20 | **Social sign-in (Apple / Google)** | Medium | Add Apple Sign In and Google Sign In as authentication options alongside email/password. Previous attempt failed due to Expo Go redirect URI limitations. **Current state**: Web OAuth client ID configured in Google Cloud + Supabase Google provider enabled; `expo-auth-session` + `expo-web-browser` + `expo-crypto` installed; "Continue with Google" button on login/signup screens wired to `signInWithGoogle()` in `useAuth.ts`. **Likely fix**: Switch to a development build (not Expo Go) where custom URL schemes like `fasttrack://auth/callback` are reliably intercepted by `ASWebAuthenticationSession`. See "Google SSO — Implementation Attempt" section above for full details on all approaches tried. |
+| 18 | **AI fasting coach** | Large | Chat interface ("Ask Coach") that answers questions like "how am I doing?", "what should I eat to hit my protein?", "when should I start my next fast to hit my goal?", "why do I feel lightheaded?" Powered by an LLM (via Supabase Edge Function) with access to the user's fasting, food, workout, and weight data. Makes the app feel genuinely intelligent and personalized. |
+| 19 | **Social sign-in (Apple / Google)** | Medium | Add Apple Sign In and Google Sign In as authentication options alongside email/password. Previous attempt failed due to Expo Go redirect URI limitations. **Current state**: Web OAuth client ID configured in Google Cloud + Supabase Google provider enabled; `expo-auth-session` + `expo-web-browser` + `expo-crypto` installed; "Continue with Google" button on login/signup screens wired to `signInWithGoogle()` in `useAuth.ts`. **Likely fix**: Switch to a development build (not Expo Go) where custom URL schemes like `fasttrack://auth/callback` are reliably intercepted by `ASWebAuthenticationSession`. See "Google SSO — Implementation Attempt" section above for full details on all approaches tried. |

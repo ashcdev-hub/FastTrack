@@ -59,6 +59,16 @@ Expo's unified codebase reduces the overhead of native development while maintai
 - **Settings inline** (no standalone settings page)
 - **Dynamic fasting phase insights** during active fasts
 
+### Period Tracker
+- **CycleWheel** — animated SVG ring showing phase arcs (menstrual/follicular/ovulatory/luteal) with day counter
+- **PeriodCalendar** — full month grid with phase-colored cells, predicted period dates, and symptom indicators
+- **Symptom logging** — flow intensity (4 levels), cramps, mood (7 options), energy, headache/bloating/cravings
+- **Phase-aware fasting recommendations** (longer fasts in follicular, shorter in luteal)
+- **Ovulation prediction** and **fertile window** (6-day window, 5 days before ovulation + ovulation day)
+- **Cycle settings** — configurable cycle length (21-45), period duration (2-10), luteal phase (10-17)
+- **AI coach integration** — cycle phase context for personalized guidance
+- **Home tab panel** with phase badge and fasting tip
+
 ### Offline Support
 - **Query cache hydration** — last-known data shown on app boot without network
 - **Mutation queue** — all inserts/updates/deletes enqueue when offline, replay on reconnect
@@ -169,7 +179,7 @@ FastTrack/
 
 ## Database
 
-14 migrations covering:
+15 migrations covering:
 
 | Migration | Description |
 |-----------|-------------|
@@ -187,6 +197,7 @@ FastTrack/
 | `add_workout_icon_name` | SVG workout icon names on workout_goals |
 | `my_meals` | Meal template library (my_meals + my_meal_items) |
 | `enabled_trackers` | Toggleable tracker preferences (Fasting, Workouts, Food, Period) |
+| `period_tracker` | Period log table + cycle settings on profiles |
 
 All tables have RLS enabled with `auth.uid() = user_id` policies.
 
