@@ -23,33 +23,54 @@ export function generateUuid(): string {
 
 let queueIdCounter = 0;
 
+// Mutex: serializes all read-modify-write operations on the queue
+// to prevent lost mutations from concurrent enqueue/replace interleaving
+let queueMutex: Promise<void> = Promise.resolve();
+
+function withMutex<T>(fn: () => Promise<T>): Promise<T> {
+  const execution = queueMutex.then(() => fn());
+  queueMutex = execution.then(() => {}, () => {});
+  return execution;
+}
+
 export async function enqueueMutation(
   table: string,
   operation: QueuedMutation["operation"],
   payload: unknown,
 ): Promise<QueuedMutation> {
-  let finalPayload = payload;
-  if (operation === "insert" && typeof payload === "object" && payload !== null) {
-    const record = { ...(payload as Record<string, unknown>) };
-    if (!record.id) {
-      record.id = generateUuid();
+  return withMutex(async () => {
+    let finalPayload = payload;
+    if (operation === "insert") {
+      if (Array.isArray(payload)) {
+        // Batch insert: store each item with its own client UUID
+        finalPayload = payload.map((record: any) => ({
+          ...record,
+          id: record.id || generateUuid(),
+        }));
+      } else if (typeof payload === "object" && payload !== null) {
+        // Single insert: add client UUID if missing
+        const record = { ...(payload as Record<string, unknown>) };
+        if (!record.id) {
+          record.id = generateUuid();
+        }
+        finalPayload = record;
+      }
     }
-    finalPayload = record;
-  }
 
-  const item: QueuedMutation = {
-    id: `offline_${Date.now()}_${++queueIdCounter}`,
-    table,
-    operation,
-    payload: finalPayload,
-    timestamp: Date.now(),
-    retry_count: 0,
-  };
+    const item: QueuedMutation = {
+      id: `offline_${Date.now()}_${++queueIdCounter}`,
+      table,
+      operation,
+      payload: finalPayload,
+      timestamp: Date.now(),
+      retry_count: 0,
+    };
 
-  const existing = await getQueue();
-  existing.push(item);
-  await AsyncStorage.setItem(QUEUE_KEY, JSON.stringify(existing));
-  return item;
+    const existing = await getQueue();
+    existing.push(item);
+    await AsyncStorage.setItem(QUEUE_KEY, JSON.stringify(existing));
+    return item;
+  });
 }
 
 export async function getQueue(): Promise<QueuedMutation[]> {
@@ -63,7 +84,9 @@ export async function getQueue(): Promise<QueuedMutation[]> {
 }
 
 export async function replaceQueue(items: QueuedMutation[]): Promise<void> {
-  await AsyncStorage.setItem(QUEUE_KEY, JSON.stringify(items));
+  return withMutex(async () => {
+    await AsyncStorage.setItem(QUEUE_KEY, JSON.stringify(items));
+  });
 }
 
 export async function clearQueue(): Promise<void> {
@@ -71,9 +94,11 @@ export async function clearQueue(): Promise<void> {
 }
 
 export async function removeById(id: string): Promise<void> {
-  const queue = await getQueue();
-  const filtered = queue.filter((item) => item.id !== id);
-  await AsyncStorage.setItem(QUEUE_KEY, JSON.stringify(filtered));
+  return withMutex(async () => {
+    const queue = await getQueue();
+    const filtered = queue.filter((item) => item.id !== id);
+    await AsyncStorage.setItem(QUEUE_KEY, JSON.stringify(filtered));
+  });
 }
 
 export async function getDeadLetterQueue(): Promise<QueuedMutation[]> {
