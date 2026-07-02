@@ -32,6 +32,7 @@ type FastingTimerProps = {
   startedAt?: Date | null;
   eatWindowOpensAt?: Date | null;
   windowClosesAt?: Date | null;
+  onEditStartTime?: () => void;
 };
 
 function formatScheduleDate(date: Date): string {
@@ -60,6 +61,7 @@ export function FastingTimer({
   startedAt,
   eatWindowOpensAt,
   windowClosesAt,
+  onEditStartTime,
 }: FastingTimerProps) {
   const { theme } = useThemeStore();
   const c = getThemeColors(theme);
@@ -225,9 +227,16 @@ export function FastingTimer({
                 {scheduleColumns.map((col) => (
                   <View key={col.label} className="items-center" style={{ flex: 1 }}>
                     <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: col.color, marginBottom: 4 }} />
-                    <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 10, textAlign: "center", marginBottom: 2 }}>
-                      {col.label}
-                    </Text>
+                    <View className="flex-row items-center gap-1" style={{ marginBottom: 2 }}>
+                      <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 10, textAlign: "center" }}>
+                        {col.label}
+                      </Text>
+                      {col.label === "Started" && onEditStartTime && (
+                        <Pressable onPress={onEditStartTime} hitSlop={8}>
+                          <MaterialCommunityIcons name="pencil" size={10} color={c.textMuted} />
+                        </Pressable>
+                      )}
+                    </View>
                     <Text style={{ color: c.textSecondary, fontFamily: "Inter_400Regular", fontSize: 12, textAlign: "center" }}>
                       {formatScheduleDate(col.date)}
                     </Text>

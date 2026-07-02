@@ -185,6 +185,30 @@ export function useFastingSession(userId: string | undefined) {
     },
   });
 
+  const updateStartTimeMutation = useMutation({
+    mutationFn: async ({ sessionId, newStartTime }: { sessionId: string; newStartTime: Date }) => {
+      return withOfflineFallback(
+        async () => {
+          const { data, error } = await supabase
+            .from("fasting_sessions")
+            .update({ start_time: newStartTime.toISOString() })
+            .eq("id", sessionId)
+            .select()
+            .single();
+          if (error) throw error;
+          return data;
+        },
+        "fasting_sessions",
+        "update",
+        { id: sessionId, start_time: newStartTime.toISOString() },
+        isOffline,
+      );
+    },
+    onSuccess: (data) => {
+      queryClient.setQueryData(["fasting_session", "active", userId], data);
+    },
+  });
+
   const discardFastMutation = useMutation({
     mutationFn: async (sessionId: string) => {
       const now = new Date().toISOString();
@@ -246,6 +270,8 @@ export function useFastingSession(userId: string | undefined) {
     breakFast: breakFastMutation.mutateAsync,
     discardFast: discardFastMutation.mutateAsync,
     deleteFast: deleteFastMutation.mutateAsync,
+    updateStartTime: (sessionId: string, newStartTime: Date) =>
+      updateStartTimeMutation.mutateAsync({ sessionId, newStartTime }),
     refetch: () => {
       queryClient.invalidateQueries({ queryKey: ["fasting_session", "active", userId] });
       queryClient.invalidateQueries({ queryKey: ["fasting_sessions", "completed", userId] });

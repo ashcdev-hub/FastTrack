@@ -92,7 +92,7 @@ type Phase = "idle" | "fasting" | "eating";
 
 export default function FastScreen() {
   const { user } = useAuth();
-  const { session, startFast, endFast, breakFast, discardFast, deleteFast, pastSessions, streak, completedFasts } = useFastingSession(user?.id);
+  const { session, startFast, endFast, breakFast, discardFast, deleteFast, pastSessions, streak, completedFasts, updateStartTime } = useFastingSession(user?.id);
   const { fastingHours, eatingHours, setSessionId, setStartTime, setFastingHours, setEatingHours } = useFastingStore();
   const { theme } = useThemeStore();
   const c = getThemeColors(theme);
@@ -147,6 +147,37 @@ export default function FastScreen() {
   const fastCompletePromptedRef = useRef(false);
   const eatCompletePromptedRef = useRef(false);
 
+  const [showStartTimePicker, setShowStartTimePicker] = useState(false);
+  const [startPickerDate, setStartPickerDate] = useState(new Date());
+  const [startPickerHour, setStartPickerHour] = useState(new Date().getHours());
+  const [startPickerMinute, setStartPickerMinute] = useState(new Date().getMinutes());
+
+  const [showEditTimePicker, setShowEditTimePicker] = useState(false);
+  const [editPickerDate, setEditPickerDate] = useState(new Date());
+  const [editPickerHour, setEditPickerHour] = useState(new Date().getHours());
+  const [editPickerMinute, setEditPickerMinute] = useState(new Date().getMinutes());
+
+  const previewStartTime = showStartTimePicker
+    ? (() => { const d = new Date(startPickerDate); d.setHours(startPickerHour, startPickerMinute, 0, 0); return d; })()
+    : null;
+
+  const getRemainingFastingSeconds = (startTime: Date): number => {
+    const fastEndTime = startTime.getTime() + fastingHours * 3600000;
+    const remaining = (fastEndTime - Date.now()) / 1000;
+    return remaining > 0 ? remaining : 0;
+  };
+
+  const isFutureTime = (date: Date, hour: number, minute: number): boolean => {
+    const now = new Date();
+    if (date.getFullYear() > now.getFullYear()) return true;
+    if (date.getFullYear() < now.getFullYear()) return false;
+    if (date.getMonth() > now.getMonth()) return true;
+    if (date.getMonth() < now.getMonth()) return false;
+    if (date.getDate() > now.getDate()) return true;
+    if (date.getDate() < now.getDate()) return false;
+    return hour > now.getHours() || (hour === now.getHours() && minute > now.getMinutes());
+  };
+
   useEffect(() => {
     if (phase === "fasting" && fastCountdown.isOver && !fastCompletePromptedRef.current) {
       fastCompletePromptedRef.current = true;
@@ -171,7 +202,65 @@ export default function FastScreen() {
 
   const handleStartFast = async () => {
     if (!user) return;
+    const now = new Date();
+    setStartPickerDate(now);
+    setStartPickerHour(now.getHours());
+    setStartPickerMinute(now.getMinutes());
+    setShowStartTimePicker(true);
+  };
+
+  const confirmStartFast = async () => {
+    if (!user) return;
     const schedule = selectedSchedule ?? `${fastingHours}:${eatingHours}`;
+    const adjustedDate = new Date(startPickerDate);
+    adjustedDate.setHours(startPickerHour, startPickerMinute, 0, 0);
+    setShowStartTimePicker(false);
+    const { data, error } = await startFast(adjustedDate, schedule);
+    if (data && !error) {
+      setSessionId(data.id);
+      setStartTime(data.start_time);
+      const remainingSec = getRemainingFastingSeconds(adjustedDate);
+      if (remainingSec > 0) {
+        await scheduleFastingReminder("Fast Complete!", `Your fast is done. Time to eat!`, remainingSec);
+        if (notifPrefs?.checkin_reminders && notifPrefs?.checkin_mode !== "custom") {
+          const hoursUntilMidpoint = Math.round(remainingSec / 7200);
+          if (hoursUntilMidpoint > 0) await scheduleCheckInReminder(hoursUntilMidpoint);
+        }
+        if (notifPrefs?.eat_window_reminder && notifPrefs?.eat_window_reminder_minutes) {
+          await scheduleEatingWindowReminder(remainingSec, notifPrefs.eat_window_reminder_minutes);
+        }
+      }
+      if (notifPrefs?.water_reminders && notifPrefs?.water_interval_hours) await scheduleWaterReminders(notifPrefs.water_interval_hours);
+    }
+  };
+
+  const handleUpdateStartTime = async () => {
+    if (!session) return;
+    const adjustedDate = new Date(editPickerDate);
+    adjustedDate.setHours(editPickerHour, editPickerMinute, 0, 0);
+    setShowEditTimePicker(false);
+    const { error } = await updateStartTime(session.id, adjustedDate);
+    if (!error) {
+      await cancelAllNotifications();
+      const remainingSec = getRemainingFastingSeconds(adjustedDate);
+      if (remainingSec > 0) {
+        await scheduleFastingReminder("Fast Complete!", `Your fast is done. Time to eat!`, remainingSec);
+        if (notifPrefs?.checkin_reminders && notifPrefs?.checkin_mode !== "custom") {
+          const hoursUntilMidpoint = Math.round(remainingSec / 7200);
+          if (hoursUntilMidpoint > 0) await scheduleCheckInReminder(hoursUntilMidpoint);
+        }
+        if (notifPrefs?.eat_window_reminder && notifPrefs?.eat_window_reminder_minutes) {
+          await scheduleEatingWindowReminder(remainingSec, notifPrefs.eat_window_reminder_minutes);
+        }
+      }
+      if (notifPrefs?.water_reminders && notifPrefs?.water_interval_hours) await scheduleWaterReminders(notifPrefs.water_interval_hours);
+    }
+  };
+
+  const handleStartNow = async () => {
+    if (!user) return;
+    const schedule = selectedSchedule ?? `${fastingHours}:${eatingHours}`;
+    setShowStartTimePicker(false);
     const { data, error } = await startFast(new Date(), schedule);
     if (data && !error) {
       setSessionId(data.id);
@@ -365,14 +454,16 @@ export default function FastScreen() {
             {selectedSchedule && (
             <View className="w-full rounded-xl p-5 mb-section-gap glass-panel">
               <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 12, letterSpacing: 1, marginBottom: 16, textTransform: "uppercase" }}>
-                IF YOU START NOW
+                {showStartTimePicker ? "PREVIEW" : "IF YOU START NOW"}
               </Text>
               <View className="flex-row justify-between">
-                {[
-                  { label: "Fast starts", date: new Date(), color: accent.lime },
-                  { label: "Eat window", date: addHours(new Date(), fastingHours), color: accent.cyan },
-                  { label: "Window closes", date: addHours(addHours(new Date(), fastingHours), eatingHours), color: accent.coral },
-                ].map((item) => (
+                {(() => {
+                  const baseTime = previewStartTime ?? new Date();
+                  return [
+                    { label: "Fast starts", date: baseTime, color: accent.lime },
+                    { label: "Eat window", date: addHours(baseTime, fastingHours), color: accent.cyan },
+                    { label: "Window closes", date: addHours(addHours(baseTime, fastingHours), eatingHours), color: accent.coral },
+                  ].map((item) => (
                   <View key={item.label} className="flex-1 items-center">
                     <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: item.color }} />
                     <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 12, marginTop: 6, textAlign: "center" }}>
@@ -385,7 +476,8 @@ export default function FastScreen() {
                       {format(item.date, "h:mm a")}
                     </Text>
                   </View>
-                ))}
+                  ))
+                })()}
               </View>
             </View>
             )}
@@ -410,6 +502,13 @@ export default function FastScreen() {
                   startedAt={startedAtDate}
                   eatWindowOpensAt={eatWindowOpensDate}
                   windowClosesAt={windowClosesDate}
+                  onEditStartTime={phase === "fasting" ? () => {
+                    const st = new Date(session?.start_time ?? Date.now());
+                    setEditPickerDate(st);
+                    setEditPickerHour(st.getHours());
+                    setEditPickerMinute(st.getMinutes());
+                    setShowEditTimePicker(true);
+                  } : undefined}
                 />
                 {/* FastingTimer now renders its own Stitch content */}
               </View>
@@ -774,6 +873,192 @@ export default function FastScreen() {
                 <Text style={{ color: c.textMuted, fontFamily: "Inter_700Bold", fontSize: 15 }}>Keep Eating</Text>
               </Pressable>
             </View>
+          </Pressable>
+        </Pressable>
+      </Modal>
+
+      {/* Set Start Time Picker (before starting fast) */}
+      <Modal visible={showStartTimePicker} transparent animationType="slide" onRequestClose={() => setShowStartTimePicker(false)}>
+        <Pressable className="flex-1 justify-end" style={{ backgroundColor: c.overlay }} onPress={() => setShowStartTimePicker(false)}>
+          <Pressable className="rounded-t-3xl p-6" style={{ backgroundColor: c.elevated }} onStartShouldSetResponder={() => true}>
+            <View className="flex-row justify-between items-center mb-4">
+              <Pressable onPress={() => setShowStartTimePicker(false)}>
+                <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 15 }}>Cancel</Text>
+              </Pressable>
+              <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 20 }}>Set Start Time</Text>
+              <Pressable onPress={confirmStartFast}>
+                <Text style={{ color: accent.lime, fontFamily: "Inter_700Bold", fontSize: 15 }}>Done</Text>
+              </Pressable>
+            </View>
+
+            <Pressable onPress={handleStartNow} className="w-full py-3.5 rounded-xl items-center mb-5" style={{ backgroundColor: accent.lime }}>
+              <Text style={{ color: c.textOnAccent, fontFamily: "Inter_700Bold", fontSize: 16 }}>Start Now</Text>
+            </Pressable>
+
+            <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 11, letterSpacing: 1, textTransform: "uppercase", textAlign: "center", marginBottom: 12 }}>
+              OR PICK WHEN YOU STARTED
+            </Text>
+
+            {/* Hour and Minute picker */}
+            <View className="flex-row justify-center gap-6 mb-6">
+              <View className="items-center">
+                <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 14, marginBottom: 8 }}>Hour</Text>
+                <ScrollView className="h-32 w-20" showsVerticalScrollIndicator={false}>
+                  {Array.from({ length: 24 }, (_, i) => i).map((h) => {
+                    const disabled = isFutureTime(startPickerDate, h, startPickerMinute);
+                    const selected = startPickerHour === h;
+                    return (
+                      <Pressable key={h} onPress={() => !disabled && setStartPickerHour(h)} disabled={disabled}
+                        className="py-2 items-center rounded-lg"
+                        style={{ backgroundColor: selected ? accent.limeBg : "transparent", opacity: disabled ? 0.3 : 1 }}>
+                        <Text className="text-xl"
+                          style={{ color: selected ? accent.lime : c.textMuted, fontFamily: selected ? "Inter_700Bold" : "Inter_400Regular" }}>
+                          {h.toString().padStart(2, "0")}
+                        </Text>
+                      </Pressable>
+                    );
+                  })}
+                </ScrollView>
+              </View>
+              <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 24, marginTop: 24 }}>:</Text>
+              <View className="items-center">
+                <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 14, marginBottom: 8 }}>Minute</Text>
+                <ScrollView className="h-32 w-20" showsVerticalScrollIndicator={false}>
+                  {Array.from({ length: 60 }, (_, i) => i).map((m) => {
+                    const disabled = isFutureTime(startPickerDate, startPickerHour, m);
+                    const selected = startPickerMinute === m;
+                    return (
+                      <Pressable key={m} onPress={() => !disabled && setStartPickerMinute(m)} disabled={disabled}
+                        className="py-2 items-center rounded-lg"
+                        style={{ backgroundColor: selected ? accent.limeBg : "transparent", opacity: disabled ? 0.3 : 1 }}>
+                        <Text className="text-xl"
+                          style={{ color: selected ? accent.lime : c.textMuted, fontFamily: selected ? "Inter_700Bold" : "Inter_400Regular" }}>
+                          {m.toString().padStart(2, "0")}
+                        </Text>
+                      </Pressable>
+                    );
+                  })}
+                </ScrollView>
+              </View>
+            </View>
+
+            {/* Date shortcuts */}
+            <View className="flex-row justify-center gap-2 mb-4">
+              {(() => {
+                const now = new Date();
+                const presets = [
+                  { label: "3d ago", date: new Date(now.getFullYear(), now.getMonth(), now.getDate() - 3) },
+                  { label: "2d ago", date: new Date(now.getFullYear(), now.getMonth(), now.getDate() - 2) },
+                  { label: "Yesterday", date: new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1) },
+                  { label: "Today", date: new Date() },
+                ];
+                return presets.map((p) => {
+                  const active = startPickerDate.toDateString() === p.date.toDateString();
+                  return (
+                    <Pressable key={p.label} onPress={() => setStartPickerDate(p.date)}
+                      className="rounded-lg px-3 py-2"
+                      style={{ backgroundColor: active ? accent.limeBg : c.buttonBg }}>
+                      <Text style={{ color: active ? accent.lime : c.text, fontFamily: "Inter_400Regular", fontSize: 13 }}>{p.label}</Text>
+                    </Pressable>
+                  );
+                });
+              })()}
+            </View>
+
+            <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 15, textAlign: "center" }}>
+              {startPickerDate.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" })}
+            </Text>
+          </Pressable>
+        </Pressable>
+      </Modal>
+
+      {/* Edit Start Time Picker (during active fast) */}
+      <Modal visible={showEditTimePicker} transparent animationType="slide" onRequestClose={() => setShowEditTimePicker(false)}>
+        <Pressable className="flex-1 justify-end" style={{ backgroundColor: c.overlay }} onPress={() => setShowEditTimePicker(false)}>
+          <Pressable className="rounded-t-3xl p-6" style={{ backgroundColor: c.elevated }} onStartShouldSetResponder={() => true}>
+            <View className="flex-row justify-between items-center mb-4">
+              <Pressable onPress={() => setShowEditTimePicker(false)}>
+                <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 15 }}>Cancel</Text>
+              </Pressable>
+              <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 20 }}>Edit Start Time</Text>
+              <Pressable onPress={handleUpdateStartTime}>
+                <Text style={{ color: accent.lime, fontFamily: "Inter_700Bold", fontSize: 15 }}>Done</Text>
+              </Pressable>
+            </View>
+
+            <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 13, textAlign: "center", marginBottom: 16 }}>
+              Adjust when you actually started fasting
+            </Text>
+
+            {/* Hour and Minute picker */}
+            <View className="flex-row justify-center gap-6 mb-6">
+              <View className="items-center">
+                <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 14, marginBottom: 8 }}>Hour</Text>
+                <ScrollView className="h-32 w-20" showsVerticalScrollIndicator={false}>
+                  {Array.from({ length: 24 }, (_, i) => i).map((h) => {
+                    const disabled = isFutureTime(editPickerDate, h, editPickerMinute);
+                    const selected = editPickerHour === h;
+                    return (
+                      <Pressable key={h} onPress={() => !disabled && setEditPickerHour(h)} disabled={disabled}
+                        className="py-2 items-center rounded-lg"
+                        style={{ backgroundColor: selected ? accent.limeBg : "transparent", opacity: disabled ? 0.3 : 1 }}>
+                        <Text className="text-xl"
+                          style={{ color: selected ? accent.lime : c.textMuted, fontFamily: selected ? "Inter_700Bold" : "Inter_400Regular" }}>
+                          {h.toString().padStart(2, "0")}
+                        </Text>
+                      </Pressable>
+                    );
+                  })}
+                </ScrollView>
+              </View>
+              <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 24, marginTop: 24 }}>:</Text>
+              <View className="items-center">
+                <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 14, marginBottom: 8 }}>Minute</Text>
+                <ScrollView className="h-32 w-20" showsVerticalScrollIndicator={false}>
+                  {Array.from({ length: 60 }, (_, i) => i).map((m) => {
+                    const disabled = isFutureTime(editPickerDate, editPickerHour, m);
+                    const selected = editPickerMinute === m;
+                    return (
+                      <Pressable key={m} onPress={() => !disabled && setEditPickerMinute(m)} disabled={disabled}
+                        className="py-2 items-center rounded-lg"
+                        style={{ backgroundColor: selected ? accent.limeBg : "transparent", opacity: disabled ? 0.3 : 1 }}>
+                        <Text className="text-xl"
+                          style={{ color: selected ? accent.lime : c.textMuted, fontFamily: selected ? "Inter_700Bold" : "Inter_400Regular" }}>
+                          {m.toString().padStart(2, "0")}
+                        </Text>
+                      </Pressable>
+                    );
+                  })}
+                </ScrollView>
+              </View>
+            </View>
+
+            {/* Date shortcuts */}
+            <View className="flex-row justify-center gap-2 mb-4">
+              {(() => {
+                const now = new Date();
+                const presets = [
+                  { label: "3d ago", date: new Date(now.getFullYear(), now.getMonth(), now.getDate() - 3) },
+                  { label: "2d ago", date: new Date(now.getFullYear(), now.getMonth(), now.getDate() - 2) },
+                  { label: "Yesterday", date: new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1) },
+                  { label: "Today", date: new Date() },
+                ];
+                return presets.map((p) => {
+                  const active = editPickerDate.toDateString() === p.date.toDateString();
+                  return (
+                    <Pressable key={p.label} onPress={() => setEditPickerDate(p.date)}
+                      className="rounded-lg px-3 py-2"
+                      style={{ backgroundColor: active ? accent.limeBg : c.buttonBg }}>
+                      <Text style={{ color: active ? accent.lime : c.text, fontFamily: "Inter_400Regular", fontSize: 13 }}>{p.label}</Text>
+                    </Pressable>
+                  );
+                });
+              })()}
+            </View>
+
+            <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 15, textAlign: "center" }}>
+              {editPickerDate.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" })}
+            </Text>
           </Pressable>
         </Pressable>
       </Modal>
