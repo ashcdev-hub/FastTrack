@@ -22,6 +22,7 @@ Expo's unified codebase reduces the overhead of native development while maintai
 
 ### Fasting
 - **Countdown timer** with animated SVG progress ring, dynamic phase labels
+- **Custom start time** — pick any start date/time up to 3 days back before starting a fast, or edit it during an active fast via the timer ring's pencil icon
 - **Schedule presets**: 14:10, 16:8, 18:6, 20:4, OMAD — plus custom via stepper
 - **Weekly calendar** showing which days you fasted
 - **Full month calendar** with tap-to-view fast details
@@ -38,19 +39,22 @@ Expo's unified codebase reduces the overhead of native development while maintai
 
 ### Nutrition
 - **Full-screen food logging** (`LogMealModal`) with search, quick-add, custom form, and meal builder
-- **Food search** via OpenFoodFacts Edge Function proxy with custom in-app QWERTY keyboard
+- **Food search** via OpenFoodFacts Edge Function proxy with native system keyboard and Groq LLM fallback
 - **Quick-add** common foods, configurable via multi-select chip editor
 - **Custom item form** with stepper controls (no system keyboard needed)
 - **Barcode scanner** for packaged foods
-- **Quantity modal** before adding to staging
-- **Meal calendar** with month view, dot indicators, and day-tap meal details
+- **Photo food logging** via camera or gallery with Groq Llama 4 Scout vision model
+- **Meal calendar** with month view, dot indicators, and day-tap meal details with edit/delete
 - **Date/time picker** bottom-sheet with Yesterday/Today shortcuts
+- **My Meals** library — save and re-log multi-item meal templates with one tap
 - **Water tracking** with selectable presets and custom input
+- **AI Insights** on Home tab with personalized fasting/nutrition/workout summary
+- **AI Coach** chat (Groq-powered) for nutrition, fasting, and workout guidance
 
 ### Profile & Settings
 - **Weight tracking** with chart and goal weight
 - **Unit preferences**: kg/lbs, cm/ft, ml/fl oz
-- **Dark/light mode** with full theme support
+- **Dark/light/system mode** toggle with full theme support
 - **Local notifications** for fast reminders, water, and milestones
 - **Settings inline** (no standalone settings page)
 - **Dynamic fasting phase insights** during active fasts
@@ -165,7 +169,7 @@ FastTrack/
 
 ## Database
 
-10 migrations covering:
+14 migrations covering:
 
 | Migration | Description |
 |-----------|-------------|
@@ -179,6 +183,10 @@ FastTrack/
 | `weight_log` | Weight tracking with auto-sync to profile |
 | `unit_preferences` | User preferred units (kg/lbs, cm/ft, ml/floz) |
 | `quick_add_foods` | Quick-add food names stored on profiles |
+| `onboarding_completed` | Onboarding completion flag on profiles |
+| `add_workout_icon_name` | SVG workout icon names on workout_goals |
+| `my_meals` | Meal template library (my_meals + my_meal_items) |
+| `enabled_trackers` | Toggleable tracker preferences (Fasting, Workouts, Food, Period) |
 
 All tables have RLS enabled with `auth.uid() = user_id` policies.
 

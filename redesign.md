@@ -1,5 +1,9 @@
 # FastTrack — Google Stitch Redesign
 
+> **Historical document**: This file documents the initial Stitch-to-production redesign process.
+> Some references (e.g., Plus Jakarta Sans → Inter + Space Grotesk, component structure changes)
+> have since been implemented; others are superseded. See `design.md` for the current design system.
+
 ## Design Tokens (from Stitch)
 
 ### Colors (Dark Mode Only)

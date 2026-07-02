@@ -555,16 +555,18 @@ The most distinctive component in the app. Lives only on the Fast tab.
 - 320px circular SVG ring.
 - Above the ring: "CURRENT PROTOCOL" (label-caps) + "16:8 Fast" (Inter 700 32px) + lightning-bolt icon in lime.
 - Inside the ring: AUTOPHAGY ACTIVE badge (fasting) or EATING WINDOW badge (eating), the timer in Space Grotesk 600 40px, a swap toggle below.
+- **Edit start time**: During fasting, a small pencil icon appears next to the "Started" label in the schedule strip. Tapping it opens a date/time bottom-sheet allowing the user to adjust when they actually began fasting (up to 3 days in the past).
 - Below the ring: the "Break Fast" / "End Eating Window" primary button, full-width lime.
 - Lifecycle: Idle → Fasting (lime ring) → Eating (cyan ring) → complete.
 
 ### Progress Bar Card (Fast tab)
 
-Used in the IF YOU START NOW panel.
+Used in the schedule preview panel (labeled "IF YOU START NOW" / "PREVIEW" when adjusting start time).
 
 - 3 columns: Fast starts (lime), Eat window (cyan), Window closes (coral).
 - Each column: 8px dot in the accent color, 12px label in text-muted, 14px time in text.
 - All 3 columns equal width, evenly spaced.
+- Panel updates dynamically when adjusting the custom start time in the date/time picker.
 
 ### Schedule Selector
 

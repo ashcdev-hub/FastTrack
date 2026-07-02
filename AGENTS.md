@@ -187,7 +187,13 @@ Every bottom-sheet modal must use this exact structure:
 The inner `Pressable` with `onStartShouldSetResponder={() => true}` prevents backdrop tap from propagating to content.
 
 ### Fasting Lifecycle
-Three clear phases: **Idle** (schedule selector shown) → **Fasting** (ring fills, "Break Fast" button) → **Eating** (ring turns cyan, "End Eating Window" button). The eating phase timer counts down remaining eating time. Schedule selection is only shown when idle.
+Three clear phases: **Idle** (schedule selector shown) → **Fasting** (ring fills, "Break Fast" button) → **Eating** (ring turns cyan, "End Eating Window" button). The eating phase timer counts down remaining eating time. Schedule selection is only shown when idle. A date/time picker bottom-sheet lets you set a custom start time (up to 3 days back) before starting, with a live schedule preview. During an active fast, tap the pencil icon next to "Started" in the timer ring to edit the start time — all timers and notifications reschedule automatically.
+
+### Custom Fast Start Time
+- **Before starting**: Tapping "Start Fast" opens a date/time picker (default: now). User can adjust via hour/minute scrollers + date shortcuts (Today / Yesterday / 2d ago / 3d ago), or tap "Start Now" to skip the picker. The schedule preview panel updates live as the time is adjusted.
+- **During a fast**: A pencil icon next to "Started" in the timer ring schedule strip opens the same picker pre-filled with the current start time. Confirming updates `start_time` in Supabase, cancels and reschedules all notifications, and the timer/eating-window calculations update reactively.
+- **Constraints**: Max 3 days in the past. Future start times are disabled on today's date.
+- **Notifications**: All time-based notifications (fast complete, check-in, eating window reminder) are rescheduled using the correct `remainingSeconds` from the adjusted start time, not `fastingHours * 3600`.
 
 ### ACCENT.lime / ACCENT.cyan / ACCENT.coral
 `ACCENT.mint` is defined in the palette but never used in any UI component. All UI uses `ACCENT.lime` (#c3f400), `ACCENT.cyan` (#00daf3), or `ACCENT.coral` (#FF6B52) for the various accent roles.
@@ -400,9 +406,12 @@ FastTrack/
 
 ### Fast Tab
 - Schedule selector (presets + custom)
+- Custom start time: date/time picker (up to 3 days back) when starting a fast, with live schedule preview
+- Edit start time during active fast via pencil icon in timer ring schedule strip
 - Start/break/end fast with bottom-sheet confirmations (end eating window + discard fast)
 - Timer counts DOWN, progress ring fills UP
 - Schedule strip inside timer ring shows date/time for Started, Eat window, Window closes (tap time to toggle elapsed/remaining)
+- Notifications reschedule automatically when start time is edited
 - Check-ins with mood chart + timeline
 - Weekly calendar (7-day circle view)
 - Full month calendar modal (tap day for details)
@@ -626,6 +635,7 @@ See [Building for iOS (Standalone App)](#building-for-ios-standalone-app) above 
 - [x] My Meals library — save meal templates (multi-item collections) from MealBuilder, Today's Meals, and Meal Calendar with one-tap re-log, full CRUD manager in Profile
 - [x] Schedule strip inside FastingTimer ring — date/time for Started / Eat window / Window closes, tap time to toggle elapsed/remaining, larger phase badge
 - [x] Light mode redesign + auto dark mode — new LIGHT palette, `getAccentColors`/`getMealColors`, System/Dark/Light toggle, 52+ components updated
+- [x] Custom fasting start time — date/time picker bottom-sheet (up to 3 days back) when starting fast, live schedule preview, `updateStartTime` mutation with notification rescheduling
 
 ## Next Steps
 
@@ -687,6 +697,7 @@ See [Building for iOS (Standalone App)](#building-for-ios-standalone-app) above 
 | 53 | **Schedule strip in timer ring** — FastingTimer center now shows date/time strip (Started · Eat window · Window closes) with Today/Tomorrow/weekday format. Tap time to toggle elapsed/remaining. Larger phase badge. | Done |
 | 54 | **Modular tracker system** — `store/useTrackerStore.ts` (Zustand + AsyncStorage), `enabled_trackers JSONB` column on profiles, Settings → Trackers section with 4 toggleable trackers (Fasting, Workouts, Food, Period), 5th onboarding step with tracker selection, tab bar filtering via `href:null` with fixed tab order, conditional Home panels (Fasting, Workouts, Food), Profile always on far right | Done |
 | 55 | **Light mode redesign + auto dark mode** — Complete light mode overhaul: new LIGHT palette with solid warm grays (WCAG AA), opaque white cards, `getAccentColors(theme)` for theme-aware accents (forest green in light, neon lime in dark), `getMealColors(theme)`. Auto dark mode with System/Dark/Light toggle. CSS variable-based glass-panel. 52+ components updated. | Done |
+| 56 | **Custom fasting start time** — Date/time picker bottom-sheet (up to 3 days back) when starting a fast, with live schedule preview panel that updates as you adjust. Edit start time during active fast via pencil icon in timer ring schedule strip. `updateStartTime` mutation on session repositions the timeline and reschedules all notifications. | Done |
 
 ### Remaining
 | # | Feature | Effort | Description |
