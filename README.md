@@ -159,7 +159,7 @@ FastTrack/
 │   ├── (auth)/             # Login & signup
 │   └── (onboarding)/       # Onboarding wizard
 ├── components/             # 31 reusable components
-├── hooks/                  # 15 custom hooks
+├── hooks/                  # 17 custom hooks
 ├── lib/                    # Utilities, types, theme, offline support
 ├── store/                  # Zustand stores
 └── supabase/               # Schema, migrations, edge functions
