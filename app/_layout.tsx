@@ -27,6 +27,7 @@ import { getThemeColors, ACCENT, getAccentColors } from "@/lib/theme-colors";
 import { setupNotifications } from "@/lib/notifications";
 import { View, ActivityIndicator } from "react-native";
 import { OfflineBanner } from "@/components/OfflineBanner";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { useOfflineQueueProcessor } from "@/hooks/useOfflineQueueProcessor";
 
 const CACHE_KEY = "fasttrack_query_cache";
@@ -165,12 +166,16 @@ function InnerLayout() {
     <>
       <OfflineQueueProcessor />
       <OfflineBanner />
-      <Stack
-        screenOptions={{
-          headerShown: false,
-          contentStyle: { backgroundColor: getThemeColors(theme).bg },
-        }}
-      />
+      <ErrorBoundary onError={(error, stack) => {
+        console.error("[ErrorBoundary]", error, "\nComponent stack:", stack);
+      }}>
+        <Stack
+          screenOptions={{
+            headerShown: false,
+            contentStyle: { backgroundColor: getThemeColors(theme).bg },
+          }}
+        />
+      </ErrorBoundary>
     </>
   );
 }
