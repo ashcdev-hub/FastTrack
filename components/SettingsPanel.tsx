@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Pressable, View, Text, TextInput, ScrollView, Switch, Modal } from "react-native";
+import { Pressable, View, Text, TextInput, ScrollView, Switch, Modal, LayoutAnimation, Platform, UIManager } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useProfile } from "@/hooks/useProfile";
 import { useGoalStore } from "@/store/useGoalStore";
@@ -38,6 +38,9 @@ export function SettingsPanel({ userId, initialExpand }: SettingsPanelProps) {
 
   const [expandedSection, setExpandedSection] = useState<string | null>(initialExpand ?? null);
   useEffect(() => {
+    if (Platform.OS === "android" && UIManager.setLayoutAnimationEnabledExperimental) {
+      UIManager.setLayoutAnimationEnabledExperimental(true);
+    }
     if (initialExpand) setExpandedSection(initialExpand);
   }, [initialExpand]);
   const [displayName, setDisplayName] = useState(profile?.display_name ?? "");
@@ -170,6 +173,7 @@ export function SettingsPanel({ userId, initialExpand }: SettingsPanelProps) {
   };
 
   const toggleSection = (section: string) => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     setExpandedSection(expandedSection === section ? null : section);
   };
 

@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { Pressable, View, Text, ActivityIndicator, Modal } from "react-native";
 import { CameraView, useCameraPermissions } from "expo-camera";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import Animated, { useSharedValue, useAnimatedStyle, withRepeat, withTiming, withSequence } from "react-native-reanimated";
 import { supabase } from "@/lib/supabase";
 import { useThemeStore } from "@/lib/theme-store";
 import { getThemeColors, ACCENT, getAccentColors } from "@/lib/theme-colors";
@@ -29,6 +30,25 @@ export function BarcodeScanner({ visible, onClose, onProductFound }: BarcodeScan
   const [error, setError] = useState<string | null>(null);
   const [lookupLoading, setLookupLoading] = useState(false);
   const scannedRef = useRef(false);
+  const scanLineY = useSharedValue(0);
+
+  useEffect(() => {
+    if (visible && scanning) {
+      scanLineY.value = withRepeat(
+        withSequence(
+          withTiming(258, { duration: 1500 }),
+          withTiming(0, { duration: 1500 })
+        ),
+        -1,
+      );
+    } else {
+      scanLineY.value = 0;
+    }
+  }, [visible, scanning]);
+
+  const scanLineStyle = useAnimatedStyle(() => ({
+    transform: [{ translateY: scanLineY.value }],
+  }));
 
   useEffect(() => {
     if (visible) {
@@ -149,6 +169,19 @@ export function BarcodeScanner({ visible, onClose, onProductFound }: BarcodeScan
                 <View style={{ position: "absolute", top: -1, right: -1, width: 32, height: 32, borderTopWidth: 3, borderRightWidth: 3, borderColor: accent.lime, borderTopRightRadius: 16 }} />
                 <View style={{ position: "absolute", bottom: -1, left: -1, width: 32, height: 32, borderBottomWidth: 3, borderLeftWidth: 3, borderColor: accent.lime, borderBottomLeftRadius: 16 }} />
                 <View style={{ position: "absolute", bottom: -1, right: -1, width: 32, height: 32, borderBottomWidth: 3, borderRightWidth: 3, borderColor: accent.lime, borderBottomRightRadius: 16 }} />
+                {scanning && (
+                  <Animated.View
+                    style={[
+                      {
+                        width: "100%",
+                        height: 2,
+                        backgroundColor: accent.lime,
+                        opacity: 0.8,
+                      },
+                      scanLineStyle,
+                    ]}
+                  />
+                )}
               </View>
 
               <Text

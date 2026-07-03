@@ -14,6 +14,7 @@ import { Toast } from "@/components/Toast";
 import { SettingsPanel } from "@/components/SettingsPanel";
 import { router, useLocalSearchParams } from "expo-router";
 import { useScrollToTop } from "@react-navigation/native";
+import { FastTrackHeader } from "@/components/FastTrackHeader";
 
 export default function ProfileScreen() {
   const { user, signOut } = useAuth();
@@ -40,15 +41,7 @@ export default function ProfileScreen() {
     <SafeAreaView className="flex-1" style={{ backgroundColor: c.bg }}>
       <Toast visible={toast.visible} message={toast.message} type={toast.type} />
 
-      {/* Fixed Top App Bar */}
-      <View style={{ backgroundColor: c.tabBarBg, borderBottomWidth: 1, borderBottomColor: c.tabBarBorder, paddingTop: 8 }}>
-        <View className="flex-row items-center" style={{ height: 44, paddingHorizontal: 20 }}>
-          <View className="flex-row items-center gap-2">
-            <Image source={require("../../assets/icon.png")} style={{ width: 22, height: 22, borderRadius: 5 }} />
-            <Text style={{ color: accent.lime, fontFamily: "Inter_800ExtraBold", fontSize: 22, letterSpacing: -0.5 }}>FastTrack</Text>
-          </View>
-        </View>
-      </View>
+      <FastTrackHeader />
 
       <ScrollView
         ref={scrollRef}

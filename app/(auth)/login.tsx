@@ -1,6 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Pressable, View, Text, TextInput, Image, KeyboardAvoidingView, Platform, ActivityIndicator, StyleSheet } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import Animated, { useSharedValue, useAnimatedStyle, withTiming, withSpring, withRepeat, withSequence, Easing } from "react-native-reanimated";
+import { LinearGradient } from "expo-linear-gradient";
 import { Link, router } from "expo-router";
 import { Video, ResizeMode } from "expo-av";
 import { useAuth } from "@/hooks/useAuth";
@@ -19,6 +21,53 @@ export default function LoginScreen() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
+
+  const logoScale = useSharedValue(0.8);
+  const logoOpacity = useSharedValue(0);
+  const glowOpacity = useSharedValue(0);
+  const subtitleOpacity = useSharedValue(0);
+  const formY = useSharedValue(40);
+  const formOpacity = useSharedValue(0);
+
+  useEffect(() => {
+    logoScale.value = withSpring(1, { damping: 10, stiffness: 120 });
+    logoOpacity.value = withTiming(1, { duration: 400 });
+
+    setTimeout(() => {
+      subtitleOpacity.value = withTiming(1, { duration: 300 });
+      formOpacity.value = withTiming(1, { duration: 400 });
+      formY.value = withSpring(0, { damping: 16, stiffness: 120 });
+    }, 400);
+
+    setTimeout(() => {
+      glowOpacity.value = withRepeat(
+        withSequence(
+          withTiming(0.6, { duration: 2000, easing: Easing.inOut(Easing.sin) }),
+          withTiming(0.2, { duration: 2000, easing: Easing.inOut(Easing.sin) }),
+        ),
+        -1,
+        true,
+      );
+    }, 800);
+  }, []);
+
+  const logoAnimatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: logoScale.value }],
+    opacity: logoOpacity.value,
+  }));
+
+  const glowAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: glowOpacity.value,
+  }));
+
+  const subtitleAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: subtitleOpacity.value,
+  }));
+
+  const formAnimatedStyle = useAnimatedStyle(() => ({
+    transform: [{ translateY: formY.value }],
+    opacity: formOpacity.value,
+  }));
 
   const handleLogin = async (e?: string, p?: string) => {
     const loginEmail = e ?? email;
@@ -49,20 +98,38 @@ export default function LoginScreen() {
             isMuted
             resizeMode={ResizeMode.COVER}
           />
-          <View style={[StyleSheet.absoluteFill, { backgroundColor: "rgba(0,0,0,0.75)" }]} />
+          <LinearGradient
+            colors={["rgba(0,0,0,0.85)", "rgba(0,0,0,0.70)", "rgba(0,0,0,0.85)"]}
+            style={StyleSheet.absoluteFill}
+          />
         </>
       )}
       <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} className="flex-1">
-        <View className="flex-1 justify-center px-6">
-          <View className="flex-row justify-center items-center gap-3 mb-2">
-            <Image source={require("../../assets/icon.png")} style={{ width: 40, height: 40, borderRadius: 8 }} />
-            <Text style={{ color: accent.lime, fontFamily: "Inter_800ExtraBold", fontSize: 48, letterSpacing: -1 }}>FastTrack</Text>
-          </View>
-        <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 16 }} className="text-center mb-10">
-          Intermittent Fasting, Workouts & Macro Tracker
-        </Text>
+          <View className="flex-1 justify-center px-6">
+            <Animated.View className="items-center mb-2" style={logoAnimatedStyle}>
+              <View className="relative items-center justify-center">
+                <Animated.View
+                  style={[
+                    {
+                      position: "absolute",
+                      width: 80, height: 80, borderRadius: 40,
+                      backgroundColor: accent.lime,
+                    },
+                    glowAnimatedStyle,
+                  ]}
+                />
+                <Image source={require("../../assets/icon.png")} style={{ width: 40, height: 40, borderRadius: 8, zIndex: 1 }} />
+              </View>
+              <Text style={{ color: accent.lime, fontFamily: "Inter_800ExtraBold", fontSize: 48, letterSpacing: -1, marginTop: 8 }}>
+                FastTrack
+              </Text>
+            </Animated.View>
+            <Animated.Text style={[{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 16, textAlign: "center", marginBottom: 40 }, subtitleAnimatedStyle]}>
+              Intermittent Fasting, Workouts & Macro Tracker
+            </Animated.Text>
 
-        {error ? (
+          <Animated.View style={[formAnimatedStyle, { width: "100%" }]}>
+          {error ? (
           <View className="rounded-xl p-3 mb-4" style={{ backgroundColor: ACCENT.roseBg, borderWidth: 1, borderColor: ACCENT.roseBorder }}>
             <Text style={{ color: ACCENT.rose, fontFamily: "Inter_400Regular" }} className="text-sm text-center">{error}</Text>
           </View>
@@ -130,6 +197,7 @@ export default function LoginScreen() {
             </Text>
           </Pressable>
         </Link>
+        </Animated.View>
       </View>
     </KeyboardAvoidingView>
     </View>

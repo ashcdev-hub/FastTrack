@@ -1,9 +1,12 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { View, Text } from "react-native";
 import Svg, { Path, Circle, Line, Text as SvgText } from "react-native-svg";
+import Animated, { useSharedValue, useAnimatedProps, withTiming, Easing } from "react-native-reanimated";
 import { useThemeStore } from "@/lib/theme-store";
 import { getThemeColors, ACCENT, getAccentColors } from "@/lib/theme-colors";
 import type { WeightLogEntry } from "@/lib/types";
+
+const AnimatedPath = Animated.createAnimatedComponent(Path);
 
 type WeightChartProps = {
   entries: WeightLogEntry[];
@@ -16,9 +19,9 @@ export function WeightChart({ entries, goalWeightKg }: WeightChartProps) {
   const accent = getAccentColors(theme);
   const [containerWidth, setContainerWidth] = useState(320);
 
-  if (entries.length <= 1) return null;
-
-  const sorted = [...entries].sort((a, b) => new Date(a.logged_at).getTime() - new Date(b.logged_at).getTime());
+  const sorted = entries.length <= 1
+    ? []
+    : [...entries].sort((a, b) => new Date(a.logged_at).getTime() - new Date(b.logged_at).getTime());
 
   const width = containerWidth;
   const height = 180;
@@ -27,22 +30,49 @@ export function WeightChart({ entries, goalWeightKg }: WeightChartProps) {
   const chartH = height - padding.top - padding.bottom;
 
   const weights = sorted.map((e) => e.weight_kg);
-  const minW = Math.min(...weights);
-  const maxW = Math.max(...weights);
+  const minW = weights.length > 0 ? Math.min(...weights) : 0;
+  const maxW = weights.length > 0 ? Math.max(...weights) : 0;
   const range = maxW - minW || 1;
   const yMin = minW - range * 0.1;
   const yMax = maxW + range * 0.1;
   const yRange = yMax - yMin;
 
   const points = sorted.map((e, i) => ({
-    x: padding.left + (i / (entries.length - 1)) * chartW,
+    x: padding.left + (i / Math.max(entries.length - 1, 1)) * chartW,
     y: padding.top + chartH - ((e.weight_kg - yMin) / yRange) * chartH,
     weight: e.weight_kg,
     date: new Date(e.logged_at),
   }));
+  const pathD = points.length > 0
+    ? points.map((p, i) => `${i === 0 ? "M" : "L"} ${p.x} ${p.y}`).join(" ")
+    : "";
+  const fillPathD = pathD === ""
+    ? ""
+    : pathD + ` L ${points[points.length - 1].x} ${padding.top + chartH}` + ` L ${points[0].x} ${padding.top + chartH} Z`;
 
-  const pathD = points.map((p, i) => `${i === 0 ? "M" : "L"} ${p.x} ${p.y}`).join(" ");
-  const fillPathD = pathD + ` L ${points[points.length - 1].x} ${padding.top + chartH}` + ` L ${points[0].x} ${padding.top + chartH} Z`;
+  const pathLength = useSharedValue(0);
+  const drawProgress = useSharedValue(0);
+  const pathRef = useRef<any>(null);
+
+  useEffect(() => {
+    drawProgress.value = 0;
+    pathLength.value = 0;
+    if (entries.length <= 1) return;
+    const timeout = setTimeout(() => {
+      const len = pathRef.current?.getTotalLength();
+      if (typeof len === "number" && len > 0) {
+        pathLength.value = len;
+        drawProgress.value = withTiming(1, { duration: 1000, easing: Easing.out(Easing.cubic) });
+      }
+    }, 0);
+    return () => clearTimeout(timeout);
+  }, [pathD]);
+
+  const lineAnimatedProps = useAnimatedProps(() => ({
+    strokeDashoffset: pathLength.value * (1 - drawProgress.value),
+  }));
+
+  if (entries.length <= 1) return null;
 
   const lineColor = accent.lime;
   const fillColor = theme === "dark" ? "rgba(45,212,168,0.15)" : "rgba(45,212,168,0.1)";
@@ -98,8 +128,18 @@ export function WeightChart({ entries, goalWeightKg }: WeightChartProps) {
             </>
           )}
 
-          <Path d={fillPathD} fill={fillColor} />
-          <Path d={pathD} stroke={lineColor} strokeWidth={2} fill="none" strokeLinecap="round" strokeLinejoin="round" />
+          <Path d={fillPathD} fill={fillColor} opacity={0.3} />
+          <AnimatedPath
+            ref={pathRef}
+            d={pathD}
+            stroke={lineColor}
+            strokeWidth={2}
+            fill="none"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeDasharray={pathLength.value || 100000}
+            animatedProps={lineAnimatedProps}
+          />
 
           {points.map((p, i) => (
             <Circle key={i} cx={p.x} cy={p.y} r={4} fill={lineColor} stroke={dotStroke} strokeWidth={2} />

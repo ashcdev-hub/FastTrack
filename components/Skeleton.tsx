@@ -1,5 +1,6 @@
-import React, { useEffect, useRef } from "react";
-import { View, Animated } from "react-native";
+import React, { useEffect } from "react";
+import { View } from "react-native";
+import Animated, { useSharedValue, useAnimatedStyle, withRepeat, withTiming, Easing } from "react-native-reanimated";
 import { useThemeStore } from "@/lib/theme-store";
 import { getThemeColors } from "@/lib/theme-colors";
 
@@ -18,36 +19,34 @@ export function Skeleton({
 }: SkeletonProps) {
   const { theme } = useThemeStore();
   const c = getThemeColors(theme);
-  const opacity = useRef(new Animated.Value(0.3)).current;
+  const shimmer = useSharedValue(-1);
 
   useEffect(() => {
-    Animated.loop(
-      Animated.sequence([
-        Animated.timing(opacity, {
-          toValue: 0.7,
-          duration: 800,
-          useNativeDriver: true,
-        }),
-        Animated.timing(opacity, {
-          toValue: 0.3,
-          duration: 800,
-          useNativeDriver: true,
-        }),
-      ])
-    ).start();
-  }, [opacity]);
+    shimmer.value = withRepeat(
+      withTiming(1, { duration: 1200, easing: Easing.inOut(Easing.ease) }),
+      -1,
+      true,
+    );
+  }, []);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ translateX: shimmer.value * (typeof width === "number" ? width : 100) }],
+  }));
 
   return (
-    <Animated.View
-      style={{
-        width,
-        height,
-        borderRadius,
-        backgroundColor: c.cardBgAlt,
-        opacity,
-        ...style,
-      }}
-    />
+    <View style={{ width, height, borderRadius, backgroundColor: c.cardBgAlt, overflow: "hidden", ...style }}>
+      <Animated.View
+        style={[
+          {
+            width: "40%",
+            height: "100%",
+            backgroundColor: "rgba(255,255,255,0.06)",
+            borderRadius,
+          },
+          animatedStyle,
+        ]}
+      />
+    </View>
   );
 }
 
@@ -59,9 +58,7 @@ export function SkeletonCard({ children }: SkeletonCardProps) {
   const { theme } = useThemeStore();
   const c = getThemeColors(theme);
   return (
-    <View
-      className="glass-panel p-5 mb-3"
-    >
+    <View className="glass-panel p-5 mb-3">
       {children}
     </View>
   );

@@ -1,8 +1,11 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { View } from "react-native";
 import Svg, { Circle } from "react-native-svg";
+import Animated, { useSharedValue, useAnimatedProps, withTiming, Easing } from "react-native-reanimated";
 import { useThemeStore } from "@/lib/theme-store";
 import { getThemeColors } from "@/lib/theme-colors";
+
+const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
 type ProgressRingProps = {
   size?: number;
@@ -26,7 +29,18 @@ export function ProgressRing({
   const track = trackColor ?? c.progressTrack;
   const radius = (size - strokeWidth) / 2;
   const circumference = 2 * Math.PI * radius;
-  const offset = circumference * (1 - Math.min(progress, 1));
+  const offset = useSharedValue(circumference);
+
+  useEffect(() => {
+    offset.value = withTiming(circumference * (1 - Math.min(progress, 1)), {
+      duration: 600,
+      easing: Easing.out(Easing.cubic),
+    });
+  }, [progress, circumference]);
+
+  const animatedProps = useAnimatedProps(() => ({
+    strokeDashoffset: offset.value,
+  }));
 
   return (
     <View className="relative items-center justify-center" style={{ width: size, height: size }}>
@@ -39,7 +53,7 @@ export function ProgressRing({
           stroke={track}
           strokeWidth={strokeWidth}
         />
-        <Circle
+        <AnimatedCircle
           cx={size / 2}
           cy={size / 2}
           r={radius}
@@ -47,8 +61,8 @@ export function ProgressRing({
           stroke={indicatorColor}
           strokeWidth={strokeWidth}
           strokeDasharray={circumference}
-          strokeDashoffset={offset}
           strokeLinecap="square"
+          animatedProps={animatedProps}
           transform={`rotate(-90 ${size / 2} ${size / 2})`}
         />
       </Svg>

@@ -8,6 +8,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useTrackerStore } from "@/store/useTrackerStore";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import type { TrackerId } from "@/lib/types";
+import { AnimatedTabIcon } from "@/components/AnimatedTabIcon";
 
 const TAB_CONFIG: Record<string, { label: string; active: keyof typeof MaterialCommunityIcons.glyphMap; inactive: keyof typeof MaterialCommunityIcons.glyphMap }> = {
   index: { label: "Home", active: "view-dashboard", inactive: "view-dashboard-outline" },
@@ -78,11 +79,7 @@ export default function TabLayout() {
               href: visible ? undefined : null,
               title: config.label,
               tabBarIcon: ({ color, focused }) => (
-                <MaterialCommunityIcons
-                  name={focused ? config.active : config.inactive}
-                  size={22}
-                  color={color}
-                />
+                <AnimatedTabIcon name={focused ? config.active : config.inactive} size={22} color={color} focused={focused} />
               ),
             }}
           />

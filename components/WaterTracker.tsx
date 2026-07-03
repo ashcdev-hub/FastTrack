@@ -1,9 +1,12 @@
 import React, { useState } from "react";
 import { Pressable, View, Text, TextInput } from "react-native";
+import Animated from "react-native-reanimated";
 import { useThemeStore } from "@/lib/theme-store";
 import { getThemeColors, ACCENT, getAccentColors } from "@/lib/theme-colors";
 import { displayWater, displayWaterBottle, waterUnitLabel, mlToFlOz, flozToMl, DEFAULT_UNITS } from "@/lib/units";
 import type { UnitPreferences } from "@/lib/units";
+import { useAnimatedBar } from "@/hooks/useAnimatedBar";
+import { useAnimatedPressable } from "@/hooks/useAnimatedPressable";
 
 type WaterTrackerProps = {
   currentMl: number;
@@ -21,6 +24,7 @@ export function WaterTracker({ currentMl, goalMl, onAdd, unitPrefs = DEFAULT_UNI
   const [customInput, setCustomInput] = useState("");
 
   const pct = goalMl > 0 ? Math.min((currentMl / goalMl) * 100, 100) : 0;
+  const barStyle = useAnimatedBar(pct);
   const remainingMl = Math.max(goalMl - currentMl, 0);
   const unitLabel = waterUnitLabel(unitPrefs);
 
@@ -47,7 +51,7 @@ export function WaterTracker({ currentMl, goalMl, onAdd, unitPrefs = DEFAULT_UNI
         accessibilityRole="progressbar"
         accessibilityValue={{ min: 0, max: goalMl, now: currentMl, text: `${displayWater(currentMl, unitPrefs)} of ${displayWater(goalMl, unitPrefs)}` }}
       >
-        <View className="h-full rounded-full" style={{ width: `${pct}%`, backgroundColor: accent.cyan }} />
+        <Animated.View className="h-full rounded-full" style={[{ backgroundColor: accent.cyan }, barStyle]} />
       </View>
 
       {remainingMl > 0 ? (
@@ -69,7 +73,7 @@ export function WaterTracker({ currentMl, goalMl, onAdd, unitPrefs = DEFAULT_UNI
             key={ml}
             onPress={() => onAdd(ml)}
             style={{ backgroundColor: accent.cyanBg, borderWidth: 1, borderColor: accent.cyanBorder }}
-            className="rounded-xl px-4 py-2.5"
+            className="rounded-xl px-4 py-2.5 active:opacity-70"
             accessibilityRole="button"
             accessibilityLabel={`Add ${displayWaterBottle(ml, unitPrefs)} of water`}
           >

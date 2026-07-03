@@ -8,6 +8,8 @@ import { useFastingTimer } from "@/hooks/useFastingTimer";
 import { useFastingStore } from "@/store/useFastingStore";
 import { useFastCheckIns } from "@/hooks/useFastCheckIns";
 import { useProfile } from "@/hooks/useProfile";
+import { AnimatedPressable } from "@/components/AnimatedPressable";
+import { FastTrackHeader } from "@/components/FastTrackHeader";
 import { FastingTimer } from "@/components/FastingTimer";
 import { PreviousFasts } from "@/components/PreviousFasts";
 import { CheckInPanel } from "@/components/CheckInPanel";
@@ -20,6 +22,7 @@ import { scheduleFastingReminder, cancelAllNotifications, scheduleDailyFastRemin
 import { getFastingPhase, getEatingPhase } from "@/lib/fasting-phases";
 import { format, addHours } from "date-fns";
 import { useScrollToTop } from "@react-navigation/native";
+import { ConfettiCanvas, useConfetti } from "react-native-confetti-reanimated";
 
 const PRESETS = [
   { label: "14:10", fasting: 14, eating: 10 },
@@ -264,6 +267,7 @@ export default function FastScreen() {
         completedFastsCount: completedFasts + 1,
       });
       setShowSessionComplete(true);
+      setTimeout(() => fireConfetti(), 300);
     }
   };
 
@@ -288,18 +292,11 @@ export default function FastScreen() {
     : 0;
   const scrollRef = useRef<ScrollView>(null);
   useScrollToTop(scrollRef as any);
+  const { confettiRef, fire: fireConfetti } = useConfetti();
 
   return (
     <SafeAreaView className="flex-1" style={{ backgroundColor: c.bg }}>
-      {/* Fixed Top App Bar */}
-      <View style={{ backgroundColor: c.tabBarBg, borderBottomWidth: 1, borderBottomColor: c.tabBarBorder, paddingTop: 8 }}>
-        <View className="flex-row justify-between items-center" style={{ height: 44, paddingHorizontal: 20 }}>
-          <View className="flex-row items-center gap-2">
-            <Image source={require("../../assets/icon.png")} style={{ width: 22, height: 22, borderRadius: 5 }} />
-            <Text style={{ color: accent.lime, fontFamily: "Inter_800ExtraBold", fontSize: 22, letterSpacing: -0.5 }}>FastTrack</Text>
-          </View>
-        </View>
-      </View>
+      <FastTrackHeader />
 
       <ScrollView
         ref={scrollRef}
@@ -337,7 +334,7 @@ export default function FastScreen() {
             </View>
 
             {/* Start Fast Button */}
-            <Pressable
+            <AnimatedPressable
               onPress={handleStartFast}
               disabled={!selectedSchedule}
               className="w-full py-4 rounded-xl flex-row items-center justify-center mb-section-gap"
@@ -347,7 +344,7 @@ export default function FastScreen() {
               <Text style={{ color: selectedSchedule ? c.textOnAccent : c.textMuted, fontFamily: "Inter_700Bold", fontSize: 18, marginLeft: 8 }}>
                 {selectedSchedule ? `Start ${selectedSchedule} Fast` : "Select a Schedule"}
               </Text>
-            </Pressable>
+            </AnimatedPressable>
 
             {/* Schedule Presets */}
             <View className="w-full rounded-xl p-5 mb-section-gap glass-panel">
@@ -462,7 +459,7 @@ export default function FastScreen() {
             {/* End Fast Button */}
             <Pressable
               onPress={phase === "eating" ? () => setShowEndConfirm(true) : () => setShowBreakConfirm(true)}
-              className="w-full py-4 rounded-xl flex-row items-center justify-center mb-section-gap"
+              className="w-full py-4 rounded-xl flex-row items-center justify-center mb-section-gap active:opacity-80"
               style={{
                 backgroundColor: phase === "eating" ? accent.cyan : accent.lime,
                 shadowColor: phase === "eating" ? accent.cyan : accent.lime,
@@ -727,6 +724,7 @@ export default function FastScreen() {
 
       {/* Session Complete Celebration */}
       <Modal visible={showSessionComplete} transparent animationType="slide" onRequestClose={() => setShowSessionComplete(false)}>
+        <ConfettiCanvas ref={confettiRef} />
         <Pressable className="flex-1 justify-end" style={{ backgroundColor: c.overlay }} onPress={() => setShowSessionComplete(false)}>
           <Pressable onStartShouldSetResponder={() => true} className="rounded-t-3xl p-6" style={{ backgroundColor: c.elevated }}>
             <View className="items-center mb-5">

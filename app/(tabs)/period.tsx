@@ -14,6 +14,7 @@ import { PeriodCalendar } from "@/components/PeriodCalendar";
 import { PeriodLogModal } from "@/components/PeriodLogModal";
 import { CycleInsights } from "@/components/CycleInsights";
 import { PeriodSettingsModal } from "@/components/PeriodSettingsModal";
+import { FastTrackHeader } from "@/components/FastTrackHeader";
 import { getPhaseDef } from "@/lib/cycle-phases";
 import { useScrollToTop } from "@react-navigation/native";
 import type { PeriodLogEntry } from "@/lib/types";
@@ -73,14 +74,7 @@ export default function PeriodScreen() {
 
   return (
     <SafeAreaView className="flex-1" style={{ backgroundColor: c.bg }}>
-      <View style={{ backgroundColor: c.tabBarBg, borderBottomWidth: 1, borderBottomColor: c.tabBarBorder, paddingTop: 8 }}>
-        <View className="flex-row justify-between items-center" style={{ height: 44, paddingHorizontal: 20 }}>
-          <View className="flex-row items-center gap-2">
-            <Image source={require("../../assets/icon.png")} style={{ width: 22, height: 22, borderRadius: 5 }} />
-            <Text style={{ color: accent.lime, fontFamily: "Inter_800ExtraBold", fontSize: 22, letterSpacing: -0.5 }}>FastTrack</Text>
-          </View>
-        </View>
-      </View>
+      <FastTrackHeader />
 
       <ScrollView
         ref={scrollRef}

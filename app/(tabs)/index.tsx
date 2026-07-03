@@ -30,6 +30,9 @@ import { router } from "expo-router";
 import { useScrollToTop } from "@react-navigation/native";
 import { CyclePhaseBadge } from "@/components/CyclePhaseBadge";
 import { getPhaseDef } from "@/lib/cycle-phases";
+import { FastTrackHeader } from "@/components/FastTrackHeader";
+import { AmbientBackground } from "@/components/AmbientBackground";
+import { StaggerPanel } from "@/components/StaggerPanel";
 
 export default function HomeScreen() {
   const { user } = useAuth();
@@ -148,15 +151,8 @@ export default function HomeScreen() {
 
   return (
     <SafeAreaView className="flex-1" style={{ backgroundColor: c.bg }}>
-      {/* Fixed Top App Bar */}
-      <View style={{ backgroundColor: c.tabBarBg, borderBottomWidth: 1, borderBottomColor: c.tabBarBorder, paddingTop: 8 }}>
-        <View className="flex-row justify-between items-center" style={{ height: 44, paddingHorizontal: 20 }}>
-          <View className="flex-row items-center gap-2">
-            <Image source={require("../../assets/icon.png")} style={{ width: 22, height: 22, borderRadius: 5 }} />
-            <Text style={{ color: accent.lime, fontFamily: "Inter_800ExtraBold", fontSize: 22, letterSpacing: -0.5 }}>FastTrack</Text>
-          </View>
-        </View>
-      </View>
+      <AmbientBackground />
+      <FastTrackHeader />
 
       <ScrollView
         ref={scrollRef}
@@ -166,6 +162,7 @@ export default function HomeScreen() {
         <View style={{ paddingHorizontal: 20, paddingTop: 24 }}>
           {/* Fasting Today */}
           {isEnabled('fasting') ? (
+          <StaggerPanel index={0}>
           <View className="mb-section-gap">
             <Pressable onPress={() => router.push("/(tabs)/fast")} className="rounded-xl p-6 glass-panel">
               <View className="flex-row justify-between items-center mb-4">
@@ -194,10 +191,12 @@ export default function HomeScreen() {
               </View>
             </Pressable>
           </View>
+          </StaggerPanel>
           ) : null}
 
           {/* Cycle Phase */}
           {isEnabled('period') && cycleInfo.dayOfCycle > 0 ? (
+            <StaggerPanel index={1}>
             <View className="mb-section-gap">
               <View className="rounded-xl p-5 glass-panel">
                 <View className="flex-row justify-between items-center mb-3">
@@ -211,10 +210,12 @@ export default function HomeScreen() {
                 </Text>
               </View>
             </View>
+            </StaggerPanel>
           ) : null}
 
           {/* Workout Progress */}
           {isEnabled('workouts') && enabledGoals.length > 0 ? (
+            <StaggerPanel index={2}>
             <View className="mb-section-gap">
               <Pressable onPress={() => router.push("/(tabs)/workouts")} className="rounded-xl p-5 glass-panel">
                 <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 12, letterSpacing: 1, marginBottom: 16, textTransform: "uppercase" }}>
@@ -261,9 +262,11 @@ export default function HomeScreen() {
                 )}
               </Pressable>
             </View>
+            </StaggerPanel>
           ) : null}
 
           {/* Hydration */}
+          <StaggerPanel index={3}>
           <View className="mb-section-gap">
             <View className="rounded-xl p-5 glass-panel">
               <View className="flex-row justify-between items-center mb-4">
@@ -335,8 +338,10 @@ export default function HomeScreen() {
               </Pressable>
             </View>
           </View>
+          </StaggerPanel>
 
           {/* Weight */}
+          <StaggerPanel index={4}>
           <View className="mb-section-gap">
             <View className="rounded-xl p-5 glass-panel">
               <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 12, letterSpacing: 1, marginBottom: 12, textTransform: "uppercase" }}>
@@ -354,8 +359,10 @@ export default function HomeScreen() {
               />
             </View>
           </View>
+          </StaggerPanel>
 
           {isEnabled('food') ? (
+          <StaggerPanel index={5}>
           <View className="mb-section-gap">
             <View className="rounded-xl p-5 glass-panel">
               <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 12, letterSpacing: 1, marginBottom: 16, textTransform: "uppercase" }}>
@@ -386,9 +393,11 @@ export default function HomeScreen() {
               </View>
             </View>
           </View>
+          </StaggerPanel>
           ) : null}
 
           {/* AI Insights */}
+          <StaggerPanel index={6}>
           <View className="mb-section-gap">
             <View className="rounded-xl p-5 glass-panel">
               <View className="flex-row items-center gap-2 mb-3">
@@ -437,6 +446,7 @@ export default function HomeScreen() {
               )}
             </View>
           </View>
+          </StaggerPanel>
         </View>
       </ScrollView>
 

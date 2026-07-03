@@ -9,8 +9,9 @@ import { useWorkoutLog } from "@/hooks/useWorkoutLog";
 import { useThemeStore } from "@/lib/theme-store";
 import { getThemeColors, ACCENT, getAccentColors } from "@/lib/theme-colors";
 import { ExercisePanel } from "@/components/ExercisePanel";
-import { LogSetModal } from "@/components/LogSetModal";
 import { AddExerciseModal } from "@/components/AddExerciseModal";
+import { LogSetModal } from "@/components/LogSetModal";
+import { FastTrackHeader } from "@/components/FastTrackHeader";
 import { WorkoutsSkeleton } from "@/components/Skeleton";
 import type { WorkoutGoal } from "@/lib/types";
 import { useScrollToTop } from "@react-navigation/native";
@@ -59,15 +60,7 @@ export default function WorkoutsScreen() {
 
   return (
     <SafeAreaView className="flex-1" style={{ backgroundColor: c.bg }}>
-      {/* Fixed Top App Bar */}
-      <View style={{ backgroundColor: c.tabBarBg, borderBottomWidth: 1, borderBottomColor: c.tabBarBorder, paddingTop: 8 }}>
-        <View className="flex-row justify-between items-center" style={{ height: 44, paddingHorizontal: 20 }}>
-          <View className="flex-row items-center gap-2">
-            <Image source={require("../../assets/icon.png")} style={{ width: 22, height: 22, borderRadius: 5 }} />
-            <Text style={{ color: accent.lime, fontFamily: "Inter_800ExtraBold", fontSize: 22, letterSpacing: -0.5 }}>FastTrack</Text>
-          </View>
-        </View>
-      </View>
+      <FastTrackHeader />
 
       <ScrollView
         ref={scrollRef}

@@ -121,7 +121,7 @@ git log --oneline        # See history of snapshots
 | Data Fetching | TanStack Query (QueryClientProvider in root layout) |
 | Backend | Supabase (PostgreSQL, Auth, Realtime, Edge Functions) |
 | Icons | MaterialCommunityIcons (`@expo/vector-icons`) |
-| Animations | react-native-reanimated + react-native-svg |
+| Animations | react-native-reanimated + react-native-svg + expo-linear-gradient |
 | Food Search | OpenFoodFacts API via Supabase Edge Function proxy (with Groq LLM fallback). Food photo analysis via Groq Llama 4 Scout vision model. |
 | AI Coach | Groq-powered (`llama-3.3-70b-versatile`) AI coaching via Supabase Edge Function, aware of user's fasting, nutrition, workout, and weight data. |
 | Dates | date-fns |
@@ -199,7 +199,9 @@ Three clear phases: **Idle** (schedule selector shown) → **Fasting** (ring fil
 `ACCENT.mint` is defined in the palette but never used in any UI component. All UI uses `ACCENT.lime` (#c3f400), `ACCENT.cyan` (#00daf3), or `ACCENT.coral` (#FF6B52) for the various accent roles.
 
 ### Login Screen Video Background
-The login screen plays a looping MP4 background video via `expo-av`, with a 75% black overlay for dimming. On web, video is skipped (auto-play restrictions) and falls back to the solid background color. Video file is bundled at `assets/videos/background.mp4`.
+The login screen plays a looping MP4 background video via `expo-av`, with a 75% gradient overlay for dimming (`expo-linear-gradient`). On web, video is skipped (auto-play restrictions) and falls back to the solid background color. Video file is bundled at `assets/videos/background.mp4`.
+
+On mount, the logo icon + wordmark scale in with a spring animation, a lime glow ring pulses behind the icon, and the subtitle + form fields fade in with staggered delays.
 
 ### LogMealModal — Full-Screen Food Logging Modal
 Food logging happens inside a full-screen `<Modal>` (`LogMealModal`) with this layout:
@@ -337,11 +339,16 @@ FastTrack/
 │   ├── WeightTracker.tsx        # Weight logging + recent entries (supports unit prefs)
 │   ├── WeightChart.tsx          # SVG weight line chart
 │   ├── GlassPanel.tsx           # Shared glass-card wrapper
-│   ├── ProgressRing.tsx         # Reusable SVG progress ring
+│   ├── ProgressRing.tsx         # Reusable SVG progress ring (animated)
 │   ├── OfflineBanner.tsx        # Animated offline banner when connectivity lost
 │   ├── Toast.tsx                # Animated toast notification overlay
-│   ├── Skeleton.tsx             # Reusable loading skeleton with shimmer
+│   ├── Skeleton.tsx             # Reusable loading skeleton with shimmer sweep
 │   ├── ErrorBoundary.tsx        # Top-level render crash recovery screen
+│   ├── AnimatedPressable.tsx    # Pressable with spring scale-down animation
+│   ├── AnimatedTabIcon.tsx      # Tab bar icon with bounce + pulse animation
+│   ├── FastTrackHeader.tsx      # Animated app header with breathing logo
+│   ├── AmbientBackground.tsx    # Floating accent circles for depth
+│   ├── StaggerPanel.tsx         # Staggered fade-in-up content wrapper
 │   ├── EditMyMealModal.tsx      # Create/edit meal templates with items
   ├── MyMealsManagerModal.tsx  # Full CRUD meal template manager
   ├── FoodLogItem.tsx          # Meal entry card (theme-aware)
@@ -373,6 +380,9 @@ FastTrack/
 │   ├── usePeriodLog.ts          # Period log CRUD + offline queue
 │   ├── useCycleTracker.ts       # Cycle phase detection + prediction
 │   └── usePeriodSettings.ts     # Period settings on profile
+│   ├── useAnimatedBar.ts        # Shared animated progress bar hook
+│   ├── useAnimatedCounter.ts    # Number count-up animation hook
+│   └── useAnimatedPressable.ts  # Shared press-scale animation hook
 ├── store/
 │   ├── useTrackerStore.ts          # Enabled trackers preferences (Zustand + AsyncStorage)
 │   ├── useFastingStore.ts
@@ -417,19 +427,22 @@ FastTrack/
 
 ### Home Tab
 - Fasting Today panel with elapsed time, progress ring, and progress bar
-- Workout Progress panel with circular progress rings per exercise
+- Workout Progress panel with circular progress rings per exercise (animated fill)
 - Hydration panel with bottle presets, custom ml, progress bar, and goal cog
-- Weight section with chart and tracker
-- Daily Macros panel with 2×2 grid of macronutrient progress bars
+- Weight section with chart and tracker (animated line drawing)
+- Daily Macros panel with 2×2 grid of macronutrient progress bars (animated fill)
 - AI Insights panel with personalized summary and expandable chat input (powered by Groq `ai-coach` Edge Function)
+- All panels stagger in on mount with fade+slide entrance animation
+- Ambient floating background circles (lime/cyan/rose) drift slowly behind content
 
 ### Fast Tab
 - Schedule selector (presets + custom)
 - Custom start time: date/time picker (up to 3 days back) when starting a fast, with live schedule preview
 - Edit start time during active fast via pencil icon in timer ring schedule strip
-- Start/break/end fast with bottom-sheet confirmations (end eating window + discard fast)
-- Timer counts DOWN, progress ring fills UP
+- Start/break/end fast with bottom-sheet confirmations (end eating window + discard fast). Animated confetti celebration on session complete.
+- Timer counts DOWN, progress ring fills UP (spring-animated with glow pulse)
 - Schedule strip inside timer ring shows date/time for Started, Eat window, Window closes (tap time to toggle elapsed/remaining)
+- All buttons have scale-down press animation
 - Notifications reschedule automatically when start time is edited
 - Check-ins with mood chart + timeline
 - Weekly calendar (7-day circle view) with connecting lines between consecutive fasting days
@@ -675,6 +688,7 @@ See [Building for iOS (Standalone App)](#building-for-ios-standalone-app) above 
 - [x] Connecting lines on calendar dots — session-ID-aware lines between consecutive fasting day dots on both WeeklyCalendar and FastCalendar; solid lines for continuous fasts, gap lines with per-segment coloring for transition days where one fast ends and another starts
 - [x] Offline queue fixes — mutex lock on queue read-modify-write (prevents lost mutations), exponential backoff retry timer (failed items retry in seconds, not days), batch insert array handling (fixes corrupted food entries), stale item detection (removes items >72h)
 - [x] Top-level ErrorBoundary — class component catching render-time crashes, theme-aware fallback UI with "Try Again" (resets boundary) and "Go Home" (navigates to tabs) buttons, dev-only error detail panel, placed in root layout wrapping Stack
+- [x] UI animation overhaul — animated pressable scale feedback, smooth ring/bar fills via `withTiming`, skeleton shimmer sweep, tab bar icon bounce + pulse, staggered panel entrance on Home, animated header with breathing logo, splash/loading logo, ambient floating background circles, login entrance sequence (fade+scale+glow), gradient video overlay, barcode laser line, session confetti celebration, LayoutAnimation for expand/collapse, weight chart line drawing
 
 ## Next Steps
 
@@ -742,6 +756,7 @@ See [Building for iOS (Standalone App)](#building-for-ios-standalone-app) above 
 | 59 | **Connecting lines on calendar dots** — session-ID-aware lines between consecutive fasting day dots on both WeeklyCalendar and FastCalendar; solid lines for continuous fasts, gap lines with per-segment coloring for transition days where one fast ends and another starts | Done |
 | 60 | **Offline queue fixes** — mutex lock on queue read-modify-write (prevents lost mutations), exponential backoff retry timer (failed items retry in seconds, not days), batch insert array handling (fixes corrupted food entries), stale item detection (removes items >72h) | Done |
 | 61 | **Top-level ErrorBoundary** — class component catching render-time crashes, theme-aware fallback UI with "Try Again" (resets boundary) and "Go Home" (navigates to tabs) buttons, dev-only error detail panel, placed in root layout wrapping Stack | Done |
+| 62 | **UI animation overhaul** — animated pressable scale feedback, smooth ring/bar fills via `withTiming`, skeleton shimmer sweep, tab bar icon bounce + pulse, staggered panel entrance on Home, animated header with breathing logo, splash/loading logo, ambient floating background circles, login entrance sequence (fade+scale+glow), gradient video overlay, barcode laser line, session confetti celebration, LayoutAnimation for expand/collapse, weight chart line drawing. 5 new components, 3 new hooks, 1 new dependency (expo-linear-gradient). | Done |
 
 ### Remaining
 | # | Feature | Effort | Description |

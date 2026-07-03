@@ -1,7 +1,9 @@
 import React from "react";
 import { View, Text } from "react-native";
+import Animated from "react-native-reanimated";
 import { useThemeStore } from "@/lib/theme-store";
 import { getThemeColors, ACCENT, getAccentColors } from "@/lib/theme-colors";
+import { useAnimatedBar } from "@/hooks/useAnimatedBar";
 
 type MacroBarProps = {
   label: string;
@@ -14,8 +16,8 @@ type MacroBarProps = {
 function MacroBar({ label, current, goal, unit, color }: MacroBarProps) {
   const { theme } = useThemeStore();
   const c = getThemeColors(theme);
-  const accent = getAccentColors(theme);
   const pct = goal > 0 ? Math.min((current / goal) * 100, 100) : 0;
+  const barStyle = useAnimatedBar(pct);
 
   return (
     <View className="mb-4">
@@ -26,31 +28,8 @@ function MacroBar({ label, current, goal, unit, color }: MacroBarProps) {
         </Text>
       </View>
       <View className="h-2.5 rounded-full overflow-hidden" style={{ backgroundColor: c.cardBgAlt }}>
-        <View className="h-full rounded-full" style={{ width: `${pct}%`, backgroundColor: color }} />
+        <Animated.View className="h-full rounded-full" style={[{ backgroundColor: color }, barStyle]} />
       </View>
-    </View>
-  );
-}
-
-type MacroProgressProps = {
-  calories: { current: number; goal: number };
-  protein: { current: number; goal: number };
-  carbs: { current: number; goal: number };
-  fat: { current: number; goal: number };
-};
-
-export function MacroProgress({ calories, protein, carbs, fat }: MacroProgressProps) {
-  const { theme } = useThemeStore();
-  const c = getThemeColors(theme);
-  const accent = getAccentColors(theme);
-
-  return (
-    <View className="rounded-xl p-5 mb-6 glass-panel">
-      <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 18, marginBottom: 16 }}>Today&apos;s Progress</Text>
-      <MacroBar label="Calories" current={calories.current} goal={calories.goal} unit=" kcal" color={accent.lime} />
-      <MacroBar label="Protein" current={protein.current} goal={protein.goal} unit="g" color={accent.lime} />
-      <MacroBar label="Carbs" current={carbs.current} goal={carbs.goal} unit="g" color={accent.cyan} />
-      <MacroBar label="Fat" current={fat.current} goal={fat.goal} unit="g" color={accent.coral} />
     </View>
   );
 }
