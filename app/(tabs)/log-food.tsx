@@ -12,6 +12,7 @@ import { FoodLogItem } from "@/components/FoodLogItem";
 import { MealCalendarModal } from "@/components/MealCalendarModal";
 import { LogFoodSkeleton } from "@/components/Skeleton";
 import { ProgressRing } from "@/components/ProgressRing";
+import { AmbientBackground } from "@/components/AmbientBackground";
 import { FastTrackHeader } from "@/components/FastTrackHeader";
 import { useThemeStore } from "@/lib/theme-store";
 import { getThemeColors, ACCENT, getAccentColors, getMealColors } from "@/lib/theme-colors";
@@ -59,6 +60,7 @@ export default function LogFoodScreen() {
 
   return (
     <SafeAreaView className="flex-1" style={{ backgroundColor: c.bg }}>
+      <AmbientBackground />
       <FastTrackHeader />
 
       <ScrollView

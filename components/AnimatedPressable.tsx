@@ -23,7 +23,7 @@ export function AnimatedPressable({ style, children, ...props }: AnimatedPressab
       style={[style, { overflow: "visible" } as any]}
       {...props}
     >
-      <Animated.View style={animatedStyle}>{children}</Animated.View>
+      <Animated.View style={[animatedStyle, { flexDirection: "row", alignItems: "center", justifyContent: "center" }]}>{children}</Animated.View>
     </Pressable>
   );
 }

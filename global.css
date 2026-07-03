@@ -4,12 +4,12 @@
 
 :root {
   --css-interop-darkMode: "class dark";
-  --glass-bg: rgba(255, 255, 255, 0.85);
+  --glass-bg: rgba(255, 255, 255, 0.65);
   --glass-border: rgba(0, 0, 0, 0.08);
 }
 
 .dark {
-  --glass-bg: rgba(28, 28, 30, 0.8);
+  --glass-bg: rgba(28, 28, 30, 0.55);
   --glass-border: rgba(44, 44, 46, 1);
 }
 

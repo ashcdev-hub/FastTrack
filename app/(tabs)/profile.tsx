@@ -14,6 +14,7 @@ import { Toast } from "@/components/Toast";
 import { SettingsPanel } from "@/components/SettingsPanel";
 import { router, useLocalSearchParams } from "expo-router";
 import { useScrollToTop } from "@react-navigation/native";
+import { AmbientBackground } from "@/components/AmbientBackground";
 import { FastTrackHeader } from "@/components/FastTrackHeader";
 
 export default function ProfileScreen() {
@@ -39,6 +40,7 @@ export default function ProfileScreen() {
 
   return (
     <SafeAreaView className="flex-1" style={{ backgroundColor: c.bg }}>
+      <AmbientBackground />
       <Toast visible={toast.visible} message={toast.message} type={toast.type} />
 
       <FastTrackHeader />

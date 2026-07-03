@@ -14,6 +14,7 @@ import { PeriodCalendar } from "@/components/PeriodCalendar";
 import { PeriodLogModal } from "@/components/PeriodLogModal";
 import { CycleInsights } from "@/components/CycleInsights";
 import { PeriodSettingsModal } from "@/components/PeriodSettingsModal";
+import { AmbientBackground } from "@/components/AmbientBackground";
 import { FastTrackHeader } from "@/components/FastTrackHeader";
 import { getPhaseDef } from "@/lib/cycle-phases";
 import { useScrollToTop } from "@react-navigation/native";
@@ -45,6 +46,21 @@ export default function PeriodScreen() {
   const [showLogModal, setShowLogModal] = useState(false);
   const [logDateStr, setLogDateStr] = useState("");
   const [showSettings, setShowSettings] = useState(false);
+  const [showQuickFlowPicker, setShowQuickFlowPicker] = useState(false);
+
+  const today = new Date();
+  const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
+
+  const hasRecentFlow = (() => {
+    for (let i = 0; i < 5; i++) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+      const entry = entriesByDate.get(key);
+      if (entry?.flow_intensity && entry.flow_intensity !== "spotting") return true;
+    }
+    return false;
+  })();
 
   const handleDayPress = (dateStr: string) => {
     setLogDateStr(dateStr);
@@ -74,6 +90,7 @@ export default function PeriodScreen() {
 
   return (
     <SafeAreaView className="flex-1" style={{ backgroundColor: c.bg }}>
+      <AmbientBackground />
       <FastTrackHeader />
 
       <ScrollView
@@ -100,6 +117,56 @@ export default function PeriodScreen() {
           />
         </View>
 
+        <View className="glass-panel rounded-xl p-5 mb-section-gap">
+          <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 10, letterSpacing: 0.5, marginBottom: 12, textTransform: "uppercase" }}>
+            Quick Log
+          </Text>
+          {showQuickFlowPicker ? (
+            <View className="flex-row gap-2">
+              {["Light", "Medium", "Heavy"].map((label) => {
+                const intensity = label.toLowerCase();
+                return (
+                  <Pressable
+                    key={label}
+                    onPress={() => {
+                      logDay(todayStr, { flow_intensity: intensity as any });
+                      setShowQuickFlowPicker(false);
+                    }}
+                    className="flex-1 py-3 rounded-xl items-center"
+                    style={{ backgroundColor: accent.roseBg, borderWidth: 1, borderColor: accent.rose + "44" }}
+                  >
+                    <Text style={{ color: accent.rose, fontFamily: "Inter_700Bold", fontSize: 14 }}>{label}</Text>
+                  </Pressable>
+                );
+              })}
+              <Pressable onPress={() => setShowQuickFlowPicker(false)} className="py-3 px-3 rounded-xl items-center justify-center" style={{ backgroundColor: c.buttonBg }}>
+                <MaterialCommunityIcons name="close" size={18} color={c.textMuted} />
+              </Pressable>
+            </View>
+          ) : (
+            <View className="flex-row gap-3">
+              <Pressable
+                onPress={() => setShowQuickFlowPicker(true)}
+                className="flex-1 py-3 rounded-xl items-center flex-row justify-center gap-2"
+                style={{ backgroundColor: accent.roseBg, borderWidth: 1, borderColor: accent.rose + "44" }}
+              >
+                <MaterialCommunityIcons name="plus-circle" size={18} color={accent.rose} />
+                <Text style={{ color: accent.rose, fontFamily: "Inter_700Bold", fontSize: 14 }}>Period Started</Text>
+              </Pressable>
+              {hasRecentFlow && (
+                <Pressable
+                  onPress={() => { logDay(todayStr, { flow_intensity: null }); }}
+                  className="flex-1 py-3 rounded-xl items-center flex-row justify-center gap-2"
+                  style={{ backgroundColor: c.buttonBg, borderWidth: 1, borderColor: c.cardBorder }}
+                >
+                  <MaterialCommunityIcons name="check-circle-outline" size={18} color={c.text} />
+                  <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 14 }}>Period Ended</Text>
+                </Pressable>
+              )}
+            </View>
+          )}
+        </View>
+
         <View className="mb-section-gap">
           <PeriodCalendar
             entriesByDate={entriesByDate}
@@ -107,6 +174,9 @@ export default function PeriodScreen() {
             settings={settings}
             cycleDay={cycleInfo.dayOfCycle}
             cycleLength={cycleInfo.totalCycleDays}
+            fertileStart={cycleInfo.fertileStart}
+            fertileEnd={cycleInfo.fertileEnd}
+            ovulationDate={cycleInfo.ovulationDate}
             onDayPress={handleDayPress}
           />
         </View>

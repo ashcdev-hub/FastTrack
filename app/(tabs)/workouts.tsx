@@ -11,6 +11,7 @@ import { getThemeColors, ACCENT, getAccentColors } from "@/lib/theme-colors";
 import { ExercisePanel } from "@/components/ExercisePanel";
 import { AddExerciseModal } from "@/components/AddExerciseModal";
 import { LogSetModal } from "@/components/LogSetModal";
+import { AmbientBackground } from "@/components/AmbientBackground";
 import { FastTrackHeader } from "@/components/FastTrackHeader";
 import { WorkoutsSkeleton } from "@/components/Skeleton";
 import type { WorkoutGoal } from "@/lib/types";
@@ -60,6 +61,7 @@ export default function WorkoutsScreen() {
 
   return (
     <SafeAreaView className="flex-1" style={{ backgroundColor: c.bg }}>
+      <AmbientBackground />
       <FastTrackHeader />
 
       <ScrollView

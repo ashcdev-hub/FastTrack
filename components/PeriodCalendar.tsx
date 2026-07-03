@@ -38,10 +38,13 @@ type PeriodCalendarProps = {
   settings: PeriodSettings;
   cycleDay: number;
   cycleLength: number;
+  fertileStart: string | null;
+  fertileEnd: string | null;
+  ovulationDate: string | null;
   onDayPress: (dateStr: string) => void;
 };
 
-export function PeriodCalendar({ entriesByDate, predictedPeriods, settings, cycleDay, cycleLength, onDayPress }: PeriodCalendarProps) {
+export function PeriodCalendar({ entriesByDate, predictedPeriods, settings, cycleDay, cycleLength, fertileStart, fertileEnd, ovulationDate, onDayPress }: PeriodCalendarProps) {
   const { theme } = useThemeStore();
   const c = getThemeColors(theme);
   const accent = getAccentColors(theme);
@@ -93,6 +96,8 @@ export function PeriodCalendar({ entriesByDate, predictedPeriods, settings, cycl
             const isToday = isSameDay(date, now);
             const isCurrentMonth = date.getMonth() === month;
             const isPredicted = predictedSet.has(ds);
+            const isFertileDay = fertileStart && fertileEnd ? ds >= fertileStart && ds <= fertileEnd : false;
+            const isOvulationDay = ovulationDate ? ds === ovulationDate : false;
             const daysSinceToday = Math.round((date.getTime() - now.getTime()) / 86400000);
             const relativeCycleDay = ((cycleDay + daysSinceToday - 1 + cycleLength * 10) % cycleLength) + 1;
             const phase: CyclePhase = entry?.flow_intensity
@@ -117,43 +122,52 @@ export function PeriodCalendar({ entriesByDate, predictedPeriods, settings, cycl
                 className="flex-1 items-center py-1"
                 style={{ opacity: isCurrentMonth ? 1 : 0.2 }}
               >
-                <View
-                  style={{
-                    width: 34,
-                    height: 34,
-                    borderRadius: 8,
-                    backgroundColor: entry?.flow_intensity
-                      ? getPhaseColorBg("menstrual", theme)
-                      : isPredicted && isCurrentMonth
-                        ? "transparent"
-                        : "transparent",
-                    borderWidth: isToday ? 1.5 : isPredicted && !entry?.flow_intensity ? 1.5 : 0,
-                    borderColor: isToday
-                      ? accent.lime
-                      : isPredicted && !entry?.flow_intensity
-                        ? phaseColor + "55"
-                        : "transparent",
-                    borderStyle: isPredicted && !entry?.flow_intensity ? "dashed" : "solid",
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
-                >
-                  <Text
+                  <View
                     style={{
-                      color: entry?.flow_intensity
-                        ? getPhaseColor("menstrual", theme)
-                        : isToday
-                          ? accent.lime
-                          : c.text,
-                      fontFamily: isToday ? "SpaceGrotesk_700Bold" : "Inter_400Regular",
-                      fontSize: 13,
+                      width: 34,
+                      height: 34,
+                      borderRadius: 8,
+                      backgroundColor: entry?.flow_intensity
+                        ? getPhaseColorBg("menstrual", theme)
+                        : isFertileDay && !entry?.flow_intensity
+                          ? isOvulationDay
+                            ? accent.cyanBg
+                            : accent.cyanBg + "55"
+                          : isPredicted && isCurrentMonth
+                            ? "transparent"
+                            : "transparent",
+                      borderWidth: isToday ? 1.5 : isPredicted && !entry?.flow_intensity ? 1.5 : 0,
+                      borderColor: isToday
+                        ? accent.lime
+                        : isPredicted && !entry?.flow_intensity
+                          ? phaseColor + "55"
+                          : "transparent",
+                      borderStyle: isPredicted && !entry?.flow_intensity ? "dashed" : "solid",
+                      alignItems: "center",
+                      justifyContent: "center",
                     }}
                   >
-                    {date.getDate()}
-                  </Text>
-                  {dotColor && (
-                    <View style={{ width: 4, height: 4, borderRadius: 2, backgroundColor: dotColor, position: "absolute", bottom: 2 }} />
-                  )}
+                    <Text
+                      style={{
+                        color: entry?.flow_intensity
+                          ? getPhaseColor("menstrual", theme)
+                          : isToday
+                            ? accent.lime
+                            : isOvulationDay
+                              ? accent.cyan
+                              : c.text,
+                        fontFamily: isToday ? "SpaceGrotesk_700Bold" : "Inter_400Regular",
+                        fontSize: 13,
+                      }}
+                    >
+                      {date.getDate()}
+                    </Text>
+                    {isOvulationDay && !entry?.flow_intensity && (
+                      <MaterialCommunityIcons name="star" size={8} color={accent.cyan} style={{ position: "absolute", bottom: 1 }} />
+                    )}
+                    {dotColor && (
+                      <View style={{ width: 4, height: 4, borderRadius: 2, backgroundColor: dotColor, position: "absolute", bottom: 2 }} />
+                    )}
                 </View>
               </Pressable>
             );

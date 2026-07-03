@@ -9,6 +9,7 @@ import { useFastingStore } from "@/store/useFastingStore";
 import { useFastCheckIns } from "@/hooks/useFastCheckIns";
 import { useProfile } from "@/hooks/useProfile";
 import { AnimatedPressable } from "@/components/AnimatedPressable";
+import { AmbientBackground } from "@/components/AmbientBackground";
 import { FastTrackHeader } from "@/components/FastTrackHeader";
 import { FastingTimer } from "@/components/FastingTimer";
 import { PreviousFasts } from "@/components/PreviousFasts";
@@ -296,6 +297,7 @@ export default function FastScreen() {
 
   return (
     <SafeAreaView className="flex-1" style={{ backgroundColor: c.bg }}>
+      <AmbientBackground />
       <FastTrackHeader />
 
       <ScrollView

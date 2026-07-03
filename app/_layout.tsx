@@ -4,6 +4,8 @@ import { Stack } from "expo-router";
 import { useColorScheme } from "react-native";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import Animated, { useSharedValue, useAnimatedStyle, withRepeat, withSequence, withTiming, Easing } from "react-native-reanimated";
+
+
 import { useFonts } from "expo-font";
 import {
   Inter_400Regular,
@@ -26,7 +28,7 @@ import { useTrackerStore } from "@/store/useTrackerStore";
 import { applyTheme } from "@/lib/dark-mode";
 import { getThemeColors, ACCENT, getAccentColors } from "@/lib/theme-colors";
 import { setupNotifications } from "@/lib/notifications";
-import { View, Image } from "react-native";
+import { View, Text, Image } from "react-native";
 import { OfflineBanner } from "@/components/OfflineBanner";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { useOfflineQueueProcessor } from "@/hooks/useOfflineQueueProcessor";
@@ -126,7 +128,6 @@ function InnerLayout() {
   const ready = fontsLoaded || fontTimeout;
 
   const splashScale = useSharedValue(0.85);
-  const splashGlow = useSharedValue(0.15);
 
   useEffect(() => {
     splashScale.value = withRepeat(
@@ -134,15 +135,9 @@ function InnerLayout() {
       -1,
       true,
     );
-    splashGlow.value = withRepeat(
-      withSequence(withTiming(0.4, { duration: 2000, easing: Easing.inOut(Easing.sin) }), withTiming(0.1, { duration: 2000, easing: Easing.inOut(Easing.sin) })),
-      -1,
-      true,
-    );
   }, []);
 
   const splashLogoStyle = useAnimatedStyle(() => ({ transform: [{ scale: splashScale.value }] }));
-  const splashGlowStyle = useAnimatedStyle(() => ({ opacity: splashGlow.value }));
 
   useEffect(() => {
     loadGoals();
@@ -177,8 +172,8 @@ function InnerLayout() {
   if (!ready) {
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: theme === "dark" ? "#0C0C0E" : "#F6F4EF" }}>
-        <Animated.View style={[{ width: 80, height: 80, borderRadius: 40, backgroundColor: accent.lime, position: "absolute" }, splashGlowStyle]} />
         <Animated.Image source={require("../assets/icon.png")} style={[{ width: 48, height: 48, borderRadius: 10 }, splashLogoStyle]} />
+        <Text style={{ color: accent.lime, fontFamily: "Inter_800ExtraBold", fontSize: 32, letterSpacing: -0.5, marginTop: 12 }}>FastTrack</Text>
       </View>
     );
   }

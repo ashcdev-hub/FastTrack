@@ -159,7 +159,7 @@ export default function HomeScreen() {
         contentContainerStyle={{ paddingBottom: 85 }}
         showsVerticalScrollIndicator={false}
       >
-        <View style={{ paddingHorizontal: 20, paddingTop: 24 }}>
+        <View style={{ paddingHorizontal: 20, paddingTop: 24, position: "relative" }}>
           {/* Fasting Today */}
           {isEnabled('fasting') ? (
           <StaggerPanel index={0}>
@@ -198,7 +198,7 @@ export default function HomeScreen() {
           {isEnabled('period') && cycleInfo.dayOfCycle > 0 ? (
             <StaggerPanel index={1}>
             <View className="mb-section-gap">
-              <View className="rounded-xl p-5 glass-panel">
+              <Pressable onPress={() => router.push("/(tabs)/period")} className="rounded-xl p-5 glass-panel">
                 <View className="flex-row justify-between items-center mb-3">
                   <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 12, letterSpacing: 1, textTransform: "uppercase" }}>
                     Cycle Phase
@@ -208,7 +208,7 @@ export default function HomeScreen() {
                 <Text style={{ color: c.textSecondary, fontFamily: "Inter_400Regular", fontSize: 13, lineHeight: 18 }}>
                   {getPhaseDef(cycleInfo.phase).fastingSuggestion}
                 </Text>
-              </View>
+              </Pressable>
             </View>
             </StaggerPanel>
           ) : null}
