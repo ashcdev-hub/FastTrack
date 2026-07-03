@@ -50,6 +50,7 @@ export function WeightChart({ entries, goalWeightKg }: WeightChartProps) {
     ? ""
     : pathD + ` L ${points[points.length - 1].x} ${padding.top + chartH}` + ` L ${points[0].x} ${padding.top + chartH} Z`;
 
+  const [dashArray, setDashArray] = useState(100000);
   const pathLength = useSharedValue(0);
   const drawProgress = useSharedValue(0);
   const pathRef = useRef<any>(null);
@@ -57,11 +58,13 @@ export function WeightChart({ entries, goalWeightKg }: WeightChartProps) {
   useEffect(() => {
     drawProgress.value = 0;
     pathLength.value = 0;
+    setDashArray(100000);
     if (entries.length <= 1) return;
     const timeout = setTimeout(() => {
       const len = pathRef.current?.getTotalLength();
       if (typeof len === "number" && len > 0) {
         pathLength.value = len;
+        setDashArray(len);
         drawProgress.value = withTiming(1, { duration: 1000, easing: Easing.out(Easing.cubic) });
       }
     }, 0);
@@ -137,7 +140,7 @@ export function WeightChart({ entries, goalWeightKg }: WeightChartProps) {
             fill="none"
             strokeLinecap="round"
             strokeLinejoin="round"
-            strokeDasharray={pathLength.value || 100000}
+            strokeDasharray={dashArray}
             animatedProps={lineAnimatedProps}
           />
 

@@ -144,15 +144,6 @@ function InnerLayout() {
   const splashLogoStyle = useAnimatedStyle(() => ({ transform: [{ scale: splashScale.value }] }));
   const splashGlowStyle = useAnimatedStyle(() => ({ opacity: splashGlow.value }));
 
-  if (!ready) {
-    return (
-      <View style={{ flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: theme === "dark" ? "#0C0C0E" : "#F6F4EF" }}>
-        <Animated.View style={[{ width: 80, height: 80, borderRadius: 40, backgroundColor: accent.lime, position: "absolute" }, splashGlowStyle]} />
-        <Animated.Image source={require("../assets/icon.png")} style={[{ width: 48, height: 48, borderRadius: 10 }, splashLogoStyle]} />
-      </View>
-    );
-  }
-
   useEffect(() => {
     loadGoals();
     loadTheme();
@@ -182,6 +173,15 @@ function InnerLayout() {
       }
     }
   }, [profile, profileLoading, setFastingHours, setEatingHours, setFromProfile]);
+
+  if (!ready) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: theme === "dark" ? "#0C0C0E" : "#F6F4EF" }}>
+        <Animated.View style={[{ width: 80, height: 80, borderRadius: 40, backgroundColor: accent.lime, position: "absolute" }, splashGlowStyle]} />
+        <Animated.Image source={require("../assets/icon.png")} style={[{ width: 48, height: 48, borderRadius: 10 }, splashLogoStyle]} />
+      </View>
+    );
+  }
 
   return (
     <>

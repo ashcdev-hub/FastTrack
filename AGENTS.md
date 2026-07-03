@@ -757,6 +757,8 @@ See [Building for iOS (Standalone App)](#building-for-ios-standalone-app) above 
 | 60 | **Offline queue fixes** — mutex lock on queue read-modify-write (prevents lost mutations), exponential backoff retry timer (failed items retry in seconds, not days), batch insert array handling (fixes corrupted food entries), stale item detection (removes items >72h) | Done |
 | 61 | **Top-level ErrorBoundary** — class component catching render-time crashes, theme-aware fallback UI with "Try Again" (resets boundary) and "Go Home" (navigates to tabs) buttons, dev-only error detail panel, placed in root layout wrapping Stack | Done |
 | 62 | **UI animation overhaul** — animated pressable scale feedback, smooth ring/bar fills via `withTiming`, skeleton shimmer sweep, tab bar icon bounce + pulse, staggered panel entrance on Home, animated header with breathing logo, splash/loading logo, ambient floating background circles, login entrance sequence (fade+scale+glow), gradient video overlay, barcode laser line, session confetti celebration, LayoutAnimation for expand/collapse, weight chart line drawing. 5 new components, 3 new hooks, 1 new dependency (expo-linear-gradient). | Done |
+| 63 | **InnerLayout hooks-ordering fix** — Moved 4 `useEffect` hooks above the `if (!ready)` early return in `app/_layout.tsx` to prevent "Rendered more hooks than during the previous render" crash on startup. | Done |
+| 64 | **WeightChart Reanimated strict mode fix** — Replaced `pathLength.value` read in JSX (`strokeDasharray`) with a `useState` (`dashArray`) to eliminate "Reading from `value` during component render" dev warning. | Done |
 
 ### Remaining
 | # | Feature | Effort | Description |
