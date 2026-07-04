@@ -8,6 +8,7 @@ import type { WeeklyFastingStats } from "@/hooks/useWeeklyFastingStats";
 import type { WeeklyWaterStats } from "@/hooks/useWeeklyWaterStats";
 import type { WeeklyStats as WorkoutWeeklyStats } from "@/hooks/useWorkoutLog";
 import type { UnitPreferences } from "@/lib/units";
+import { GlassPanel } from "@/components/GlassPanel";
 
 type WeeklyStatsProps = {
   fasting: WeeklyFastingStats;
@@ -36,7 +37,7 @@ export function WeeklyStats({ fasting, water, workouts, unitPrefs = DEFAULT_UNIT
       </Text>
 
       <View className="flex-row gap-3 mb-3">
-        <View className="flex-1 glass-bg glass-border items-center py-4">
+        <GlassPanel className="flex-1  items-center py-4">
           <MaterialCommunityIcons name="timer-outline" size={24} color={accent.lime} />
           <Text style={{ color: accent.lime, fontFamily: "Inter_700Bold" }} className="text-xl mt-1">
             {formatDuration(fasting.avgDurationMin)}
@@ -44,9 +45,9 @@ export function WeeklyStats({ fasting, water, workouts, unitPrefs = DEFAULT_UNIT
           <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular" }} className="text-xs mt-1 text-center">
             Avg Fast
           </Text>
-        </View>
+        </GlassPanel>
 
-        <View className="flex-1 glass-bg glass-border items-center py-4">
+        <GlassPanel className="flex-1  items-center py-4">
           <MaterialCommunityIcons name="trending-up" size={24} color={accent.coral} />
           <Text style={{ color: accent.coral, fontFamily: "Inter_700Bold" }} className="text-xl mt-1">
             {formatDuration(fasting.longestFastMin)}
@@ -54,9 +55,9 @@ export function WeeklyStats({ fasting, water, workouts, unitPrefs = DEFAULT_UNIT
           <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular" }} className="text-xs mt-1 text-center">
             Longest
           </Text>
-        </View>
+        </GlassPanel>
 
-        <View className="flex-1 glass-bg glass-border items-center py-4">
+        <GlassPanel className="flex-1  items-center py-4">
           <MaterialCommunityIcons name="target" size={24} color={accent.cyan} />
           <Text style={{ color: accent.cyan, fontFamily: "Inter_700Bold" }} className="text-xl mt-1">
             {fasting.totalFastingHours}h
@@ -64,11 +65,11 @@ export function WeeklyStats({ fasting, water, workouts, unitPrefs = DEFAULT_UNIT
           <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular" }} className="text-xs mt-1 text-center">
             Total
           </Text>
-        </View>
+        </GlassPanel>
       </View>
 
       <View className="flex-row gap-3 mb-3">
-        <View className="flex-1 glass-bg glass-border items-center py-4">
+        <GlassPanel className="flex-1  items-center py-4">
           <MaterialCommunityIcons name="water" size={24} color={accent.cyan} />
           <Text style={{ color: accent.cyan, fontFamily: "Inter_700Bold" }} className="text-xl mt-1">
             {displayWater(water.dailyAverageMl, unitPrefs)}
@@ -76,9 +77,9 @@ export function WeeklyStats({ fasting, water, workouts, unitPrefs = DEFAULT_UNIT
           <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular" }} className="text-xs mt-1 text-center">
             Daily Avg
           </Text>
-        </View>
+        </GlassPanel>
 
-        <View className="flex-1 glass-bg glass-border items-center py-4">
+        <GlassPanel className="flex-1  items-center py-4">
           <MaterialCommunityIcons name="target" size={24} color={accent.lime} />
           <Text style={{ color: accent.lime, fontFamily: "Inter_700Bold" }} className="text-xl mt-1">
             {water.goalHitRate}%
@@ -86,12 +87,12 @@ export function WeeklyStats({ fasting, water, workouts, unitPrefs = DEFAULT_UNIT
           <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular" }} className="text-xs mt-1 text-center">
             Goal Hit Rate
           </Text>
-        </View>
+        </GlassPanel>
       </View>
 
       {workouts && (
         <View className="flex-row gap-3">
-          <View className="flex-1 glass-bg glass-border items-center py-4">
+          <GlassPanel className="flex-1  items-center py-4">
             <MaterialCommunityIcons name="dumbbell" size={24} color={accent.lime} />
             <Text style={{ color: accent.lime, fontFamily: "Inter_700Bold" }} className="text-xl mt-1">
               {workouts.totalReps}
@@ -99,9 +100,9 @@ export function WeeklyStats({ fasting, water, workouts, unitPrefs = DEFAULT_UNIT
             <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular" }} className="text-xs mt-1 text-center">
               Total Reps
             </Text>
-          </View>
+          </GlassPanel>
 
-          <View className="flex-1 glass-bg glass-border items-center py-4">
+          <GlassPanel className="flex-1  items-center py-4">
             <MaterialCommunityIcons name="fire" size={24} color={accent.coral} />
             <Text style={{ color: accent.coral, fontFamily: "Inter_700Bold" }} className="text-xl mt-1">
               {Math.round(workouts.totalCalories)}
@@ -109,7 +110,7 @@ export function WeeklyStats({ fasting, water, workouts, unitPrefs = DEFAULT_UNIT
             <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular" }} className="text-xs mt-1 text-center">
               Calories
             </Text>
-          </View>
+          </GlassPanel>
         </View>
       )}
     </View>

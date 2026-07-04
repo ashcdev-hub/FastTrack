@@ -3,6 +3,7 @@ import { View, Text, Pressable } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useThemeStore } from "@/lib/theme-store";
 import { getThemeColors, getAccentColors, getMealColors } from "@/lib/theme-colors";
+import { GlassPanel } from "@/components/GlassPanel";
 
 type FoodLogEntry = {
   id: string;
@@ -29,7 +30,7 @@ export function FoodLogItem({ entry, onDelete }: FoodLogItemProps) {
   const color = mealColors[entry.meal_type] ?? mealColors.other;
 
   return (
-    <View className="glass-bg glass-border p-4 mb-2 flex-row items-center">
+    <GlassPanel className=" p-4 mb-2 flex-row items-center">
       <View
         style={{
           width: 4,
@@ -67,6 +68,6 @@ export function FoodLogItem({ entry, onDelete }: FoodLogItemProps) {
           <MaterialCommunityIcons name="delete-outline" size={18} color={c.textMuted} />
         </Pressable>
       )}
-    </View>
+    </GlassPanel>
   );
 }

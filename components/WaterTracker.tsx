@@ -37,7 +37,7 @@ export function WaterTracker({ currentMl, goalMl, onAdd, unitPrefs = DEFAULT_UNI
   };
 
   return (
-    <View className="rounded-xl p-5 glass-bg glass-border" style={{ borderLeftWidth: 4, borderLeftColor: accent.cyan }}>
+    <View className="p-5" style={{ borderLeftWidth: 4, borderLeftColor: accent.cyan }}>
       <View className="flex-row justify-between items-center mb-3">
         <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 18 }}>Water</Text>
         <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 14 }}>
@@ -73,7 +73,7 @@ export function WaterTracker({ currentMl, goalMl, onAdd, unitPrefs = DEFAULT_UNI
             key={ml}
             onPress={() => onAdd(ml)}
             style={{ backgroundColor: accent.cyanBg, borderWidth: 1, borderColor: accent.cyanBorder }}
-            className="rounded-xl px-4 py-2.5 active:opacity-70"
+            className="px-4 py-2.5 active:opacity-70"
             accessibilityRole="button"
             accessibilityLabel={`Add ${displayWaterBottle(ml, unitPrefs)} of water`}
           >
@@ -95,7 +95,7 @@ export function WaterTracker({ currentMl, goalMl, onAdd, unitPrefs = DEFAULT_UNI
             placeholder={`Enter ${unitLabel}`}
             placeholderTextColor={c.placeholder}
             keyboardType="numeric"
-            className="rounded-xl px-4 py-3 pr-10"
+            className="px-4 py-3 pr-10"
             style={{ backgroundColor: c.inputBg, color: c.text, fontFamily: "Inter_400Regular" }}
           />
           <Text className="absolute text-sm" style={{ right: 12, top: 12, color: c.textMuted, fontFamily: "Inter_400Regular" }}>
@@ -105,7 +105,7 @@ export function WaterTracker({ currentMl, goalMl, onAdd, unitPrefs = DEFAULT_UNI
         <Pressable
           onPress={handleCustomAdd}
           disabled={!customInput || Number(customInput) <= 0}
-          className="rounded-xl px-5 py-3"
+          className="px-5 py-3"
           style={{ backgroundColor: customInput && Number(customInput) > 0 ? accent.cyan : c.buttonBg }}
         >
           <Text style={{ fontFamily: "Inter_700Bold", color: customInput && Number(customInput) > 0 ? c.textOnAccent : c.textMuted }}>

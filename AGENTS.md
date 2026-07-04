@@ -153,8 +153,8 @@ Do NOT use `<Redirect>` inside layout files. Handle auth redirects in `app/index
 ### Theme System
 All components must use `useThemeStore` + `getThemeColors()` from `lib/theme-colors.ts`. Never hardcode `#FFFFFF`, `rgba(255,255,255,0.X)`, or `bg-slate-900`.
 
-### Glass Panel Utility
-All card containers must use the `glass-panel` utility class from `global.css`, not `c.cardBg`/`c.cardBorder` inline styles. This applies to all rounded-xl cards on every tab screen. Do NOT use inline `rgba` backgrounds — Home tab uses `glass-panel` class everywhere.
+### Glass Panel Component
+All card containers must use the `<GlassPanel>` component from `components/GlassPanel.tsx`, not the CSS-based `.glass-panel` utility class (which doesn't work on native). `GlassPanel` applies theme-aware inline styles with semi-transparent backgrounds and borders. Supports `as="pressable"` for tappable panels and `rounded={false}` for chart wrappers. Never hardcode `rgba` backgrounds on panel shells.
 
 ### Design Conventions (Round 1)
 Standardized values enforced across all screens and components:
@@ -338,7 +338,7 @@ FastTrack/
 │   ├── AddExerciseModal.tsx     # Add custom exercise modal with icon picker
 │   ├── WeightTracker.tsx        # Weight logging + recent entries (supports unit prefs)
 │   ├── WeightChart.tsx          # SVG weight line chart
-│   ├── GlassPanel.tsx           # Shared glass-card wrapper
+│   ├── GlassPanel.tsx           # Shared glass-card wrapper (View or Pressable via `as` prop, theme-aware inline styles)
 │   ├── ProgressRing.tsx         # Reusable SVG progress ring (animated)
 │   ├── OfflineBanner.tsx        # Animated offline banner when connectivity lost
 │   ├── Toast.tsx                # Animated toast notification overlay
@@ -759,6 +759,12 @@ See [Building for iOS (Standalone App)](#building-for-ios-standalone-app) above 
 | 62 | **UI animation overhaul** — animated pressable scale feedback, smooth ring/bar fills via `withTiming`, skeleton shimmer sweep, tab bar icon bounce + pulse, staggered panel entrance on Home, animated header with breathing logo, splash/loading logo, ambient floating background circles, login entrance sequence (fade+scale+glow), gradient video overlay, barcode laser line, session confetti celebration, LayoutAnimation for expand/collapse, weight chart line drawing. 5 new components, 3 new hooks, 1 new dependency (expo-linear-gradient). | Done |
 | 63 | **InnerLayout hooks-ordering fix** — Moved 4 `useEffect` hooks above the `if (!ready)` early return in `app/_layout.tsx` to prevent "Rendered more hooks than during the previous render" crash on startup. | Done |
 | 64 | **WeightChart Reanimated strict mode fix** — Replaced `pathLength.value` read in JSX (`strokeDasharray`) with a `useState` (`dashArray`) to eliminate "Reading from `value` during component render" dev warning. | Done |
+| 65 | **GlassPanel component migration** — Replaced CSS-based `.glass-panel` class (unresolvable on native due to CSS variables + `backdrop-filter`) with a theme-aware `GlassPanel` React component using inline `rgba()` values. Supports `as="pressable"` for tappable panels and `rounded={false}` for chart wrappers. Applied across 47 occurrences in 27 files. | Done |
+| 66 | **Period log immediate cache update** — Added `setQueryData` to `usePeriodLog` mutation `onSuccess` so the calendar updates instantly after saving period data, without waiting for background refetch. Added `await refetch()` in `handleSave` as a secondary sync. | Done |
+| 67 | **Cycle day counter fix** — Normalized `today` to midnight in `useCycleTracker` so `getDaysBetween` returns 0 for same-day comparisons instead of 1 (was incorrectly advancing "Day 1" → "Day 2" when marking today as period start). | Done |
+| 68 | **Predicted period days** — Continuation days extend from each logged period start by `period_duration` setting. Removed `d > now` cutoff so future continuation days (e.g., today's start + 5 days) are predicted. Rendered as rose-tinted with dashed border, fully tappable. | Done |
+| 69 | **PeriodLogModal state reset + error handling** — Added `useEffect` keyed on `dateStr` to reset all modal state between date selections (fixes stale state bug). Added try/catch around `onSave` in `handleMarkPeriodDay` and `handleEndPeriod` so errors don't prevent modal from closing. | Done |
+| 70 | **OMAD text wrapping fix** — Added `numberOfLines={1}` to schedule preset label to prevent text wrapping on narrow Android screens. | Done |
 
 ### Remaining
 | # | Feature | Effort | Description |

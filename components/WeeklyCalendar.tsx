@@ -4,6 +4,7 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useThemeStore } from "@/lib/theme-store";
 import { getThemeColors, ACCENT, getAccentColors } from "@/lib/theme-colors";
 import type { FastingSession } from "@/lib/types";
+import { GlassPanel } from "@/components/GlassPanel";
 
 type WeeklyCalendarProps = {
   pastSessions: FastingSession[];
@@ -142,7 +143,7 @@ export function WeeklyCalendar({ pastSessions, fastingHours, onViewCalendar }: W
       </View>
 
       {tooltipIndex !== null && dayData[tooltipIndex]?.session && (
-        <View className="mt-3 glass-bg glass-border p-3">
+        <GlassPanel className="mt-3  p-3">
           <View className="flex-row items-center justify-between">
             <View>
               <Text style={{ color: c.text, fontFamily: "SpaceGrotesk_600SemiBold" }} className="text-sm">
@@ -174,7 +175,7 @@ export function WeeklyCalendar({ pastSessions, fastingHours, onViewCalendar }: W
               </Text>
             </View>
           </View>
-        </View>
+        </GlassPanel>
       )}
 
       <Pressable onPress={onViewCalendar} className="mt-3 items-center">

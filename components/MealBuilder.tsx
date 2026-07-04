@@ -4,6 +4,7 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useThemeStore } from "@/lib/theme-store";
 import { getThemeColors, ACCENT, getAccentColors, getMealColors } from "@/lib/theme-colors";
 import type { StagedItem } from "@/store/useFoodLogStore";
+import { GlassPanel } from "@/components/GlassPanel";
 
 type MealBuilderProps = {
   items: StagedItem[];
@@ -34,16 +35,16 @@ export function MealBuilder({ items, mealType, onRemove, onEdit, onLog, onSaveAs
 
   if (items.length === 0) {
     return (
-      <View className="glass-bg glass-border p-6 items-center">
+      <GlassPanel className=" p-6 items-center">
         <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 15, textAlign: "center" }}>
           Search for food or add custom items to build your meal
         </Text>
-      </View>
+      </GlassPanel>
     );
   }
 
   return (
-    <View className="glass-bg glass-border p-5">
+    <GlassPanel className=" p-5">
       <View className="flex-row items-center mb-5">
         <View className="w-2 h-2 rounded-full mr-2" style={{ backgroundColor: color }} />
         <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 18 }}>
@@ -98,18 +99,18 @@ export function MealBuilder({ items, mealType, onRemove, onEdit, onLog, onSaveAs
             F: {Math.round(totals.fat_g)}g
           </Text>
         </View>
-        <Pressable onPress={onLog} className="rounded-xl py-4 items-center mb-3" style={{ backgroundColor: color }}>
+        <Pressable onPress={onLog} className="py-4 items-center mb-3" style={{ backgroundColor: color }}>
           <Text style={{ color: color === mealColors.breakfast || color === mealColors.lunch ? c.textOnAccent : c.textOnDark, fontFamily: "Inter_700Bold", fontSize: 16 }}>
             Log {mealType.charAt(0).toUpperCase() + mealType.slice(1)}
           </Text>
         </Pressable>
         {onSaveAsMeal && (
-          <Pressable onPress={onSaveAsMeal} className="rounded-xl py-3 items-center flex-row justify-center gap-2" style={{ backgroundColor: c.cardBgAlt }}>
+          <Pressable onPress={onSaveAsMeal} className="py-3 items-center flex-row justify-center gap-2" style={{ backgroundColor: c.cardBgAlt }}>
             <MaterialCommunityIcons name="bookmark-outline" size={16} color={accent.cyan} />
             <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 14 }}>Save as Meal</Text>
           </Pressable>
         )}
       </View>
-    </View>
+    </GlassPanel>
   );
 }

@@ -5,6 +5,7 @@ import Animated, { useSharedValue, useAnimatedProps, withTiming, Easing } from "
 import { useThemeStore } from "@/lib/theme-store";
 import { getThemeColors, ACCENT, getAccentColors } from "@/lib/theme-colors";
 import type { WeightLogEntry } from "@/lib/types";
+import { GlassPanel } from "@/components/GlassPanel";
 
 const AnimatedPath = Animated.createAnimatedComponent(Path);
 
@@ -98,7 +99,7 @@ export function WeightChart({ entries, goalWeightKg }: WeightChartProps) {
         </Text>
       </View>
 
-      <View className="glass-bg glass-border" style={{ padding: 8 }}>
+      <GlassPanel rounded={false} style={{ padding: 8 }}>
         <Svg width={width - 16} height={height}>
           {yTicks.map((w, i) => {
             const y = padding.top + chartH - ((w - yMin) / yRange) * chartH;
@@ -148,7 +149,7 @@ export function WeightChart({ entries, goalWeightKg }: WeightChartProps) {
             <Circle key={i} cx={p.x} cy={p.y} r={4} fill={lineColor} stroke={dotStroke} strokeWidth={2} />
           ))}
         </Svg>
-      </View>
+      </GlassPanel>
     </View>
   );
 }

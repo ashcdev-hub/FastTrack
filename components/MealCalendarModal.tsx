@@ -160,7 +160,7 @@ export function MealCalendarModal({ visible, entries, onClose, onDeleteEntry, on
           ))}
 
           {selectedDate && (
-            <View className="mt-3 glass-bg glass-border p-4" style={{ maxHeight: 200 }}>
+            <View className="mt-3 p-4" style={{ maxHeight: 200 }}>
               <ScrollView showsVerticalScrollIndicator={true}>
                 <Text style={{ color: c.textSecondary, fontFamily: "SpaceGrotesk_600SemiBold", fontSize: 12, marginBottom: 8 }}>
                   {selectedDate.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })}
@@ -208,7 +208,7 @@ export function MealCalendarModal({ visible, entries, onClose, onDeleteEntry, on
             </View>
           )}
 
-          <Pressable onPress={onClose} className="rounded-xl py-3 mt-4 items-center" style={{ backgroundColor: c.buttonBg }}>
+          <Pressable onPress={onClose} className="py-3 mt-4 items-center" style={{ backgroundColor: c.buttonBg }}>
             <Text style={{ color: c.text, fontFamily: "Inter_700Bold" }}>Close</Text>
           </Pressable>
         </Pressable>
@@ -232,7 +232,7 @@ export function MealCalendarModal({ visible, entries, onClose, onDeleteEntry, on
                   {editingEntry.name}
                 </Text>
 
-                <View className="rounded-xl p-4 mb-5" style={{ backgroundColor: c.cardBg }}>
+                <View className="p-4 mb-5" style={{ backgroundColor: c.cardBg }}>
                   {[
                     { label: "CALORIES", val: eCals, set: setECals, step: 50, presets: [100, 200, 300, 500] },
                     { label: "PROTEIN (g)", val: eProtein, set: setEProtein, step: 5, presets: [10, 20, 30, 50] },
@@ -241,7 +241,7 @@ export function MealCalendarModal({ visible, entries, onClose, onDeleteEntry, on
                   ].map((macro) => (
                     <View key={macro.label} className="mb-4 last:mb-0">
                       <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 12, marginBottom: 3 }}>{macro.label}</Text>
-                      <View className="flex-row items-center gap-2 rounded-xl px-3" style={{ backgroundColor: c.inputBg }}>
+                      <View className="flex-row items-center gap-2 px-3" style={{ backgroundColor: c.inputBg }}>
                         <Pressable onPress={() => macro.set(Math.max(0, macro.val - macro.step))} className="p-2">
                           <MaterialCommunityIcons name="minus" size={18} color={c.text} />
                         </Pressable>
@@ -264,7 +264,7 @@ export function MealCalendarModal({ visible, entries, onClose, onDeleteEntry, on
                 </View>
 
                 <Pressable onPress={handleSaveEdit} disabled={saving}
-                  className="rounded-xl py-3.5 items-center" style={{ backgroundColor: accent.lime, opacity: saving ? 0.5 : 1 }}>
+                  className="py-3.5 items-center" style={{ backgroundColor: accent.lime, opacity: saving ? 0.5 : 1 }}>
                   <Text style={{ color: c.textOnAccent, fontFamily: "Inter_700Bold", fontSize: 16 }}>
                     {saving ? "Saving..." : "Save Changes"}
                   </Text>
@@ -286,10 +286,10 @@ export function MealCalendarModal({ visible, entries, onClose, onDeleteEntry, on
               This will permanently remove this entry.
             </Text>
             <View className="flex-row gap-3">
-              <Pressable onPress={() => setDeleteConfirmId(null)} className="flex-1 py-3.5 rounded-xl items-center" style={{ backgroundColor: c.buttonBg }}>
+              <Pressable onPress={() => setDeleteConfirmId(null)} className="flex-1 py-3.5 items-center" style={{ backgroundColor: c.buttonBg }}>
                 <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 15 }}>Cancel</Text>
               </Pressable>
-              <Pressable onPress={handleDelete} className="flex-1 py-3.5 rounded-xl items-center" style={{ backgroundColor: ACCENT.rose }}>
+              <Pressable onPress={handleDelete} className="flex-1 py-3.5 items-center" style={{ backgroundColor: ACCENT.rose }}>
                 <Text style={{ color: "#FFFFFF", fontFamily: "Inter_700Bold", fontSize: 15 }}>Delete</Text>
               </Pressable>
             </View>

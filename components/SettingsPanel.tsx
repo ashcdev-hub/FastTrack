@@ -6,6 +6,7 @@ import { useGoalStore } from "@/store/useGoalStore";
 import { useThemeStore } from "@/lib/theme-store";
 import { useToast } from "@/hooks/useToast";
 import { Toast } from "@/components/Toast";
+import { GlassPanel } from "@/components/GlassPanel";
 import { getThemeColors, ACCENT, getAccentColors } from "@/lib/theme-colors";
 import { router } from "expo-router";
 import { cancelAllNotifications, scheduleDailyFastReminder, scheduleDailyNotification } from "@/lib/notifications";
@@ -197,7 +198,7 @@ export function SettingsPanel({ userId, initialExpand }: SettingsPanelProps) {
   };
 
   const SectionCard = ({ section, title, children }: { section: string; title: string; children: React.ReactNode }) => (
-    <View className="glass-bg glass-border overflow-hidden mb-3">
+    <GlassPanel className=" overflow-hidden mb-3">
       <Pressable onPress={() => toggleSection(section)} className="flex-row justify-between items-center px-5 py-4">
         <Text style={{ color: c.text, fontFamily: "SpaceGrotesk_600SemiBold", fontSize: 15 }}>{title}</Text>
         <MaterialCommunityIcons
@@ -207,7 +208,7 @@ export function SettingsPanel({ userId, initialExpand }: SettingsPanelProps) {
         />
       </Pressable>
       {expandedSection === section && <View className="px-5 pb-4">{children}</View>}
-    </View>
+    </GlassPanel>
   );
 
   return (
@@ -216,12 +217,12 @@ export function SettingsPanel({ userId, initialExpand }: SettingsPanelProps) {
 
       <SectionCard section="profile" title="Profile Details">
         <Text style={{ color: c.textSecondary, fontFamily: "Inter_400Regular" }} className="text-xs mb-1">Display Name</Text>
-        <TextInput value={displayName} onChangeText={setDisplayName} placeholder="Your name" placeholderTextColor={c.placeholder} className="rounded-xl px-4 py-3 mb-3" style={inputStyle} />
+        <TextInput value={displayName} onChangeText={setDisplayName} placeholder="Your name" placeholderTextColor={c.placeholder} className="px-4 py-3 mb-3" style={inputStyle} />
 
         <View className="flex-row gap-2 mb-3">
           <View className="flex-1">
             <Text style={{ color: c.textSecondary, fontFamily: "Inter_400Regular" }} className="text-xs mb-1">Gender</Text>
-            <View className="rounded-xl px-4 py-3" style={{ backgroundColor: c.buttonBg }}>
+            <View className="px-4 py-3" style={{ backgroundColor: c.buttonBg }}>
               <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", textTransform: "capitalize" }}>
                 {profile?.gender ?? "Not set"}
               </Text>
@@ -229,7 +230,7 @@ export function SettingsPanel({ userId, initialExpand }: SettingsPanelProps) {
           </View>
           <View className="flex-1">
             <Text style={{ color: c.textSecondary, fontFamily: "Inter_400Regular" }} className="text-xs mb-1">Age</Text>
-            <View className="rounded-xl px-4 py-3" style={{ backgroundColor: c.buttonBg }}>
+            <View className="px-4 py-3" style={{ backgroundColor: c.buttonBg }}>
               <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular" }}>
                 {profile?.age ?? "—"}
               </Text>
@@ -242,7 +243,7 @@ export function SettingsPanel({ userId, initialExpand }: SettingsPanelProps) {
             <Text style={{ color: c.textSecondary, fontFamily: "Inter_400Regular" }} className="text-xs mb-1">Weight ({weightUnitLabel(unitPrefs)})</Text>
             <Pressable
               onPress={() => router.push("/(tabs)")}
-              className="rounded-xl px-4 py-3 flex-row items-center justify-between"
+              className="px-4 py-3 flex-row items-center justify-between"
               style={{ backgroundColor: c.inputBg, borderWidth: 1, borderColor: c.inputBorder }}
             >
               <Text style={{ color: c.text, fontFamily: "Inter_400Regular" }}>
@@ -253,7 +254,7 @@ export function SettingsPanel({ userId, initialExpand }: SettingsPanelProps) {
           </View>
           <View className="flex-1">
             <Text style={{ color: c.textSecondary, fontFamily: "Inter_400Regular" }} className="text-xs mb-1">Height ({heightUnitLabel(unitPrefs)})</Text>
-            <View className="rounded-xl px-4 py-3" style={{ backgroundColor: c.buttonBg }}>
+            <View className="px-4 py-3" style={{ backgroundColor: c.buttonBg }}>
               <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular" }}>
                 {height || "—"}
               </Text>
@@ -264,35 +265,35 @@ export function SettingsPanel({ userId, initialExpand }: SettingsPanelProps) {
         <View className="flex-row gap-2 mb-3">
           <View className="flex-1">
             <Text style={{ color: c.textSecondary, fontFamily: "Inter_400Regular" }} className="text-xs mb-1">Goal Weight ({weightUnitLabel(unitPrefs)})</Text>
-            <TextInput value={goalWeight} onChangeText={setGoalWeight} placeholder={unitPrefs.weight === "lbs" ? "143" : "75"} placeholderTextColor={c.placeholder} keyboardType="numeric" className="rounded-xl px-4 py-3" style={inputStyle} />
+            <TextInput value={goalWeight} onChangeText={setGoalWeight} placeholder={unitPrefs.weight === "lbs" ? "143" : "75"} placeholderTextColor={c.placeholder} keyboardType="numeric" className="px-4 py-3" style={inputStyle} />
           </View>
           <View className="flex-1" />
         </View>
 
         {bmi && bmiColors && (
-          <View className="rounded-xl p-3 mb-3" style={{ backgroundColor: bmiColors.bg }}>
+          <View className="p-3 mb-3" style={{ backgroundColor: bmiColors.bg }}>
             <Text style={{ color: bmiColors.text, fontFamily: "SpaceGrotesk_600SemiBold" }} className="text-sm">
               BMI: {bmi} ({bmiCategory})
             </Text>
           </View>
         )}
 
-        <Pressable onPress={handleSaveProfile} className="rounded-xl py-3 items-center" style={{ backgroundColor: accent.lime }}>
+        <Pressable onPress={handleSaveProfile} className="py-3 items-center" style={{ backgroundColor: accent.lime }}>
           <Text style={{ color: c.textOnAccent, fontFamily: "Inter_700Bold" }}>Save Profile</Text>
         </Pressable>
       </SectionCard>
 
       <SectionCard section="account" title="Account">
         <Text style={{ color: c.textSecondary, fontFamily: "Inter_400Regular" }} className="text-xs mb-1">Change Email</Text>
-        <TextInput value={newEmail} onChangeText={setNewEmail} placeholder="new@email.com" placeholderTextColor={c.placeholder} keyboardType="email-address" autoCapitalize="none" className="rounded-xl px-4 py-3 mb-3" style={inputStyle} />
-        <Pressable onPress={handleChangeEmail} className="rounded-xl py-3 items-center mb-4" style={{ backgroundColor: c.buttonBg }}>
+        <TextInput value={newEmail} onChangeText={setNewEmail} placeholder="new@email.com" placeholderTextColor={c.placeholder} keyboardType="email-address" autoCapitalize="none" className="px-4 py-3 mb-3" style={inputStyle} />
+        <Pressable onPress={handleChangeEmail} className="py-3 items-center mb-4" style={{ backgroundColor: c.buttonBg }}>
           <Text style={{ color: c.text, fontFamily: "Inter_700Bold" }}>Update Email</Text>
         </Pressable>
 
         <Text style={{ color: c.textSecondary, fontFamily: "Inter_400Regular" }} className="text-xs mb-1">Change Password</Text>
-        <TextInput value={newPassword} onChangeText={setNewPassword} placeholder="New password" placeholderTextColor={c.placeholder} secureTextEntry className="rounded-xl px-4 py-3 mb-2" style={inputStyle} />
-        <TextInput value={confirmPassword} onChangeText={setConfirmPassword} placeholder="Confirm password" placeholderTextColor={c.placeholder} secureTextEntry className="rounded-xl px-4 py-3 mb-3" style={inputStyle} />
-        <Pressable onPress={handleChangePassword} className="rounded-xl py-3 items-center" style={{ backgroundColor: c.buttonBg }}>
+        <TextInput value={newPassword} onChangeText={setNewPassword} placeholder="New password" placeholderTextColor={c.placeholder} secureTextEntry className="px-4 py-3 mb-2" style={inputStyle} />
+        <TextInput value={confirmPassword} onChangeText={setConfirmPassword} placeholder="Confirm password" placeholderTextColor={c.placeholder} secureTextEntry className="px-4 py-3 mb-3" style={inputStyle} />
+        <Pressable onPress={handleChangePassword} className="py-3 items-center" style={{ backgroundColor: c.buttonBg }}>
           <Text style={{ color: c.text, fontFamily: "Inter_700Bold" }}>Update Password</Text>
         </Pressable>
       </SectionCard>
@@ -310,7 +311,7 @@ export function SettingsPanel({ userId, initialExpand }: SettingsPanelProps) {
         </View>
         {notifications.fasting_reminders && (
           <Pressable onPress={() => openTimePicker("reminder_time", notifications.reminder_time ?? "20:00")}
-            className="flex-row items-center justify-between rounded-xl px-4 py-3 mt-2 mb-3"
+            className="flex-row items-center justify-between px-4 py-3 mt-2 mb-3"
             style={{ backgroundColor: c.inputBg }}
           >
             <Text style={{ color: c.textSecondary, fontFamily: "Inter_400Regular", fontSize: 13 }}>Remind at</Text>
@@ -355,7 +356,7 @@ export function SettingsPanel({ userId, initialExpand }: SettingsPanelProps) {
             </Pressable>
             {notifications.checkin_mode === "custom" && (
               <Pressable onPress={() => openTimePicker("checkin_custom_time", notifications.checkin_custom_time ?? "14:00")}
-                className="flex-row items-center justify-between rounded-xl px-4 py-3 ml-6"
+                className="flex-row items-center justify-between px-4 py-3 ml-6"
                 style={{ backgroundColor: c.inputBg }}
               >
                 <Text style={{ color: c.textSecondary, fontFamily: "Inter_400Regular", fontSize: 13 }}>Time</Text>
@@ -471,7 +472,7 @@ export function SettingsPanel({ userId, initialExpand }: SettingsPanelProps) {
           </View>
         </View>
 
-        <Pressable onPress={handleSaveNotifications} className="rounded-xl py-3 items-center mt-3" style={{ backgroundColor: accent.lime }}>
+        <Pressable onPress={handleSaveNotifications} className="py-3 items-center mt-3" style={{ backgroundColor: accent.lime }}>
           <Text style={{ color: c.textOnAccent, fontFamily: "Inter_700Bold" }}>Save Preferences</Text>
         </Pressable>
       </SectionCard>
@@ -483,7 +484,7 @@ export function SettingsPanel({ userId, initialExpand }: SettingsPanelProps) {
             <Pressable
               key={unit}
               onPress={() => setUnitPrefs({ ...unitPrefs, weight: unit })}
-              className="flex-1 py-3 rounded-xl items-center"
+              className="flex-1 py-3 items-center"
               style={{ backgroundColor: unitPrefs.weight === unit ? accent.lime : c.buttonBg }}
             >
               <Text
@@ -505,7 +506,7 @@ export function SettingsPanel({ userId, initialExpand }: SettingsPanelProps) {
             <Pressable
               key={unit}
               onPress={() => setUnitPrefs({ ...unitPrefs, height: unit })}
-              className="flex-1 py-3 rounded-xl items-center"
+              className="flex-1 py-3 items-center"
               style={{ backgroundColor: unitPrefs.height === unit ? accent.lime : c.buttonBg }}
             >
               <Text
@@ -527,7 +528,7 @@ export function SettingsPanel({ userId, initialExpand }: SettingsPanelProps) {
             <Pressable
               key={unit}
               onPress={() => setUnitPrefs({ ...unitPrefs, water: unit })}
-              className="flex-1 py-3 rounded-xl items-center"
+              className="flex-1 py-3 items-center"
               style={{ backgroundColor: unitPrefs.water === unit ? accent.lime : c.buttonBg }}
             >
               <Text
@@ -552,7 +553,7 @@ export function SettingsPanel({ userId, initialExpand }: SettingsPanelProps) {
                 updateGoals({ waterGoalMl: ml });
                 success("Daily water goal updated");
               }}
-              className="flex-1 py-3 rounded-xl items-center"
+              className="flex-1 py-3 items-center"
               style={{ backgroundColor: waterGoalMl === ml ? accent.cyan : c.buttonBg }}
             >
               <Text
@@ -574,7 +575,7 @@ export function SettingsPanel({ userId, initialExpand }: SettingsPanelProps) {
             if (error) toastError("Failed to save preferences");
             else success("Preferences updated");
           }}
-          className="rounded-xl py-3 items-center"
+          className="py-3 items-center"
           style={{ backgroundColor: accent.lime }}
         >
           <Text style={{ color: c.textOnAccent, fontFamily: "Inter_700Bold" }}>Save Preferences</Text>
@@ -628,7 +629,7 @@ export function SettingsPanel({ userId, initialExpand }: SettingsPanelProps) {
               <Pressable
                 key={option.id}
                 onPress={() => setMode(option.id)}
-                className="flex-1 py-3 rounded-xl items-center"
+                className="flex-1 py-3 items-center"
                 style={{ backgroundColor: isActive ? accent.lime : c.buttonBg }}
               >
                 <MaterialCommunityIcons name={option.icon as any} size={20} color={isActive ? c.textOnAccent : c.textSecondary} />

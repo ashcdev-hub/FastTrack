@@ -3,6 +3,7 @@ import { View, Text } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useThemeStore } from "@/lib/theme-store";
 import { getThemeColors, ACCENT, getAccentColors } from "@/lib/theme-colors";
+import { GlassPanel } from "@/components/GlassPanel";
 
 type FastingAchievementsProps = {
   streak: number;
@@ -57,7 +58,7 @@ export function FastingAchievements({
       </Text>
 
       <View className="flex-row gap-3 mb-4">
-        <View className="flex-1 glass-bg glass-border items-center py-4">
+        <GlassPanel className="flex-1  items-center py-4">
           <MaterialCommunityIcons name="fire" size={28} color={accent.lime} />
           <Text style={{ color: accent.lime, fontFamily: "Inter_700Bold" }} className="text-2xl mt-1">
             {streak}
@@ -65,9 +66,9 @@ export function FastingAchievements({
           <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular" }} className="text-xs mt-1">
             Day Streak
           </Text>
-        </View>
+        </GlassPanel>
 
-        <View className="flex-1 glass-bg glass-border items-center py-4">
+        <GlassPanel className="flex-1  items-center py-4">
           <MaterialCommunityIcons name="calendar-check" size={28} color={accent.cyan} />
           <Text style={{ color: accent.cyan, fontFamily: "Inter_700Bold" }} className="text-2xl mt-1">
             {completedFasts}
@@ -75,9 +76,9 @@ export function FastingAchievements({
           <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular" }} className="text-xs mt-1">
             Total Fasts
           </Text>
-        </View>
+        </GlassPanel>
 
-        <View className="flex-1 glass-bg glass-border items-center py-4">
+        <GlassPanel className="flex-1  items-center py-4">
           <MaterialCommunityIcons name="arm-flex" size={28} color={accent.coral} />
           <Text style={{ color: accent.coral, fontFamily: "Inter_700Bold" }} className="text-2xl mt-1">
             {pushupStreak}
@@ -85,10 +86,10 @@ export function FastingAchievements({
           <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular" }} className="text-xs mt-1">
             Pushup Streak
           </Text>
-        </View>
+        </GlassPanel>
       </View>
 
-      <View className="glass-bg glass-border p-4 mb-3">
+      <GlassPanel className=" p-4 mb-3">
         <View className="flex-row justify-between items-center mb-2">
           <Text style={{ color: c.text, fontFamily: "Inter_400Regular" }} className="text-sm">
             Next Fast: {nextFastingMilestone.label}
@@ -103,9 +104,9 @@ export function FastingAchievements({
             style={{ width: `${fastingProgress * 100}%`, backgroundColor: accent.lime }}
           />
         </View>
-      </View>
+      </GlassPanel>
 
-      <View className="glass-bg glass-border p-4">
+      <GlassPanel className=" p-4">
         <View className="flex-row justify-between items-center mb-2">
           <Text style={{ color: c.text, fontFamily: "Inter_400Regular" }} className="text-sm">
             Next Pushup: {nextPushupMilestone.label}
@@ -120,7 +121,7 @@ export function FastingAchievements({
             style={{ width: `${pushupProgress * 100}%`, backgroundColor: accent.lime }}
           />
         </View>
-      </View>
+      </GlassPanel>
     </View>
   );
 }

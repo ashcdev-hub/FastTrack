@@ -8,6 +8,7 @@ import { useTrackerStore, DEFAULT_TRACKERS } from "@/store/useTrackerStore";
 import { useThemeStore } from "@/lib/theme-store";
 import { getThemeColors, ACCENT, getAccentColors } from "@/lib/theme-colors";
 import type { TrackerId } from "@/lib/types";
+import { GlassPanel } from "@/components/GlassPanel";
 
 const TRACKERS: { id: TrackerId; label: string; icon: string; description: string }[] = [
   { id: "fasting", label: "Fasting", icon: "timer-outline", description: "Track your fasting sessions and phases" },
@@ -54,7 +55,7 @@ export default function TrackersScreen() {
         Pick the trackers you want to use. You can change these anytime in Settings.
       </Text>
 
-      <View className="glass-bg glass-border overflow-hidden mb-6">
+      <GlassPanel className=" overflow-hidden mb-6">
         {TRACKERS.map((t, i) => (
           <View
             key={t.id}
@@ -78,11 +79,11 @@ export default function TrackersScreen() {
             />
           </View>
         ))}
-      </View>
+      </GlassPanel>
 
       <Pressable
         onPress={handleContinue}
-        className="rounded-xl py-4"
+        className="py-4"
         style={{ backgroundColor: accent.lime }}
       >
         <Text style={{ color: c.textOnAccent, fontFamily: "Inter_700Bold" }} className="text-center text-lg">

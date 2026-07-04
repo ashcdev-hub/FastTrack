@@ -5,6 +5,7 @@ import { useThemeStore } from "@/lib/theme-store";
 import { getThemeColors, getAccentColors } from "@/lib/theme-colors";
 import type { PeriodLogEntry, CyclePhase, PeriodSettings } from "@/lib/types";
 import { getPhaseColor, getPhaseColorBg, getCycleDayColor } from "@/lib/cycle-phases";
+import { GlassPanel } from "@/components/GlassPanel";
 
 const DAY_LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
@@ -68,7 +69,7 @@ export function PeriodCalendar({ entriesByDate, predictedPeriods, settings, cycl
   const predictedSet = new Set(predictedPeriods);
 
   return (
-    <View className="glass-bg glass-border rounded-xl p-5">
+    <GlassPanel className=" p-5">
       <View className="flex-row justify-between items-center mb-4">
         <Pressable onPress={prevMonth} hitSlop={8} className="p-2 rounded-lg" style={{ backgroundColor: c.buttonBg }}>
           <MaterialCommunityIcons name="chevron-left" size={18} color={c.text} />
@@ -200,6 +201,6 @@ export function PeriodCalendar({ entriesByDate, predictedPeriods, settings, cycl
           })}
         </View>
       ))}
-    </View>
+    </GlassPanel>
   );
 }

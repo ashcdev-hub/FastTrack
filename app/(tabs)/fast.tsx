@@ -9,6 +9,7 @@ import { useFastingStore } from "@/store/useFastingStore";
 import { useFastCheckIns } from "@/hooks/useFastCheckIns";
 import { useProfile } from "@/hooks/useProfile";
 import { AnimatedPressable } from "@/components/AnimatedPressable";
+import { GlassPanel } from "@/components/GlassPanel";
 import { AmbientBackground } from "@/components/AmbientBackground";
 import { FastTrackHeader } from "@/components/FastTrackHeader";
 import { FastingTimer } from "@/components/FastingTimer";
@@ -339,7 +340,7 @@ export default function FastScreen() {
             <AnimatedPressable
               onPress={handleStartFast}
               disabled={!selectedSchedule}
-              className="w-full py-4 rounded-xl flex-row items-center justify-center mb-section-gap"
+              className="w-full py-4 flex-row items-center justify-center mb-section-gap"
               style={{ backgroundColor: selectedSchedule ? accent.lime : c.buttonBg }}
             >
               <MaterialCommunityIcons name="timer-outline" size={22} color={selectedSchedule ? c.textOnAccent : c.textMuted} />
@@ -349,7 +350,7 @@ export default function FastScreen() {
             </AnimatedPressable>
 
             {/* Schedule Presets */}
-            <View className="w-full rounded-xl p-5 mb-section-gap glass-bg glass-border">
+            <GlassPanel className="w-full p-5 mb-section-gap ">
               <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 12, letterSpacing: 1, marginBottom: 16, textTransform: "uppercase" }}>
                 FASTING SCHEDULE
               </Text>
@@ -372,7 +373,7 @@ export default function FastScreen() {
                       className="flex-1 py-4 items-center rounded-xl"
                       style={{ backgroundColor: isActive ? accent.lime : c.cardBgAlt, borderWidth: 1, borderColor: isActive ? accent.lime : c.cardBorder }}
                     >
-                      <Text style={{ color: isActive ? c.textOnAccent : c.text, fontFamily: "Inter_700Bold", fontSize: 16 }}>
+                      <Text numberOfLines={1} style={{ color: isActive ? c.textOnAccent : c.text, fontFamily: "Inter_700Bold", fontSize: 16 }}>
                         {p.label}
                       </Text>
                       <Text style={{ color: isActive ? c.textOnAccent : c.textMuted, fontFamily: "Inter_400Regular", fontSize: 10, marginTop: 4 }}>
@@ -385,18 +386,18 @@ export default function FastScreen() {
 
               <Pressable
                 onPress={() => { setSelectedSchedule(null); setShowCustomModal(true); }}
-                className="w-full py-3.5 rounded-xl items-center mb-4"
+                className="w-full py-3.5 items-center mb-4"
                 style={{ backgroundColor: selectedSchedule && !PRESETS.find((p) => p.label === selectedSchedule) ? accent.lime : c.buttonBg, borderWidth: 1, borderColor: selectedSchedule && !PRESETS.find((p) => p.label === selectedSchedule) ? accent.lime : c.cardBorder }}
               >
                 <Text style={{ color: selectedSchedule && !PRESETS.find((p) => p.label === selectedSchedule) ? c.textOnAccent : c.textSecondary, fontFamily: "Inter_700Bold", fontSize: 14 }}>
                   {selectedSchedule && !PRESETS.find((p) => p.label === selectedSchedule) ? `Custom: ${selectedSchedule}` : "Custom Schedule"}
                 </Text>
               </Pressable>
-            </View>
+            </GlassPanel>
 
             {/* Schedule Info */}
             {selectedSchedule && (
-            <View className="w-full rounded-xl p-5 mb-section-gap glass-bg glass-border">
+            <GlassPanel className="w-full p-5 mb-section-gap ">
               <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 12, letterSpacing: 1, marginBottom: 16, textTransform: "uppercase" }}>
                 {showStartTimePicker ? "PREVIEW" : "IF YOU START NOW"}
               </Text>
@@ -423,7 +424,7 @@ export default function FastScreen() {
                   ))
                 })()}
               </View>
-            </View>
+            </GlassPanel>
             )}
           </View>
         ) : (
@@ -461,7 +462,7 @@ export default function FastScreen() {
             {/* End Fast Button */}
             <Pressable
               onPress={phase === "eating" ? () => setShowEndConfirm(true) : () => setShowBreakConfirm(true)}
-              className="w-full py-4 rounded-xl flex-row items-center justify-center mb-section-gap active:opacity-80"
+              className="w-full py-4 flex-row items-center justify-center mb-section-gap active:opacity-80"
               style={{
                 backgroundColor: phase === "eating" ? accent.cyan : accent.lime,
                 shadowColor: phase === "eating" ? accent.cyan : accent.lime,
@@ -495,7 +496,7 @@ export default function FastScreen() {
                       {Math.round(pct * 100)}%
                     </Text>
                   </View>
-                  <View className="glass-bg glass-border p-5 mb-4" style={{ borderColor: "rgba(244,63,94,0.3)" }}>
+                  <View className="glass-bg p-5 mb-4" style={{ borderColor: "rgba(244,63,94,0.3)" }}>
                     <View className="flex-row items-start gap-3 mb-3">
                       <View style={{ width: 32, height: 32, borderRadius: 16, backgroundColor: "rgba(244,63,94,0.15)", alignItems: "center", justifyContent: "center" }}>
                         <MaterialCommunityIcons name="lightning-bolt" size={18} color={ACCENT.rose} />
@@ -526,10 +527,10 @@ export default function FastScreen() {
                     ))}
                   </View>
                   <View className="flex-row gap-3 mb-3">
-                    <Pressable onPress={() => setShowBreakConfirm(false)} className="flex-1 py-3.5 rounded-xl items-center" style={{ backgroundColor: accent.lime }}>
+                    <Pressable onPress={() => setShowBreakConfirm(false)} className="flex-1 py-3.5 items-center" style={{ backgroundColor: accent.lime }}>
                       <Text style={{ color: c.textOnAccent, fontFamily: "Inter_700Bold" }}>Continue Fasting</Text>
                     </Pressable>
-                    <Pressable onPress={() => { setShowBreakConfirm(false); handleBreakFast(); }} className="flex-1 py-3.5 rounded-xl items-center" style={{ backgroundColor: c.buttonBg }}>
+                    <Pressable onPress={() => { setShowBreakConfirm(false); handleBreakFast(); }} className="flex-1 py-3.5 items-center" style={{ backgroundColor: c.buttonBg }}>
                       <Text style={{ color: c.textMuted, fontFamily: "Inter_700Bold" }}>Break Fast</Text>
                     </Pressable>
                   </View>
@@ -551,14 +552,14 @@ export default function FastScreen() {
                     This will complete your fasting session and your results will be saved.
                   </Text>
                   <View className="flex-row gap-3 mb-3">
-                    <Pressable onPress={() => setShowEndConfirm(false)} className="flex-1 py-3.5 rounded-xl items-center" style={{ backgroundColor: c.buttonBg }}>
+                    <Pressable onPress={() => setShowEndConfirm(false)} className="flex-1 py-3.5 items-center" style={{ backgroundColor: c.buttonBg }}>
                       <Text style={{ color: c.text, fontFamily: "Inter_700Bold" }}>Keep Eating</Text>
                     </Pressable>
-                    <Pressable onPress={confirmEndSession} className="flex-1 py-3.5 rounded-xl items-center" style={{ backgroundColor: accent.lime }}>
+                    <Pressable onPress={confirmEndSession} className="flex-1 py-3.5 items-center" style={{ backgroundColor: accent.lime }}>
                       <Text style={{ color: c.textOnAccent, fontFamily: "Inter_700Bold" }}>End Eating Window</Text>
                     </Pressable>
                   </View>
-                  <Pressable onPress={confirmDiscardSession} className="w-full py-3 rounded-xl items-center" style={{ backgroundColor: ACCENT.roseBg, borderWidth: 1, borderColor: ACCENT.roseBorder }}>
+                  <Pressable onPress={confirmDiscardSession} className="w-full py-3 items-center" style={{ backgroundColor: ACCENT.roseBg, borderWidth: 1, borderColor: ACCENT.roseBorder }}>
                     <Text style={{ color: ACCENT.rose, fontFamily: "Inter_700Bold", fontSize: 13 }}>Discard Fast</Text>
                   </Pressable>
                 </Pressable>
@@ -576,7 +577,7 @@ export default function FastScreen() {
                 ? getEatingPhase(elapsedEating, eatingHours * 60)
                 : getFastingPhase(fastElapsedMinutes);
               return (
-                <View className="w-full glass-bg glass-border p-5 mb-section-gap">
+                <GlassPanel className="w-full  p-5 mb-section-gap">
                   <View className="flex-row justify-between items-start mb-3">
                     <View className="flex-1">
                       <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 14 }}>{info.label}</Text>
@@ -594,12 +595,12 @@ export default function FastScreen() {
                       </Text>
                     )}
                   </View>
-                </View>
+                </GlassPanel>
               );
             })()}
 
             {/* Mood Check-in */}
-            <View className="w-full rounded-xl p-5 mb-section-gap glass-bg glass-border">
+            <GlassPanel className="w-full p-5 mb-section-gap ">
               <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 12, letterSpacing: 1, textAlign: "center", marginBottom: 16, textTransform: "uppercase" }}>
                 HOW ARE YOU FEELING?
               </Text>
@@ -628,7 +629,7 @@ export default function FastScreen() {
                 })}
               </View>
               <View className="flex-row items-center gap-2 mt-4">
-                <View className="flex-1 glass-bg glass-border rounded-xl px-4 py-3">
+                <GlassPanel className="flex-1  px-4 py-3">
                   <TextInput
                     value={checkInNote}
                     onChangeText={setCheckInNote}
@@ -638,7 +639,7 @@ export default function FastScreen() {
                     multiline
                     maxLength={280}
                   />
-                </View>
+                </GlassPanel>
                 <Pressable
                   onPress={handleCheckIn}
                   disabled={checkInMood === null}
@@ -647,17 +648,17 @@ export default function FastScreen() {
                   <MaterialCommunityIcons name="arrow-right" size={20} color={checkInMood !== null ? c.textOnAccent : c.textMuted} />
                 </Pressable>
               </View>
-            </View>
+            </GlassPanel>
 
             {/* Check-in History */}
             {checkIns.length > 0 && (
-              <View className="w-full glass-bg glass-border p-5 mb-section-gap">
+              <GlassPanel className="w-full  p-5 mb-section-gap">
                 <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 12, letterSpacing: 1, marginBottom: 12, textTransform: "uppercase" }}>
                   CHECK-IN HISTORY
                 </Text>
                 <MoodChart checkIns={checkIns} />
                 <CheckInTimeline checkIns={checkIns} />
-              </View>
+              </GlassPanel>
             )}
 
           </>
@@ -707,14 +708,14 @@ export default function FastScreen() {
             <View className="flex-row gap-3 mb-2">
               <Pressable
                 onPress={() => { setShowFastComplete(false); handleBreakFast(); }}
-                className="flex-1 py-3.5 rounded-xl items-center"
+                className="flex-1 py-3.5 items-center"
                 style={{ backgroundColor: accent.lime }}
               >
                 <Text style={{ color: c.textOnAccent, fontFamily: "Inter_700Bold", fontSize: 15 }}>Break Fast</Text>
               </Pressable>
               <Pressable
                 onPress={() => setShowFastComplete(false)}
-                className="flex-1 py-3.5 rounded-xl items-center"
+                className="flex-1 py-3.5 items-center"
                 style={{ backgroundColor: c.buttonBg }}
               >
                 <Text style={{ color: c.textMuted, fontFamily: "Inter_700Bold", fontSize: 15 }}>Keep Fasting</Text>
@@ -739,7 +740,7 @@ export default function FastScreen() {
               </Text>
             </View>
 
-            <View className="rounded-xl p-4 mb-4" style={{ backgroundColor: c.cardBg }}>
+            <View className="p-4 mb-4" style={{ backgroundColor: c.cardBg }}>
               <View className="flex-row justify-between py-2">
                 <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 14 }}>Fasted</Text>
                 <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 14 }}>
@@ -763,13 +764,13 @@ export default function FastScreen() {
             </View>
 
             <View className="flex-row gap-4 mb-5">
-              <View className="flex-1 items-center rounded-xl py-3" style={{ backgroundColor: c.cardBg }}>
+              <View className="flex-1 items-center py-3" style={{ backgroundColor: c.cardBg }}>
                 <Text style={{ color: accent.coral, fontFamily: "Inter_700Bold", fontSize: 18 }}>
                   {sessionCompleteData?.streak ?? 0}
                 </Text>
                 <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 12 }}>day streak</Text>
               </View>
-              <View className="flex-1 items-center rounded-xl py-3" style={{ backgroundColor: c.cardBg }}>
+              <View className="flex-1 items-center py-3" style={{ backgroundColor: c.cardBg }}>
                 <Text style={{ color: accent.lime, fontFamily: "Inter_700Bold", fontSize: 18 }}>
                   {sessionCompleteData?.completedFastsCount ?? 0}
                 </Text>
@@ -779,7 +780,7 @@ export default function FastScreen() {
 
             <Pressable
               onPress={() => setShowSessionComplete(false)}
-              className="py-4 rounded-xl items-center"
+              className="py-4 items-center"
               style={{ backgroundColor: accent.lime }}
             >
               <Text style={{ color: "#1a2e00", fontFamily: "Inter_700Bold", fontSize: 16 }}>Done</Text>
@@ -805,14 +806,14 @@ export default function FastScreen() {
             <View className="flex-row gap-3 mb-2">
               <Pressable
                 onPress={() => { setShowEatComplete(false); confirmEndSession(); }}
-                className="flex-1 py-3.5 rounded-xl items-center"
+                className="flex-1 py-3.5 items-center"
                 style={{ backgroundColor: accent.cyan }}
               >
                 <Text style={{ color: c.textOnAccent, fontFamily: "Inter_700Bold", fontSize: 15 }}>End Session</Text>
               </Pressable>
               <Pressable
                 onPress={() => setShowEatComplete(false)}
-                className="flex-1 py-3.5 rounded-xl items-center"
+                className="flex-1 py-3.5 items-center"
                 style={{ backgroundColor: c.buttonBg }}
               >
                 <Text style={{ color: c.textMuted, fontFamily: "Inter_700Bold", fontSize: 15 }}>Keep Eating</Text>
@@ -836,7 +837,7 @@ export default function FastScreen() {
               </Pressable>
             </View>
 
-            <Pressable onPress={handleStartNow} className="w-full py-3.5 rounded-xl items-center mb-5" style={{ backgroundColor: accent.lime }}>
+            <Pressable onPress={handleStartNow} className="w-full py-3.5 items-center mb-5" style={{ backgroundColor: accent.lime }}>
               <Text style={{ color: c.textOnAccent, fontFamily: "Inter_700Bold", fontSize: 16 }}>Start Now</Text>
             </Pressable>
 

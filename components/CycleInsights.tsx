@@ -5,6 +5,7 @@ import { getThemeColors, getAccentColors } from "@/lib/theme-colors";
 import type { CyclePhase } from "@/lib/types";
 import { getPhaseDef, getPhaseColor, getPhaseIcon } from "@/lib/cycle-phases";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { GlassPanel } from "@/components/GlassPanel";
 
 type CycleInsightsProps = {
   phase: CyclePhase;
@@ -28,7 +29,7 @@ export function CycleInsights({ phase, nextPeriodDate, isFertile, fertileStart, 
   };
 
   return (
-    <View className="glass-bg glass-border rounded-xl p-5">
+    <GlassPanel className=" p-5">
       <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 10, letterSpacing: 0.5, marginBottom: 12, textTransform: "uppercase" }}>
         Phase Insights
       </Text>
@@ -46,7 +47,7 @@ export function CycleInsights({ phase, nextPeriodDate, isFertile, fertileStart, 
         {def.description}
       </Text>
 
-      <View className="rounded-xl p-3 mb-2" style={{ backgroundColor: color + "11" }}>
+      <View className="p-3 mb-2" style={{ backgroundColor: color + "11" }}>
         <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 13, marginBottom: 2 }}>
           Fasting tip
         </Text>
@@ -72,6 +73,6 @@ export function CycleInsights({ phase, nextPeriodDate, isFertile, fertileStart, 
           </Text>
         </View>
       )}
-    </View>
+    </GlassPanel>
   );
 }

@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Pressable, View, Text, TextInput } from "react-native";
 import { useThemeStore } from "@/lib/theme-store";
 import { getThemeColors, ACCENT, getAccentColors } from "@/lib/theme-colors";
+import { GlassPanel } from "@/components/GlassPanel";
 
 const PRESETS = [
   { label: "14:10", fasting: 14, eating: 10 },
@@ -25,7 +26,7 @@ export function ScheduleSelector({ selected, onSelect }: ScheduleSelectorProps) 
   const [customEating, setCustomEating] = useState("8");
 
   return (
-    <View className="glass-bg glass-border p-5 mb-6">
+    <GlassPanel className=" p-5 mb-6">
       <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_600SemiBold" }} className="text-xs mb-4 tracking-widest">
         FASTING SCHEDULE
       </Text>
@@ -40,7 +41,7 @@ export function ScheduleSelector({ selected, onSelect }: ScheduleSelectorProps) 
                 setCustomMode(false);
                 onSelect(p.label, p.fasting, p.eating);
               }}
-              className="flex-1 rounded-xl py-4 items-center"
+              className="flex-1 py-4 items-center"
               style={{
                 backgroundColor: isActive ? accent.lime : c.cardBgAlt,
                 borderWidth: 1,
@@ -81,7 +82,7 @@ export function ScheduleSelector({ selected, onSelect }: ScheduleSelectorProps) 
             onSelect("", 0, 0);
           }
         }}
-        className="rounded-xl items-center"
+        className="items-center"
         style={{
           backgroundColor: customMode ? accent.lime : c.cardBgAlt,
           borderWidth: 1,
@@ -118,7 +119,7 @@ export function ScheduleSelector({ selected, onSelect }: ScheduleSelectorProps) 
               keyboardType="numeric"
               placeholder="16"
               placeholderTextColor={c.placeholder}
-              className="rounded-xl px-4 py-3.5 text-center text-xl"
+              className="px-4 py-3.5 text-center text-xl"
               style={{ backgroundColor: c.inputBg, color: c.text, fontFamily: "Inter_700Bold" }}
             />
           </View>
@@ -141,7 +142,7 @@ export function ScheduleSelector({ selected, onSelect }: ScheduleSelectorProps) 
               keyboardType="numeric"
               placeholder="8"
               placeholderTextColor={c.placeholder}
-              className="rounded-xl px-4 py-3.5 text-center text-xl"
+              className="px-4 py-3.5 text-center text-xl"
               style={{ backgroundColor: c.inputBg, color: c.text, fontFamily: "Inter_700Bold" }}
             />
           </View>
@@ -151,7 +152,7 @@ export function ScheduleSelector({ selected, onSelect }: ScheduleSelectorProps) 
               const e = parseInt(customEating) || 8;
               onSelect(`${f}:${e}`, f, e);
             }}
-            className="rounded-xl px-6 py-3.5 mt-5"
+            className="px-6 py-3.5 mt-5"
             style={{ backgroundColor: accent.lime }}
           >
             <Text style={{ color: c.textOnAccent, fontFamily: "Inter_700Bold" }} className="text-sm">
@@ -160,6 +161,6 @@ export function ScheduleSelector({ selected, onSelect }: ScheduleSelectorProps) 
           </Pressable>
         </View>
       )}
-    </View>
+    </GlassPanel>
   );
 }

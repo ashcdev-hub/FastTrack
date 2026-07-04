@@ -3,6 +3,7 @@ import { View } from "react-native";
 import Animated, { useSharedValue, useAnimatedStyle, withRepeat, withTiming, Easing } from "react-native-reanimated";
 import { useThemeStore } from "@/lib/theme-store";
 import { getThemeColors } from "@/lib/theme-colors";
+import { GlassPanel } from "@/components/GlassPanel";
 
 type SkeletonProps = {
   width?: number | `${number}%`;
@@ -58,9 +59,9 @@ export function SkeletonCard({ children }: SkeletonCardProps) {
   const { theme } = useThemeStore();
   const c = getThemeColors(theme);
   return (
-    <View className="glass-bg glass-border p-5 mb-3">
+    <GlassPanel className=" p-5 mb-3">
       {children}
-    </View>
+    </GlassPanel>
   );
 }
 

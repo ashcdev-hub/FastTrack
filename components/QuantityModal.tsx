@@ -3,6 +3,7 @@ import { Pressable, View, Text, Modal } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useThemeStore } from "@/lib/theme-store";
 import { getThemeColors, ACCENT, getAccentColors } from "@/lib/theme-colors";
+import { GlassPanel } from "@/components/GlassPanel";
 
 type QuantityModalProps = {
   visible: boolean;
@@ -74,7 +75,7 @@ export function QuantityModal({ visible, itemName, itemCalories, onConfirm, onCa
               <Pressable
                 key={p}
                 onPress={() => setQuantity(p)}
-                className="flex-1 py-2.5 rounded-xl items-center"
+                className="flex-1 py-2.5 items-center"
                 style={{ backgroundColor: quantity === p ? accent.lime : c.buttonBg }}
               >
                 <Text style={{ color: quantity === p ? c.textOnAccent : c.textSecondary, fontFamily: "Inter_700Bold", fontSize: 14 }}>
@@ -84,7 +85,7 @@ export function QuantityModal({ visible, itemName, itemCalories, onConfirm, onCa
             ))}
           </View>
 
-          <View className="glass-bg glass-border p-4 mb-5 rounded-xl">
+          <GlassPanel className=" p-4 mb-5 rounded-xl">
             <View className="flex-row justify-between mb-1">
               <Text style={{ color: c.textSecondary, fontFamily: "Inter_400Regular", fontSize: 13 }}>Calories</Text>
               <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 14 }}>
@@ -94,9 +95,9 @@ export function QuantityModal({ visible, itemName, itemCalories, onConfirm, onCa
             <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 11 }}>
               {quantity} × {itemCalories} kcal
             </Text>
-          </View>
+          </GlassPanel>
 
-          <Pressable onPress={handleConfirm} className="rounded-xl py-3.5 items-center" style={{ backgroundColor: accent.lime }}>
+          <Pressable onPress={handleConfirm} className="py-3.5 items-center" style={{ backgroundColor: accent.lime }}>
             <Text style={{ color: c.textOnAccent, fontFamily: "Inter_700Bold", fontSize: 16 }}>
               Add {quantity > 1 ? `${quantity}× ` : ""}to Meal
             </Text>

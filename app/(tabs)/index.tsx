@@ -19,6 +19,7 @@ import { useProfile } from "@/hooks/useProfile";
 import { useWeightLog } from "@/hooks/useWeightLog";
 import { useTrackerStore } from "@/store/useTrackerStore";
 import { ProgressRing } from "@/components/ProgressRing";
+import { GlassPanel } from "@/components/GlassPanel";
 import { WeightChart } from "@/components/WeightChart";
 import { WeightTracker } from "@/components/WeightTracker";
 import { supabase } from "@/lib/supabase";
@@ -164,7 +165,7 @@ export default function HomeScreen() {
           {isEnabled('fasting') ? (
           <StaggerPanel index={0}>
           <View className="mb-section-gap">
-            <Pressable onPress={() => router.push("/(tabs)/fast")} className="rounded-xl p-6 glass-bg glass-border">
+            <GlassPanel as="pressable" onPress={() => router.push("/(tabs)/fast")} className="p-6">
               <View className="flex-row justify-between items-center mb-4">
                 <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 12, letterSpacing: 1, textTransform: "uppercase" }}>
                   {phase === "eating" ? "Eating Window" : "Fasting Today"}
@@ -189,7 +190,7 @@ export default function HomeScreen() {
               <View className="mt-6 h-1 rounded-full overflow-hidden" style={{ backgroundColor: c.progressTrack }}>
                 <View className="h-full rounded-full" style={{ width: `${fastPct * 100}%`, backgroundColor: phase === "eating" ? accent.cyan : accent.lime }} />
               </View>
-            </Pressable>
+            </GlassPanel>
           </View>
           </StaggerPanel>
           ) : null}
@@ -198,7 +199,7 @@ export default function HomeScreen() {
           {isEnabled('period') && cycleInfo.dayOfCycle > 0 ? (
             <StaggerPanel index={1}>
             <View className="mb-section-gap">
-              <Pressable onPress={() => router.push("/(tabs)/period")} className="rounded-xl p-5 glass-bg glass-border">
+              <GlassPanel as="pressable" onPress={() => router.push("/(tabs)/period")} className="p-5">
                 <View className="flex-row justify-between items-center mb-3">
                   <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 12, letterSpacing: 1, textTransform: "uppercase" }}>
                     Cycle Phase
@@ -208,7 +209,7 @@ export default function HomeScreen() {
                 <Text style={{ color: c.textSecondary, fontFamily: "Inter_400Regular", fontSize: 13, lineHeight: 18 }}>
                   {getPhaseDef(cycleInfo.phase).fastingSuggestion}
                 </Text>
-              </Pressable>
+              </GlassPanel>
             </View>
             </StaggerPanel>
           ) : null}
@@ -217,7 +218,7 @@ export default function HomeScreen() {
           {isEnabled('workouts') && enabledGoals.length > 0 ? (
             <StaggerPanel index={2}>
             <View className="mb-section-gap">
-              <Pressable onPress={() => router.push("/(tabs)/workouts")} className="rounded-xl p-5 glass-bg glass-border">
+              <GlassPanel as="pressable" onPress={() => router.push("/(tabs)/workouts")} className="p-5">
                 <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 12, letterSpacing: 1, marginBottom: 16, textTransform: "uppercase" }}>
                   Workout Progress
                 </Text>
@@ -260,7 +261,7 @@ export default function HomeScreen() {
                     +{enabledGoals.length - 4} more
                   </Text>
                 )}
-              </Pressable>
+              </GlassPanel>
             </View>
             </StaggerPanel>
           ) : null}
@@ -268,7 +269,7 @@ export default function HomeScreen() {
           {/* Hydration */}
           <StaggerPanel index={3}>
           <View className="mb-section-gap">
-            <View className="rounded-xl p-5 glass-bg glass-border">
+            <GlassPanel className="p-5 ">
               <View className="flex-row justify-between items-center mb-4">
                 <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 12, letterSpacing: 1, textTransform: "uppercase" }}>
                   Hydration
@@ -301,8 +302,8 @@ export default function HomeScreen() {
                       <Text style={{ color: isSelected ? c.textOnAccent : c.text, fontFamily: "Inter_700Bold", fontSize: 14 }}>{ml}ml</Text>
                       <Text style={{ color: isSelected ? c.textOnAccent : c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 10, textTransform: "uppercase" }}>
                         {ml === 250 ? "Small" : ml === 500 ? "Regular" : "Large"}
-                      </Text>
-                    </Pressable>
+                </Text>
+              </Pressable>
                   );
                 })}
               </View>
@@ -316,7 +317,7 @@ export default function HomeScreen() {
                   placeholder="Custom ml"
                   placeholderTextColor={c.placeholder}
                   keyboardType="numeric"
-                  className="flex-1 rounded-xl px-4 py-3"
+                  className="flex-1 px-4 py-3"
                   style={{ backgroundColor: c.inputBg, color: c.text, fontFamily: "Inter_400Regular", borderWidth: 1, borderColor: c.inputBorder }}
                 />
               </View>
@@ -336,14 +337,14 @@ export default function HomeScreen() {
                   {selectedWaterMl ? `Add ${selectedWaterMl}ml` : "Select Amount"}
                 </Text>
               </Pressable>
-            </View>
+            </GlassPanel>
           </View>
           </StaggerPanel>
 
           {/* Weight */}
           <StaggerPanel index={4}>
           <View className="mb-section-gap">
-            <View className="rounded-xl p-5 glass-bg glass-border">
+            <GlassPanel className="p-5 ">
               <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 12, letterSpacing: 1, marginBottom: 12, textTransform: "uppercase" }}>
                 Weight
               </Text>
@@ -357,14 +358,14 @@ export default function HomeScreen() {
                 loading={weightLoading}
                 unitPrefs={unitPrefs}
               />
-            </View>
+            </GlassPanel>
           </View>
           </StaggerPanel>
 
           {isEnabled('food') ? (
           <StaggerPanel index={5}>
           <View className="mb-section-gap">
-            <View className="rounded-xl p-5 glass-bg glass-border">
+            <GlassPanel className="p-5 ">
               <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 12, letterSpacing: 1, marginBottom: 16, textTransform: "uppercase" }}>
                 Daily Macros
               </Text>
@@ -373,7 +374,7 @@ export default function HomeScreen() {
                   const pct = macro.goal > 0 ? Math.min(macro.current / macro.goal, 1) : 0;
                   return (
                     <View key={macro.label} className="w-1/2" style={{ paddingHorizontal: 8, marginBottom: 16 }}>
-                      <View className="rounded-xl p-4" style={{ backgroundColor: c.cardBg }}>
+                      <View className="p-4" style={{ backgroundColor: c.cardBg }}>
                       <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 10, letterSpacing: 1, marginBottom: 4, textTransform: "uppercase" }}>
                         {macro.label}
                       </Text>
@@ -391,7 +392,7 @@ export default function HomeScreen() {
                   );
                 })}
               </View>
-            </View>
+            </GlassPanel>
           </View>
           </StaggerPanel>
           ) : null}
@@ -399,7 +400,7 @@ export default function HomeScreen() {
           {/* AI Insights */}
           <StaggerPanel index={6}>
           <View className="mb-section-gap">
-            <View className="rounded-xl p-5 glass-bg glass-border">
+            <GlassPanel className="p-5 ">
               <View className="flex-row items-center gap-2 mb-3">
                 <MaterialCommunityIcons name="lightning-bolt" size={18} color={accent.lime} />
                 <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 12, letterSpacing: 1, textTransform: "uppercase" }}>
@@ -413,7 +414,7 @@ export default function HomeScreen() {
               </Text>
 
               {!showCoachChat ? (
-                <Pressable onPress={() => setShowCoachChat(true)} className="rounded-xl py-3 items-center flex-row justify-center gap-2" style={{ backgroundColor: accent.limeBg }}>
+                <Pressable onPress={() => setShowCoachChat(true)} className="py-3 items-center flex-row justify-center gap-2" style={{ backgroundColor: accent.limeBg }}>
                   <MaterialCommunityIcons name="message-text-outline" size={16} color={accent.lime} />
                   <Text style={{ color: accent.lime, fontFamily: "Inter_700Bold", fontSize: 13 }}>Ask a question</Text>
                 </Pressable>
@@ -423,28 +424,28 @@ export default function HomeScreen() {
                     <TextInput value={coachInput} onChangeText={setCoachInput}
                       placeholder="Ask about fasting, nutrition, workouts..."
                       placeholderTextColor={c.placeholder}
-                      className="flex-1 rounded-xl px-4 py-3"
+                      className="flex-1 px-4 py-3"
                       style={{ backgroundColor: c.inputBg, color: c.text, fontFamily: "Inter_400Regular", fontSize: 14 }}
                       returnKeyType="send"
                       onSubmitEditing={() => { handleAskCoach(coachInput); setCoachInput(""); }}
                     />
                     <Pressable onPress={() => { handleAskCoach(coachInput); setCoachInput(""); }}
                       disabled={!coachInput.trim() || coachLoading}
-                      className="rounded-xl p-3"
+                      className="p-3"
                       style={{ backgroundColor: coachInput.trim() && !coachLoading ? accent.lime : c.buttonBg }}>
                       <MaterialCommunityIcons name="send" size={18} color={coachInput.trim() && !coachLoading ? c.textOnAccent : c.textMuted} />
-                    </Pressable>
+              </Pressable>
                   </View>
                   {coachLoading && <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 13 }}>Thinking...</Text>}
                   {coachReply && (
-                    <View className="rounded-xl p-3" style={{ backgroundColor: c.elevated }}>
+                    <View className="p-3" style={{ backgroundColor: c.elevated }}>
                       <Text style={{ color: c.text, fontFamily: "Inter_400Regular", fontSize: 14, lineHeight: 21 }}>{coachReply}</Text>
                     </View>
           )}
 
                 </View>
               )}
-            </View>
+            </GlassPanel>
           </View>
           </StaggerPanel>
         </View>
@@ -478,7 +479,7 @@ export default function HomeScreen() {
               </Text>
             </View>
 
-            <View className="rounded-xl p-4 mb-5" style={{ backgroundColor: c.cardBg }}>
+            <View className="p-4 mb-5" style={{ backgroundColor: c.cardBg }}>
               <View className="flex-row items-center gap-3">
                 <MaterialCommunityIcons name="water" size={20} color={accent.cyan} />
                 <Text style={{ color: c.text, fontFamily: "Inter_400Regular", fontSize: 14 }}>
@@ -489,7 +490,7 @@ export default function HomeScreen() {
 
             <Pressable
               onPress={() => setShowHydrationGoal(false)}
-              className="py-4 rounded-xl items-center"
+              className="py-4 items-center"
               style={{ backgroundColor: accent.cyan }}
             >
               <Text style={{ color: c.textOnAccent, fontFamily: "Inter_700Bold", fontSize: 16 }}>Done</Text>

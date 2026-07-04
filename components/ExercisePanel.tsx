@@ -4,6 +4,7 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useThemeStore } from "@/lib/theme-store";
 import { getThemeColors, ACCENT, getAccentColors } from "@/lib/theme-colors";
 import { EditGoalModal } from "@/components/EditGoalModal";
+import { GlassPanel } from "@/components/GlassPanel";
 import { WorkoutIcon } from "@/components/WorkoutIcon";
 import { getIconKeyForExercise } from "@/lib/exercise-icons";
 import type { WorkoutGoal } from "@/lib/types";
@@ -51,7 +52,7 @@ export function ExercisePanel({
   };
 
   return (
-    <View className="glass-bg glass-border p-5">
+    <GlassPanel className=" p-5">
       {/* Header */}
       <View className="flex-row justify-between items-start mb-4">
         <View className="flex-row items-center gap-3">
@@ -100,11 +101,11 @@ export function ExercisePanel({
 
       {/* Action Buttons */}
       <View className="flex-row gap-2 mb-2">
-        <Pressable onPress={() => setShowEditModal(true)} className="flex-1 py-3 rounded-xl items-center flex-row justify-center gap-2" style={{ backgroundColor: c.buttonBg }}>
+        <Pressable onPress={() => setShowEditModal(true)} className="flex-1 py-3 items-center flex-row justify-center gap-2" style={{ backgroundColor: c.buttonBg }}>
           <MaterialCommunityIcons name="pencil-outline" size={16} color={c.textMuted} />
           <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 14 }}>Edit Goal</Text>
         </Pressable>
-        <Pressable onPress={() => setShowDeleteConfirm(true)} className="flex-1 py-3 rounded-xl items-center flex-row justify-center gap-2" style={{ backgroundColor: c.buttonBg }}>
+        <Pressable onPress={() => setShowDeleteConfirm(true)} className="flex-1 py-3 items-center flex-row justify-center gap-2" style={{ backgroundColor: c.buttonBg }}>
           <MaterialCommunityIcons name="delete-outline" size={16} color={c.textMuted} />
           <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 14 }}>Remove</Text>
         </Pressable>
@@ -121,10 +122,10 @@ export function ExercisePanel({
               You can re-add it later from the Add Exercise menu.
             </Text>
             <View className="flex-row gap-3">
-              <Pressable onPress={() => setShowDeleteConfirm(false)} className="flex-1 py-3.5 rounded-xl items-center" style={{ backgroundColor: c.buttonBg }}>
+              <Pressable onPress={() => setShowDeleteConfirm(false)} className="flex-1 py-3.5 items-center" style={{ backgroundColor: c.buttonBg }}>
                 <Text style={{ color: c.text, fontFamily: "Inter_700Bold" }}>Cancel</Text>
               </Pressable>
-              <Pressable onPress={() => { onToggleEnabled(goal.id, false); setShowDeleteConfirm(false); }} className="flex-1 py-3.5 rounded-xl items-center" style={{ backgroundColor: ACCENT.rose }}>
+              <Pressable onPress={() => { onToggleEnabled(goal.id, false); setShowDeleteConfirm(false); }} className="flex-1 py-3.5 items-center" style={{ backgroundColor: ACCENT.rose }}>
                 <Text style={{ color: c.textOnDark, fontFamily: "Inter_700Bold" }}>Remove</Text>
               </Pressable>
             </View>
@@ -139,6 +140,6 @@ export function ExercisePanel({
         onSave={handleSaveGoal}
         onCancel={() => setShowEditModal(false)}
       />
-    </View>
+    </GlassPanel>
   );
 }

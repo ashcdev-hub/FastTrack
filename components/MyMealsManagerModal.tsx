@@ -5,6 +5,7 @@ import { useThemeStore } from "@/lib/theme-store";
 import { getThemeColors, ACCENT, getAccentColors } from "@/lib/theme-colors";
 import { useMyMeals } from "@/hooks/useMyMeals";
 import { EditMyMealModal } from "@/components/EditMyMealModal";
+import { GlassPanel } from "@/components/GlassPanel";
 import type { MyMeal, MyMealItem } from "@/lib/types";
 
 type MyMealsManagerModalProps = {
@@ -67,14 +68,14 @@ export function MyMealsManagerModal({ visible, userId, onClose }: MyMealsManager
                 <ActivityIndicator size="large" color={accent.lime} />
               </View>
             ) : meals.length === 0 ? (
-              <View className="glass-bg glass-border p-6 items-center rounded-xl">
+              <GlassPanel className=" p-6 items-center rounded-xl">
                 <View className="rounded-full items-center justify-center mb-4" style={{ width: 56, height: 56, backgroundColor: accent.cyanBg }}>
                   <MaterialCommunityIcons name="bookmark-outline" size={28} color={accent.cyan} />
                 </View>
                 <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 15, textAlign: "center" }}>
                   Save your first meal from the Food tab
                 </Text>
-              </View>
+              </GlassPanel>
             ) : (
               <ScrollView style={{ maxHeight: 500 }} showsVerticalScrollIndicator={true}>
                 {meals.map((meal) => {
@@ -102,7 +103,7 @@ export function MyMealsManagerModal({ visible, userId, onClose }: MyMealsManager
               </ScrollView>
             )}
 
-            <Pressable onPress={onClose} className="rounded-xl py-3.5 items-center mt-4" style={{ backgroundColor: c.buttonBg }}>
+            <Pressable onPress={onClose} className="py-3.5 items-center mt-4" style={{ backgroundColor: c.buttonBg }}>
               <Text style={{ color: c.text, fontFamily: "Inter_400Regular", fontSize: 15 }}>Close</Text>
             </Pressable>
           </Pressable>
@@ -129,7 +130,7 @@ export function MyMealsManagerModal({ visible, userId, onClose }: MyMealsManager
                 This will permanently remove "{showDeleteConfirm?.name}" from your saved meals.
               </Text>
             </View>
-            <Pressable onPress={handleDelete} className="rounded-xl py-3.5 items-center mb-3" style={{ backgroundColor: ACCENT.rose }}>
+            <Pressable onPress={handleDelete} className="py-3.5 items-center mb-3" style={{ backgroundColor: ACCENT.rose }}>
               <Text style={{ color: c.textOnDark, fontFamily: "Inter_700Bold", fontSize: 16 }}>Delete</Text>
             </Pressable>
             <Pressable onPress={() => setShowDeleteConfirm(null)} className="py-3 items-center rounded-xl" style={{ backgroundColor: c.buttonBg }}>

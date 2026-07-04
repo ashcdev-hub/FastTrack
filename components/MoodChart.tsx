@@ -4,6 +4,7 @@ import Svg, { Circle, Line, Text as SvgText } from "react-native-svg";
 import { useThemeStore } from "@/lib/theme-store";
 import { getThemeColors, ACCENT, getAccentColors } from "@/lib/theme-colors";
 import type { FastCheckIn } from "@/lib/types";
+import { GlassPanel } from "@/components/GlassPanel";
 
 type MoodChartProps = {
   checkIns: FastCheckIn[];
@@ -72,7 +73,7 @@ export function MoodChart({ checkIns }: MoodChartProps) {
         </Text>
       </View>
 
-      <View className="glass-bg glass-border" style={{ padding: 8 }}>
+      <GlassPanel rounded={false} style={{ padding: 8 }}>
         <Svg width={width - 16} height={height}>
           {[1, 2, 3, 4, 5].map((m) => {
             const y = padding.top + chartH - ((m - 1) / 4) * chartH;
@@ -127,7 +128,7 @@ export function MoodChart({ checkIns }: MoodChartProps) {
             />
           ))}
         </Svg>
-      </View>
+      </GlassPanel>
     </View>
   );
 }

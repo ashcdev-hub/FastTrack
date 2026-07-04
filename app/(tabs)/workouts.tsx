@@ -9,6 +9,7 @@ import { useWorkoutLog } from "@/hooks/useWorkoutLog";
 import { useThemeStore } from "@/lib/theme-store";
 import { getThemeColors, ACCENT, getAccentColors } from "@/lib/theme-colors";
 import { ExercisePanel } from "@/components/ExercisePanel";
+import { GlassPanel } from "@/components/GlassPanel";
 import { AddExerciseModal } from "@/components/AddExerciseModal";
 import { LogSetModal } from "@/components/LogSetModal";
 import { AmbientBackground } from "@/components/AmbientBackground";
@@ -82,11 +83,11 @@ export default function WorkoutsScreen() {
         {loading ? (
           <WorkoutsSkeleton />
         ) : enabledGoals.length === 0 ? (
-          <View className="rounded-xl p-6 items-center glass-bg glass-border">
+          <GlassPanel className="p-6 items-center ">
             <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", textAlign: "center" }}>
               No exercises enabled. Add one to get started!
             </Text>
-          </View>
+          </GlassPanel>
         ) : (
           <View className="flex-col gap-8">
             {enabledGoals.map((goal) => (
@@ -105,7 +106,7 @@ export default function WorkoutsScreen() {
         {/* Add Custom Exercise */}
         <Pressable
           onPress={() => setShowAddModal(true)}
-          className="w-full border-2 border-dashed py-8 rounded-xl flex-col items-center justify-center gap-2 mt-8"
+          className="w-full border-2 border-dashed py-8 flex-col items-center justify-center gap-2 mt-8"
           style={{ borderColor: "rgba(68,73,51,0.4)" }}
         >
           <MaterialCommunityIcons name="plus-circle-outline" size={28} color={accent.lime} />
@@ -115,7 +116,7 @@ export default function WorkoutsScreen() {
         </Pressable>
 
         {/* Motivation Banner */}
-        <View className="mt-section-gap glass-bg glass-border overflow-hidden">
+        <GlassPanel className="mt-section-gap  overflow-hidden">
           <View className="flex-col items-center justify-center p-6">
             <Text style={{ color: accent.lime, fontFamily: "SpaceGrotesk_700Bold", fontSize: 12, letterSpacing: 1, marginBottom: 4, textTransform: "uppercase" }}>
               INSIGHT
@@ -124,7 +125,7 @@ export default function WorkoutsScreen() {
               You are performing {totalReps > 0 ? `${Math.round(totalReps / 3)}%` : "12%"} better than your average.
             </Text>
           </View>
-        </View>
+        </GlassPanel>
       </ScrollView>
 
       <LogSetModal visible={showLogModal} goal={selectedGoal} weightKg={profile?.weight_kg ?? null} onClose={() => setShowLogModal(false)} onLog={handleLog} />

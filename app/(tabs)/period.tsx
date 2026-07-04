@@ -9,6 +9,7 @@ import { usePeriodSettings } from "@/hooks/usePeriodSettings";
 import { useThemeStore } from "@/lib/theme-store";
 import { getThemeColors, ACCENT, getAccentColors } from "@/lib/theme-colors";
 import { CyclePhaseBadge } from "@/components/CyclePhaseBadge";
+import { GlassPanel } from "@/components/GlassPanel";
 import { CycleWheel } from "@/components/CycleWheel";
 import { PeriodCalendar } from "@/components/PeriodCalendar";
 import { PeriodLogModal } from "@/components/PeriodLogModal";
@@ -153,7 +154,7 @@ export default function PeriodScreen() {
         </View>
 
         {periodHistory.length > 0 && (
-          <View className="glass-bg glass-border rounded-xl p-5 mb-section-gap">
+          <GlassPanel className=" p-5 mb-section-gap">
             <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 10, letterSpacing: 0.5, marginBottom: 12, textTransform: "uppercase" }}>
               Past Periods
             </Text>
@@ -171,10 +172,10 @@ export default function PeriodScreen() {
                 </Text>
               </View>
             ))}
-          </View>
+          </GlassPanel>
         )}
 
-        <View className="rounded-xl p-5 mb-section-gap" style={{ backgroundColor: c.cardBg, borderWidth: 1, borderColor: c.cardBorder }}>
+        <View className="p-5 mb-section-gap" style={{ backgroundColor: c.cardBg, borderWidth: 1, borderColor: c.cardBorder }}>
           <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 10, letterSpacing: 0.5, marginBottom: 4, textTransform: "uppercase" }}>
             About This Data
           </Text>

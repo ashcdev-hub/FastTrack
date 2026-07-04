@@ -3,6 +3,7 @@ import { Pressable, View, Text, TextInput } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useThemeStore } from "@/lib/theme-store";
 import { getThemeColors, ACCENT, getAccentColors } from "@/lib/theme-colors";
+import { GlassPanel } from "@/components/GlassPanel";
 
 const MOODS = [
   { value: 1, label: "Terrible", icon: "emoticon-sad-outline" as const, color: ACCENT.rose },
@@ -40,16 +41,16 @@ export function CheckInPanel({ phase, onSubmit }: CheckInPanelProps) {
 
   if (submitted) {
     return (
-      <View className="rounded-xl p-4" style={{ backgroundColor: ACCENT.limeBg, borderWidth: 1, borderColor: ACCENT.limeBorder }}>
+      <View className="p-4" style={{ backgroundColor: ACCENT.limeBg, borderWidth: 1, borderColor: ACCENT.limeBorder }}>
         <Text style={{ color: ACCENT.lime, fontFamily: "Inter_700Bold", textAlign: "center" }}>
           Check-in saved
         </Text>
       </View>
-    );
-  }
+  );
+}
 
   return (
-    <View className="glass-bg glass-border p-5">
+    <GlassPanel className=" p-5">
       <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 12, letterSpacing: 1, marginBottom: 12, textTransform: "uppercase" }}>
         HOW ARE YOU FEELING?
       </Text>
@@ -104,7 +105,7 @@ export function CheckInPanel({ phase, onSubmit }: CheckInPanelProps) {
           onChangeText={setNote}
           placeholder={phase === "fasting" ? "How's the fast going?" : "How's the meal?"}
           placeholderTextColor={c.placeholder}
-          className="flex-1 rounded-xl px-4 py-3 text-sm"
+          className="flex-1 px-4 py-3 text-sm"
           style={{ backgroundColor: c.cardBgAlt, color: c.text, fontFamily: "Inter_400Regular" }}
           multiline
           maxLength={280}
@@ -128,6 +129,6 @@ export function CheckInPanel({ phase, onSubmit }: CheckInPanelProps) {
           />
         </Pressable>
       </View>
-    </View>
+    </GlassPanel>
   );
 }

@@ -8,6 +8,7 @@ import { cancelAllNotifications, scheduleDailyFastReminder, setupNotifications }
 import { useFastingStore } from "@/store/useFastingStore";
 import { useThemeStore } from "@/lib/theme-store";
 import { getThemeColors, ACCENT, getAccentColors } from "@/lib/theme-colors";
+import { GlassPanel } from "@/components/GlassPanel";
 
 const ONBOARDING_KEY = "@fasttrack_onboarding_done";
 
@@ -73,7 +74,7 @@ export default function RemindersScreen() {
       </Text>
 
       {/* Toggles */}
-      <View className="glass-bg glass-border overflow-hidden mb-6">
+      <GlassPanel className=" overflow-hidden mb-6">
         <View className="flex-row justify-between items-center p-4" style={{ borderBottomWidth: 1, borderBottomColor: c.divider }}>
           <Text style={{ color: c.text, fontFamily: "Inter_400Regular" }} className="text-sm">Fasting reminders</Text>
           <Switch
@@ -101,7 +102,7 @@ export default function RemindersScreen() {
             thumbColor="#FFFFFF"
           />
         </View>
-      </View>
+      </GlassPanel>
 
       {/* Reminder Time */}
       <Text style={{ color: c.textSecondary, fontFamily: "Inter_400Regular" }} className="text-xs mb-2">
@@ -129,7 +130,7 @@ export default function RemindersScreen() {
       {/* Complete */}
       <Pressable
         onPress={handleComplete} disabled={saving}
-        className="rounded-xl py-4"
+        className="py-4"
         style={{ backgroundColor: accent.lime }}
       >
         <Text style={{ color: c.textOnAccent, fontFamily: "Inter_700Bold" }} className="text-center text-lg">

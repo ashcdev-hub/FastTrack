@@ -8,6 +8,7 @@ import { useProfile } from "@/hooks/useProfile";
 import { useMyMeals } from "@/hooks/useMyMeals";
 import { useGoalStore } from "@/store/useGoalStore";
 import { LogMealModal } from "@/components/LogMealModal";
+import { GlassPanel } from "@/components/GlassPanel";
 import { FoodLogItem } from "@/components/FoodLogItem";
 import { MealCalendarModal } from "@/components/MealCalendarModal";
 import { LogFoodSkeleton } from "@/components/Skeleton";
@@ -69,7 +70,7 @@ export default function LogFoodScreen() {
         showsVerticalScrollIndicator={false}
       >
         {/* Daily Macro Goal Summary */}
-        <View className="rounded-xl p-5 mb-section-gap glass-bg glass-border">
+        <GlassPanel className="p-5 mb-section-gap ">
           <View className="flex-row justify-between items-end mb-6">
             <View>
               <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 12, letterSpacing: 1, marginBottom: 4, textTransform: "uppercase" }}>
@@ -98,12 +99,12 @@ export default function LogFoodScreen() {
               );
             })}
           </View>
-        </View>
+        </GlassPanel>
 
         {/* Log Meal CTA */}
         <Pressable
           onPress={() => setShowLogMeal(true)}
-          className="rounded-xl py-4 mb-section-gap items-center flex-row justify-center gap-2"
+          className="py-4 mb-section-gap items-center flex-row justify-center gap-2"
           style={{ backgroundColor: accent.lime }}
         >
           <MaterialCommunityIcons name="plus-circle-outline" size={22} color={c.textOnAccent} />
@@ -115,7 +116,7 @@ export default function LogFoodScreen() {
         {/* Meal Calendar Button */}
         <Pressable
           onPress={() => setShowCalendarModal(true)}
-          className="rounded-xl py-3 mb-section-gap flex-row items-center justify-center gap-2"
+          className="py-3 mb-section-gap flex-row items-center justify-center gap-2"
           style={{ backgroundColor: c.buttonBg }}
         >
           <MaterialCommunityIcons name="calendar-month-outline" size={18} color={c.text} />
@@ -128,9 +129,9 @@ export default function LogFoodScreen() {
           {foodLoading ? (
             <LogFoodSkeleton />
           ) : Object.keys(mealsByType).length === 0 ? (
-            <View className="rounded-xl p-6 items-center glass-bg glass-border">
+            <GlassPanel className="p-6 items-center ">
               <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular" }}>No meals logged today</Text>
-            </View>
+            </GlassPanel>
           ) : (
             mealTypes.map((type) => {
               const items = mealsByType[type];
@@ -212,12 +213,12 @@ export default function LogFoodScreen() {
               onChangeText={setSaveMealPromptName}
               placeholder="e.g. Breakfast Meal"
               placeholderTextColor={c.placeholder}
-              className="rounded-xl px-4 py-3 mb-4"
+              className="px-4 py-3 mb-4"
               style={{ backgroundColor: c.inputBg, color: c.text, fontFamily: "Inter_400Regular", fontSize: 15 }}
               autoFocus
             />
             <View className="flex-row gap-3">
-              <Pressable onPress={() => setShowSaveMealPrompt(false)} className="flex-1 py-3 rounded-xl items-center" style={{ backgroundColor: c.buttonBg }}>
+              <Pressable onPress={() => setShowSaveMealPrompt(false)} className="flex-1 py-3 items-center" style={{ backgroundColor: c.buttonBg }}>
                 <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 15 }}>Cancel</Text>
               </Pressable>
               <Pressable onPress={async () => {
@@ -225,7 +226,7 @@ export default function LogFoodScreen() {
                 await addMyMeal(saveMealPromptName.trim(), saveMealPromptItems);
                 setShowSaveMealPrompt(false);
                 setSaveMealPromptName("");
-              }} className="flex-1 py-3 rounded-xl items-center" style={{ backgroundColor: saveMealPromptName.trim() ? accent.lime : c.buttonBg }} disabled={!saveMealPromptName.trim()}>
+              }} className="flex-1 py-3 items-center" style={{ backgroundColor: saveMealPromptName.trim() ? accent.lime : c.buttonBg }} disabled={!saveMealPromptName.trim()}>
                 <Text style={{ color: saveMealPromptName.trim() ? c.textOnAccent : c.textMuted, fontFamily: "Inter_700Bold", fontSize: 15 }}>Save</Text>
               </Pressable>
             </View>

@@ -4,6 +4,7 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { format } from "date-fns";
 import { useSessionCheckIns } from "@/hooks/useFastCheckIns";
 import { CheckInTimeline } from "@/components/CheckInTimeline";
+import { GlassPanel } from "@/components/GlassPanel";
 import { MoodChart } from "@/components/MoodChart";
 import { WeeklyCalendar } from "@/components/WeeklyCalendar";
 import { FastCalendar } from "@/components/FastCalendar";
@@ -60,10 +61,7 @@ export function PreviousFasts({ sessions, fastingHours, onDelete }: PreviousFast
 
         return (
           <View key={s.id} className="mb-3">
-            <Pressable
-              onPress={() => setExpandedId(isExpanded ? null : s.id)}
-              className="glass-bg glass-border p-5 flex-row items-center"
-            >
+            <GlassPanel as="pressable" onPress={() => setExpandedId(isExpanded ? null : s.id)} className="p-5 flex-row items-center">
               <View
                 style={{
                   width: 4,
@@ -112,7 +110,7 @@ export function PreviousFasts({ sessions, fastingHours, onDelete }: PreviousFast
               >
                 <MaterialCommunityIcons name="delete-outline" size={20} color={c.textMuted} />
               </Pressable>
-            </Pressable>
+            </GlassPanel>
 
             {isExpanded && <SessionDetail sessionId={s.id} schedule={s.fasting_schedule} />}
 
@@ -140,10 +138,10 @@ export function PreviousFasts({ sessions, fastingHours, onDelete }: PreviousFast
               This record will be permanently removed.
             </Text>
             <View className="flex-row gap-3">
-              <Pressable onPress={() => setDeleteTarget(null)} className="flex-1 py-3.5 rounded-xl items-center" style={{ backgroundColor: c.buttonBg }}>
+              <Pressable onPress={() => setDeleteTarget(null)} className="flex-1 py-3.5 items-center" style={{ backgroundColor: c.buttonBg }}>
                 <Text style={{ color: c.text, fontFamily: "Inter_700Bold" }}>Cancel</Text>
               </Pressable>
-              <Pressable onPress={() => { if (deleteTarget) { onDelete(deleteTarget.id); setDeleteTarget(null); } }} className="flex-1 py-3.5 rounded-xl items-center" style={{ backgroundColor: ACCENT.rose }}>
+              <Pressable onPress={() => { if (deleteTarget) { onDelete(deleteTarget.id); setDeleteTarget(null); } }} className="flex-1 py-3.5 items-center" style={{ backgroundColor: ACCENT.rose }}>
                 <Text style={{ color: c.textOnDark, fontFamily: "Inter_700Bold" }}>Delete</Text>
               </Pressable>
             </View>
@@ -168,7 +166,7 @@ function SessionDetail({ sessionId, schedule }: { sessionId: string; schedule?: 
   const accent = getAccentColors(theme);
 
   return (
-    <View className="glass-bg glass-border p-4 mt-2">
+    <GlassPanel className=" p-4 mt-2">
       {schedule && (
         <View className="flex-row items-center mb-3">
           <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular" }} className="text-xs">Schedule:</Text>
@@ -187,6 +185,6 @@ function SessionDetail({ sessionId, schedule }: { sessionId: string; schedule?: 
           <CheckInTimeline checkIns={checkIns} />
         </>
       )}
-    </View>
+    </GlassPanel>
   );
 }

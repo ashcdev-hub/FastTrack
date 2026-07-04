@@ -5,6 +5,7 @@ import { useThemeStore } from "@/lib/theme-store";
 import { getThemeColors, ACCENT, getAccentColors } from "@/lib/theme-colors";
 import { useFastCalendar } from "@/hooks/useFastCalendar";
 import type { FastingSession } from "@/lib/types";
+import { GlassPanel } from "@/components/GlassPanel";
 
 type FastCalendarProps = {
   visible: boolean;
@@ -197,7 +198,7 @@ export function FastCalendar({ visible, userId, fastingHours, onClose }: FastCal
           ))}
 
           {selectedDate && (
-            <View className="mt-3 glass-bg glass-border p-4">
+            <GlassPanel className="mt-3  p-4">
               <Text style={{ color: c.textSecondary, fontFamily: "SpaceGrotesk_600SemiBold" }} className="text-xs mb-2">
                 {selectedDate.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })}
               </Text>
@@ -238,10 +239,10 @@ export function FastCalendar({ visible, userId, fastingHours, onClose }: FastCal
                   );
                 })
               )}
-            </View>
+            </GlassPanel>
           )}
 
-          <Pressable onPress={onClose} className="rounded-xl py-3 mt-4" style={{ backgroundColor: c.buttonBg }}>
+          <Pressable onPress={onClose} className="py-3 mt-4" style={{ backgroundColor: c.buttonBg }}>
             <Text style={{ color: c.text, fontFamily: "Inter_700Bold" }} className="text-center">
               Close
             </Text>
