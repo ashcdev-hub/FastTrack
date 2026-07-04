@@ -8,7 +8,7 @@ import type { DailyWorkoutData } from "@/hooks/useWorkoutCalendar";
 import { GlassPanel } from "@/components/GlassPanel";
 
 type WorkoutWeeklyCalendarProps = {
-  dailyData: Map<string, DailyWorkoutData>;
+  dailyData: Record<string, DailyWorkoutData>;
   goals: WorkoutGoal[];
   onViewCalendar: () => void;
 };
@@ -62,7 +62,7 @@ export function WorkoutWeeklyCalendar({ dailyData, goals, onViewCalendar }: Work
 
   const dayData = weekDates.map((date) => {
     const ds = toDateStr(date);
-    const data = dailyData.get(ds);
+    const data = dailyData[ds];
     const isToday = isSameDay(date, now);
     const workedOut = !!data;
     const goalMet = hasGoalMet(data, goals);

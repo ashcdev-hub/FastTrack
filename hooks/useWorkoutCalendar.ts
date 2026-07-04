@@ -9,10 +9,10 @@ export type DailyWorkoutData = {
 };
 
 export function useWorkoutCalendar(userId: string | null, year: number, month: number) {
-  const { data: dailyData = new Map<string, DailyWorkoutData>(), isLoading: loading } = useQuery({
+  const { data: dailyData = {} as Record<string, DailyWorkoutData>, isLoading: loading } = useQuery({
     queryKey: ["workout_calendar", userId, year, month],
     queryFn: async () => {
-      if (!userId) return new Map<string, DailyWorkoutData>();
+      if (!userId) return {} as Record<string, DailyWorkoutData>;
 
       const startOfMonth = new Date(year, month, 1);
       const endOfMonth = new Date(year, month + 1, 0, 23, 59, 59);
@@ -27,16 +27,16 @@ export function useWorkoutCalendar(userId: string | null, year: number, month: n
 
       if (error) {
         console.error("Error fetching workout calendar:", error);
-        return new Map<string, DailyWorkoutData>();
+        return {} as Record<string, DailyWorkoutData>;
       }
 
-      const map = new Map<string, DailyWorkoutData>();
+      const map: Record<string, DailyWorkoutData> = {};
       for (const entry of data ?? []) {
         const day = entry.logged_at.split("T")[0];
-        if (!map.has(day)) {
-          map.set(day, { totalReps: 0, totalSets: 0, totalCalories: 0, exercises: {} });
+        if (!map[day]) {
+          map[day] = { totalReps: 0, totalSets: 0, totalCalories: 0, exercises: {} };
         }
-        const d = map.get(day)!;
+        const d = map[day];
         d.totalReps += entry.reps * entry.sets;
         d.totalSets += entry.sets;
         d.totalCalories += entry.calories_burned ?? 0;

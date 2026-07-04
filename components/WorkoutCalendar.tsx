@@ -114,11 +114,11 @@ export function WorkoutCalendar({ visible, userId, goals, onClose }: WorkoutCale
                 const isCurrentMonth = date.getMonth() === month;
                 const isToday = isSameDay(date, now);
                 const isSelected = selectedDate && isSameDay(date, selectedDate);
-                const dayData = dailyData.get(ds);
+                const dayData = dailyData[ds];
                 const workedOut = !!dayData;
                 const goalMet = hasGoalMet(dayData, goals);
                 const nextDay = colIdx < 6 ? week[colIdx + 1] : null;
-                const nextDayData = nextDay ? dailyData.get(toDateStr(nextDay)) : undefined;
+                const nextDayData = nextDay ? dailyData[toDateStr(nextDay)] : undefined;
                 const nextWorkedOut = !!nextDayData && nextDay?.getMonth() === month;
                 const showLine = workedOut && nextWorkedOut;
 
@@ -171,7 +171,7 @@ export function WorkoutCalendar({ visible, userId, goals, onClose }: WorkoutCale
 
           {selectedDate && (() => {
             const ds = toDateStr(selectedDate);
-            const dayData = dailyData.get(ds);
+            const dayData = dailyData[ds];
             return (
               <GlassPanel className="mt-3  p-4">
                 <Text style={{ color: c.textSecondary, fontFamily: "SpaceGrotesk_600SemiBold" }} className="text-xs mb-2">
