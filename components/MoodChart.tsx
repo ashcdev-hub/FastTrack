@@ -72,7 +72,7 @@ export function MoodChart({ checkIns }: MoodChartProps) {
         </Text>
       </View>
 
-      <View className="glass-panel" style={{ padding: 8 }}>
+      <View className="glass-bg glass-border" style={{ padding: 8 }}>
         <Svg width={width - 16} height={height}>
           {[1, 2, 3, 4, 5].map((m) => {
             const y = padding.top + chartH - ((m - 1) / 4) * chartH;

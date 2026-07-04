@@ -98,7 +98,7 @@ export function WeightChart({ entries, goalWeightKg }: WeightChartProps) {
         </Text>
       </View>
 
-      <View className="glass-panel" style={{ padding: 8 }}>
+      <View className="glass-bg glass-border" style={{ padding: 8 }}>
         <Svg width={width - 16} height={height}>
           {yTicks.map((w, i) => {
             const y = padding.top + chartH - ((w - yMin) / yRange) * chartH;

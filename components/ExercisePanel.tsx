@@ -51,7 +51,7 @@ export function ExercisePanel({
   };
 
   return (
-    <View className="glass-panel p-5">
+    <View className="glass-bg glass-border p-5">
       {/* Header */}
       <View className="flex-row justify-between items-start mb-4">
         <View className="flex-row items-center gap-3">

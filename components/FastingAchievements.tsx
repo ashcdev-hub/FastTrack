@@ -57,7 +57,7 @@ export function FastingAchievements({
       </Text>
 
       <View className="flex-row gap-3 mb-4">
-        <View className="flex-1 glass-panel items-center py-4">
+        <View className="flex-1 glass-bg glass-border items-center py-4">
           <MaterialCommunityIcons name="fire" size={28} color={accent.lime} />
           <Text style={{ color: accent.lime, fontFamily: "Inter_700Bold" }} className="text-2xl mt-1">
             {streak}
@@ -67,7 +67,7 @@ export function FastingAchievements({
           </Text>
         </View>
 
-        <View className="flex-1 glass-panel items-center py-4">
+        <View className="flex-1 glass-bg glass-border items-center py-4">
           <MaterialCommunityIcons name="calendar-check" size={28} color={accent.cyan} />
           <Text style={{ color: accent.cyan, fontFamily: "Inter_700Bold" }} className="text-2xl mt-1">
             {completedFasts}
@@ -77,7 +77,7 @@ export function FastingAchievements({
           </Text>
         </View>
 
-        <View className="flex-1 glass-panel items-center py-4">
+        <View className="flex-1 glass-bg glass-border items-center py-4">
           <MaterialCommunityIcons name="arm-flex" size={28} color={accent.coral} />
           <Text style={{ color: accent.coral, fontFamily: "Inter_700Bold" }} className="text-2xl mt-1">
             {pushupStreak}
@@ -88,7 +88,7 @@ export function FastingAchievements({
         </View>
       </View>
 
-      <View className="glass-panel p-4 mb-3">
+      <View className="glass-bg glass-border p-4 mb-3">
         <View className="flex-row justify-between items-center mb-2">
           <Text style={{ color: c.text, fontFamily: "Inter_400Regular" }} className="text-sm">
             Next Fast: {nextFastingMilestone.label}
@@ -105,7 +105,7 @@ export function FastingAchievements({
         </View>
       </View>
 
-      <View className="glass-panel p-4">
+      <View className="glass-bg glass-border p-4">
         <View className="flex-row justify-between items-center mb-2">
           <Text style={{ color: c.text, fontFamily: "Inter_400Regular" }} className="text-sm">
             Next Pushup: {nextPushupMilestone.label}

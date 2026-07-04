@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Pressable, View, Text, TextInput, ScrollView, Modal } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useThemeStore } from "@/lib/theme-store";
@@ -62,6 +62,20 @@ export function PeriodLogModal({ visible, dateStr, entry, predictedFertile, pred
   const [saving, setSaving] = useState(false);
   const [showDelete, setShowDelete] = useState(false);
 
+  const hasFlow = !!entry?.flow_intensity;
+
+  useEffect(() => {
+    setFlow(entry?.flow_intensity ?? null);
+    setCramps(entry?.cramps ?? null);
+    setMood(entry?.mood ?? null);
+    setEnergy(entry?.energy ?? null);
+    setHeadache(entry?.headache ?? false);
+    setBloating(entry?.bloating ?? false);
+    setCravings(entry?.cravings ?? false);
+    setNotes(entry?.notes ?? "");
+    setShowDelete(false);
+  }, [dateStr, entry]);
+
   const formattedDate = (() => {
     const d = new Date(dateStr + "T12:00:00");
     return d.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" });
@@ -83,6 +97,48 @@ export function PeriodLogModal({ visible, dateStr, entry, predictedFertile, pred
     onClose();
   };
 
+  const handleMarkPeriodDay = async () => {
+    setSaving(true);
+    setFlow("medium");
+    try {
+      await onSave({
+        flow_intensity: "medium",
+        cramps: cramps as any || null,
+        mood: mood as any || null,
+        energy: energy as any || null,
+        headache,
+        bloating,
+        cravings,
+        notes: notes.trim() || null,
+      });
+    } catch (e) {
+      console.error("Failed to save period day:", e);
+    }
+    setSaving(false);
+    onClose();
+  };
+
+  const handleEndPeriod = async () => {
+    setSaving(true);
+    setFlow(null);
+    try {
+      await onSave({
+        flow_intensity: null,
+        cramps: cramps as any || null,
+        mood: mood as any || null,
+        energy: energy as any || null,
+        headache,
+        bloating,
+        cravings,
+        notes: notes.trim() || null,
+      });
+    } catch (e) {
+      console.error("Failed to end period:", e);
+    }
+    setSaving(false);
+    onClose();
+  };
+
   const handleDelete = async () => {
     setSaving(true);
     await onDelete();
@@ -97,7 +153,7 @@ export function PeriodLogModal({ visible, dateStr, entry, predictedFertile, pred
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
       <Pressable className="flex-1 justify-end" style={{ backgroundColor: c.overlay }} onPress={onClose}>
         <Pressable onStartShouldSetResponder={() => true} className="rounded-t-3xl" style={{ backgroundColor: c.elevated, maxHeight: "85%" }}>
-          <ScrollView className="p-6">
+          <ScrollView className="p-6" keyboardShouldPersistTaps="handled">
             <View className="flex-row justify-between items-center mb-5">
               <Pressable onPress={onClose}>
                 <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 15 }}>Cancel</Text>
@@ -121,139 +177,178 @@ export function PeriodLogModal({ visible, dateStr, entry, predictedFertile, pred
               </View>
             )}
 
-            <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 10, letterSpacing: 0.5, marginBottom: 8, textTransform: "uppercase" }}>
-              Flow
-            </Text>
-            <View className="flex-row gap-2 mb-5">
-              {FLOW_OPTIONS.map((o) => {
-                const active = flow === o.value;
-                return (
-                  <Pressable
-                    key={o.value}
-                    onPress={() => setFlow(active ? null : o.value)}
-                    className="flex-1 items-center py-3 rounded-xl flex-row justify-center gap-1"
-                    style={{ backgroundColor: active ? accent.roseBg : c.buttonBg, borderWidth: 1, borderColor: active ? accent.rose + "44" : "transparent" }}
-                  >
-                    <MaterialCommunityIcons
-                      name={o.icon as any}
-                      size={16}
-                      color={active ? accent.rose : c.textMuted}
-                    />
-                    <Text style={{ color: active ? accent.rose : c.textMuted, fontFamily: active ? "Inter_700Bold" : "Inter_400Regular", fontSize: 12 }}>
-                      {o.label}
-                    </Text>
-                  </Pressable>
-                );
-              })}
-            </View>
+            {hasFlow ? (
+              <>
+                <View className="flex-row items-center justify-between mb-4">
+                  <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 10, letterSpacing: 0.5, textTransform: "uppercase" }}>
+                    Period Day
+                  </Text>
+                  <View className="flex-row gap-2">
+                    <Pressable
+                      onPress={handleEndPeriod}
+                      className="py-1.5 px-3 rounded-lg"
+                      style={{ backgroundColor: ACCENT.roseBg }}
+                    >
+                      <Text style={{ color: ACCENT.rose, fontFamily: "Inter_700Bold", fontSize: 12 }}>End Period</Text>
+                    </Pressable>
+                    <Pressable
+                      onPress={handleDelete}
+                      className="py-1.5 px-3 rounded-lg"
+                      style={{ backgroundColor: c.buttonBg }}
+                    >
+                      <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 12 }}>Delete</Text>
+                    </Pressable>
+                  </View>
+                </View>
+                <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 12, marginBottom: 8 }}>
+                  How heavy is the flow?
+                </Text>
+                <View className="flex-row gap-2 mb-5">
+                  {FLOW_OPTIONS.map((o) => {
+                    const active = flow === o.value;
+                    return (
+                      <Pressable
+                        key={o.value}
+                        onPress={() => setFlow(active ? null : o.value)}
+                        className="flex-1 items-center py-3 rounded-xl flex-row justify-center gap-1"
+                        style={{ backgroundColor: active ? accent.roseBg : c.buttonBg, borderWidth: 1, borderColor: active ? accent.rose + "44" : "transparent" }}
+                      >
+                        <MaterialCommunityIcons
+                          name={o.icon as any}
+                          size={16}
+                          color={active ? accent.rose : c.textMuted}
+                        />
+                        <Text style={{ color: active ? accent.rose : c.textMuted, fontFamily: active ? "Inter_700Bold" : "Inter_400Regular", fontSize: 12 }}>
+                          {o.label}
+                        </Text>
+                      </Pressable>
+                    );
+                  })}
+                </View>
 
-            <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 10, letterSpacing: 0.5, marginBottom: 8, textTransform: "uppercase" }}>
-              Cramps
-            </Text>
-            <View className="flex-row gap-2 mb-5">
-              {CRAMPS_OPTIONS.map((o) => {
-                const active = cramps === o.value;
-                return (
-                  <Pressable
-                    key={o.value}
-                    onPress={() => setCramps(active ? null : o.value)}
-                    className="flex-1 items-center py-3 rounded-xl"
-                    style={{ backgroundColor: active ? accent.roseBg : c.buttonBg, borderWidth: 1, borderColor: active ? accent.rose + "44" : "transparent" }}
-                  >
-                    <Text style={{ color: active ? accent.rose : c.textMuted, fontFamily: active ? "Inter_700Bold" : "Inter_400Regular", fontSize: 12 }}>
-                      {o.label}
-                    </Text>
-                  </Pressable>
-                );
-              })}
-            </View>
+                <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 10, letterSpacing: 0.5, marginBottom: 8, textTransform: "uppercase" }}>
+                  Cramps
+                </Text>
+                <View className="flex-row gap-2 mb-5">
+                  {CRAMPS_OPTIONS.map((o) => {
+                    const active = cramps === o.value;
+                    return (
+                      <Pressable
+                        key={o.value}
+                        onPress={() => setCramps(active ? null : o.value)}
+                        className="flex-1 items-center py-3 rounded-xl"
+                        style={{ backgroundColor: active ? accent.roseBg : c.buttonBg, borderWidth: 1, borderColor: active ? accent.rose + "44" : "transparent" }}
+                      >
+                        <Text style={{ color: active ? accent.rose : c.textMuted, fontFamily: active ? "Inter_700Bold" : "Inter_400Regular", fontSize: 12 }}>
+                          {o.label}
+                        </Text>
+                      </Pressable>
+                    );
+                  })}
+                </View>
 
-            <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 10, letterSpacing: 0.5, marginBottom: 8, textTransform: "uppercase" }}>
-              Mood
-            </Text>
-            <View className="flex-row flex-wrap gap-2 mb-5">
-              {MOOD_OPTIONS.map((o) => {
-                const active = mood === o.value;
-                return (
-                  <Pressable
-                    key={o.value}
-                    onPress={() => setMood(active ? null : o.value)}
-                    className="flex-row items-center gap-1 px-3 py-2 rounded-xl"
-                    style={{ backgroundColor: active ? accent.limeBg : c.buttonBg, borderWidth: 1, borderColor: active ? accent.lime + "44" : "transparent" }}
-                  >
-                    <MaterialCommunityIcons name={o.icon as any} size={16} color={active ? accent.lime : c.textMuted} />
-                    <Text style={{ color: active ? accent.lime : c.textMuted, fontFamily: active ? "Inter_700Bold" : "Inter_400Regular", fontSize: 12 }}>
-                      {o.label}
-                    </Text>
-                  </Pressable>
-                );
-              })}
-            </View>
+                <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 10, letterSpacing: 0.5, marginBottom: 8, textTransform: "uppercase" }}>
+                  Mood
+                </Text>
+                <View className="flex-row flex-wrap gap-2 mb-5">
+                  {MOOD_OPTIONS.map((o) => {
+                    const active = mood === o.value;
+                    return (
+                      <Pressable
+                        key={o.value}
+                        onPress={() => setMood(active ? null : o.value)}
+                        className="flex-row items-center gap-1 px-3 py-2 rounded-xl"
+                        style={{ backgroundColor: active ? accent.limeBg : c.buttonBg, borderWidth: 1, borderColor: active ? accent.lime + "44" : "transparent" }}
+                      >
+                        <MaterialCommunityIcons name={o.icon as any} size={16} color={active ? accent.lime : c.textMuted} />
+                        <Text style={{ color: active ? accent.lime : c.textMuted, fontFamily: active ? "Inter_700Bold" : "Inter_400Regular", fontSize: 12 }}>
+                          {o.label}
+                        </Text>
+                      </Pressable>
+                    );
+                  })}
+                </View>
 
-            <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 10, letterSpacing: 0.5, marginBottom: 8, textTransform: "uppercase" }}>
-              Energy
-            </Text>
-            <View className="flex-row gap-2 mb-5">
-              {ENERGY_OPTIONS.map((o) => {
-                const active = energy === o.value;
-                return (
-                  <Pressable
-                    key={o.value}
-                    onPress={() => setEnergy(active ? null : o.value)}
-                    className="flex-1 items-center py-3 rounded-xl flex-row justify-center gap-1"
-                    style={{ backgroundColor: active ? accent.limeBg : c.buttonBg, borderWidth: 1, borderColor: active ? accent.lime + "44" : "transparent" }}
-                  >
-                    <MaterialCommunityIcons name={o.icon as any} size={16} color={active ? accent.lime : c.textMuted} />
-                    <Text style={{ color: active ? accent.lime : c.textMuted, fontFamily: active ? "Inter_700Bold" : "Inter_400Regular", fontSize: 12 }}>
-                      {o.label}
-                    </Text>
-                  </Pressable>
-                );
-              })}
-            </View>
+                <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 10, letterSpacing: 0.5, marginBottom: 8, textTransform: "uppercase" }}>
+                  Energy
+                </Text>
+                <View className="flex-row gap-2 mb-5">
+                  {ENERGY_OPTIONS.map((o) => {
+                    const active = energy === o.value;
+                    return (
+                      <Pressable
+                        key={o.value}
+                        onPress={() => setEnergy(active ? null : o.value)}
+                        className="flex-1 items-center py-3 rounded-xl flex-row justify-center gap-1"
+                        style={{ backgroundColor: active ? accent.limeBg : c.buttonBg, borderWidth: 1, borderColor: active ? accent.lime + "44" : "transparent" }}
+                      >
+                        <MaterialCommunityIcons name={o.icon as any} size={16} color={active ? accent.lime : c.textMuted} />
+                        <Text style={{ color: active ? accent.lime : c.textMuted, fontFamily: active ? "Inter_700Bold" : "Inter_400Regular", fontSize: 12 }}>
+                          {o.label}
+                        </Text>
+                      </Pressable>
+                    );
+                  })}
+                </View>
 
-            <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 10, letterSpacing: 0.5, marginBottom: 8, textTransform: "uppercase" }}>
-              Quick log
-            </Text>
-            <View className="flex-row gap-2 mb-5">
-              {[
-                { key: "headache" as const, label: "Headache", icon: "brain", value: headache },
-                { key: "bloating" as const, label: "Bloating", icon: "arrow-expand-all", value: bloating },
-                { key: "cravings" as const, label: "Cravings", icon: "food-variant", value: cravings },
-              ].map((item) => (
+                <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 10, letterSpacing: 0.5, marginBottom: 8, textTransform: "uppercase" }}>
+                  Quick log
+                </Text>
+                <View className="flex-row gap-2 mb-5">
+                  {([
+                    { key: "headache" as const, label: "Headache", icon: "brain", value: headache },
+                    { key: "bloating" as const, label: "Bloating", icon: "arrow-expand-all", value: bloating },
+                    { key: "cravings" as const, label: "Cravings", icon: "food-variant", value: cravings },
+                  ] as const).map((item) => (
+                    <Pressable
+                      key={item.key}
+                      onPress={() => {
+                        if (item.key === "headache") setHeadache(!headache);
+                        else if (item.key === "bloating") setBloating(!bloating);
+                        else if (item.key === "cravings") setCravings(!cravings);
+                      }}
+                      className="flex-1 items-center py-3 rounded-xl flex-row justify-center gap-1"
+                      style={{ backgroundColor: item.value ? accent.roseBg : c.buttonBg, borderWidth: 1, borderColor: item.value ? accent.rose + "44" : "transparent" }}
+                    >
+                      <MaterialCommunityIcons name={item.icon as any} size={16} color={item.value ? accent.rose : c.textMuted} />
+                      <Text style={{ color: item.value ? accent.rose : c.textMuted, fontFamily: item.value ? "Inter_700Bold" : "Inter_400Regular", fontSize: 12 }}>
+                        {item.label}
+                      </Text>
+                    </Pressable>
+                  ))}
+                </View>
+
+                <TextInput
+                  value={notes}
+                  onChangeText={setNotes}
+                  placeholder="Add a note..."
+                  placeholderTextColor={c.placeholder}
+                  className="rounded-xl px-4 py-3 mb-5"
+                  style={{ backgroundColor: c.inputBg, color: c.text, fontFamily: "Inter_400Regular", fontSize: 14, borderWidth: 1, borderColor: c.inputBorder }}
+                  multiline
+                  maxLength={280}
+                />
+
+                <Pressable onPress={() => setShowDelete(true)} className="w-full py-3 rounded-xl items-center mb-3" style={{ backgroundColor: ACCENT.roseBg, borderWidth: 1, borderColor: ACCENT.roseBorder }}>
+                  <Text style={{ color: ACCENT.rose, fontFamily: "Inter_700Bold", fontSize: 13 }}>Delete All Data</Text>
+                </Pressable>
+              </>
+            ) : (
+              <>
+                <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 10, letterSpacing: 0.5, marginBottom: 12, textTransform: "uppercase" }}>
+                  Is this a period day?
+                </Text>
                 <Pressable
-                  key={item.key}
-                  onPress={() => {
-                    if (item.key === "headache") setHeadache(!headache);
-                    else if (item.key === "bloating") setBloating(!bloating);
-                    else if (item.key === "cravings") setCravings(!cravings);
-                  }}
-                  className="flex-1 items-center py-3 rounded-xl flex-row justify-center gap-1"
-                  style={{ backgroundColor: item.value ? accent.roseBg : c.buttonBg, borderWidth: 1, borderColor: item.value ? accent.rose + "44" : "transparent" }}
+                  onPress={handleMarkPeriodDay}
+                  className="w-full py-3 rounded-xl items-center"
+                  style={{ backgroundColor: accent.roseBg, borderWidth: 1, borderColor: accent.rose + "44" }}
+                  disabled={saving}
                 >
-                  <MaterialCommunityIcons name={item.icon as any} size={16} color={item.value ? accent.rose : c.textMuted} />
-                  <Text style={{ color: item.value ? accent.rose : c.textMuted, fontFamily: item.value ? "Inter_700Bold" : "Inter_400Regular", fontSize: 12 }}>
-                    {item.label}
+                  <Text style={{ color: saving ? c.textMuted : accent.rose, fontFamily: "Inter_700Bold", fontSize: 14 }}>
+                    {saving ? "Saving..." : "Mark as Period Day"}
                   </Text>
                 </Pressable>
-              ))}
-            </View>
-
-            <TextInput
-              value={notes}
-              onChangeText={setNotes}
-              placeholder="Add a note..."
-              placeholderTextColor={c.placeholder}
-              className="rounded-xl px-4 py-3 mb-5"
-              style={{ backgroundColor: c.inputBg, color: c.text, fontFamily: "Inter_400Regular", fontSize: 14, borderWidth: 1, borderColor: c.inputBorder }}
-              multiline
-              maxLength={280}
-            />
-
-            {entry && (
-              <Pressable onPress={() => setShowDelete(true)} className="w-full py-3 rounded-xl items-center mb-3" style={{ backgroundColor: ACCENT.roseBg, borderWidth: 1, borderColor: ACCENT.roseBorder }}>
-                <Text style={{ color: ACCENT.rose, fontFamily: "Inter_700Bold", fontSize: 13 }}>Clear Day</Text>
-              </Pressable>
+              </>
             )}
           </ScrollView>
 

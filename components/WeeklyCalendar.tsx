@@ -142,7 +142,7 @@ export function WeeklyCalendar({ pastSessions, fastingHours, onViewCalendar }: W
       </View>
 
       {tooltipIndex !== null && dayData[tooltipIndex]?.session && (
-        <View className="mt-3 glass-panel p-3">
+        <View className="mt-3 glass-bg glass-border p-3">
           <View className="flex-row items-center justify-between">
             <View>
               <Text style={{ color: c.text, fontFamily: "SpaceGrotesk_600SemiBold" }} className="text-sm">

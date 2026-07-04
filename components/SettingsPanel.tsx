@@ -197,7 +197,7 @@ export function SettingsPanel({ userId, initialExpand }: SettingsPanelProps) {
   };
 
   const SectionCard = ({ section, title, children }: { section: string; title: string; children: React.ReactNode }) => (
-    <View className="glass-panel overflow-hidden mb-3">
+    <View className="glass-bg glass-border overflow-hidden mb-3">
       <Pressable onPress={() => toggleSection(section)} className="flex-row justify-between items-center px-5 py-4">
         <Text style={{ color: c.text, fontFamily: "SpaceGrotesk_600SemiBold", fontSize: 15 }}>{title}</Text>
         <MaterialCommunityIcons

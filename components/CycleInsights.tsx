@@ -28,7 +28,7 @@ export function CycleInsights({ phase, nextPeriodDate, isFertile, fertileStart, 
   };
 
   return (
-    <View className="glass-panel rounded-xl p-5">
+    <View className="glass-bg glass-border rounded-xl p-5">
       <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 10, letterSpacing: 0.5, marginBottom: 12, textTransform: "uppercase" }}>
         Phase Insights
       </Text>

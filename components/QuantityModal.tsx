@@ -84,7 +84,7 @@ export function QuantityModal({ visible, itemName, itemCalories, onConfirm, onCa
             ))}
           </View>
 
-          <View className="glass-panel p-4 mb-5 rounded-xl">
+          <View className="glass-bg glass-border p-4 mb-5 rounded-xl">
             <View className="flex-row justify-between mb-1">
               <Text style={{ color: c.textSecondary, fontFamily: "Inter_400Regular", fontSize: 13 }}>Calories</Text>
               <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 14 }}>

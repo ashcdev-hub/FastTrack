@@ -349,7 +349,7 @@ export default function FastScreen() {
             </AnimatedPressable>
 
             {/* Schedule Presets */}
-            <View className="w-full rounded-xl p-5 mb-section-gap glass-panel">
+            <View className="w-full rounded-xl p-5 mb-section-gap glass-bg glass-border">
               <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 12, letterSpacing: 1, marginBottom: 16, textTransform: "uppercase" }}>
                 FASTING SCHEDULE
               </Text>
@@ -396,7 +396,7 @@ export default function FastScreen() {
 
             {/* Schedule Info */}
             {selectedSchedule && (
-            <View className="w-full rounded-xl p-5 mb-section-gap glass-panel">
+            <View className="w-full rounded-xl p-5 mb-section-gap glass-bg glass-border">
               <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 12, letterSpacing: 1, marginBottom: 16, textTransform: "uppercase" }}>
                 {showStartTimePicker ? "PREVIEW" : "IF YOU START NOW"}
               </Text>
@@ -495,7 +495,7 @@ export default function FastScreen() {
                       {Math.round(pct * 100)}%
                     </Text>
                   </View>
-                  <View className="glass-panel p-5 mb-4" style={{ borderColor: "rgba(244,63,94,0.3)" }}>
+                  <View className="glass-bg glass-border p-5 mb-4" style={{ borderColor: "rgba(244,63,94,0.3)" }}>
                     <View className="flex-row items-start gap-3 mb-3">
                       <View style={{ width: 32, height: 32, borderRadius: 16, backgroundColor: "rgba(244,63,94,0.15)", alignItems: "center", justifyContent: "center" }}>
                         <MaterialCommunityIcons name="lightning-bolt" size={18} color={ACCENT.rose} />
@@ -576,7 +576,7 @@ export default function FastScreen() {
                 ? getEatingPhase(elapsedEating, eatingHours * 60)
                 : getFastingPhase(fastElapsedMinutes);
               return (
-                <View className="w-full glass-panel p-5 mb-section-gap">
+                <View className="w-full glass-bg glass-border p-5 mb-section-gap">
                   <View className="flex-row justify-between items-start mb-3">
                     <View className="flex-1">
                       <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 14 }}>{info.label}</Text>
@@ -599,7 +599,7 @@ export default function FastScreen() {
             })()}
 
             {/* Mood Check-in */}
-            <View className="w-full rounded-xl p-5 mb-section-gap glass-panel">
+            <View className="w-full rounded-xl p-5 mb-section-gap glass-bg glass-border">
               <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 12, letterSpacing: 1, textAlign: "center", marginBottom: 16, textTransform: "uppercase" }}>
                 HOW ARE YOU FEELING?
               </Text>
@@ -628,7 +628,7 @@ export default function FastScreen() {
                 })}
               </View>
               <View className="flex-row items-center gap-2 mt-4">
-                <View className="flex-1 glass-panel rounded-xl px-4 py-3">
+                <View className="flex-1 glass-bg glass-border rounded-xl px-4 py-3">
                   <TextInput
                     value={checkInNote}
                     onChangeText={setCheckInNote}
@@ -651,7 +651,7 @@ export default function FastScreen() {
 
             {/* Check-in History */}
             {checkIns.length > 0 && (
-              <View className="w-full glass-panel p-5 mb-section-gap">
+              <View className="w-full glass-bg glass-border p-5 mb-section-gap">
                 <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 12, letterSpacing: 1, marginBottom: 12, textTransform: "uppercase" }}>
                   CHECK-IN HISTORY
                 </Text>

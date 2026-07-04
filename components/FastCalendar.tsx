@@ -197,7 +197,7 @@ export function FastCalendar({ visible, userId, fastingHours, onClose }: FastCal
           ))}
 
           {selectedDate && (
-            <View className="mt-3 glass-panel p-4">
+            <View className="mt-3 glass-bg glass-border p-4">
               <Text style={{ color: c.textSecondary, fontFamily: "SpaceGrotesk_600SemiBold" }} className="text-xs mb-2">
                 {selectedDate.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })}
               </Text>

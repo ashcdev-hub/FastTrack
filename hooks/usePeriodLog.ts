@@ -8,7 +8,7 @@ export function usePeriodLog(userId: string | undefined) {
   const queryClient = useQueryClient();
   const { isOffline } = useConnectivity();
 
-  const { data: entries = [], isLoading: loading } = useQuery({
+  const { data: entries = [], isLoading: loading, refetch } = useQuery({
     queryKey: ["period_log", userId],
     queryFn: async (): Promise<PeriodLogEntry[]> => {
       if (!userId) return [];
@@ -67,7 +67,18 @@ export function usePeriodLog(userId: string | undefined) {
         isOffline,
       );
     },
-    onSuccess: () => {
+    onSuccess: (result: PeriodLogEntry | null) => {
+      if (result) {
+        queryClient.setQueryData<PeriodLogEntry[]>(["period_log", userId], (old = []) => {
+          const idx = old.findIndex((e) => e.log_date === result.log_date);
+          if (idx >= 0) {
+            const updated = [...old];
+            updated[idx] = result;
+            return updated;
+          }
+          return [result, ...old];
+        });
+      }
       queryClient.invalidateQueries({ queryKey: ["period_log", userId] });
     },
   });
@@ -95,6 +106,7 @@ export function usePeriodLog(userId: string | undefined) {
     entries,
     entriesByDate,
     loading,
+    refetch,
     logDay: (log_date: string, data: Partial<PeriodLogEntry>) =>
       upsertMutation.mutateAsync({ log_date, data }),
     deleteEntry: deleteMutation.mutateAsync,

@@ -69,7 +69,7 @@ export default function LogFoodScreen() {
         showsVerticalScrollIndicator={false}
       >
         {/* Daily Macro Goal Summary */}
-        <View className="rounded-xl p-5 mb-section-gap glass-panel">
+        <View className="rounded-xl p-5 mb-section-gap glass-bg glass-border">
           <View className="flex-row justify-between items-end mb-6">
             <View>
               <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 12, letterSpacing: 1, marginBottom: 4, textTransform: "uppercase" }}>
@@ -128,7 +128,7 @@ export default function LogFoodScreen() {
           {foodLoading ? (
             <LogFoodSkeleton />
           ) : Object.keys(mealsByType).length === 0 ? (
-            <View className="rounded-xl p-6 items-center glass-panel">
+            <View className="rounded-xl p-6 items-center glass-bg glass-border">
               <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular" }}>No meals logged today</Text>
             </View>
           ) : (

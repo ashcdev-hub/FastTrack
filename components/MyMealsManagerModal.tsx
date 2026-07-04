@@ -67,7 +67,7 @@ export function MyMealsManagerModal({ visible, userId, onClose }: MyMealsManager
                 <ActivityIndicator size="large" color={accent.lime} />
               </View>
             ) : meals.length === 0 ? (
-              <View className="glass-panel p-6 items-center rounded-xl">
+              <View className="glass-bg glass-border p-6 items-center rounded-xl">
                 <View className="rounded-full items-center justify-center mb-4" style={{ width: 56, height: 56, backgroundColor: accent.cyanBg }}>
                   <MaterialCommunityIcons name="bookmark-outline" size={28} color={accent.cyan} />
                 </View>

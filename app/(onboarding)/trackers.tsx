@@ -54,7 +54,7 @@ export default function TrackersScreen() {
         Pick the trackers you want to use. You can change these anytime in Settings.
       </Text>
 
-      <View className="glass-panel overflow-hidden mb-6">
+      <View className="glass-bg glass-border overflow-hidden mb-6">
         {TRACKERS.map((t, i) => (
           <View
             key={t.id}

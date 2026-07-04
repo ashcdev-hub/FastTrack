@@ -29,7 +29,7 @@ export function FoodLogItem({ entry, onDelete }: FoodLogItemProps) {
   const color = mealColors[entry.meal_type] ?? mealColors.other;
 
   return (
-    <View className="glass-panel p-4 mb-2 flex-row items-center">
+    <View className="glass-bg glass-border p-4 mb-2 flex-row items-center">
       <View
         style={{
           width: 4,

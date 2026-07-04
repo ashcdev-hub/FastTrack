@@ -82,7 +82,7 @@ export default function WorkoutsScreen() {
         {loading ? (
           <WorkoutsSkeleton />
         ) : enabledGoals.length === 0 ? (
-          <View className="rounded-xl p-6 items-center glass-panel">
+          <View className="rounded-xl p-6 items-center glass-bg glass-border">
             <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", textAlign: "center" }}>
               No exercises enabled. Add one to get started!
             </Text>
@@ -115,7 +115,7 @@ export default function WorkoutsScreen() {
         </Pressable>
 
         {/* Motivation Banner */}
-        <View className="mt-section-gap glass-panel overflow-hidden">
+        <View className="mt-section-gap glass-bg glass-border overflow-hidden">
           <View className="flex-col items-center justify-center p-6">
             <Text style={{ color: accent.lime, fontFamily: "SpaceGrotesk_700Bold", fontSize: 12, letterSpacing: 1, marginBottom: 4, textTransform: "uppercase" }}>
               INSIGHT

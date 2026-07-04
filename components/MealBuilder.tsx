@@ -34,7 +34,7 @@ export function MealBuilder({ items, mealType, onRemove, onEdit, onLog, onSaveAs
 
   if (items.length === 0) {
     return (
-      <View className="glass-panel p-6 items-center">
+      <View className="glass-bg glass-border p-6 items-center">
         <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 15, textAlign: "center" }}>
           Search for food or add custom items to build your meal
         </Text>
@@ -43,7 +43,7 @@ export function MealBuilder({ items, mealType, onRemove, onEdit, onLog, onSaveAs
   }
 
   return (
-    <View className="glass-panel p-5">
+    <View className="glass-bg glass-border p-5">
       <View className="flex-row items-center mb-5">
         <View className="w-2 h-2 rounded-full mr-2" style={{ backgroundColor: color }} />
         <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 18 }}>

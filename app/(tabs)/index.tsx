@@ -164,7 +164,7 @@ export default function HomeScreen() {
           {isEnabled('fasting') ? (
           <StaggerPanel index={0}>
           <View className="mb-section-gap">
-            <Pressable onPress={() => router.push("/(tabs)/fast")} className="rounded-xl p-6 glass-panel">
+            <Pressable onPress={() => router.push("/(tabs)/fast")} className="rounded-xl p-6 glass-bg glass-border">
               <View className="flex-row justify-between items-center mb-4">
                 <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 12, letterSpacing: 1, textTransform: "uppercase" }}>
                   {phase === "eating" ? "Eating Window" : "Fasting Today"}
@@ -198,7 +198,7 @@ export default function HomeScreen() {
           {isEnabled('period') && cycleInfo.dayOfCycle > 0 ? (
             <StaggerPanel index={1}>
             <View className="mb-section-gap">
-              <Pressable onPress={() => router.push("/(tabs)/period")} className="rounded-xl p-5 glass-panel">
+              <Pressable onPress={() => router.push("/(tabs)/period")} className="rounded-xl p-5 glass-bg glass-border">
                 <View className="flex-row justify-between items-center mb-3">
                   <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 12, letterSpacing: 1, textTransform: "uppercase" }}>
                     Cycle Phase
@@ -217,7 +217,7 @@ export default function HomeScreen() {
           {isEnabled('workouts') && enabledGoals.length > 0 ? (
             <StaggerPanel index={2}>
             <View className="mb-section-gap">
-              <Pressable onPress={() => router.push("/(tabs)/workouts")} className="rounded-xl p-5 glass-panel">
+              <Pressable onPress={() => router.push("/(tabs)/workouts")} className="rounded-xl p-5 glass-bg glass-border">
                 <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 12, letterSpacing: 1, marginBottom: 16, textTransform: "uppercase" }}>
                   Workout Progress
                 </Text>
@@ -268,7 +268,7 @@ export default function HomeScreen() {
           {/* Hydration */}
           <StaggerPanel index={3}>
           <View className="mb-section-gap">
-            <View className="rounded-xl p-5 glass-panel">
+            <View className="rounded-xl p-5 glass-bg glass-border">
               <View className="flex-row justify-between items-center mb-4">
                 <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 12, letterSpacing: 1, textTransform: "uppercase" }}>
                   Hydration
@@ -343,7 +343,7 @@ export default function HomeScreen() {
           {/* Weight */}
           <StaggerPanel index={4}>
           <View className="mb-section-gap">
-            <View className="rounded-xl p-5 glass-panel">
+            <View className="rounded-xl p-5 glass-bg glass-border">
               <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 12, letterSpacing: 1, marginBottom: 12, textTransform: "uppercase" }}>
                 Weight
               </Text>
@@ -364,7 +364,7 @@ export default function HomeScreen() {
           {isEnabled('food') ? (
           <StaggerPanel index={5}>
           <View className="mb-section-gap">
-            <View className="rounded-xl p-5 glass-panel">
+            <View className="rounded-xl p-5 glass-bg glass-border">
               <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 12, letterSpacing: 1, marginBottom: 16, textTransform: "uppercase" }}>
                 Daily Macros
               </Text>
@@ -399,7 +399,7 @@ export default function HomeScreen() {
           {/* AI Insights */}
           <StaggerPanel index={6}>
           <View className="mb-section-gap">
-            <View className="rounded-xl p-5 glass-panel">
+            <View className="rounded-xl p-5 glass-bg glass-border">
               <View className="flex-row items-center gap-2 mb-3">
                 <MaterialCommunityIcons name="lightning-bolt" size={18} color={accent.lime} />
                 <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 12, letterSpacing: 1, textTransform: "uppercase" }}>

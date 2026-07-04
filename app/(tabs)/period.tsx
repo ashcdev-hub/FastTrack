@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useMemo } from "react";
 import { Pressable, View, Text, ScrollView, Image } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
@@ -34,7 +34,7 @@ function formatCountdown(nextPeriodDate: string | null, confidence: number): str
 
 export default function PeriodScreen() {
   const { user } = useAuth();
-  const { entries, entriesByDate, loading, logDay, deleteEntry } = usePeriodLog(user?.id);
+  const { entries, entriesByDate, loading, logDay, deleteEntry, refetch } = usePeriodLog(user?.id);
   const { settings, updateSettings } = usePeriodSettings(user?.id);
   const { cycleInfo, predictedPeriods, periodHistory } = useCycleTracker(entries, settings);
   const { theme } = useThemeStore();
@@ -46,21 +46,25 @@ export default function PeriodScreen() {
   const [showLogModal, setShowLogModal] = useState(false);
   const [logDateStr, setLogDateStr] = useState("");
   const [showSettings, setShowSettings] = useState(false);
-  const [showQuickFlowPicker, setShowQuickFlowPicker] = useState(false);
 
-  const today = new Date();
-  const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
+  const periodStartDates = new Set(periodHistory.map((p) => p.start));
+  const periodEndDates = new Set(periodHistory.map((p) => p.end));
 
-  const hasRecentFlow = (() => {
-    for (let i = 0; i < 5; i++) {
-      const d = new Date();
-      d.setDate(d.getDate() - i);
-      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-      const entry = entriesByDate.get(key);
-      if (entry?.flow_intensity && entry.flow_intensity !== "spotting") return true;
+  const predictedPeriodDays = useMemo(() => {
+    const days = new Set<string>();
+    for (const p of periodHistory) {
+      const startDate = new Date(p.start + "T12:00:00");
+      for (let i = 0; i < settings.period_duration; i++) {
+        const d = new Date(startDate.getTime() + i * 86400000);
+        const ds = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+        const entry = entriesByDate.get(ds);
+        if (!entry?.flow_intensity) {
+          days.add(ds);
+        }
+      }
     }
-    return false;
-  })();
+    return days;
+  }, [periodHistory, settings.period_duration, entriesByDate]);
 
   const handleDayPress = (dateStr: string) => {
     setLogDateStr(dateStr);
@@ -69,11 +73,15 @@ export default function PeriodScreen() {
 
   const handleSave = async (data: Partial<PeriodLogEntry>) => {
     await logDay(logDateStr, data);
+    await refetch();
   };
 
   const handleDelete = async () => {
     const entry = entriesByDate.get(logDateStr);
-    if (entry) await deleteEntry(entry.id);
+    if (entry) {
+      await deleteEntry(entry.id);
+      await refetch();
+    }
   };
 
   const logEntry = logDateStr ? entriesByDate.get(logDateStr) ?? null : null;
@@ -117,56 +125,6 @@ export default function PeriodScreen() {
           />
         </View>
 
-        <View className="glass-panel rounded-xl p-5 mb-section-gap">
-          <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 10, letterSpacing: 0.5, marginBottom: 12, textTransform: "uppercase" }}>
-            Quick Log
-          </Text>
-          {showQuickFlowPicker ? (
-            <View className="flex-row gap-2">
-              {["Light", "Medium", "Heavy"].map((label) => {
-                const intensity = label.toLowerCase();
-                return (
-                  <Pressable
-                    key={label}
-                    onPress={() => {
-                      logDay(todayStr, { flow_intensity: intensity as any });
-                      setShowQuickFlowPicker(false);
-                    }}
-                    className="flex-1 py-3 rounded-xl items-center"
-                    style={{ backgroundColor: accent.roseBg, borderWidth: 1, borderColor: accent.rose + "44" }}
-                  >
-                    <Text style={{ color: accent.rose, fontFamily: "Inter_700Bold", fontSize: 14 }}>{label}</Text>
-                  </Pressable>
-                );
-              })}
-              <Pressable onPress={() => setShowQuickFlowPicker(false)} className="py-3 px-3 rounded-xl items-center justify-center" style={{ backgroundColor: c.buttonBg }}>
-                <MaterialCommunityIcons name="close" size={18} color={c.textMuted} />
-              </Pressable>
-            </View>
-          ) : (
-            <View className="flex-row gap-3">
-              <Pressable
-                onPress={() => setShowQuickFlowPicker(true)}
-                className="flex-1 py-3 rounded-xl items-center flex-row justify-center gap-2"
-                style={{ backgroundColor: accent.roseBg, borderWidth: 1, borderColor: accent.rose + "44" }}
-              >
-                <MaterialCommunityIcons name="plus-circle" size={18} color={accent.rose} />
-                <Text style={{ color: accent.rose, fontFamily: "Inter_700Bold", fontSize: 14 }}>Period Started</Text>
-              </Pressable>
-              {hasRecentFlow && (
-                <Pressable
-                  onPress={() => { logDay(todayStr, { flow_intensity: null }); }}
-                  className="flex-1 py-3 rounded-xl items-center flex-row justify-center gap-2"
-                  style={{ backgroundColor: c.buttonBg, borderWidth: 1, borderColor: c.cardBorder }}
-                >
-                  <MaterialCommunityIcons name="check-circle-outline" size={18} color={c.text} />
-                  <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 14 }}>Period Ended</Text>
-                </Pressable>
-              )}
-            </View>
-          )}
-        </View>
-
         <View className="mb-section-gap">
           <PeriodCalendar
             entriesByDate={entriesByDate}
@@ -177,6 +135,9 @@ export default function PeriodScreen() {
             fertileStart={cycleInfo.fertileStart}
             fertileEnd={cycleInfo.fertileEnd}
             ovulationDate={cycleInfo.ovulationDate}
+            periodStartDates={periodStartDates}
+            periodEndDates={periodEndDates}
+            predictedPeriodDays={predictedPeriodDays}
             onDayPress={handleDayPress}
           />
         </View>
@@ -192,7 +153,7 @@ export default function PeriodScreen() {
         </View>
 
         {periodHistory.length > 0 && (
-          <View className="glass-panel rounded-xl p-5 mb-section-gap">
+          <View className="glass-bg glass-border rounded-xl p-5 mb-section-gap">
             <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 10, letterSpacing: 0.5, marginBottom: 12, textTransform: "uppercase" }}>
               Past Periods
             </Text>

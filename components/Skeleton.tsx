@@ -58,7 +58,7 @@ export function SkeletonCard({ children }: SkeletonCardProps) {
   const { theme } = useThemeStore();
   const c = getThemeColors(theme);
   return (
-    <View className="glass-panel p-5 mb-3">
+    <View className="glass-bg glass-border p-5 mb-3">
       {children}
     </View>
   );

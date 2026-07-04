@@ -37,7 +37,7 @@ export function WaterTracker({ currentMl, goalMl, onAdd, unitPrefs = DEFAULT_UNI
   };
 
   return (
-    <View className="rounded-xl p-5 glass-panel" style={{ borderLeftWidth: 4, borderLeftColor: accent.cyan }}>
+    <View className="rounded-xl p-5 glass-bg glass-border" style={{ borderLeftWidth: 4, borderLeftColor: accent.cyan }}>
       <View className="flex-row justify-between items-center mb-3">
         <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 18 }}>Water</Text>
         <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 14 }}>

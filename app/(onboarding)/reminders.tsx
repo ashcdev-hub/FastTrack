@@ -73,7 +73,7 @@ export default function RemindersScreen() {
       </Text>
 
       {/* Toggles */}
-      <View className="glass-panel overflow-hidden mb-6">
+      <View className="glass-bg glass-border overflow-hidden mb-6">
         <View className="flex-row justify-between items-center p-4" style={{ borderBottomWidth: 1, borderBottomColor: c.divider }}>
           <Text style={{ color: c.text, fontFamily: "Inter_400Regular" }} className="text-sm">Fasting reminders</Text>
           <Switch

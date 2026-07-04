@@ -49,7 +49,7 @@ export function CheckInPanel({ phase, onSubmit }: CheckInPanelProps) {
   }
 
   return (
-    <View className="glass-panel p-5">
+    <View className="glass-bg glass-border p-5">
       <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 12, letterSpacing: 1, marginBottom: 12, textTransform: "uppercase" }}>
         HOW ARE YOU FEELING?
       </Text>

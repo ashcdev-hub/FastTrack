@@ -160,7 +160,7 @@ export function MealCalendarModal({ visible, entries, onClose, onDeleteEntry, on
           ))}
 
           {selectedDate && (
-            <View className="mt-3 glass-panel p-4" style={{ maxHeight: 200 }}>
+            <View className="mt-3 glass-bg glass-border p-4" style={{ maxHeight: 200 }}>
               <ScrollView showsVerticalScrollIndicator={true}>
                 <Text style={{ color: c.textSecondary, fontFamily: "SpaceGrotesk_600SemiBold", fontSize: 12, marginBottom: 8 }}>
                   {selectedDate.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })}

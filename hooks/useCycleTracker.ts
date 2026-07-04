@@ -10,7 +10,9 @@ export function useCycleTracker(
   const { theme } = useThemeStore();
 
   const cycleInfo = useMemo<CycleInfo>(() => {
-    return calculateCycleInfo(entries, settings, new Date(), theme);
+    const now = new Date();
+    now.setHours(0, 0, 0, 0);
+    return calculateCycleInfo(entries, settings, now, theme);
   }, [entries, settings, theme]);
 
   const predictedPeriods = useMemo<string[]>(() => {

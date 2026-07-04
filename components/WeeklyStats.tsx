@@ -36,7 +36,7 @@ export function WeeklyStats({ fasting, water, workouts, unitPrefs = DEFAULT_UNIT
       </Text>
 
       <View className="flex-row gap-3 mb-3">
-        <View className="flex-1 glass-panel items-center py-4">
+        <View className="flex-1 glass-bg glass-border items-center py-4">
           <MaterialCommunityIcons name="timer-outline" size={24} color={accent.lime} />
           <Text style={{ color: accent.lime, fontFamily: "Inter_700Bold" }} className="text-xl mt-1">
             {formatDuration(fasting.avgDurationMin)}
@@ -46,7 +46,7 @@ export function WeeklyStats({ fasting, water, workouts, unitPrefs = DEFAULT_UNIT
           </Text>
         </View>
 
-        <View className="flex-1 glass-panel items-center py-4">
+        <View className="flex-1 glass-bg glass-border items-center py-4">
           <MaterialCommunityIcons name="trending-up" size={24} color={accent.coral} />
           <Text style={{ color: accent.coral, fontFamily: "Inter_700Bold" }} className="text-xl mt-1">
             {formatDuration(fasting.longestFastMin)}
@@ -56,7 +56,7 @@ export function WeeklyStats({ fasting, water, workouts, unitPrefs = DEFAULT_UNIT
           </Text>
         </View>
 
-        <View className="flex-1 glass-panel items-center py-4">
+        <View className="flex-1 glass-bg glass-border items-center py-4">
           <MaterialCommunityIcons name="target" size={24} color={accent.cyan} />
           <Text style={{ color: accent.cyan, fontFamily: "Inter_700Bold" }} className="text-xl mt-1">
             {fasting.totalFastingHours}h
@@ -68,7 +68,7 @@ export function WeeklyStats({ fasting, water, workouts, unitPrefs = DEFAULT_UNIT
       </View>
 
       <View className="flex-row gap-3 mb-3">
-        <View className="flex-1 glass-panel items-center py-4">
+        <View className="flex-1 glass-bg glass-border items-center py-4">
           <MaterialCommunityIcons name="water" size={24} color={accent.cyan} />
           <Text style={{ color: accent.cyan, fontFamily: "Inter_700Bold" }} className="text-xl mt-1">
             {displayWater(water.dailyAverageMl, unitPrefs)}
@@ -78,7 +78,7 @@ export function WeeklyStats({ fasting, water, workouts, unitPrefs = DEFAULT_UNIT
           </Text>
         </View>
 
-        <View className="flex-1 glass-panel items-center py-4">
+        <View className="flex-1 glass-bg glass-border items-center py-4">
           <MaterialCommunityIcons name="target" size={24} color={accent.lime} />
           <Text style={{ color: accent.lime, fontFamily: "Inter_700Bold" }} className="text-xl mt-1">
             {water.goalHitRate}%
@@ -91,7 +91,7 @@ export function WeeklyStats({ fasting, water, workouts, unitPrefs = DEFAULT_UNIT
 
       {workouts && (
         <View className="flex-row gap-3">
-          <View className="flex-1 glass-panel items-center py-4">
+          <View className="flex-1 glass-bg glass-border items-center py-4">
             <MaterialCommunityIcons name="dumbbell" size={24} color={accent.lime} />
             <Text style={{ color: accent.lime, fontFamily: "Inter_700Bold" }} className="text-xl mt-1">
               {workouts.totalReps}
@@ -101,7 +101,7 @@ export function WeeklyStats({ fasting, water, workouts, unitPrefs = DEFAULT_UNIT
             </Text>
           </View>
 
-          <View className="flex-1 glass-panel items-center py-4">
+          <View className="flex-1 glass-bg glass-border items-center py-4">
             <MaterialCommunityIcons name="fire" size={24} color={accent.coral} />
             <Text style={{ color: accent.coral, fontFamily: "Inter_700Bold" }} className="text-xl mt-1">
               {Math.round(workouts.totalCalories)}

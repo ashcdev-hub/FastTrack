@@ -25,7 +25,7 @@ export function ScheduleSelector({ selected, onSelect }: ScheduleSelectorProps) 
   const [customEating, setCustomEating] = useState("8");
 
   return (
-    <View className="glass-panel p-5 mb-6">
+    <View className="glass-bg glass-border p-5 mb-6">
       <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_600SemiBold" }} className="text-xs mb-4 tracking-widest">
         FASTING SCHEDULE
       </Text>

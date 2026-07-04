@@ -62,7 +62,7 @@ export function PreviousFasts({ sessions, fastingHours, onDelete }: PreviousFast
           <View key={s.id} className="mb-3">
             <Pressable
               onPress={() => setExpandedId(isExpanded ? null : s.id)}
-              className="glass-panel p-5 flex-row items-center"
+              className="glass-bg glass-border p-5 flex-row items-center"
             >
               <View
                 style={{
@@ -168,7 +168,7 @@ function SessionDetail({ sessionId, schedule }: { sessionId: string; schedule?: 
   const accent = getAccentColors(theme);
 
   return (
-    <View className="glass-panel p-4 mt-2">
+    <View className="glass-bg glass-border p-4 mt-2">
       {schedule && (
         <View className="flex-row items-center mb-3">
           <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular" }} className="text-xs">Schedule:</Text>

@@ -41,10 +41,13 @@ type PeriodCalendarProps = {
   fertileStart: string | null;
   fertileEnd: string | null;
   ovulationDate: string | null;
+  periodStartDates: Set<string>;
+  periodEndDates: Set<string>;
+  predictedPeriodDays: Set<string>;
   onDayPress: (dateStr: string) => void;
 };
 
-export function PeriodCalendar({ entriesByDate, predictedPeriods, settings, cycleDay, cycleLength, fertileStart, fertileEnd, ovulationDate, onDayPress }: PeriodCalendarProps) {
+export function PeriodCalendar({ entriesByDate, predictedPeriods, settings, cycleDay, cycleLength, fertileStart, fertileEnd, ovulationDate, periodStartDates, periodEndDates, predictedPeriodDays, onDayPress }: PeriodCalendarProps) {
   const { theme } = useThemeStore();
   const c = getThemeColors(theme);
   const accent = getAccentColors(theme);
@@ -65,7 +68,7 @@ export function PeriodCalendar({ entriesByDate, predictedPeriods, settings, cycl
   const predictedSet = new Set(predictedPeriods);
 
   return (
-    <View className="glass-panel rounded-xl p-5">
+    <View className="glass-bg glass-border rounded-xl p-5">
       <View className="flex-row justify-between items-center mb-4">
         <Pressable onPress={prevMonth} hitSlop={8} className="p-2 rounded-lg" style={{ backgroundColor: c.buttonBg }}>
           <MaterialCommunityIcons name="chevron-left" size={18} color={c.text} />
@@ -95,9 +98,14 @@ export function PeriodCalendar({ entriesByDate, predictedPeriods, settings, cycl
             const entry = entriesByDate.get(ds);
             const isToday = isSameDay(date, now);
             const isCurrentMonth = date.getMonth() === month;
+            const isFuture = date.getTime() > now.getTime() && !isToday;
             const isPredicted = predictedSet.has(ds);
             const isFertileDay = fertileStart && fertileEnd ? ds >= fertileStart && ds <= fertileEnd : false;
             const isOvulationDay = ovulationDate ? ds === ovulationDate : false;
+            const isPeriodStart = isCurrentMonth && periodStartDates.has(ds) && entry?.flow_intensity;
+            const isPeriodEnd = isCurrentMonth && periodEndDates.has(ds) && entry?.flow_intensity;
+            const isPredictedPeriodDay = isCurrentMonth && predictedPeriodDays.has(ds) && !entry?.flow_intensity;
+            const isFutureAndDimmed = isFuture && !isPredictedPeriodDay && !isFertileDay && !isOvulationDay;
             const daysSinceToday = Math.round((date.getTime() - now.getTime()) / 86400000);
             const relativeCycleDay = ((cycleDay + daysSinceToday - 1 + cycleLength * 10) % cycleLength) + 1;
             const phase: CyclePhase = entry?.flow_intensity
@@ -118,9 +126,9 @@ export function PeriodCalendar({ entriesByDate, predictedPeriods, settings, cycl
             return (
               <Pressable
                 key={di}
-                onPress={() => isCurrentMonth && onDayPress(ds)}
+                onPress={() => isCurrentMonth && !isFutureAndDimmed && onDayPress(ds)}
                 className="flex-1 items-center py-1"
-                style={{ opacity: isCurrentMonth ? 1 : 0.2 }}
+                style={{ opacity: isFutureAndDimmed ? 0.25 : isCurrentMonth ? 1 : 0.2 }}
               >
                   <View
                     style={{
@@ -129,20 +137,24 @@ export function PeriodCalendar({ entriesByDate, predictedPeriods, settings, cycl
                       borderRadius: 8,
                       backgroundColor: entry?.flow_intensity
                         ? getPhaseColorBg("menstrual", theme)
-                        : isFertileDay && !entry?.flow_intensity
-                          ? isOvulationDay
-                            ? accent.cyanBg
-                            : accent.cyanBg + "55"
-                          : isPredicted && isCurrentMonth
-                            ? "transparent"
-                            : "transparent",
-                      borderWidth: isToday ? 1.5 : isPredicted && !entry?.flow_intensity ? 1.5 : 0,
+                        : isPredictedPeriodDay
+                          ? getPhaseColorBg("menstrual", theme) + "55"
+                          : isFertileDay && !entry?.flow_intensity
+                            ? isOvulationDay
+                              ? accent.cyanBg
+                              : accent.cyanBg + "55"
+                            : isPredicted && isCurrentMonth
+                              ? "transparent"
+                              : "transparent",
+                      borderWidth: isToday ? 1.5 : isPredictedPeriodDay ? 1.5 : isPredicted && !entry?.flow_intensity ? 1.5 : 0,
                       borderColor: isToday
                         ? accent.lime
-                        : isPredicted && !entry?.flow_intensity
-                          ? phaseColor + "55"
-                          : "transparent",
-                      borderStyle: isPredicted && !entry?.flow_intensity ? "dashed" : "solid",
+                        : isPredictedPeriodDay
+                          ? getPhaseColorBg("menstrual", theme) + "88"
+                          : isPredicted && !entry?.flow_intensity
+                            ? phaseColor + "55"
+                            : "transparent",
+                      borderStyle: isPredictedPeriodDay ? "dashed" : isPredicted && !entry?.flow_intensity ? "dashed" : "solid",
                       alignItems: "center",
                       justifyContent: "center",
                     }}
@@ -151,11 +163,13 @@ export function PeriodCalendar({ entriesByDate, predictedPeriods, settings, cycl
                       style={{
                         color: entry?.flow_intensity
                           ? getPhaseColor("menstrual", theme)
-                          : isToday
-                            ? accent.lime
-                            : isOvulationDay
-                              ? accent.cyan
-                              : c.text,
+                          : isPredictedPeriodDay
+                            ? getPhaseColor("menstrual", theme)
+                            : isToday
+                              ? accent.lime
+                              : isOvulationDay
+                                ? accent.cyan
+                                : c.text,
                         fontFamily: isToday ? "SpaceGrotesk_700Bold" : "Inter_400Regular",
                         fontSize: 13,
                       }}
@@ -167,6 +181,18 @@ export function PeriodCalendar({ entriesByDate, predictedPeriods, settings, cycl
                     )}
                     {dotColor && (
                       <View style={{ width: 4, height: 4, borderRadius: 2, backgroundColor: dotColor, position: "absolute", bottom: 2 }} />
+                    )}
+                    {isPeriodStart && !isPeriodEnd && (
+                      <View style={{ width: 4, height: 4, borderRadius: 2, backgroundColor: accent.rose, position: "absolute", top: 3, left: 3 }} />
+                    )}
+                    {isPeriodEnd && !isPeriodStart && (
+                      <View style={{ width: 4, height: 4, borderRadius: 2, backgroundColor: accent.rose, position: "absolute", top: 3, right: 3 }} />
+                    )}
+                    {isPeriodStart && isPeriodEnd && (
+                      <>
+                        <View style={{ width: 4, height: 4, borderRadius: 2, backgroundColor: accent.rose, position: "absolute", top: 3, left: 3 }} />
+                        <View style={{ width: 4, height: 4, borderRadius: 2, backgroundColor: accent.rose, position: "absolute", top: 3, right: 3 }} />
+                      </>
                     )}
                 </View>
               </Pressable>

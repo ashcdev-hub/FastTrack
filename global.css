@@ -13,12 +13,13 @@
   --glass-border: rgba(44, 44, 46, 1);
 }
 
-@layer components {
-  .glass-panel {
-    background: var(--glass-bg);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border-width: 1px;
+@layer utilities {
+  .glass-bg {
+    background-color: var(--glass-bg);
+  }
+
+  .glass-border {
+    border-width: 1;
     border-color: var(--glass-border);
   }
 
@@ -34,9 +35,6 @@
     transform-origin: 50% 50%;
   }
 
-  .no-scrollbar::-webkit-scrollbar {
-    display: none;
-  }
   .no-scrollbar {
     -ms-overflow-style: none;
     scrollbar-width: none;
