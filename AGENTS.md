@@ -331,11 +331,14 @@ FastTrack/
 │   ├── CheckInTimeline.tsx      # Timeline (theme-aware)
 │   ├── MoodChart.tsx            # SVG mood graph (theme-aware)
 │   ├── SettingsPanel.tsx        # Profile, account, notifications, preferences, trackers, appearance, water goal
-│   ├── ExercisePanel.tsx        # Exercise card: progress, log, edit goal, icon
+│   ├── ExercisePanel.tsx        # Exercise card: progress, quick-log chips, reorder, edit goal, icon
 │   ├── WorkoutIcon.tsx          # SVG workout icon (MingCute/Lucide, theme-tinted via SvgXml)
 │   ├── EditGoalModal.tsx        # Bottom-sheet goal editor (stepper + presets + custom)
 │   ├── LogSetModal.tsx          # Log reps + sets (stepper controls)
 │   ├── AddExerciseModal.tsx     # Add custom exercise modal with icon picker
+│   ├── WorkoutWeeklyCalendar.tsx # 7-day circle calendar (Mon–Sun) matching fasting WeeklyCalendar
+│   ├── WorkoutCalendar.tsx      # Full month calendar modal matching fasting FastCalendar
+│   ├── WorkoutTrendsChart.tsx   # SVG line chart of reps (cyan) and calories (lime) over 30 days
 │   ├── WeightTracker.tsx        # Weight logging + recent entries (supports unit prefs)
 │   ├── WeightChart.tsx          # SVG weight line chart
 │   ├── GlassPanel.tsx           # Shared glass-card wrapper (View or Pressable via `as` prop, theme-aware inline styles)
@@ -368,8 +371,10 @@ FastTrack/
 │   ├── useProfile.ts            # Profile CRUD + password + email + notifications + unit prefs
 │   ├── useWeeklyFastingStats.ts # Weekly fasting stats
 │   ├── useWeeklyWaterStats.ts   # Weekly water stats
-│   ├── useWorkoutGoals.ts       # Workout goals CRUD + seed defaults
+│   ├── useWorkoutGoals.ts       # Workout goals CRUD + seed defaults + reorder
 │   ├── useWorkoutLog.ts         # Log sets, today totals, weekly stats, calorie calc, streaks
+│   ├── useWorkoutCalendar.ts    # Daily workout aggregates per month for calendar
+│   ├── useWorkoutTrends.ts      # 30-day daily aggregates for trends chart
 │   ├── useMyMeals.ts            # My Meals library CRUD + offline queue
 │   ├── useWeightLog.ts          # Weight logging + stats
 │   ├── useFastCalendar.ts       # Monthly session fetch for calendar
@@ -765,6 +770,12 @@ See [Building for iOS (Standalone App)](#building-for-ios-standalone-app) above 
 | 68 | **Predicted period days** — Continuation days extend from each logged period start by `period_duration` setting. Removed `d > now` cutoff so future continuation days (e.g., today's start + 5 days) are predicted. Rendered as rose-tinted with dashed border, fully tappable. | Done |
 | 69 | **PeriodLogModal state reset + error handling** — Added `useEffect` keyed on `dateStr` to reset all modal state between date selections (fixes stale state bug). Added try/catch around `onSave` in `handleMarkPeriodDay` and `handleEndPeriod` so errors don't prevent modal from closing. | Done |
 | 70 | **OMAD text wrapping fix** — Added `numberOfLines={1}` to schedule preset label to prevent text wrapping on narrow Android screens. | Done |
+| 71 | **Workout quick-log chips** — Replaced confusing +/- stepper in ExercisePanel with one-tap rep chips (10/15/20/25/30 + custom via modal). Confirmation bottom-sheet prevents accidental logs. | Done |
+| 72 | **Exercise reordering** — Added sort_order column to workout_goals, client-side sorting, up/down arrows on each ExercisePanel, reorderGoal mutation that swaps sort_order between adjacent exercises. New migration `20250704000015_workout_sort_order.sql`. | Done |
+| 73 | **Workout weekly + monthly calendar** — WorkoutWeeklyCalendar (7-day circle strip matching fasting calendar) and WorkoutCalendar (full month bottom-sheet modal). Connecting lines between consecutive workout days. useWorkoutCalendar hook. | Done |
+| 74 | **Workout trends chart** — SVG line chart of 30-day daily aggregates with REPS (cyan) / CALORIES (lime) toggle. Animated line-drawing via Reanimated useAnimatedProps + strokeDashoffset. | Done |
+| 75 | **AI-powered workout insight** — Replaced static "X% better than average" text with dynamic ai-coach edge function response. Debounced 2s after each set logged. Workout-specific groq prompt for personalized encouragement. Deployed to Supabase. | Done |
+| 76 | **Workout calendar data fixes** — Changed dailyData from Map to Record for React Query cache compatibility. select("*") instead of explicit columns to avoid PostgREST schema cache issues on mobile. Hidden measurement Path for getTotalLength() on native. | Done |
 
 ### Remaining
 | # | Feature | Effort | Description |
