@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { View, Text, Pressable } from "react-native";
 import Svg, { Path, Line, Text as SvgText, Circle } from "react-native-svg";
 import Animated, { useSharedValue, useAnimatedProps, withTiming, Easing } from "react-native-reanimated";
@@ -54,6 +54,7 @@ export function WorkoutTrendsChart({ trends }: WorkoutTrendsChartProps) {
   const pathLength = useSharedValue(0);
   const drawProgress = useSharedValue(0);
   const pathRef = useRef<any>(null);
+  const measureRef = useRef<any>(null);
 
   useEffect(() => {
     drawProgress.value = 0;
@@ -61,7 +62,7 @@ export function WorkoutTrendsChart({ trends }: WorkoutTrendsChartProps) {
     setDashArray(100000);
     if (sorted.length <= 1) return;
     const timeout = setTimeout(() => {
-      const len = pathRef.current?.getTotalLength();
+      const len = pathRef.current?.getTotalLength?.() ?? measureRef.current?.getTotalLength?.();
       if (typeof len === "number" && len > 0) {
         pathLength.value = len;
         setDashArray(len);
@@ -134,6 +135,9 @@ export function WorkoutTrendsChart({ trends }: WorkoutTrendsChartProps) {
               </SvgText>
             );
           })}
+
+          {/* Hidden — used for getTotalLength() measurement on native */}
+          <Path ref={measureRef} d={pathD} opacity={0} />
 
           <Path d={fillPathD} fill={fillColor} opacity={0.3} />
           <AnimatedPath

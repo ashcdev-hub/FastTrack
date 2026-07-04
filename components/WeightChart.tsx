@@ -55,6 +55,7 @@ export function WeightChart({ entries, goalWeightKg }: WeightChartProps) {
   const pathLength = useSharedValue(0);
   const drawProgress = useSharedValue(0);
   const pathRef = useRef<any>(null);
+  const measureRef = useRef<any>(null);
 
   useEffect(() => {
     drawProgress.value = 0;
@@ -62,7 +63,7 @@ export function WeightChart({ entries, goalWeightKg }: WeightChartProps) {
     setDashArray(100000);
     if (entries.length <= 1) return;
     const timeout = setTimeout(() => {
-      const len = pathRef.current?.getTotalLength();
+      const len = pathRef.current?.getTotalLength?.() ?? measureRef.current?.getTotalLength?.();
       if (typeof len === "number" && len > 0) {
         pathLength.value = len;
         setDashArray(len);
@@ -131,6 +132,9 @@ export function WeightChart({ entries, goalWeightKg }: WeightChartProps) {
               </SvgText>
             </>
           )}
+
+          {/* Hidden — used for getTotalLength() measurement on native */}
+          <Path ref={measureRef} d={pathD} opacity={0} />
 
           <Path d={fillPathD} fill={fillColor} opacity={0.3} />
           <AnimatedPath

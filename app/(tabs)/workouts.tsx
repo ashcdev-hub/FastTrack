@@ -165,21 +165,32 @@ export default function WorkoutsScreen() {
           </View>
         )}
 
-        {/* Workout Trends Chart */}
-        {trends.length > 1 && (
-          <View className="mt-8 mb-section-gap">
-            <WorkoutTrendsChart trends={trends} />
-          </View>
-        )}
+        {/* Add Custom Exercise */}
+        <Pressable
+          onPress={() => setShowAddModal(true)}
+          className="w-full border-2 border-dashed py-8 flex-col items-center justify-center gap-2 mt-8 mb-section-gap"
+          style={{ borderColor: "rgba(68,73,51,0.4)" }}
+        >
+          <MaterialCommunityIcons name="plus-circle-outline" size={28} color={accent.lime} />
+          <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 12, letterSpacing: 1, textTransform: "uppercase" }}>
+            Add Custom Exercise
+          </Text>
+        </Pressable>
 
-        {/* Workout Calendar */}
+        {/* Previous Exercises */}
         {enabledGoals.length > 0 && (
           <View className="mb-section-gap">
+            <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 12, letterSpacing: 1, marginBottom: 12, textTransform: "uppercase" }}>
+              PREVIOUS EXERCISES
+            </Text>
             <WorkoutWeeklyCalendar
               dailyData={dailyData}
               goals={enabledGoals}
               onViewCalendar={() => setShowWorkoutCalendar(true)}
             />
+            {trends.length > 1 && (
+              <WorkoutTrendsChart trends={trends} />
+            )}
           </View>
         )}
 
@@ -201,18 +212,6 @@ export default function WorkoutsScreen() {
             </View>
           </GlassPanel>
         )}
-
-        {/* Add Custom Exercise */}
-        <Pressable
-          onPress={() => setShowAddModal(true)}
-          className="w-full border-2 border-dashed py-8 flex-col items-center justify-center gap-2"
-          style={{ borderColor: "rgba(68,73,51,0.4)" }}
-        >
-          <MaterialCommunityIcons name="plus-circle-outline" size={28} color={accent.lime} />
-          <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 12, letterSpacing: 1, textTransform: "uppercase" }}>
-            Add Custom Exercise
-          </Text>
-        </Pressable>
       </ScrollView>
 
       <LogSetModal visible={showLogModal} goal={selectedGoal} weightKg={profile?.weight_kg ?? null} onClose={() => setShowLogModal(false)} onLog={handleLog} />

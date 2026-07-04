@@ -20,7 +20,7 @@ export function useWorkoutGoals(userId: string | undefined) {
 
       const { data, error } = await supabase
         .from("workout_goals")
-        .select("id, user_id, exercise_type, daily_goal, calories_per_rep, enabled, icon_name, sort_order")
+        .select("*")
         .eq("user_id", userId);
 
       if (error) {
@@ -33,7 +33,7 @@ export function useWorkoutGoals(userId: string | undefined) {
         const { data: seeded, error: seedError } = await supabase
           .from("workout_goals")
           .insert(DEFAULT_EXERCISES.map((e) => ({ user_id: userId, ...e })))
-          .select("id, user_id, exercise_type, daily_goal, calories_per_rep, enabled, icon_name, sort_order");
+          .select("*");
 
         if (seedError) {
           console.error("Error seeding workout goals:", seedError);
@@ -101,7 +101,7 @@ export function useWorkoutGoals(userId: string | undefined) {
               icon_name: iconName ?? null,
               sort_order: maxSort + 1,
             })
-            .select("id, user_id, exercise_type, daily_goal, calories_per_rep, enabled, icon_name, sort_order")
+            .select("*")
             .single();
           if (error) throw error;
           return data;
