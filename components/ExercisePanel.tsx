@@ -17,26 +17,39 @@ const EXERCISE_CATEGORIES: Record<string, string> = {
   squats: "LEGS",
 };
 
+const REP_QUICK_OPTIONS = [10, 15, 20, 25, 30];
+
 type ExercisePanelProps = {
   goal: WorkoutGoal;
   todayTotal: { reps: number; sets: number; calories: number } | undefined;
   onLogSet: () => void;
+  onQuickLog: (reps: number) => void;
   onUpdateGoal: (goalId: string, dailyGoal: number) => void;
   onToggleEnabled: (goalId: string, enabled: boolean) => void;
+  onMoveUp: () => void;
+  onMoveDown: () => void;
+  isFirst: boolean;
+  isLast: boolean;
 };
 
 export function ExercisePanel({
   goal,
   todayTotal,
   onLogSet,
+  onQuickLog,
   onUpdateGoal,
   onToggleEnabled,
+  onMoveUp,
+  onMoveDown,
+  isFirst,
+  isLast,
 }: ExercisePanelProps) {
   const { theme } = useThemeStore();
   const c = getThemeColors(theme);
   const accent = getAccentColors(theme);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [confirmRep, setConfirmRep] = useState<number | null>(null);
 
   const reps = todayTotal?.reps ?? 0;
   const sets = todayTotal?.sets ?? 0;
@@ -49,6 +62,13 @@ export function ExercisePanel({
   const handleSaveGoal = (newGoal: number) => {
     onUpdateGoal(goal.id, newGoal);
     setShowEditModal(false);
+  };
+
+  const handleConfirmLog = () => {
+    if (confirmRep !== null) {
+      onQuickLog(confirmRep);
+      setConfirmRep(null);
+    }
   };
 
   return (
@@ -81,33 +101,81 @@ export function ExercisePanel({
         />
       </View>
 
-      {/* Stepper Controls */}
-      <Pressable onPress={onLogSet} className="flex-row items-center justify-between mb-4" style={{ backgroundColor: c.elevated, borderRadius: 8, padding: 4 }}>
-        <View className="w-touch-target h-touch-target items-center justify-center rounded" style={{ backgroundColor: "transparent" }}>
-          <MaterialCommunityIcons name="minus" size={20} color={c.textMuted} />
+      {/* Quick Log Chips */}
+      <View className="mb-4">
+        <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 10, letterSpacing: 1, marginBottom: 8, textTransform: "uppercase" }}>
+          QUICK LOG REPS
+        </Text>
+        <View className="flex-row gap-2">
+          {REP_QUICK_OPTIONS.map((repCount) => (
+            <Pressable
+              key={repCount}
+              onPress={() => setConfirmRep(repCount)}
+              className="flex-1 py-3 items-center justify-center"
+              style={{ backgroundColor: c.buttonBg, borderWidth: 1, borderColor: c.cardBorder, borderRadius: 6 }}
+            >
+              <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 14 }}>
+                {repCount}
+              </Text>
+            </Pressable>
+          ))}
+          <Pressable
+            onPress={onLogSet}
+            className="py-3 px-3 items-center justify-center"
+            style={{ backgroundColor: c.buttonBg, borderWidth: 1, borderColor: c.cardBorder, borderRadius: 6 }}
+          >
+            <MaterialCommunityIcons name="dots-horizontal" size={24} color={c.textMuted} />
+          </Pressable>
         </View>
-        <View className="flex-col items-center">
-          <Text style={{ color: c.text, fontFamily: "SpaceGrotesk_600SemiBold", fontSize: 32, lineHeight: 32 }}>
-            {reps}
-          </Text>
-          <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 10, letterSpacing: 1 }}>
-            REPS TODAY
-          </Text>
-        </View>
-        <View className="w-touch-target h-touch-target items-center justify-center rounded" style={{ backgroundColor: "transparent" }}>
-          <MaterialCommunityIcons name="plus" size={20} color={c.textSecondary} />
-        </View>
-      </Pressable>
+      </View>
 
-      {/* Action Buttons */}
-      <View className="flex-row gap-2 mb-2">
-        <Pressable onPress={() => setShowEditModal(true)} className="flex-1 py-3 items-center flex-row justify-center gap-2" style={{ backgroundColor: c.buttonBg }}>
-          <MaterialCommunityIcons name="pencil-outline" size={16} color={c.textMuted} />
-          <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 14 }}>Edit Goal</Text>
+      {/* Log Confirmation Modal */}
+      <Modal visible={confirmRep !== null} transparent animationType="fade" onRequestClose={() => setConfirmRep(null)}>
+        <Pressable className="flex-1 justify-center" style={{ backgroundColor: c.overlay }} onPress={() => setConfirmRep(null)}>
+          <Pressable onStartShouldSetResponder={() => true} className="mx-8 p-6 rounded-2xl" style={{ backgroundColor: c.elevated }}>
+            <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 20, marginBottom: 4 }}>
+              Log {confirmRep} {goal.exercise_type}?
+            </Text>
+            <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 14, marginBottom: 24 }}>
+              1 set of {confirmRep} reps — {Math.round((confirmRep ?? 0) * 1 * goal.calories_per_rep * (70 / 70))} calories
+            </Text>
+            <View className="flex-row gap-3">
+              <Pressable onPress={() => setConfirmRep(null)} className="flex-1 py-3.5 rounded-xl items-center" style={{ backgroundColor: c.buttonBg }}>
+                <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 16 }}>Cancel</Text>
+              </Pressable>
+              <Pressable onPress={handleConfirmLog} className="flex-1 py-3.5 rounded-xl items-center" style={{ backgroundColor: accent.lime }}>
+                <Text style={{ color: c.textOnAccent, fontFamily: "Inter_700Bold", fontSize: 16 }}>Log Set</Text>
+              </Pressable>
+            </View>
+          </Pressable>
         </Pressable>
-        <Pressable onPress={() => setShowDeleteConfirm(true)} className="flex-1 py-3 items-center flex-row justify-center gap-2" style={{ backgroundColor: c.buttonBg }}>
-          <MaterialCommunityIcons name="delete-outline" size={16} color={c.textMuted} />
-          <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 14 }}>Remove</Text>
+      </Modal>
+
+      {/* Reorder & Action Buttons */}
+      <View className="flex-row gap-2 mb-2">
+        <View className="flex-row gap-1">
+          {!isFirst && (
+            <Pressable onPress={onMoveUp} className="py-2 px-2.5 items-center justify-center" style={{ backgroundColor: c.buttonBg, borderRadius: 6 }}>
+              <MaterialCommunityIcons name="chevron-up" size={16} color={c.textMuted} />
+            </Pressable>
+          )}
+          {!isLast && (
+            <Pressable onPress={onMoveDown} className="py-2 px-2.5 items-center justify-center" style={{ backgroundColor: c.buttonBg, borderRadius: 6 }}>
+              <MaterialCommunityIcons name="chevron-down" size={16} color={c.textMuted} />
+            </Pressable>
+          )}
+        </View>
+        <Pressable onPress={() => setShowEditModal(true)} className="flex-1 py-2" style={{ backgroundColor: c.buttonBg, borderRadius: 6 }}>
+          <View className="flex-row items-center justify-center">
+            <MaterialCommunityIcons name="pencil-outline" size={14} color={c.textMuted} />
+            <Text style={{ color: c.textMuted, fontFamily: "Inter_700Bold", fontSize: 12, marginLeft: 4 }}>Edit Goal</Text>
+          </View>
+        </Pressable>
+        <Pressable onPress={() => setShowDeleteConfirm(true)} className="flex-1 py-2" style={{ backgroundColor: c.buttonBg, borderRadius: 6 }}>
+          <View className="flex-row items-center justify-center">
+            <MaterialCommunityIcons name="delete-outline" size={14} color={c.textMuted} />
+            <Text style={{ color: c.textMuted, fontFamily: "Inter_700Bold", fontSize: 12, marginLeft: 4 }}>Remove</Text>
+          </View>
         </Pressable>
       </View>
 

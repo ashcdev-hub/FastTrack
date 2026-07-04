@@ -28,7 +28,7 @@ const CATEGORIES: Record<string, string> = {
 export default function WorkoutsScreen() {
   const { user } = useAuth();
   const { profile } = useProfile(user?.id ?? null);
-  const { goals, loading, updateGoal, toggleEnabled, addCustomExercise } = useWorkoutGoals(user?.id);
+  const { goals, loading, updateGoal, toggleEnabled, addCustomExercise, reorderGoal } = useWorkoutGoals(user?.id);
   const { todayTotals, logSet } = useWorkoutLog(user?.id, profile?.weight_kg ?? null);
   const { theme } = useThemeStore();
   const c = getThemeColors(theme);
@@ -42,6 +42,14 @@ export default function WorkoutsScreen() {
   const disabledGoals = goals.filter((g) => !g.enabled);
 
   const handleLogSet = (goal: WorkoutGoal) => { setSelectedGoal(goal); setShowLogModal(true); };
+  const handleQuickLog = (goal: WorkoutGoal, reps: number) => {
+    logSet({
+      exerciseType: goal.exercise_type,
+      reps,
+      sets: 1,
+      caloriesPerRep: goal.calories_per_rep,
+    });
+  };
   const handleLog = async (reps: number, sets: number) => {
     if (!selectedGoal) return;
     await logSet({
@@ -55,6 +63,8 @@ export default function WorkoutsScreen() {
   const handleToggleEnabled = async (goalId: string, enabled: boolean) => { await toggleEnabled(goalId, enabled); };
   const handleAddExercise = async (exerciseType: string, dailyGoal: number, caloriesPerRep: number, iconName?: string) => { await addCustomExercise(exerciseType, dailyGoal, caloriesPerRep, iconName); };
   const handleReinstate = async (goalId: string) => { await toggleEnabled(goalId, true); };
+  const handleMoveUp = async (goalId: string) => { await reorderGoal(goalId, "up"); };
+  const handleMoveDown = async (goalId: string) => { await reorderGoal(goalId, "down"); };
 
   const totalReps = Object.values(todayTotals).reduce((sum, t) => sum + t.reps, 0);
   const scrollRef = useRef<ScrollView>(null);
@@ -90,14 +100,19 @@ export default function WorkoutsScreen() {
           </GlassPanel>
         ) : (
           <View className="flex-col gap-8">
-            {enabledGoals.map((goal) => (
+            {enabledGoals.map((goal, idx) => (
               <ExercisePanel
                 key={goal.id}
                 goal={goal}
                 todayTotal={todayTotals[goal.exercise_type]}
                 onLogSet={() => handleLogSet(goal)}
+                onQuickLog={(reps) => handleQuickLog(goal, reps)}
                 onUpdateGoal={handleUpdateGoal}
                 onToggleEnabled={handleToggleEnabled}
+                onMoveUp={() => handleMoveUp(goal.id)}
+                onMoveDown={() => handleMoveDown(goal.id)}
+                isFirst={idx === 0}
+                isLast={idx === enabledGoals.length - 1}
               />
             ))}
           </View>

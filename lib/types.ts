@@ -108,6 +108,7 @@ export type WorkoutGoal = {
   calories_per_rep: number;
   enabled: boolean;
   icon_name?: string | null;
+  sort_order: number;
 };
 
 export type WorkoutLogEntry = {
