@@ -15,6 +15,9 @@ import { LogSetModal } from "@/components/LogSetModal";
 import { AmbientBackground } from "@/components/AmbientBackground";
 import { FastTrackHeader } from "@/components/FastTrackHeader";
 import { WorkoutsSkeleton } from "@/components/Skeleton";
+import { WorkoutWeeklyCalendar } from "@/components/WorkoutWeeklyCalendar";
+import { WorkoutCalendar } from "@/components/WorkoutCalendar";
+import { useWorkoutCalendar } from "@/hooks/useWorkoutCalendar";
 import type { WorkoutGoal } from "@/lib/types";
 import { useScrollToTop } from "@react-navigation/native";
 
@@ -37,6 +40,9 @@ export default function WorkoutsScreen() {
   const [selectedGoal, setSelectedGoal] = useState<WorkoutGoal | null>(null);
   const [showLogModal, setShowLogModal] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showWorkoutCalendar, setShowWorkoutCalendar] = useState(false);
+
+  const { dailyData } = useWorkoutCalendar(user?.id ?? null, new Date().getFullYear(), new Date().getMonth());
 
   const enabledGoals = goals.filter((g) => g.enabled);
   const disabledGoals = goals.filter((g) => !g.enabled);
@@ -118,6 +124,17 @@ export default function WorkoutsScreen() {
           </View>
         )}
 
+        {/* Workout Calendar */}
+        {enabledGoals.length > 0 && (
+          <View className="mt-8 mb-section-gap">
+            <WorkoutWeeklyCalendar
+              dailyData={dailyData}
+              goals={enabledGoals}
+              onViewCalendar={() => setShowWorkoutCalendar(true)}
+            />
+          </View>
+        )}
+
         {/* Add Custom Exercise */}
         <Pressable
           onPress={() => setShowAddModal(true)}
@@ -145,6 +162,7 @@ export default function WorkoutsScreen() {
 
       <LogSetModal visible={showLogModal} goal={selectedGoal} weightKg={profile?.weight_kg ?? null} onClose={() => setShowLogModal(false)} onLog={handleLog} />
       <AddExerciseModal visible={showAddModal} onClose={() => setShowAddModal(false)} onAdd={handleAddExercise} disabledGoals={disabledGoals} onReinstate={handleReinstate} />
+      <WorkoutCalendar visible={showWorkoutCalendar} userId={user?.id ?? null} goals={enabledGoals} onClose={() => setShowWorkoutCalendar(false)} />
     </SafeAreaView>
   );
 }
