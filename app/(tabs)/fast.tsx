@@ -22,7 +22,7 @@ import { useThemeStore } from "@/lib/theme-store";
 import { getThemeColors, ACCENT, getAccentColors } from "@/lib/theme-colors";
 import { scheduleFastingReminder, cancelAllNotifications, scheduleDailyFastReminder, scheduleCheckInReminder, scheduleWaterReminders, scheduleEatingWindowReminder, checkAndNotifyStreakMilestone } from "@/lib/notifications";
 import { getFastingPhase, getEatingPhase } from "@/lib/fasting-phases";
-import { format, addHours } from "date-fns";
+import { format, addHours, isSameDay, addDays } from "date-fns";
 import { useScrollToTop } from "@react-navigation/native";
 import { ConfettiCanvas, useConfetti } from "react-native-confetti-reanimated";
 
@@ -159,6 +159,13 @@ export default function FastScreen() {
     setShowStartTimePicker(true);
   };
 
+  const formatStartLabel = (date: Date): string => {
+    const time = format(date, "h:mm a");
+    if (isSameDay(date, new Date())) return `Start Fast from Today at ${time}`;
+    if (isSameDay(date, addDays(new Date(), -1))) return `Start Fast from Yesterday at ${time}`;
+    return `Start Fast from ${format(date, "MMM d")} at ${time}`;
+  };
+
   const confirmStartFast = async () => {
     if (!user) return;
     const schedule = selectedSchedule ?? `${fastingHours}:${eatingHours}`;
@@ -204,23 +211,6 @@ export default function FastScreen() {
         }
       }
       if (notifPrefs?.water_reminders && notifPrefs?.water_interval_hours) await scheduleWaterReminders(notifPrefs.water_interval_hours);
-    }
-  };
-
-  const handleStartNow = async () => {
-    if (!user) return;
-    const schedule = selectedSchedule ?? `${fastingHours}:${eatingHours}`;
-    setShowStartTimePicker(false);
-    const { data, error } = await startFast(new Date(), schedule);
-    if (data && !error) {
-      setSessionId(data.id);
-      setStartTime(data.start_time);
-      await scheduleFastingReminder("Fast Complete!", `Your fast is done. Time to eat!`, fastingHours * 3600);
-      if (notifPrefs?.checkin_reminders && notifPrefs?.checkin_mode !== "custom") await scheduleCheckInReminder(fastingHours / 2);
-      if (notifPrefs?.water_reminders && notifPrefs?.water_interval_hours) await scheduleWaterReminders(notifPrefs.water_interval_hours);
-      if (notifPrefs?.eat_window_reminder && notifPrefs?.eat_window_reminder_minutes) {
-        await scheduleEatingWindowReminder(fastingHours * 3600, notifPrefs.eat_window_reminder_minutes);
-      }
     }
   };
 
@@ -852,18 +842,8 @@ export default function FastScreen() {
                 <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 15 }}>Cancel</Text>
               </Pressable>
               <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 20 }}>Set Start Time</Text>
-              <Pressable onPress={confirmStartFast}>
-                <Text style={{ color: accent.lime, fontFamily: "Inter_700Bold", fontSize: 15 }}>Done</Text>
-              </Pressable>
+              <View style={{ width: 50 }} />
             </View>
-
-            <Pressable onPress={handleStartNow} className="w-full py-3.5 items-center mb-5" style={{ backgroundColor: accent.lime }}>
-              <Text style={{ color: c.textOnAccent, fontFamily: "Inter_700Bold", fontSize: 16 }}>Start Now</Text>
-            </Pressable>
-
-            <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 11, letterSpacing: 1, textTransform: "uppercase", textAlign: "center", marginBottom: 12 }}>
-              OR PICK WHEN YOU STARTED
-            </Text>
 
             {/* Hour and Minute picker */}
             <View className="flex-row justify-center gap-6 mb-6">
@@ -934,6 +914,16 @@ export default function FastScreen() {
             <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 15, textAlign: "center" }}>
               {startPickerDate.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" })}
             </Text>
+
+            <Pressable
+              onPress={confirmStartFast}
+              className="w-full py-4 items-center mt-5"
+              style={{ backgroundColor: accent.lime }}
+            >
+              <Text style={{ color: c.textOnAccent, fontFamily: "Inter_700Bold", fontSize: 16 }}>
+                {formatStartLabel((() => { const d = new Date(startPickerDate); d.setHours(startPickerHour, startPickerMinute, 0, 0); return d; })())}
+              </Text>
+            </Pressable>
           </Pressable>
         </Pressable>
       </Modal>
