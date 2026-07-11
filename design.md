@@ -672,7 +672,7 @@ If you're redesigning the app, here's what each tab must contain at a minimum:
 
 - Fixed top app bar.
 - Hero: FastingTimer (320px ring) with protocol label, "Break Fast" / "End Eating Window" primary button.
-- "If You Start Now" panel: Fast starts (lime), Eat window (cyan), Window closes (coral).
+- "Set Start Time" modal (when starting): hour/minute scrollers + date shortcuts (Today / Yesterday / 2d ago / 3d ago), live schedule preview panel (Fast starts lime, Eat window cyan, Window closes coral), and a single full-width CTA whose label reflects the selection (e.g. "Start Fast from Yesterday at 9:00 PM").
 - "Fasting Schedule" preset chips + custom.
 - "Check-in" panel: 5-mood selector + optional note.
 - "Previous Fasts" list: 5 default + Show All, expandable detail, delete.
