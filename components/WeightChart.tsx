@@ -63,7 +63,7 @@ export function WeightChart({ entries, goalWeightKg }: WeightChartProps) {
     setDashArray(100000);
     if (entries.length <= 1) return;
     const timeout = setTimeout(() => {
-      const len = pathRef.current?.getTotalLength?.() ?? measureRef.current?.getTotalLength?.();
+      const len = (pathRef.current?.getTotalLength?.() ?? measureRef.current?.getTotalLength?.()) || 500;
       if (typeof len === "number" && len > 0) {
         pathLength.value = len;
         setDashArray(len);

@@ -122,7 +122,9 @@ export function useFastingSession(userId: string | undefined) {
       );
     },
     onSuccess: (data) => {
-      queryClient.setQueryData(["fasting_session", "active", userId], data);
+      if (data) {
+        queryClient.setQueryData(["fasting_session", "active", userId], data);
+      }
     },
   });
 

@@ -62,7 +62,7 @@ export function WorkoutTrendsChart({ trends }: WorkoutTrendsChartProps) {
     setDashArray(100000);
     if (sorted.length <= 1) return;
     const timeout = setTimeout(() => {
-      const len = pathRef.current?.getTotalLength?.() ?? measureRef.current?.getTotalLength?.();
+      const len = (pathRef.current?.getTotalLength?.() ?? measureRef.current?.getTotalLength?.()) || 500;
       if (typeof len === "number" && len > 0) {
         pathLength.value = len;
         setDashArray(len);

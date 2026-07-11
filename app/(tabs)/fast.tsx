@@ -384,15 +384,15 @@ export default function FastScreen() {
                 })}
               </View>
 
-              <Pressable
-                onPress={() => { setSelectedSchedule(null); setShowCustomModal(true); }}
-                className="w-full py-3.5 items-center mb-4"
-                style={{ backgroundColor: selectedSchedule && !PRESETS.find((p) => p.label === selectedSchedule) ? accent.lime : c.buttonBg, borderWidth: 1, borderColor: selectedSchedule && !PRESETS.find((p) => p.label === selectedSchedule) ? accent.lime : c.cardBorder }}
-              >
-                <Text style={{ color: selectedSchedule && !PRESETS.find((p) => p.label === selectedSchedule) ? c.textOnAccent : c.textSecondary, fontFamily: "Inter_700Bold", fontSize: 14 }}>
-                  {selectedSchedule && !PRESETS.find((p) => p.label === selectedSchedule) ? `Custom: ${selectedSchedule}` : "Custom Schedule"}
-                </Text>
-              </Pressable>
+                <Pressable
+                  onPress={() => { setSelectedSchedule(null); setShowCustomModal(true); }}
+                  className="w-full py-3.5 items-center mb-4"
+                  style={{ backgroundColor: selectedSchedule && !PRESETS.find((p) => p.label === selectedSchedule) ? accent.lime : c.buttonBg, borderWidth: 1, borderColor: selectedSchedule && !PRESETS.find((p) => p.label === selectedSchedule) ? accent.lime : c.cardBorder }}
+                >
+                  <Text style={{ color: selectedSchedule && !PRESETS.find((p) => p.label === selectedSchedule) ? c.textOnAccent : c.textSecondary, fontFamily: "Inter_700Bold", fontSize: 14 }}>
+                    {selectedSchedule && !PRESETS.find((p) => p.label === selectedSchedule) ? selectedSchedule : "Custom Schedule"}
+                  </Text>
+                </Pressable>
             </GlassPanel>
 
             {/* Schedule Info */}
@@ -427,6 +427,26 @@ export default function FastScreen() {
             </GlassPanel>
             )}
           </View>
+        ) : !session ? (
+          <>
+            {/* Loading / pre-query placeholder: keep idle view until session is populated
+                so the active timer never flashes a countdown derived from the current time */}
+            <View className="items-center mb-section-gap">
+              <View className="relative items-center justify-center" style={{ width: 320, height: 320 }}>
+                <FastingTimer
+                  status="idle"
+                  totalMinutes={fastingHours * 60}
+                  elapsedMinutes={0}
+                  hours={0}
+                  minutes={0}
+                  seconds={0}
+                  elapsedHours={0}
+                  elapsedMinutesPart={0}
+                  elapsedSeconds={0}
+                />
+              </View>
+            </View>
+          </>
         ) : (
           <>
             {/* Active Fast Timer */}
