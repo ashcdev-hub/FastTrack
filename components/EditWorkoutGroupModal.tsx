@@ -5,6 +5,7 @@ import { useThemeStore } from "@/lib/theme-store";
 import { getThemeColors, ACCENT, getAccentColors } from "@/lib/theme-colors";
 import { WorkoutIcon } from "@/components/WorkoutIcon";
 import { EXERCISE_CATEGORIES } from "@/lib/exercise-icons";
+import { getIconKeyForExercise } from "@/lib/exercise-icons";
 import type { WorkoutGoal } from "@/lib/types";
 
 type EditWorkoutGroupModalProps = {
@@ -13,6 +14,7 @@ type EditWorkoutGroupModalProps = {
   allGoals: WorkoutGoal[];
   onSave: (data: { name: string; goalIds: string[] }) => Promise<void>;
   onClose: () => void;
+  onAddExercise?: (name: string, dailyGoal: number, caloriesPerRep: number) => Promise<{ id: string } | null>;
 };
 
 export function EditWorkoutGroupModal({
@@ -21,6 +23,7 @@ export function EditWorkoutGroupModal({
   allGoals,
   onSave,
   onClose,
+  onAddExercise,
 }: EditWorkoutGroupModalProps) {
   const { theme } = useThemeStore();
   const c = getThemeColors(theme);
@@ -28,6 +31,11 @@ export function EditWorkoutGroupModal({
   const [name, setName] = useState("");
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [saving, setSaving] = useState(false);
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [newExName, setNewExName] = useState("");
+  const [newExGoal, setNewExGoal] = useState(100);
+  const [newExCal, setNewExCal] = useState(0.5);
+  const [addingExercise, setAddingExercise] = useState(false);
 
   useEffect(() => {
     if (visible) {
@@ -38,6 +46,10 @@ export function EditWorkoutGroupModal({
         setName("");
         setSelectedIds(new Set());
       }
+      setShowAddForm(false);
+      setNewExName("");
+      setNewExGoal(100);
+      setNewExCal(0.5);
     }
   }, [visible, group]);
 
@@ -58,6 +70,22 @@ export function EditWorkoutGroupModal({
       onClose();
     } catch {}
     setSaving(false);
+  };
+
+  const handleAddCustomExercise = async () => {
+    if (!newExName.trim() || !onAddExercise) return;
+    setAddingExercise(true);
+    try {
+      const result = await onAddExercise(newExName.trim(), newExGoal, newExCal);
+      if (result?.id) {
+        setSelectedIds((prev) => new Set(prev).add(result.id));
+      }
+      setNewExName("");
+      setNewExGoal(100);
+      setNewExCal(0.5);
+      setShowAddForm(false);
+    } catch {}
+    setAddingExercise(false);
   };
 
   // Group goals by category for display
@@ -156,6 +184,94 @@ export function EditWorkoutGroupModal({
                   })}
                 </View>
               ))
+            )}
+
+            {/* Inline Add Custom Exercise */}
+            {onAddExercise && !showAddForm && (
+              <Pressable
+                onPress={() => setShowAddForm(true)}
+                className="flex-row items-center justify-center py-3 px-4 rounded-xl mb-3"
+                style={{ backgroundColor: c.cardBgAlt, borderWidth: 1, borderColor: c.cardBorder, borderStyle: "dashed" }}
+              >
+                <MaterialCommunityIcons name="plus" size={16} color={accent.lime} />
+                <Text style={{ color: accent.lime, fontFamily: "Inter_700Bold", fontSize: 13, marginLeft: 6 }}>
+                  Add Custom Exercise
+                </Text>
+              </Pressable>
+            )}
+
+            {showAddForm && (
+              <View className="p-4 rounded-xl mb-3" style={{ backgroundColor: c.cardBgAlt }}>
+                <Text style={{ color: accent.cyan, fontFamily: "SpaceGrotesk_700Bold", fontSize: 10, letterSpacing: 1, marginBottom: 8, textTransform: "uppercase" }}>
+                  NEW EXERCISE
+                </Text>
+                <TextInput
+                  value={newExName}
+                  onChangeText={setNewExName}
+                  placeholder="Exercise name"
+                  placeholderTextColor={c.textMuted}
+                  autoCapitalize="words"
+                  className="px-4 py-3 rounded-xl mb-2"
+                  style={{ backgroundColor: c.inputBg, color: c.text, fontFamily: "Inter_400Regular", fontSize: 15, borderWidth: 1, borderColor: c.cardBorder }}
+                />
+                <View className="flex-row gap-2 mb-2">
+                  <View className="flex-1">
+                    <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 11, marginBottom: 4 }}>Daily goal (reps)</Text>
+                    <View className="flex-row items-center gap-2">
+                      <Pressable onPress={() => setNewExGoal(Math.max(1, newExGoal - 10))} className="w-10 h-10 items-center justify-center rounded-lg" style={{ backgroundColor: c.buttonBg }}>
+                        <MaterialCommunityIcons name="minus" size={16} color={c.text} />
+                      </Pressable>
+                      <TextInput
+                        value={String(newExGoal)}
+                        onChangeText={(t) => { const v = parseInt(t); if (!isNaN(v)) setNewExGoal(v); }}
+                        keyboardType="numeric"
+                        className="flex-1 px-3 py-2 rounded-lg text-center"
+                        style={{ backgroundColor: c.inputBg, color: c.text, fontFamily: "Inter_700Bold", fontSize: 16, borderWidth: 1, borderColor: c.cardBorder }}
+                      />
+                      <Pressable onPress={() => setNewExGoal(newExGoal + 10)} className="w-10 h-10 items-center justify-center rounded-lg" style={{ backgroundColor: c.buttonBg }}>
+                        <MaterialCommunityIcons name="plus" size={16} color={c.text} />
+                      </Pressable>
+                    </View>
+                  </View>
+                  <View className="flex-1">
+                    <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 11, marginBottom: 4 }}>Cal/rep</Text>
+                    <View className="flex-row items-center gap-2">
+                      <Pressable onPress={() => setNewExCal(Math.max(0.1, +(newExCal - 0.1).toFixed(1)))} className="w-10 h-10 items-center justify-center rounded-lg" style={{ backgroundColor: c.buttonBg }}>
+                        <MaterialCommunityIcons name="minus" size={16} color={c.text} />
+                      </Pressable>
+                      <TextInput
+                        value={String(newExCal)}
+                        onChangeText={(t) => { const v = parseFloat(t); if (!isNaN(v)) setNewExCal(v); }}
+                        keyboardType="numeric"
+                        className="flex-1 px-3 py-2 rounded-lg text-center"
+                        style={{ backgroundColor: c.inputBg, color: c.text, fontFamily: "Inter_700Bold", fontSize: 16, borderWidth: 1, borderColor: c.cardBorder }}
+                      />
+                      <Pressable onPress={() => setNewExCal(+(newExCal + 0.1).toFixed(1))} className="w-10 h-10 items-center justify-center rounded-lg" style={{ backgroundColor: c.buttonBg }}>
+                        <MaterialCommunityIcons name="plus" size={16} color={c.text} />
+                      </Pressable>
+                    </View>
+                  </View>
+                </View>
+                <View className="flex-row gap-2">
+                  <Pressable
+                    onPress={() => setShowAddForm(false)}
+                    className="flex-1 py-3 items-center rounded-xl"
+                    style={{ backgroundColor: c.buttonBg }}
+                  >
+                    <Text style={{ color: c.textMuted, fontFamily: "Inter_700Bold", fontSize: 14 }}>Cancel</Text>
+                  </Pressable>
+                  <Pressable
+                    onPress={handleAddCustomExercise}
+                    disabled={!newExName.trim() || addingExercise}
+                    className="flex-1 py-3 items-center rounded-xl"
+                    style={{ backgroundColor: newExName.trim() ? accent.lime : c.buttonBg, opacity: addingExercise ? 0.5 : 1 }}
+                  >
+                    <Text style={{ color: newExName.trim() ? c.textOnAccent : c.textMuted, fontFamily: "Inter_700Bold", fontSize: 14 }}>
+                      {addingExercise ? "Adding..." : "Add"}
+                    </Text>
+                  </Pressable>
+                </View>
+              </View>
             )}
           </ScrollView>
 

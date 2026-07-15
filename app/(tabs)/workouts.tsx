@@ -37,7 +37,7 @@ export default function WorkoutsScreen() {
   const c = getThemeColors(theme);
   const accent = getAccentColors(theme);
 
-  const [selectedGroupId, setSelectedGroupId] = useState<string>("all");
+  const [selectedGroupId, setSelectedGroupId] = useState<string>("");
   const [showGroupManager, setShowGroupManager] = useState(false);
   const [selectedGoal, setSelectedGoal] = useState<WorkoutGoal | null>(null);
   const [showLogModal, setShowLogModal] = useState(false);
@@ -52,10 +52,16 @@ export default function WorkoutsScreen() {
   const enabledGoals = goals.filter((g) => g.enabled);
   const disabledGoals = goals.filter((g) => !g.enabled);
 
-  // Group filtering
-  const selectedGroup = selectedGroupId === "all" ? null : groups.find((g) => g.id === selectedGroupId);
-  const activeGoalIds = selectedGroup ? new Set(selectedGroup.exercises.map((e) => e.id)) : null;
-  const activeGoals = activeGoalIds ? enabledGoals.filter((g) => activeGoalIds.has(g.id)) : enabledGoals;
+  // Group filtering — exercises only visible within a group
+  useEffect(() => {
+    if (groups.length > 0 && (!selectedGroupId || !groups.find((g) => g.id === selectedGroupId))) {
+      setSelectedGroupId(groups[0].id);
+    }
+  }, [groups, selectedGroupId]);
+
+  const selectedGroup = selectedGroupId ? groups.find((g) => g.id === selectedGroupId) : null;
+  const activeGoalIds = selectedGroup ? new Set(selectedGroup.exercises.map((e) => e.id)) : new Set();
+  const activeGoals = selectedGroup ? enabledGoals.filter((g) => activeGoalIds.has(g.id)) : [];
 
   // Calendar/trends filtering by group (v1: show all data regardless of group filter)
   const filteredDailyData = dailyData;
@@ -151,88 +157,67 @@ export default function WorkoutsScreen() {
           </Text>
         </View>
 
-        {loading ? (
+        {loading || groupsLoading ? (
           <WorkoutsSkeleton />
+        ) : groups.length === 0 ? (
+          <GlassPanel className="p-6 items-center mb-section-gap">
+            <View className="rounded-full items-center justify-center mb-4" style={{ width: 56, height: 56, backgroundColor: accent.limeBg }}>
+              <MaterialCommunityIcons name="dumbbell" size={28} color={accent.lime} />
+            </View>
+            <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 15, textAlign: "center", marginBottom: 16 }}>
+              Create your first group to start organizing exercises.
+            </Text>
+            <Pressable
+              onPress={() => setShowGroupManager(true)}
+              className="py-3 px-8 items-center rounded-xl"
+              style={{ backgroundColor: accent.lime }}
+            >
+              <Text style={{ color: c.textOnAccent, fontFamily: "Inter_700Bold", fontSize: 15 }}>
+                Create Group
+              </Text>
+            </Pressable>
+          </GlassPanel>
         ) : (
           <>
-            {/* Group selector — only shown when groups exist */}
-            {groups.length > 0 && (
-              <ScrollView horizontal showsHorizontalScrollIndicator={false} className="-mx-5 mb-section-gap">
-                <View className="flex-row gap-2 px-5">
+            {/* Group selector chips (no "All" — exercises only live in groups) */}
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} className="-mx-5 mb-section-gap">
+              <View className="flex-row gap-2 px-5">
+                {groups.map((g) => (
                   <Pressable
-                    onPress={() => setSelectedGroupId("all")}
+                    key={g.id}
+                    onPress={() => setSelectedGroupId(g.id)}
                     className="py-3 px-4 rounded-xl"
-                    style={{ backgroundColor: selectedGroupId === "all" ? accent.lime : c.cardBgAlt }}
+                    style={{ backgroundColor: selectedGroupId === g.id ? accent.lime : c.cardBgAlt }}
                   >
                     <Text
+                      numberOfLines={1}
                       style={{
-                        color: selectedGroupId === "all" ? c.textOnAccent : c.text,
+                        color: selectedGroupId === g.id ? c.textOnAccent : c.text,
                         fontFamily: "Inter_700Bold",
                         fontSize: 14,
                       }}
                     >
-                      All
+                      {g.name}
                     </Text>
                   </Pressable>
-                  {groups.map((g) => (
-                    <Pressable
-                      key={g.id}
-                      onPress={() => setSelectedGroupId(g.id)}
-                      className="py-3 px-4 rounded-xl"
-                      style={{ backgroundColor: selectedGroupId === g.id ? accent.lime : c.cardBgAlt }}
-                    >
-                      <Text
-                        numberOfLines={1}
-                        style={{
-                          color: selectedGroupId === g.id ? c.textOnAccent : c.text,
-                          fontFamily: "Inter_700Bold",
-                          fontSize: 14,
-                        }}
-                      >
-                        {g.name}
-                      </Text>
-                    </Pressable>
-                  ))}
-                  <Pressable
-                    onPress={() => setShowGroupManager(true)}
-                    className="py-3 px-4 rounded-xl items-center justify-center"
-                    style={{ backgroundColor: c.cardBgAlt, borderWidth: 1, borderColor: c.cardBorder, borderStyle: "dashed" }}
-                  >
-                    <MaterialCommunityIcons name="cog" size={16} color={c.textMuted} />
-                  </Pressable>
-                </View>
-              </ScrollView>
-            )}
-
-            {/* Create first group prompt — only when no groups exist */}
-            {groups.length === 0 && !groupsLoading && (
-              <Pressable
-                onPress={() => setShowGroupManager(true)}
-                className="flex-row items-center justify-center py-3 px-4 rounded-xl mb-section-gap"
-                style={{ backgroundColor: c.cardBgAlt, borderWidth: 1, borderColor: c.cardBorder, borderStyle: "dashed" }}
-              >
-                <MaterialCommunityIcons name="plus" size={16} color={accent.lime} />
-                <Text style={{ color: accent.lime, fontFamily: "Inter_700Bold", fontSize: 14, marginLeft: 6 }}>
-                  Create Group
-                </Text>
-              </Pressable>
-            )}
+                ))}
+                <Pressable
+                  onPress={() => setShowGroupManager(true)}
+                  className="py-3 px-4 rounded-xl items-center justify-center"
+                  style={{ backgroundColor: c.cardBgAlt, borderWidth: 1, borderColor: c.cardBorder, borderStyle: "dashed" }}
+                >
+                  <MaterialCommunityIcons name="cog" size={16} color={c.textMuted} />
+                </Pressable>
+              </View>
+            </ScrollView>
 
             {activeGoals.length === 0 ? (
-              selectedGroupId !== "all" ? (
-                <GlassPanel className="p-6 items-center mb-section-gap">
-                  <MaterialCommunityIcons name="dumbbell" size={32} color={c.textMuted} style={{ opacity: 0.4 }} />
-                  <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 14, textAlign: "center", marginTop: 8 }}>
-                    No exercises in this group yet.
-                  </Text>
-                </GlassPanel>
-              ) : (
-                <GlassPanel className="p-6 items-center mb-section-gap">
-                  <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", textAlign: "center" }}>
-                    No exercises enabled. Add one to get started!
-                  </Text>
-                </GlassPanel>
-              )
+              <GlassPanel className="p-6 items-center mb-section-gap">
+                <MaterialCommunityIcons name="dumbbell" size={32} color={c.textMuted} style={{ opacity: 0.4 }} />
+                <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 14, textAlign: "center", marginTop: 8 }}>
+                  No exercises in {selectedGroup?.name ?? "this group"} yet. Add exercises via the group settings or the button below.
+                </Text>
+              </GlassPanel>
             ) : (
               <View className="flex-col gap-8 mb-section-gap">
                 {activeGoals.map((goal, idx) => (
@@ -244,20 +229,11 @@ export default function WorkoutsScreen() {
                     onQuickLog={(reps) => handleQuickLog(goal, reps)}
                     onUpdateGoal={handleUpdateGoal}
                     onToggleEnabled={handleToggleEnabled}
-                    onMoveUp={selectedGroup
-                      ? () => reorderGroupGoal(selectedGroup.id, goal.id, "up")
-                      : () => handleMoveUp(goal.id)
-                    }
-                    onMoveDown={selectedGroup
-                      ? () => reorderGroupGoal(selectedGroup.id, goal.id, "down")
-                      : () => handleMoveDown(goal.id)
-                    }
+                    onMoveUp={() => reorderGroupGoal(selectedGroup!.id, goal.id, "up")}
+                    onMoveDown={() => reorderGroupGoal(selectedGroup!.id, goal.id, "down")}
                     isFirst={idx === 0}
                     isLast={idx === activeGoals.length - 1}
-                    onRemoveFromGroup={selectedGroup
-                      ? () => removeFromGroup(selectedGroup.id, goal.id)
-                      : undefined
-                    }
+                    onRemoveFromGroup={() => removeFromGroup(selectedGroup!.id, goal.id)}
                   />
                 ))}
               </View>
@@ -281,7 +257,7 @@ export default function WorkoutsScreen() {
         {activeGoals.length > 0 && (
           <View className="mb-section-gap">
             <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 12, letterSpacing: 1, marginBottom: 12, textTransform: "uppercase" }}>
-              {selectedGroup ? `${selectedGroup.name.toUpperCase()} HISTORY` : "PREVIOUS EXERCISES"}
+            {selectedGroup?.name.toUpperCase()} HISTORY
             </Text>
             <WorkoutWeeklyCalendar
               dailyData={filteredDailyData}

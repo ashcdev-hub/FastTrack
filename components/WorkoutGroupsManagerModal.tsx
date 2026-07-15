@@ -24,7 +24,7 @@ export function WorkoutGroupsManagerModal({
   const c = getThemeColors(theme);
   const accent = getAccentColors(theme);
   const { groups, loading, addGroup, updateGroup, deleteGroup } = useWorkoutGroups(userId);
-  const { goals } = useWorkoutGoals(userId);
+  const { goals, addCustomExercise } = useWorkoutGoals(userId);
 
   const [showEdit, setShowEdit] = useState(false);
   const [editingGroup, setEditingGroup] = useState<WorkoutGroup | null>(null);
@@ -46,6 +46,12 @@ export function WorkoutGroupsManagerModal({
     } else {
       await addGroup(data.name, data.goalIds);
     }
+  };
+
+  const handleAddExercise = async (exName: string, dailyGoal: number, caloriesPerRep: number) => {
+    const { error, data } = await addCustomExercise(exName, dailyGoal, caloriesPerRep);
+    if (error || !data) return null;
+    return { id: data.id };
   };
 
   const handleDelete = async () => {
@@ -120,6 +126,7 @@ export function WorkoutGroupsManagerModal({
         allGoals={enabledGoals}
         onSave={handleSave}
         onClose={() => setShowEdit(false)}
+        onAddExercise={handleAddExercise}
       />
 
       {/* Delete Confirmation Modal */}
