@@ -145,15 +145,64 @@ export default function WorkoutsScreen() {
         contentContainerStyle={{ paddingBottom: 85, paddingHorizontal: 20, paddingTop: 24 }}
         showsVerticalScrollIndicator={false}
       >
-        {/* Session Header */}
-        <View className="mb-section-gap">
-          <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 12, letterSpacing: 1, marginBottom: 4, textTransform: "uppercase" }}>
-            SESSION ACTIVE
-          </Text>
-          <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 28, letterSpacing: -0.3 }}>
-            Daily Burn
-          </Text>
-        </View>
+        {/* Workout Pulse Header */}
+        {(() => {
+          const today = new Date();
+          const dayOfWeek = today.getDay();
+          const diff = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+          const monday = new Date(today);
+          monday.setDate(today.getDate() - diff);
+          monday.setHours(0, 0, 0, 0);
+
+          const daysThisWeek = Object.entries(dailyData || {}).filter(([dateStr, data]) => {
+            const d = new Date(dateStr);
+            return d >= monday && d <= today && data.totalReps > 0;
+          }).length;
+
+          return (
+            <GlassPanel className="p-5 mb-section-gap">
+              <View className="flex-row">
+                <View className="items-center justify-center" style={{ flex: 2, paddingRight: 12, paddingVertical: 8 }}>
+                  {totalReps > 0 ? (
+                    <Text style={{ color: accent.lime, fontFamily: "SpaceGrotesk_700Bold", fontSize: 36, letterSpacing: -2, lineHeight: 40 }}>
+                      {daysThisWeek}
+                    </Text>
+                  ) : (
+                    <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 36, letterSpacing: -2, lineHeight: 40 }}>
+                      —
+                    </Text>
+                  )}
+                  <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 10, letterSpacing: 1, marginTop: 2, textTransform: "uppercase", textAlign: "center" }}>
+                    DAYS THIS WEEK
+                  </Text>
+                </View>
+                <View style={{ flex: 3, paddingLeft: 12, borderLeftWidth: 1, borderLeftColor: c.divider }}>
+                  <Text style={{ color: accent.cyan, fontFamily: "SpaceGrotesk_700Bold", fontSize: 10, letterSpacing: 1, marginBottom: 6, textTransform: "uppercase" }}>
+                    TODAY'S OUTPUT
+                  </Text>
+                  {totalReps > 0 ? (
+                    <>
+                      <Text style={{ color: c.text, fontFamily: "SpaceGrotesk_600SemiBold", fontSize: 15, letterSpacing: -0.3 }}>
+                        {totalReps} reps · {totalSets} sets
+                      </Text>
+                      <Text style={{ color: c.text, fontFamily: "SpaceGrotesk_600SemiBold", fontSize: 15, letterSpacing: -0.3 }}>
+                        {Math.round(totalCalories)} cal burned
+                      </Text>
+                    </>
+                  ) : (
+                    <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 13 }}>
+                      No exercises logged today
+                    </Text>
+                  )}
+                </View>
+              </View>
+              <View className="h-px my-3" style={{ backgroundColor: c.divider }} />
+              <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 12 }}>
+                WEEKLY: {weeklyStats.totalReps} reps · {Math.round(weeklyStats.totalCalories)} cal
+              </Text>
+            </GlassPanel>
+          );
+        })()}
 
         {loading || groupsLoading ? (
           <WorkoutsSkeleton />
