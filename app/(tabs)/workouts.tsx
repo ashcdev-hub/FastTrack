@@ -131,8 +131,6 @@ export default function WorkoutsScreen() {
   const handleToggleEnabled = async (goalId: string, enabled: boolean) => { await toggleEnabled(goalId, enabled); };
   const handleAddExercise = async (exerciseType: string, dailyGoal: number, caloriesPerRep: number, iconName?: string) => { await addCustomExercise(exerciseType, dailyGoal, caloriesPerRep, iconName); };
   const handleReinstate = async (goalId: string) => { await toggleEnabled(goalId, true); };
-  const handleMoveUp = async (goalId: string) => { await reorderGoal(goalId, "up"); };
-  const handleMoveDown = async (goalId: string) => { await reorderGoal(goalId, "down"); };
 
   const scrollRef = useRef<ScrollView>(null);
   useScrollToTop(scrollRef as any);
