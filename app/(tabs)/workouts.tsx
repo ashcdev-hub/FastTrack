@@ -155,52 +155,68 @@ export default function WorkoutsScreen() {
           <WorkoutsSkeleton />
         ) : (
           <>
-            {/* Group Selector Chips */}
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} className="-mx-5 mb-section-gap">
-              <View className="flex-row gap-2 px-5">
-                <Pressable
-                  onPress={() => setSelectedGroupId("all")}
-                  className="py-3 px-4 rounded-xl"
-                  style={{ backgroundColor: selectedGroupId === "all" ? accent.lime : c.cardBgAlt }}
-                >
-                  <Text
-                    style={{
-                      color: selectedGroupId === "all" ? c.textOnAccent : c.text,
-                      fontFamily: "Inter_700Bold",
-                      fontSize: 14,
-                    }}
-                  >
-                    All
-                  </Text>
-                </Pressable>
-                {groups.map((g) => (
+            {/* Group selector — only shown when groups exist */}
+            {groups.length > 0 && (
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} className="-mx-5 mb-section-gap">
+                <View className="flex-row gap-2 px-5">
                   <Pressable
-                    key={g.id}
-                    onPress={() => setSelectedGroupId(g.id)}
+                    onPress={() => setSelectedGroupId("all")}
                     className="py-3 px-4 rounded-xl"
-                    style={{ backgroundColor: selectedGroupId === g.id ? accent.lime : c.cardBgAlt }}
+                    style={{ backgroundColor: selectedGroupId === "all" ? accent.lime : c.cardBgAlt }}
                   >
                     <Text
-                      numberOfLines={1}
                       style={{
-                        color: selectedGroupId === g.id ? c.textOnAccent : c.text,
+                        color: selectedGroupId === "all" ? c.textOnAccent : c.text,
                         fontFamily: "Inter_700Bold",
                         fontSize: 14,
                       }}
                     >
-                      {g.name}
+                      All
                     </Text>
                   </Pressable>
-                ))}
-                <Pressable
-                  onPress={() => setShowGroupManager(true)}
-                  className="py-3 px-4 rounded-xl items-center justify-center"
-                  style={{ backgroundColor: c.cardBgAlt, borderWidth: 1, borderColor: c.cardBorder, borderStyle: "dashed" }}
-                >
-                  <MaterialCommunityIcons name="cog" size={16} color={c.textMuted} />
-                </Pressable>
-              </View>
-            </ScrollView>
+                  {groups.map((g) => (
+                    <Pressable
+                      key={g.id}
+                      onPress={() => setSelectedGroupId(g.id)}
+                      className="py-3 px-4 rounded-xl"
+                      style={{ backgroundColor: selectedGroupId === g.id ? accent.lime : c.cardBgAlt }}
+                    >
+                      <Text
+                        numberOfLines={1}
+                        style={{
+                          color: selectedGroupId === g.id ? c.textOnAccent : c.text,
+                          fontFamily: "Inter_700Bold",
+                          fontSize: 14,
+                        }}
+                      >
+                        {g.name}
+                      </Text>
+                    </Pressable>
+                  ))}
+                  <Pressable
+                    onPress={() => setShowGroupManager(true)}
+                    className="py-3 px-4 rounded-xl items-center justify-center"
+                    style={{ backgroundColor: c.cardBgAlt, borderWidth: 1, borderColor: c.cardBorder, borderStyle: "dashed" }}
+                  >
+                    <MaterialCommunityIcons name="cog" size={16} color={c.textMuted} />
+                  </Pressable>
+                </View>
+              </ScrollView>
+            )}
+
+            {/* Create first group prompt — only when no groups exist */}
+            {groups.length === 0 && !groupsLoading && (
+              <Pressable
+                onPress={() => setShowGroupManager(true)}
+                className="flex-row items-center justify-center py-3 px-4 rounded-xl mb-section-gap"
+                style={{ backgroundColor: c.cardBgAlt, borderWidth: 1, borderColor: c.cardBorder, borderStyle: "dashed" }}
+              >
+                <MaterialCommunityIcons name="plus" size={16} color={accent.lime} />
+                <Text style={{ color: accent.lime, fontFamily: "Inter_700Bold", fontSize: 14, marginLeft: 6 }}>
+                  Create Group
+                </Text>
+              </Pressable>
+            )}
 
             {activeGoals.length === 0 ? (
               selectedGroupId !== "all" ? (
