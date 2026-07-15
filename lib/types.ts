@@ -121,6 +121,14 @@ export type WorkoutLogEntry = {
   logged_at: string;
 };
 
+export type WorkoutGroup = {
+  id: string;
+  user_id: string;
+  name: string;
+  sort_order: number;
+  exercises: WorkoutGoal[];
+};
+
 export type MyMealItem = {
   id: string;
   meal_id: string;

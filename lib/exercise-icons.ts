@@ -74,3 +74,10 @@ export function getIconKeyForExercise(name: string): string {
   if (n.includes("dumbbell") || n.includes("barbell") || n.includes("weight") || n.includes("lift")) return "weightlifting";
   return "dumbbell";
 }
+
+export const EXERCISE_CATEGORIES: Record<string, string> = {
+  pushups: "UPPER BODY",
+  crunches: "CORE",
+  situps: "CORE",
+  squats: "LEGS",
+};

@@ -6,17 +6,9 @@ import { getThemeColors, ACCENT, getAccentColors } from "@/lib/theme-colors";
 import { EditGoalModal } from "@/components/EditGoalModal";
 import { GlassPanel } from "@/components/GlassPanel";
 import { WorkoutIcon } from "@/components/WorkoutIcon";
-import { getIconKeyForExercise } from "@/lib/exercise-icons";
+import { getIconKeyForExercise, EXERCISE_CATEGORIES } from "@/lib/exercise-icons";
 import type { WorkoutGoal } from "@/lib/types";
 import type { TodayTotals } from "@/hooks/useWorkoutLog";
-
-const EXERCISE_CATEGORIES: Record<string, string> = {
-  pushups: "UPPER BODY",
-  crunches: "CORE",
-  situps: "CORE",
-  squats: "LEGS",
-};
-
 const REP_QUICK_OPTIONS = [10, 15, 20, 25, 30];
 
 type ExercisePanelProps = {
@@ -30,6 +22,7 @@ type ExercisePanelProps = {
   onMoveDown: () => void;
   isFirst: boolean;
   isLast: boolean;
+  onRemoveFromGroup?: () => void;
 };
 
 export function ExercisePanel({
@@ -43,6 +36,7 @@ export function ExercisePanel({
   onMoveDown,
   isFirst,
   isLast,
+  onRemoveFromGroup,
 }: ExercisePanelProps) {
   const { theme } = useThemeStore();
   const c = getThemeColors(theme);
@@ -174,7 +168,9 @@ export function ExercisePanel({
         <Pressable onPress={() => setShowDeleteConfirm(true)} className="flex-1 py-2" style={{ backgroundColor: c.buttonBg, borderRadius: 6 }}>
           <View className="flex-row items-center justify-center">
             <MaterialCommunityIcons name="delete-outline" size={14} color={c.textMuted} />
-            <Text style={{ color: c.textMuted, fontFamily: "Inter_700Bold", fontSize: 12, marginLeft: 4 }}>Remove</Text>
+            <Text style={{ color: c.textMuted, fontFamily: "Inter_700Bold", fontSize: 12, marginLeft: 4 }}>
+              {onRemoveFromGroup ? "Remove from Group" : "Remove"}
+            </Text>
           </View>
         </Pressable>
       </View>
@@ -184,17 +180,29 @@ export function ExercisePanel({
         <Pressable className="flex-1 justify-end" style={{ backgroundColor: c.overlay }} onPress={() => setShowDeleteConfirm(false)}>
           <Pressable onStartShouldSetResponder={() => true} className="rounded-t-3xl p-6" style={{ backgroundColor: c.elevated }}>
             <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 20, marginBottom: 8 }}>
-              Remove this exercise?
+              {onRemoveFromGroup ? `Remove ${goal.exercise_type} from this group?` : "Remove this exercise?"}
             </Text>
             <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 14, marginBottom: 20 }}>
-              You can re-add it later from the Add Exercise menu.
+              {onRemoveFromGroup
+                ? `${goal.exercise_type} will stay available under "All" exercises.`
+                : "You can re-add it later from the Add Exercise menu."}
             </Text>
             <View className="flex-row gap-3">
               <Pressable onPress={() => setShowDeleteConfirm(false)} className="flex-1 py-3.5 items-center" style={{ backgroundColor: c.buttonBg }}>
                 <Text style={{ color: c.text, fontFamily: "Inter_700Bold" }}>Cancel</Text>
               </Pressable>
-              <Pressable onPress={() => { onToggleEnabled(goal.id, false); setShowDeleteConfirm(false); }} className="flex-1 py-3.5 items-center" style={{ backgroundColor: ACCENT.rose }}>
-                <Text style={{ color: c.textOnDark, fontFamily: "Inter_700Bold" }}>Remove</Text>
+              <Pressable
+                onPress={() => {
+                  if (onRemoveFromGroup) onRemoveFromGroup();
+                  else onToggleEnabled(goal.id, false);
+                  setShowDeleteConfirm(false);
+                }}
+                className="flex-1 py-3.5 items-center"
+                style={{ backgroundColor: ACCENT.rose }}
+              >
+                <Text style={{ color: c.textOnDark, fontFamily: "Inter_700Bold" }}>
+                  {onRemoveFromGroup ? "Remove from Group" : "Remove"}
+                </Text>
               </Pressable>
             </View>
           </Pressable>

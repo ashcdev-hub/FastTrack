@@ -7,6 +7,7 @@ import { useProfile } from "@/hooks/useProfile";
 import { useWorkoutGoals } from "@/hooks/useWorkoutGoals";
 import { useWorkoutLog } from "@/hooks/useWorkoutLog";
 import { useWorkoutTrends } from "@/hooks/useWorkoutTrends";
+import { useWorkoutGroups } from "@/hooks/useWorkoutGroups";
 import { useThemeStore } from "@/lib/theme-store";
 import { getThemeColors, ACCENT, getAccentColors } from "@/lib/theme-colors";
 import { ExercisePanel } from "@/components/ExercisePanel";
@@ -19,6 +20,7 @@ import { WorkoutsSkeleton } from "@/components/Skeleton";
 import { WorkoutWeeklyCalendar } from "@/components/WorkoutWeeklyCalendar";
 import { WorkoutCalendar } from "@/components/WorkoutCalendar";
 import { WorkoutTrendsChart } from "@/components/WorkoutTrendsChart";
+import { WorkoutGroupsManagerModal } from "@/components/WorkoutGroupsManagerModal";
 import { useWorkoutCalendar } from "@/hooks/useWorkoutCalendar";
 import { supabase } from "@/lib/supabase";
 import type { WorkoutGoal } from "@/lib/types";
@@ -30,10 +32,13 @@ export default function WorkoutsScreen() {
   const { goals, loading, updateGoal, toggleEnabled, addCustomExercise, reorderGoal } = useWorkoutGoals(user?.id);
   const { todayTotals, logSet, weeklyStats, refetch: refetchLog } = useWorkoutLog(user?.id, profile?.weight_kg ?? null);
   const { trends } = useWorkoutTrends(user?.id);
+  const { groups, loading: groupsLoading, removeFromGroup, reorderGroupGoal, refetch: refetchGroups } = useWorkoutGroups(user?.id);
   const { theme } = useThemeStore();
   const c = getThemeColors(theme);
   const accent = getAccentColors(theme);
 
+  const [selectedGroupId, setSelectedGroupId] = useState<string>("all");
+  const [showGroupManager, setShowGroupManager] = useState(false);
   const [selectedGoal, setSelectedGoal] = useState<WorkoutGoal | null>(null);
   const [showLogModal, setShowLogModal] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
@@ -46,6 +51,15 @@ export default function WorkoutsScreen() {
 
   const enabledGoals = goals.filter((g) => g.enabled);
   const disabledGoals = goals.filter((g) => !g.enabled);
+
+  // Group filtering
+  const selectedGroup = selectedGroupId === "all" ? null : groups.find((g) => g.id === selectedGroupId);
+  const activeGoalIds = selectedGroup ? new Set(selectedGroup.exercises.map((e) => e.id)) : null;
+  const activeGoals = activeGoalIds ? enabledGoals.filter((g) => activeGoalIds.has(g.id)) : enabledGoals;
+
+  // Calendar/trends filtering by group (v1: show all data regardless of group filter)
+  const filteredDailyData = dailyData;
+  const filteredTrends = trends;
 
   const totalReps = Object.values(todayTotals).reduce((sum, t) => sum + t.reps, 0);
   const totalSets = Object.values(todayTotals).reduce((sum, t) => sum + t.sets, 0);
@@ -139,36 +153,106 @@ export default function WorkoutsScreen() {
 
         {loading ? (
           <WorkoutsSkeleton />
-        ) : enabledGoals.length === 0 ? (
-          <GlassPanel className="p-6 items-center ">
-            <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", textAlign: "center" }}>
-              No exercises enabled. Add one to get started!
-            </Text>
-          </GlassPanel>
         ) : (
-          <View className="flex-col gap-8">
-            {enabledGoals.map((goal, idx) => (
-              <ExercisePanel
-                key={goal.id}
-                goal={goal}
-                todayTotal={todayTotals[goal.exercise_type]}
-                onLogSet={() => handleLogSet(goal)}
-                onQuickLog={(reps) => handleQuickLog(goal, reps)}
-                onUpdateGoal={handleUpdateGoal}
-                onToggleEnabled={handleToggleEnabled}
-                onMoveUp={() => handleMoveUp(goal.id)}
-                onMoveDown={() => handleMoveDown(goal.id)}
-                isFirst={idx === 0}
-                isLast={idx === enabledGoals.length - 1}
-              />
-            ))}
-          </View>
+          <>
+            {/* Group Selector Chips */}
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} className="-mx-5 mb-section-gap">
+              <View className="flex-row gap-2 px-5">
+                <Pressable
+                  onPress={() => setSelectedGroupId("all")}
+                  className="py-3 px-4 rounded-xl"
+                  style={{ backgroundColor: selectedGroupId === "all" ? accent.lime : c.cardBgAlt }}
+                >
+                  <Text
+                    style={{
+                      color: selectedGroupId === "all" ? c.textOnAccent : c.text,
+                      fontFamily: "Inter_700Bold",
+                      fontSize: 14,
+                    }}
+                  >
+                    All
+                  </Text>
+                </Pressable>
+                {groups.map((g) => (
+                  <Pressable
+                    key={g.id}
+                    onPress={() => setSelectedGroupId(g.id)}
+                    className="py-3 px-4 rounded-xl"
+                    style={{ backgroundColor: selectedGroupId === g.id ? accent.lime : c.cardBgAlt }}
+                  >
+                    <Text
+                      numberOfLines={1}
+                      style={{
+                        color: selectedGroupId === g.id ? c.textOnAccent : c.text,
+                        fontFamily: "Inter_700Bold",
+                        fontSize: 14,
+                      }}
+                    >
+                      {g.name}
+                    </Text>
+                  </Pressable>
+                ))}
+                <Pressable
+                  onPress={() => setShowGroupManager(true)}
+                  className="py-3 px-4 rounded-xl items-center justify-center"
+                  style={{ backgroundColor: c.cardBgAlt, borderWidth: 1, borderColor: c.cardBorder, borderStyle: "dashed" }}
+                >
+                  <MaterialCommunityIcons name="cog" size={16} color={c.textMuted} />
+                </Pressable>
+              </View>
+            </ScrollView>
+
+            {activeGoals.length === 0 ? (
+              selectedGroupId !== "all" ? (
+                <GlassPanel className="p-6 items-center mb-section-gap">
+                  <MaterialCommunityIcons name="dumbbell" size={32} color={c.textMuted} style={{ opacity: 0.4 }} />
+                  <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 14, textAlign: "center", marginTop: 8 }}>
+                    No exercises in this group yet.
+                  </Text>
+                </GlassPanel>
+              ) : (
+                <GlassPanel className="p-6 items-center mb-section-gap">
+                  <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", textAlign: "center" }}>
+                    No exercises enabled. Add one to get started!
+                  </Text>
+                </GlassPanel>
+              )
+            ) : (
+              <View className="flex-col gap-8 mb-section-gap">
+                {activeGoals.map((goal, idx) => (
+                  <ExercisePanel
+                    key={goal.id}
+                    goal={goal}
+                    todayTotal={todayTotals[goal.exercise_type]}
+                    onLogSet={() => handleLogSet(goal)}
+                    onQuickLog={(reps) => handleQuickLog(goal, reps)}
+                    onUpdateGoal={handleUpdateGoal}
+                    onToggleEnabled={handleToggleEnabled}
+                    onMoveUp={selectedGroup
+                      ? () => reorderGroupGoal(selectedGroup.id, goal.id, "up")
+                      : () => handleMoveUp(goal.id)
+                    }
+                    onMoveDown={selectedGroup
+                      ? () => reorderGroupGoal(selectedGroup.id, goal.id, "down")
+                      : () => handleMoveDown(goal.id)
+                    }
+                    isFirst={idx === 0}
+                    isLast={idx === activeGoals.length - 1}
+                    onRemoveFromGroup={selectedGroup
+                      ? () => removeFromGroup(selectedGroup.id, goal.id)
+                      : undefined
+                    }
+                  />
+                ))}
+              </View>
+            )}
+          </>
         )}
 
         {/* Add Custom Exercise */}
         <Pressable
           onPress={() => setShowAddModal(true)}
-          className="w-full border-2 border-dashed py-8 flex-col items-center justify-center gap-2 mt-8 mb-section-gap"
+          className="w-full border-2 border-dashed py-8 flex-col items-center justify-center gap-2 mb-section-gap"
           style={{ borderColor: "rgba(68,73,51,0.4)" }}
         >
           <MaterialCommunityIcons name="plus-circle-outline" size={28} color={accent.lime} />
@@ -178,18 +262,18 @@ export default function WorkoutsScreen() {
         </Pressable>
 
         {/* Previous Exercises */}
-        {enabledGoals.length > 0 && (
+        {activeGoals.length > 0 && (
           <View className="mb-section-gap">
             <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 12, letterSpacing: 1, marginBottom: 12, textTransform: "uppercase" }}>
-              PREVIOUS EXERCISES
+              {selectedGroup ? `${selectedGroup.name.toUpperCase()} HISTORY` : "PREVIOUS EXERCISES"}
             </Text>
             <WorkoutWeeklyCalendar
-              dailyData={dailyData}
-              goals={enabledGoals}
+              dailyData={filteredDailyData}
+              goals={activeGoals}
               onViewCalendar={() => setShowWorkoutCalendar(true)}
             />
-            {trends.length > 1 && (
-              <WorkoutTrendsChart trends={trends} />
+            {filteredTrends.length > 1 && (
+              <WorkoutTrendsChart trends={filteredTrends} />
             )}
           </View>
         )}
@@ -216,7 +300,8 @@ export default function WorkoutsScreen() {
 
       <LogSetModal visible={showLogModal} goal={selectedGoal} weightKg={profile?.weight_kg ?? null} onClose={() => setShowLogModal(false)} onLog={handleLog} />
       <AddExerciseModal visible={showAddModal} onClose={() => setShowAddModal(false)} onAdd={handleAddExercise} disabledGoals={disabledGoals} onReinstate={handleReinstate} />
-      <WorkoutCalendar visible={showWorkoutCalendar} userId={user?.id ?? null} goals={enabledGoals} onClose={() => setShowWorkoutCalendar(false)} />
+      <WorkoutCalendar visible={showWorkoutCalendar} userId={user?.id ?? null} goals={activeGoals} onClose={() => setShowWorkoutCalendar(false)} />
+      <WorkoutGroupsManagerModal visible={showGroupManager} userId={user?.id} onClose={() => setShowGroupManager(false)} />
     </SafeAreaView>
   );
 }
