@@ -155,21 +155,6 @@ useQuery({
 | `reorderGroupGoal(groupId, goalId, direction)` | `reorderGroupGoal` | Read current join rows for group, find adjacent goal by `sort_order`, swap `sort_order` values (matching `reorderGoal` pattern) |
 | `removeFromGroup(groupId, goalId)` | `removeFromGroup` | Delete the single join row. Exercise stays globally enabled. |
 
-### Auto-suggest seeding
-
-On first fetch (empty groups), if the user has exercises with known `EXERCISE_CATEGORIES`, fire once:
-
-```typescript
-useEffect(() => {
-  if (!groupsLoading && groups.length === 0 && goals.length > 0 && !seededRef.current) {
-    seededRef.current = true;
-    seedDefaultGroups();
-  }
-}, [groups, groupsLoading, goals]);
-```
-
-`seedDefaultGroups` iterates user's exercises, groups by `EXERCISE_CATEGORIES` value, creates one group per unique category, and assigns matching exercises to each group via `addGroup`.
-
 ### Returns
 
 ```typescript
@@ -466,7 +451,7 @@ const [showGroupManager, setShowGroupManager] = useState(false);
 
 1. **Migration**: Create `20250715000016_workout_groups.sql` and run `supabase db push`
 2. **Types & constants**: Add `WorkoutGroup` type, extract `EXERCISE_CATEGORIES` to `exercise-icons.ts`
-3. **Hook**: `useWorkoutGroups.ts` — query + 5 mutations + auto-suggest seeding
+3. **Hook**: `useWorkoutGroups.ts` — query + 5 mutations
 4. **Components**: `EditWorkoutGroupModal.tsx` → `WorkoutGroupsManagerModal.tsx`
 5. **Screen integration**: Modify `workouts.tsx` — chip row, filtering, context wiring
 6. **Calendar/trends filtering**: Pass filtered data to existing chart components

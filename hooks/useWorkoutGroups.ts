@@ -1,8 +1,6 @@
-import { useEffect, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
 import type { WorkoutGroup, WorkoutGoal } from "@/lib/types";
-import { EXERCISE_CATEGORIES } from "@/lib/exercise-icons";
 import { withOfflineFallback } from "@/lib/offline-mutation";
 
 function toGroupWithExercises(
@@ -24,7 +22,6 @@ function toGroupWithExercises(
 
 export function useWorkoutGroups(userId: string | undefined) {
   const queryClient = useQueryClient();
-  const seededRef = useRef(false);
 
   const { data: groups = [], isLoading: loading } = useQuery({
     queryKey: ["workout_groups", userId],
@@ -79,41 +76,6 @@ export function useWorkoutGroups(userId: string | undefined) {
     enabled: !!userId,
     staleTime: 1000 * 60 * 2,
   });
-
-  // Auto-suggest: seed groups from EXERCISE_CATEGORIES on first visit
-  useEffect(() => {
-    if (!userId || loading || groups.length > 0 || seededRef.current) return;
-    const goals = queryClient.getQueryData<WorkoutGoal[]>(["workout_goals", userId]);
-    if (!goals || goals.length === 0) return;
-    seededRef.current = true;
-
-    const seedDefaultGroups = async () => {
-      const catMap: Record<string, string[]> = {};
-      for (const goal of goals) {
-        const cat = EXERCISE_CATEGORIES[goal.exercise_type];
-        if (!cat) continue;
-        if (!catMap[cat]) catMap[cat] = [];
-        catMap[cat].push(goal.exercise_type);
-      }
-
-      for (const [catName, exerciseTypes] of Object.entries(catMap)) {
-        const goalIds = goals
-          .filter((g) => exerciseTypes.includes(g.exercise_type))
-          .map((g) => g.id);
-
-        if (goalIds.length === 0) continue;
-
-        await supabase.from("workout_groups").insert({
-          user_id: userId,
-          name: catName.charAt(0).toUpperCase() + catName.slice(1).toLowerCase(),
-        });
-      }
-
-      queryClient.invalidateQueries({ queryKey: ["workout_groups", userId] });
-    };
-
-    seedDefaultGroups();
-  }, [userId, loading, groups, queryClient]);
 
   const addGroupMutation = useMutation({
     mutationFn: async ({
