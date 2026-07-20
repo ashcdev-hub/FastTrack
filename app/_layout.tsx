@@ -2,7 +2,9 @@ import "../global.css";
 import { useEffect, useState } from "react";
 import { Stack } from "expo-router";
 import { useColorScheme } from "react-native";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClient } from "@tanstack/react-query";
+import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client";
+import { createAsyncStoragePersister } from "@tanstack/query-async-storage-persister";
 import Animated, { useSharedValue, useAnimatedStyle, withRepeat, withSequence, withTiming, Easing } from "react-native-reanimated";
 
 
@@ -33,8 +35,6 @@ import { OfflineBanner } from "@/components/OfflineBanner";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { useOfflineQueueProcessor } from "@/hooks/useOfflineQueueProcessor";
 
-const CACHE_KEY = "fasttrack_query_cache";
-
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -46,51 +46,11 @@ const queryClient = new QueryClient({
   },
 });
 
-const MAX_CACHE_AGE = 1000 * 60 * 60 * 24;
-
-async function hydrateQueryCache() {
-  try {
-    const raw = await AsyncStorage.getItem(CACHE_KEY);
-    if (!raw) return;
-    const { queries } = JSON.parse(raw);
-    const now = Date.now();
-    for (const q of queries) {
-      if (
-        q.queryKey &&
-        q.data !== undefined &&
-        q.data !== null &&
-        q.dataUpdatedAt &&
-        now - q.dataUpdatedAt < MAX_CACHE_AGE
-      ) {
-        queryClient.setQueryData(q.queryKey, q.data, {
-          updatedAt: q.dataUpdatedAt,
-        });
-      }
-    }
-  } catch (e) {
-    console.error("Failed to hydrate query cache:", e);
-  }
-}
-
-void hydrateQueryCache();
-
-let persistTimer: ReturnType<typeof setTimeout> | null = null;
-const persistCache = () => {
-  if (persistTimer) return;
-  persistTimer = setTimeout(() => {
-    persistTimer = null;
-    try {
-      const cache = queryClient.getQueryCache();
-      const queries = cache.getAll().map((q) => ({
-        queryKey: q.queryKey,
-        data: q.state.data,
-        dataUpdatedAt: q.state.dataUpdatedAt,
-      }));
-      AsyncStorage.setItem(CACHE_KEY, JSON.stringify({ queries }));
-    } catch {}
-  }, 1000);
-};
-queryClient.getQueryCache().subscribe(persistCache);
+const asyncStoragePersister = createAsyncStoragePersister({
+  storage: AsyncStorage,
+  key: "fasttrack_query_cache",
+  throttleTime: 1000,
+});
 
 function OfflineQueueProcessor() {
   useOfflineQueueProcessor();
@@ -198,8 +158,14 @@ function InnerLayout() {
 
 export default function RootLayout() {
   return (
-    <QueryClientProvider client={queryClient}>
+    <PersistQueryClientProvider
+      client={queryClient}
+      persistOptions={{
+        persister: asyncStoragePersister,
+        maxAge: 1000 * 60 * 60 * 24,
+      }}
+    >
       <InnerLayout />
-    </QueryClientProvider>
+    </PersistQueryClientProvider>
   );
 }
