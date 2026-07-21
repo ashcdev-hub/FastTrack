@@ -51,14 +51,15 @@ Deno.serve(async (req) => {
             role: "system",
             content:
               "You are a food recognition API. Identify ALL food items visible in the photo. Estimate portion sizes and nutritional content per serving. " +
-              "Return valid JSON only, no markdown. If you're unsure about exact values, provide your best estimate.",
+              "Return valid JSON only, no markdown. ALL numeric fields (calories, protein_g, carbs_g, fat_g) are REQUIRED — if unsure, provide your best estimate rather than 0. " +
+              "serving_size is REQUIRED (e.g. '1 cup', '100g', '1 medium'). Never omit fields.",
           },
           {
             role: "user",
             content: [
               {
                 type: "text",
-                text: "Identify all food items in this photo. Return as JSON with a \"products\" array. Each product has: name (string), serving_size (string like '1 cup', '100g', '1 medium'), calories (number), protein_g (number), carbs_g (number), fat_g (number). Up to 5 items.",
+                text: "Identify all food items in this photo. Return as JSON with a \"products\" array. Each product MUST have ALL of: name (string), serving_size (string like '1 cup', '100g', '1 medium'), calories (number), protein_g (number), carbs_g (number), fat_g (number). Do NOT set any field to 0 — estimate if unsure. Up to 5 items.",
               },
               {
                 type: "image_url",
@@ -114,20 +115,26 @@ Deno.serve(async (req) => {
         return jsonResponse({ error: "Could not identify food in this photo" });
       }
 
-      const result = products.map((p: any, i: number) => ({
-        id: `photo_${i}_${Date.now()}`,
-        name: p.name ?? "Unknown food",
-        brand: "",
-        serving_size: p.serving_size ?? "1 serving",
-        nutrition: {
-          calories: Math.round(p.calories ?? 0),
-          protein: Math.round((p.protein_g ?? 0) * 10) / 10,
-          carbs: Math.round((p.carbs_g ?? 0) * 10) / 10,
-          fat: Math.round((p.fat_g ?? 0) * 10) / 10,
-        },
-      }));
+      console.log("[food-photo] Raw Groq response:", JSON.stringify(products));
 
-      return jsonResponse({ products: result });
+      let incomplete = false;
+      const result = products.map((p: any, i: number) => {
+        if (!p.serving_size || !p.calories || (!p.protein_g && !p.carbs_g && !p.fat_g)) incomplete = true;
+        return {
+          id: `photo_${i}_${Date.now()}`,
+          name: p.name ?? "Unknown food",
+          brand: "",
+          serving_size: p.serving_size ?? "1 serving",
+          nutrition: {
+            calories: Math.round(p.calories ?? 0),
+            protein: Math.round((p.protein_g ?? 0) * 10) / 10,
+            carbs: Math.round((p.carbs_g ?? 0) * 10) / 10,
+            fat: Math.round((p.fat_g ?? 0) * 10) / 10,
+          },
+        };
+      });
+
+      return jsonResponse({ products: result, incomplete_fields: incomplete || undefined });
     }
 
     // Handle base64 images (from camera or photo library)
@@ -152,14 +159,15 @@ Deno.serve(async (req) => {
           role: "system",
           content:
             "You are a food recognition API. Identify ALL food items visible in the photo. Estimate portion sizes and nutritional content per serving. " +
-            "Return valid JSON only, no markdown. If you're unsure about exact values, provide your best estimate.",
+            "Return valid JSON only, no markdown. ALL numeric fields (calories, protein_g, carbs_g, fat_g) are REQUIRED — if unsure, provide your best estimate rather than 0. " +
+            "serving_size is REQUIRED (e.g. '1 cup', '100g', '1 medium'). Never omit fields.",
         },
         {
           role: "user",
           content: [
             {
               type: "text",
-              text: "Identify all food items in this photo. Return as JSON with a \"products\" array. Each product has: name (string), serving_size (string like '1 cup', '100g', '1 medium'), calories (number), protein_g (number), carbs_g (number), fat_g (number). Up to 5 items.",
+              text: "Identify all food items in this photo. Return as JSON with a \"products\" array. Each product MUST have ALL of: name (string), serving_size (string like '1 cup', '100g', '1 medium'), calories (number), protein_g (number), carbs_g (number), fat_g (number). Do NOT set any field to 0 — estimate if unsure. Up to 5 items.",
             },
             {
               type: "image_url",
@@ -219,20 +227,26 @@ Deno.serve(async (req) => {
       return jsonResponse({ error: "Could not identify food in this photo" });
     }
 
-    const result = products.map((p: any, i: number) => ({
-      id: `photo_${i}_${Date.now()}`,
-      name: p.name ?? "Unknown food",
-      brand: "",
-      serving_size: p.serving_size ?? "1 serving",
-      nutrition: {
-        calories: Math.round(p.calories ?? 0),
-        protein: Math.round((p.protein_g ?? 0) * 10) / 10,
-        carbs: Math.round((p.carbs_g ?? 0) * 10) / 10,
-        fat: Math.round((p.fat_g ?? 0) * 10) / 10,
-      },
-    }));
+    console.log("[food-photo] Raw Groq response:", JSON.stringify(products));
 
-    return jsonResponse({ products: result });
+    let incomplete = false;
+    const result = products.map((p: any, i: number) => {
+      if (!p.serving_size || !p.calories || (!p.protein_g && !p.carbs_g && !p.fat_g)) incomplete = true;
+      return {
+        id: `photo_${i}_${Date.now()}`,
+        name: p.name ?? "Unknown food",
+        brand: "",
+        serving_size: p.serving_size ?? "1 serving",
+        nutrition: {
+          calories: Math.round(p.calories ?? 0),
+          protein: Math.round((p.protein_g ?? 0) * 10) / 10,
+          carbs: Math.round((p.carbs_g ?? 0) * 10) / 10,
+          fat: Math.round((p.fat_g ?? 0) * 10) / 10,
+        },
+      };
+    });
+
+    return jsonResponse({ products: result, incomplete_fields: incomplete || undefined });
   } catch (error: any) {
     console.error("Food photo error:", error);
     return jsonResponse({ error: error?.message ?? "Photo analysis failed" }, 500);

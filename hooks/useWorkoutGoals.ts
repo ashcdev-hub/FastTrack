@@ -70,6 +70,7 @@ export function useWorkoutGoals(userId: string | undefined) {
         (old ?? []).map((g) => (g.id === goalId ? { ...g, ...updates } : g))
       );
     },
+    onError: (e) => console.error("[Mutation] updateGoal failed:", e),
   });
 
   const addCustomExerciseMutation = useMutation({
@@ -119,6 +120,7 @@ export function useWorkoutGoals(userId: string | undefined) {
         data,
       ]);
     },
+    onError: (e) => console.error("[Mutation] addCustomExercise failed:", e),
   });
 
   const reorderMutation = useMutation({
@@ -160,6 +162,7 @@ export function useWorkoutGoals(userId: string | undefined) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["workout_goals", userId] });
     },
+    onError: (e) => console.error("[Mutation] reorder failed:", e),
   });
 
   const updateGoal = async (goalId: string, updates: Partial<WorkoutGoal>) => {

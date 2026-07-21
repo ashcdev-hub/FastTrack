@@ -57,6 +57,7 @@ export function useFastCheckIns(userId: string | undefined, sessionId: string | 
         data,
       ]);
     },
+    onError: (e) => console.error("[Mutation] addCheckIn failed:", e),
   });
 
   const deleteCheckInMutation = useMutation({
@@ -81,6 +82,7 @@ export function useFastCheckIns(userId: string | undefined, sessionId: string | 
         (old ?? []).filter((c) => c.id !== id)
       );
     },
+    onError: (e) => console.error("[Mutation] deleteCheckIn failed:", e),
   });
 
   return {

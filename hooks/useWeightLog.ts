@@ -101,6 +101,7 @@ export function useWeightLog(userId: string | undefined) {
         return [result.data, ...(old ?? [])];
       });
     },
+    onError: (e) => console.error("[Mutation] addWeight failed:", e),
   });
 
   const deleteWeightMutation = useMutation({
@@ -122,6 +123,7 @@ export function useWeightLog(userId: string | undefined) {
         (old ?? []).filter((e) => e.id !== id)
       );
     },
+    onError: (e) => console.error("[Mutation] deleteWeight failed:", e),
   });
 
   const currentWeight = entries.length > 0 ? entries[0].weight_kg : null;

@@ -43,6 +43,11 @@ const queryClient = new QueryClient({
       refetchOnWindowFocus: true,
       retry: 2,
     },
+    mutations: {
+      onError: (error) => {
+        console.error("[Mutation global] Mutation failed:", error);
+      },
+    },
   },
 });
 

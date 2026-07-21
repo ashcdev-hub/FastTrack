@@ -120,6 +120,7 @@ export function useWorkoutGroups(userId: string | undefined) {
     onSuccess: (_data) => {
       queryClient.invalidateQueries({ queryKey: ["workout_groups", userId] });
     },
+    onError: (e) => console.error("[Mutation] addGroup failed:", e),
   });
 
   const updateGroupMutation = useMutation({
@@ -174,6 +175,7 @@ export function useWorkoutGroups(userId: string | undefined) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["workout_groups", userId] });
     },
+    onError: (e) => console.error("[Mutation] updateGroup failed:", e),
   });
 
   const deleteGroupMutation = useMutation({
@@ -245,6 +247,7 @@ export function useWorkoutGroups(userId: string | undefined) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["workout_groups", userId] });
     },
+    onError: (e) => console.error("[Mutation] reorderGroupGoal failed:", e),
   });
 
   const removeFromGroupMutation = useMutation({
@@ -274,6 +277,7 @@ export function useWorkoutGroups(userId: string | undefined) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["workout_groups", userId] });
     },
+    onError: (e) => console.error("[Mutation] removeFromGroup failed:", e),
   });
 
   const addGroup = async (name: string, goalIds: string[]) => {

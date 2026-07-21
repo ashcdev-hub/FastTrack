@@ -53,6 +53,7 @@ export function useProfile(userId: string | null) {
       if (!data) return;
       queryClient.setQueryData(["profile", userId], data);
     },
+    onError: (e) => console.error("[Mutation] updateProfile failed:", e),
   });
 
   const updateFastingSchedule = async (fastingHours: number, eatingHours: number) => {

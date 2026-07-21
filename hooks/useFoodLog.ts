@@ -62,6 +62,7 @@ export function useFoodLog(userId: string | undefined) {
         ...(old ?? []),
       ]);
     },
+    onError: (e) => console.error("[Mutation] addEntry failed:", e),
   });
 
   const addEntriesMutation = useMutation({
@@ -90,6 +91,7 @@ export function useFoodLog(userId: string | undefined) {
       ]);
       queryClient.invalidateQueries({ queryKey: ["food_log", userId] });
     },
+    onError: (e) => console.error("[Mutation] addEntries failed:", e),
   });
 
   const deleteEntryMutation = useMutation({
@@ -111,6 +113,7 @@ export function useFoodLog(userId: string | undefined) {
         (old ?? []).filter((e) => e.id !== id)
       );
     },
+    onError: (e) => console.error("[Mutation] deleteEntry failed:", e),
   });
 
   const updateEntryMutation = useMutation({
@@ -139,6 +142,7 @@ export function useFoodLog(userId: string | undefined) {
       );
       queryClient.invalidateQueries({ queryKey: ["food_log_monthly", userId] });
     },
+    onError: (e) => console.error("[Mutation] updateEntry failed:", e),
   });
 
   const totals = entries.reduce(

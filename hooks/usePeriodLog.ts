@@ -81,6 +81,7 @@ export function usePeriodLog(userId: string | undefined) {
       }
       queryClient.invalidateQueries({ queryKey: ["period_log", userId] });
     },
+    onError: (e) => console.error("[Mutation] upsertPeriodLog failed:", e),
   });
 
   const deleteMutation = useMutation({
@@ -100,6 +101,7 @@ export function usePeriodLog(userId: string | undefined) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["period_log", userId] });
     },
+    onError: (e) => console.error("[Mutation] deletePeriodLog failed:", e),
   });
 
   return {

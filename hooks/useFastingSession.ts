@@ -126,6 +126,7 @@ export function useFastingSession(userId: string | undefined) {
         queryClient.setQueryData(["fasting_session", "active", userId], data);
       }
     },
+    onError: (e) => console.error("[Mutation] startFast failed:", e),
   });
 
   const endFastMutation = useMutation({
@@ -160,6 +161,7 @@ export function useFastingSession(userId: string | undefined) {
       queryClient.setQueryData(["fasting_session", "active", userId], null);
       queryClient.invalidateQueries({ queryKey: ["fasting_sessions", "completed", userId] });
     },
+    onError: (e) => console.error("[Mutation] endFast failed:", e),
   });
 
   const breakFastMutation = useMutation({
@@ -185,6 +187,7 @@ export function useFastingSession(userId: string | undefined) {
     onSuccess: (data) => {
       queryClient.setQueryData(["fasting_session", "active", userId], data);
     },
+    onError: (e) => console.error("[Mutation] breakFast failed:", e),
   });
 
   const updateStartTimeMutation = useMutation({
@@ -209,6 +212,7 @@ export function useFastingSession(userId: string | undefined) {
     onSuccess: (data) => {
       queryClient.setQueryData(["fasting_session", "active", userId], data);
     },
+    onError: (e) => console.error("[Mutation] updateStartTime failed:", e),
   });
 
   const discardFastMutation = useMutation({
@@ -235,6 +239,7 @@ export function useFastingSession(userId: string | undefined) {
       queryClient.setQueryData(["fasting_session", "active", userId], null);
       queryClient.invalidateQueries({ queryKey: ["fasting_sessions", "completed", userId] });
     },
+    onError: (e) => console.error("[Mutation] discardFast failed:", e),
   });
 
   const deleteFastMutation = useMutation({
@@ -257,6 +262,7 @@ export function useFastingSession(userId: string | undefined) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["fasting_sessions", "completed", userId] });
     },
+    onError: (e) => console.error("[Mutation] deleteFast failed:", e),
   });
 
   return {

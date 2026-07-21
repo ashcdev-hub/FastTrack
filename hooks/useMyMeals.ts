@@ -133,6 +133,7 @@ export function useMyMeals(userId: string | undefined) {
         ...(old ?? []),
       ]);
     },
+    onError: (e) => console.error("[Mutation] addMyMeal failed:", e),
   });
 
   const updateMutation = useMutation({
@@ -211,6 +212,7 @@ export function useMyMeals(userId: string | undefined) {
         )
       );
     },
+    onError: (e) => console.error("[Mutation] updateMyMeal failed:", e),
   });
 
   const deleteMutation = useMutation({
@@ -233,6 +235,7 @@ export function useMyMeals(userId: string | undefined) {
         (old ?? []).filter((m) => m.id !== id)
       );
     },
+    onError: (e) => console.error("[Mutation] deleteMyMeal failed:", e),
   });
 
   const addMyMeal = async (

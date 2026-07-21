@@ -71,9 +71,7 @@ export function useWaterLog(userId: string | undefined) {
       ]);
       queryClient.invalidateQueries({ queryKey: ["water_log", userId] });
     },
-    onError: (error) => {
-      console.error("addWater mutation failed:", error instanceof Error ? error.message : String(error));
-    },
+    onError: (e) => console.error("[Mutation] addWater failed:", e),
   });
 
   const totalMl = entries.reduce((sum, e) => sum + (e.amount_ml ?? 0), 0);

@@ -270,7 +270,7 @@ export function LogMealModal({ visible, onClose, userId, quickAddFoods, recentFo
         });
         if (data?.products) {
           data.products.forEach((p: any) => {
-            store.addItem({ name: p.name, brand: p.brand ?? "", calories: p.nutrition.calories, protein_g: p.nutrition.protein ?? 0, carbs_g: p.nutrition.carbs ?? 0, fat_g: p.nutrition.fat ?? 0, quantity: 1 });
+            store.addItem({ name: p.name, brand: p.brand ?? "", serving_size: p.serving_size ?? undefined, calories: p.nutrition.calories, protein_g: p.nutrition.protein ?? 0, carbs_g: p.nutrition.carbs ?? 0, fat_g: p.nutrition.fat ?? 0, quantity: 1 });
           });
         }
       }
@@ -730,7 +730,7 @@ export function LogMealModal({ visible, onClose, userId, quickAddFoods, recentFo
         onProductsFound={(products) => {
           setShowFoodCamera(false);
           products.forEach((p: any) => {
-            store.addItem({ name: p.name, brand: p.brand ?? "", calories: p.nutrition.calories, protein_g: p.nutrition.protein ?? 0, carbs_g: p.nutrition.carbs ?? 0, fat_g: p.nutrition.fat ?? 0, quantity: 1 });
+            store.addItem({ name: p.name, brand: p.brand ?? "", serving_size: p.serving_size ?? undefined, calories: p.nutrition.calories, protein_g: p.nutrition.protein ?? 0, carbs_g: p.nutrition.carbs ?? 0, fat_g: p.nutrition.fat ?? 0, quantity: 1 });
           });
         }}
         onClose={() => setShowFoodCamera(false)}

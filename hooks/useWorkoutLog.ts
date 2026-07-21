@@ -130,6 +130,7 @@ export function useWorkoutLog(userId: string | undefined, weightKg: number | nul
       ]);
       queryClient.invalidateQueries({ queryKey: ["workout_log", "weekly", userId] });
     },
+    onError: (e) => console.error("[Mutation] logSet failed:", e),
   });
 
   const fetchStreaks = useCallback(
