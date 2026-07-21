@@ -58,15 +58,6 @@ Expo's unified codebase reduces the overhead of native development while maintai
 - **AI Insights** on Home tab with personalized fasting/nutrition/workout summary
 - **AI Coach** chat (Groq-powered) for nutrition, fasting, and workout guidance
 
-### Profile & Settings
-- **Weight tracking** with chart, goal weight, weight change indicator
-- **Unit preferences**: kg/lbs, cm/ft, ml/fl oz
-- **Dark/light/system mode** toggle with auto dark mode support and full light palette
-- **Modular tracker system** — enable/disable Fasting, Workouts, Food, or Period independently
-- **Local notifications** for fast reminders, water, and milestones
-- **Settings inline** (no standalone settings page)
-- **Dynamic fasting phase insights** during active fasts
-
 ### Period Tracker
 - **CycleWheel** — animated SVG ring showing phase arcs (menstrual/follicular/ovulatory/luteal) with day counter
 - **PeriodCalendar** — full month grid with phase-colored cells, predicted period dates, and symptom indicators
@@ -76,6 +67,15 @@ Expo's unified codebase reduces the overhead of native development while maintai
 - **Cycle settings** — configurable cycle length (21-45), period duration (2-10), luteal phase (10-17)
 - **AI coach integration** — cycle phase context for personalized guidance
 - **Home tab panel** with phase badge and fasting tip
+
+### Profile & Settings
+- **Weight tracking** with chart, goal weight, weight change indicator
+- **Unit preferences**: kg/lbs, cm/ft, ml/fl oz
+- **Dark/light/system mode** toggle with auto dark mode support and full light palette
+- **Modular tracker system** — enable/disable Fasting, Workouts, Food, or Period independently
+- **Local notifications** for fast reminders, water, and milestones
+- **Settings inline** (no standalone settings page)
+- **Dynamic fasting phase insights** during active fasts
 
 ### UI & Animations
 - **GlassPanel** — theme-aware semi-transparent card component used across all screens
