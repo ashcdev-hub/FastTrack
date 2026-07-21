@@ -98,6 +98,7 @@ eas submit --profile production --platform ios
 4. NEVER build changes that haven't been approved
 5. If the user is unhappy, go back to step 1 (Plan)
 6. ALWAYS update the roadmap in AGENTS.md before committing — move completed items to the Done table, remove or update references to deleted code, and keep remaining item numbering sequential.
+7. When the user asks "what's next", always list all remaining bugs and features from the roadmap before asking what they want to work on.
 
 ### Pre-commit Hook (Safety Net):
 - A `.githooks/pre-commit` hook blocks all commits unless `ALLOW_COMMIT=true` is set.
@@ -797,6 +798,8 @@ See [Building for iOS (Standalone App)](#building-for-ios-standalone-app) above 
 | 78 | **Query-cache persistence perf** — Replaced manual `hydrateQueryCache()`/`persistCache` with `PersistQueryClientProvider` + `createAsyncStoragePersister` from `@tanstack/react-query-persist-client`. Removed ~34 lines of manual serialization, timer management, and subscribe logic. | Done |
 | 79 | **Food photo macro/serving_size fix** — Tightened Groq vision prompt (fields required, no 0 values), added raw response logging, added `incomplete_fields` flag to response. Restored `serving_size` passthrough in both camera and library paths in `LogMealModal.tsx`. Deployed to Supabase. | Done |
 | 80 | **Mutation error feedback** — Added `defaultOptions.mutations.onError` global handler in `_layout.tsx`. Added named `onError` callbacks to all 30 mutations across 11 hook files. Every mutation failure now logs with a clear `[Mutation]` prefix identifier. | Done |
+| 81 | **Haptic feedback on fast/eat complete** — Added `expo-haptics` with success haptic when fast timer reaches zero and warning haptic when eating timer completes. Platform-guarded for web safety. | Done |
+| 82 | **Weight prompt on break fast** — New bottom-sheet modal after confirming break fast, pre-filled with current weight in user's preferred unit. "Log Weight & Break Fast" logs via `useWeightLog` then breaks fast; "Skip" breaks directly. Only shown on manual break (not auto-complete). | Done |
 
 ### Known Bugs
 | # | Bug | Area | Description |

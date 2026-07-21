@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
-import { Pressable, View, Text, ScrollView, TextInput, Modal, Image } from "react-native";
+import { Pressable, View, Text, ScrollView, TextInput, Modal, Image, Platform } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useAuth } from "@/hooks/useAuth";
@@ -8,6 +8,9 @@ import { useFastingTimer } from "@/hooks/useFastingTimer";
 import { useFastingStore } from "@/store/useFastingStore";
 import { useFastCheckIns } from "@/hooks/useFastCheckIns";
 import { useProfile } from "@/hooks/useProfile";
+import { useWeightLog } from "@/hooks/useWeightLog";
+import { parseWeightInput, displayWeight } from "@/lib/units";
+import * as Haptics from "expo-haptics";
 import { AnimatedPressable } from "@/components/AnimatedPressable";
 import { GlassPanel } from "@/components/GlassPanel";
 import { AmbientBackground } from "@/components/AmbientBackground";
@@ -52,6 +55,7 @@ export default function FastScreen() {
   const [selectedSchedule, setSelectedSchedule] = useState<string | null>(null);
   const { checkIns, addCheckIn } = useFastCheckIns(user?.id, session?.id ?? null);
   const { profile, updateFastingSchedule } = useProfile(user?.id ?? null);
+  const { addWeight } = useWeightLog(user?.id);
   const notifPrefs = profile?.notification_preferences;
 
   const phase: Phase = !session ? "idle" : (session.status as Phase);
@@ -94,8 +98,11 @@ export default function FastScreen() {
   const [checkInMood, setCheckInMood] = useState<number | null>(null);
   const [checkInNote, setCheckInNote] = useState("");
   const [showCustomModal, setShowCustomModal] = useState(false);
+  const [showWeightPrompt, setShowWeightPrompt] = useState(false);
+  const [weightInput, setWeightInput] = useState("");
   const fastCompletePromptedRef = useRef(false);
   const eatCompletePromptedRef = useRef(false);
+  const weightPromptedRef = useRef(false);
 
   const [showStartTimePicker, setShowStartTimePicker] = useState(false);
   const [startPickerDate, setStartPickerDate] = useState(new Date());
@@ -128,14 +135,25 @@ export default function FastScreen() {
     return hour > now.getHours() || (hour === now.getHours() && minute > now.getMinutes());
   };
 
+  const triggerHaptic = (type: "success" | "warning" | "medium") => {
+    if (Platform.OS === "web") return;
+    try {
+      if (type === "success") void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      else if (type === "warning") void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+      else void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    } catch {}
+  };
+
   useEffect(() => {
     if (phase === "fasting" && fastCountdown.isOver && !fastCompletePromptedRef.current) {
       fastCompletePromptedRef.current = true;
       setShowFastComplete(true);
+      triggerHaptic("success");
     }
     if (phase === "eating" && fastCountdown.isOver && !eatCompletePromptedRef.current) {
       eatCompletePromptedRef.current = true;
       setShowEatComplete(true);
+      triggerHaptic("warning");
     }
     if (phase !== "fasting") {
       fastCompletePromptedRef.current = false;
@@ -218,6 +236,22 @@ export default function FastScreen() {
     if (!session) return;
     const { error } = await breakFast(session.id);
     if (!error) {
+      triggerHaptic("medium");
+      await cancelAllNotifications();
+      if (notifPrefs?.streak_reminders) await checkAndNotifyStreakMilestone(completedFasts + 1);
+    }
+  };
+
+  const handleBreakFastWithWeight = async () => {
+    if (!session) return;
+    setShowWeightPrompt(false);
+    if (weightInput.trim()) {
+      const kg = parseWeightInput(weightInput.trim(), profile?.unit_preferences as any);
+      if (kg !== null) await addWeight(kg);
+    }
+    const { error } = await breakFast(session.id);
+    if (!error) {
+      triggerHaptic("medium");
       await cancelAllNotifications();
       if (notifPrefs?.streak_reminders) await checkAndNotifyStreakMilestone(completedFasts + 1);
     }
@@ -540,8 +574,44 @@ export default function FastScreen() {
                     <Pressable onPress={() => setShowBreakConfirm(false)} className="flex-1 py-3.5 items-center" style={{ backgroundColor: accent.lime }}>
                       <Text style={{ color: c.textOnAccent, fontFamily: "Inter_700Bold" }}>Continue Fasting</Text>
                     </Pressable>
-                    <Pressable onPress={() => { setShowBreakConfirm(false); handleBreakFast(); }} className="flex-1 py-3.5 items-center" style={{ backgroundColor: c.buttonBg }}>
+                    <Pressable onPress={() => { setShowBreakConfirm(false); setWeightInput(profile?.weight_kg ? displayWeight(profile.weight_kg, profile.unit_preferences as any) : ""); setShowWeightPrompt(true); }} className="flex-1 py-3.5 items-center" style={{ backgroundColor: c.buttonBg }}>
                       <Text style={{ color: c.textMuted, fontFamily: "Inter_700Bold" }}>Break Fast</Text>
+                    </Pressable>
+                  </View>
+                </Pressable>
+              </Pressable>
+            </Modal>
+
+            {/* Weight Prompt Modal */}
+            <Modal visible={showWeightPrompt} transparent animationType="slide" onRequestClose={() => setShowWeightPrompt(false)}>
+              <Pressable className="flex-1 justify-end" style={{ backgroundColor: c.overlay }} onPress={() => setShowWeightPrompt(false)}>
+                <Pressable onStartShouldSetResponder={() => true} className="rounded-t-3xl p-6" style={{ backgroundColor: c.elevated }}>
+                  <View className="items-center mb-4">
+                    <View style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: accent.limeBg, alignItems: "center", justifyContent: "center", marginBottom: 12 }}>
+                      <MaterialCommunityIcons name="scale-bathroom" size={24} color={accent.lime} />
+                    </View>
+                    <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 20 }}>Log your weight?</Text>
+                    <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 13, textAlign: "center", marginTop: 4, marginBottom: 16 }}>
+                      Weighing in before eating is a great way to stay on track
+                    </Text>
+                  </View>
+
+                  <TextInput
+                    value={weightInput}
+                    onChangeText={setWeightInput}
+                    placeholder={profile?.weight_kg ? "Adjust your weight" : "Enter your weight"}
+                    keyboardType="decimal-pad"
+                    className="w-full text-center py-3 mb-5 rounded-xl"
+                    style={{ backgroundColor: c.inputBg, color: c.text, fontFamily: "Inter_700Bold", fontSize: 28, borderWidth: 1, borderColor: c.inputBorder }}
+                    placeholderTextColor={c.placeholder}
+                  />
+
+                  <View className="flex-row gap-3 mb-3">
+                    <Pressable onPress={handleBreakFastWithWeight} className="flex-1 py-3.5 items-center" style={{ backgroundColor: accent.lime }}>
+                      <Text style={{ color: c.textOnAccent, fontFamily: "Inter_700Bold" }}>Log Weight & Break Fast</Text>
+                    </Pressable>
+                    <Pressable onPress={() => { setShowWeightPrompt(false); handleBreakFast(); }} className="flex-1 py-3.5 items-center" style={{ backgroundColor: c.buttonBg }}>
+                      <Text style={{ color: c.textMuted, fontFamily: "Inter_700Bold" }}>Skip</Text>
                     </Pressable>
                   </View>
                 </Pressable>
