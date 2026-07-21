@@ -2,7 +2,7 @@
 
 **Intermittent fasting, workout & macro tracker built with Expo + Supabase.**
 
-A lightweight, streamlined mobile app for tracking of intermittent fasting cycles, daily workout targets, macros and hydration.
+A lightweight, streamlined mobile app for intermittent fasting cycle tracking, workout logging, nutrition and water tracking, period/cycle tracking, and AI-powered coaching — all at zero cost.
 
 Existing fasting/fitness tracker apps have become visually cluttered and rely heavily on aggressive monetisation via premium tiers. I built this to escape that model and return to a straightforward, feature-rich experience at zero cost.
 
@@ -24,18 +24,25 @@ Expo's unified codebase reduces the overhead of native development while maintai
 - **Countdown timer** with animated SVG progress ring, dynamic phase labels
 - **Custom start time** — pick any start date/time up to 3 days back before starting a fast, or edit it during an active fast via the timer ring's pencil icon
 - **Schedule presets**: 14:10, 16:8, 18:6, 20:4, OMAD — plus custom via stepper
-- **Weekly calendar** showing which days you fasted
+- **Weekly calendar** showing which days you fasted, with session-aware connecting lines between consecutive fasts
 - **Full month calendar** with tap-to-view fast details
 - **Mood check-ins** during fasts with chart and timeline
 - **Previous fasts** list with expandable detail and bottom-sheet delete
 - **End eating / discard fast** via bottom-sheet confirmation modals
 
 ### Workouts
-- **Exercise panels** for pushups, crunches, sit-ups, squats + custom
-- **Log sets** with stepper controls (no keyboard needed)
+- **Exercise panels** for pushups, crunches, sit-ups, squats + custom exercises
+- **12 SVG exercise icons** (MingCute + Lucide) with theme-tinting and icon picker
+- **Quick-log rep chips** (10/15/20/25/30 + custom) with confirmation bottom-sheet
 - **Daily goal editor** via bottom-sheet modal with presets + stepper
 - **Progress tracking** with inline progress rings
-- **Calorie estimation** based on reps and body weight
+- **Exercise reordering** with up/down arrows
+- **Calorie estimation** based on reps, sets, and body weight
+- **Weekly calendar** (7-day circle strip) and **full month calendar** with connecting lines
+- **30-day trends chart** (SVG line) with reps/calories toggle
+- **Weekly stats** (total reps, sets, calories)
+- **AI-powered workout insight** — dynamic Groq-generated encouragement after logging sets
+- **Workout groups** — organize exercises into named groups
 
 ### Nutrition
 - **Full-screen food logging** (`LogMealModal`) with search, quick-add, custom form, and meal builder
@@ -52,9 +59,10 @@ Expo's unified codebase reduces the overhead of native development while maintai
 - **AI Coach** chat (Groq-powered) for nutrition, fasting, and workout guidance
 
 ### Profile & Settings
-- **Weight tracking** with chart and goal weight
+- **Weight tracking** with chart, goal weight, weight change indicator
 - **Unit preferences**: kg/lbs, cm/ft, ml/fl oz
-- **Dark/light/system mode** toggle with full theme support
+- **Dark/light/system mode** toggle with auto dark mode support and full light palette
+- **Modular tracker system** — enable/disable Fasting, Workouts, Food, or Period independently
 - **Local notifications** for fast reminders, water, and milestones
 - **Settings inline** (no standalone settings page)
 - **Dynamic fasting phase insights** during active fasts
@@ -68,6 +76,18 @@ Expo's unified codebase reduces the overhead of native development while maintai
 - **Cycle settings** — configurable cycle length (21-45), period duration (2-10), luteal phase (10-17)
 - **AI coach integration** — cycle phase context for personalized guidance
 - **Home tab panel** with phase badge and fasting tip
+
+### UI & Animations
+- **GlassPanel** — theme-aware semi-transparent card component used across all screens
+- **Staggered panel entrance** on Home tab with fade-in-up animations
+- **Breathing logo** with spring pulse on splash screen
+- **Ambient floating background circles** (lime/cyan/rose) behind content
+- **Animated pressables** with scale-down feedback on all interactive elements
+- **Tab bar icon bounce + pulse** animation
+- **Login entrance sequence** — logo springs in, form fields stagger in
+- **Confetti celebration** on session complete
+- **Skeleton shimmer** loading states on key screens
+- **ErrorBoundary** — top-level crash recovery with theme-aware fallback UI
 
 ### Offline Support
 - **Query cache hydration** — last-known data shown on app boot without network
@@ -88,12 +108,14 @@ Expo's unified codebase reduces the overhead of native development while maintai
 | State | Zustand (fasting, goals, theme, food log staging) |
 | Offline | NetInfo + AsyncStorage mutation queue + query cache hydration |
 | Data Fetching | TanStack Query |
+| AI | Groq (`llama-3.3-70b-versatile` + `llama-4-scout-17b-16e-instruct` vision model) via Supabase Edge Functions |
 | Backend | Supabase (PostgreSQL, Auth, Realtime, Edge Functions) |
 | Auth | Supabase Auth + expo-secure-store (native) / localStorage (web) |
 | Native Modules | expo-camera (barcode), expo-notifications, expo-secure-store |
 | Icons | MaterialCommunityIcons (`@expo/vector-icons`) |
 | Animations | react-native-reanimated |
 | Charts | react-native-svg |
+| Edge Functions | `food-search` (OpenFoodFacts proxy + Groq LLM fallback), `food-photo` (Groq vision analysis), `ai-coach` (personalized fasting/nutrition/workout guidance), `daily-summary` (email digest) |
 | Dates | date-fns |
 | OTA Updates | EAS Update |
 | iOS Build | EAS Build + personal-team signing (no Apple Developer Program needed for personal use) |
@@ -168,8 +190,8 @@ FastTrack/
 │   │   └── profile.tsx     # Profile tab (with settings inline)
 │   ├── (auth)/             # Login & signup
 │   └── (onboarding)/       # Onboarding wizard
-├── components/             # 31 reusable components
-├── hooks/                  # 17 custom hooks
+├── components/             # 30 reusable components
+├── hooks/                  # 15 custom hooks
 ├── lib/                    # Utilities, types, theme, offline support
 ├── store/                  # Zustand stores
 └── supabase/               # Schema, migrations, edge functions
@@ -179,7 +201,7 @@ FastTrack/
 
 ## Database
 
-15 migrations covering:
+16 migrations covering:
 
 | Migration | Description |
 |-----------|-------------|
@@ -198,6 +220,8 @@ FastTrack/
 | `my_meals` | Meal template library (my_meals + my_meal_items) |
 | `enabled_trackers` | Toggleable tracker preferences (Fasting, Workouts, Food, Period) |
 | `period_tracker` | Period log table + cycle settings on profiles |
+| `workout_sort_order` | Sort order column on workout_goals for exercise reordering |
+| `workout_groups` | Workout group tables for organizing exercises |
 
 All tables have RLS enabled with `auth.uid() = user_id` policies.
 
