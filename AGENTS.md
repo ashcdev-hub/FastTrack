@@ -801,6 +801,9 @@ See [Building for iOS (Standalone App)](#building-for-ios-standalone-app) above 
 | 81 | **Haptic feedback on fast/eat complete** — Added `expo-haptics` with success haptic when fast timer reaches zero and warning haptic when eating timer completes. Platform-guarded for web safety. | Done |
 | 82 | **Weight prompt on break fast** — New bottom-sheet modal after confirming break fast, pre-filled with current weight in user's preferred unit. "Log Weight & Break Fast" logs via `useWeightLog` then breaks fast; "Skip" breaks directly. Only shown on manual break (not auto-complete). | Done |
 | 83 | **Extended fasting mode** — Added phases beyond 24h (DEEP AUTOPHAGY → KETONES PEAK → IMMUNE REGENERATION → MAXIMUM REPAIR) in `lib/fasting-phases.ts`. Added collapsible extended presets row (36:2, 48:2, 72:2) on fast tab with coral accent. Extended presets also available in CustomScheduleModal. Custom stepper already allowed up to 48h. | Done |
+| 84 | **Better empty state for PreviousFasts** — Replaced `return null` with a glass panel showing "No previous fasts yet" message and CTA for new users. | Done |
+| 85 | **Extended fast refeed guidance** — When breaking a 36h+ fast, a lime-tinted guidance card appears in the break confirmation modal with tips about gentle refeeding. | Done |
+| 86 | **Scheduled future start** — Added "Tomorrow" and "+2d" to the start time picker date shortcuts. Only future hours are selectable on today's date. Format label shows "Start Fast from Tomorrow...". Timer, notifications, and session creation already handled future dates correctly. | Done |
 
 ### Known Bugs
 | # | Bug | Area | Description |

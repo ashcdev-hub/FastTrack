@@ -31,7 +31,24 @@ export function PreviousFasts({ sessions, fastingHours, onDelete }: PreviousFast
   const [showAll, setShowAll] = useState(false);
   const [showCalendar, setShowCalendar] = useState(false);
 
-  if (sessions.length === 0) return null;
+  if (sessions.length === 0) {
+    return (
+      <View className="mb-section-gap">
+        <Text style={{ color: c.text, fontFamily: "Inter_700Bold" }} className="text-lg mb-4">
+          Previous Fasts
+        </Text>
+        <GlassPanel className="p-5 items-center">
+          <MaterialCommunityIcons name="timer-off" size={32} color={c.textFaint} style={{ marginBottom: 12 }} />
+          <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 14, marginBottom: 4 }}>
+            No previous fasts yet
+          </Text>
+          <Text style={{ color: c.textFaint, fontFamily: "Inter_400Regular", fontSize: 12 }}>
+            Complete your first fast above to see history here
+          </Text>
+        </GlassPanel>
+      </View>
+    );
+  }
 
   const visibleSessions = showAll ? sessions : sessions.slice(0, DEFAULT_LIMIT);
   const hasMore = sessions.length > DEFAULT_LIMIT;

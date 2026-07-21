@@ -188,6 +188,7 @@ export default function FastScreen() {
     const time = format(date, "h:mm a");
     if (isSameDay(date, new Date())) return `Start Fast from Today at ${time}`;
     if (isSameDay(date, addDays(new Date(), -1))) return `Start Fast from Yesterday at ${time}`;
+    if (isSameDay(date, addDays(new Date(), 1))) return `Start Fast from Tomorrow at ${time}`;
     return `Start Fast from ${format(date, "MMM d")} at ${time}`;
   };
 
@@ -616,6 +617,23 @@ export default function FastScreen() {
                       </View>
                     ))}
                   </View>
+
+                  {fastElapsedMinutes >= 36 * 60 && (
+                    <View className="rounded-xl p-4 mb-4" style={{ backgroundColor: accent.limeBg, borderWidth: 1, borderColor: accent.limeBorder }}>
+                      <View className="flex-row items-start gap-3">
+                        <MaterialCommunityIcons name="lightning-bolt" size={20} color={accent.lime} style={{ marginTop: 2 }} />
+                        <View className="flex-1">
+                          <Text style={{ color: c.text, fontFamily: "Inter_700Bold", fontSize: 14, marginBottom: 4 }}>
+                            Breaking a long fast?
+                          </Text>
+                          <Text style={{ color: c.textSecondary, fontFamily: "Inter_400Regular", fontSize: 13 }}>
+                            Start with small, easy-to-digest meals. Bone broth, avocado, or eggs are gentle on your system after extended fasting.
+                          </Text>
+                        </View>
+                      </View>
+                    </View>
+                  )}
+
                   <View className="flex-row gap-3 mb-3">
                     <Pressable onPress={() => setShowBreakConfirm(false)} className="flex-1 py-3.5 items-center" style={{ backgroundColor: accent.lime }}>
                       <Text style={{ color: c.textOnAccent, fontFamily: "Inter_700Bold" }}>Continue Fasting</Text>
@@ -967,7 +985,10 @@ export default function FastScreen() {
                 <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 14, marginBottom: 8 }}>Hour</Text>
                 <ScrollView className="h-32 w-20" showsVerticalScrollIndicator={false}>
                   {Array.from({ length: 24 }, (_, i) => i).map((h) => {
-                    const disabled = isFutureTime(startPickerDate, h, startPickerMinute);
+                    const todayStr = new Date().toDateString();
+                    const disabled = startPickerDate.toDateString() === todayStr
+                      ? h < new Date().getHours() || (h === new Date().getHours() && startPickerMinute < new Date().getMinutes())
+                      : false;
                     const selected = startPickerHour === h;
                     return (
                       <Pressable key={h} onPress={() => !disabled && setStartPickerHour(h)} disabled={disabled}
@@ -987,7 +1008,10 @@ export default function FastScreen() {
                 <Text style={{ color: c.textMuted, fontFamily: "Inter_400Regular", fontSize: 14, marginBottom: 8 }}>Minute</Text>
                 <ScrollView className="h-32 w-20" showsVerticalScrollIndicator={false}>
                   {Array.from({ length: 60 }, (_, i) => i).map((m) => {
-                    const disabled = isFutureTime(startPickerDate, startPickerHour, m);
+                    const todayStr = new Date().toDateString();
+                    const disabled = startPickerDate.toDateString() === todayStr
+                      ? startPickerHour < new Date().getHours() || (startPickerHour === new Date().getHours() && m < new Date().getMinutes())
+                      : false;
                     const selected = startPickerMinute === m;
                     return (
                       <Pressable key={m} onPress={() => !disabled && setStartPickerMinute(m)} disabled={disabled}
@@ -1009,10 +1033,10 @@ export default function FastScreen() {
               {(() => {
                 const now = new Date();
                 const presets = [
-                  { label: "3d ago", date: new Date(now.getFullYear(), now.getMonth(), now.getDate() - 3) },
-                  { label: "2d ago", date: new Date(now.getFullYear(), now.getMonth(), now.getDate() - 2) },
                   { label: "Yesterday", date: new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1) },
                   { label: "Today", date: new Date() },
+                  { label: "Tomorrow", date: new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1) },
+                  { label: "+2d", date: new Date(now.getFullYear(), now.getMonth(), now.getDate() + 2) },
                 ];
                 return presets.map((p) => {
                   const active = startPickerDate.toDateString() === p.date.toDateString();
