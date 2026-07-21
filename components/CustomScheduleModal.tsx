@@ -11,6 +11,12 @@ const PRESETS = [
   { label: "20:4", fasting: 20, eating: 4 },
 ];
 
+const EXTENDED_PRESETS = [
+  { label: "36:2", fasting: 36, eating: 2 },
+  { label: "48:2", fasting: 48, eating: 2 },
+  { label: "72:2", fasting: 72, eating: 2 },
+];
+
 type CustomScheduleModalProps = {
   visible: boolean;
   onSelect: (label: string, fastingHours: number, eatingHours: number) => void;
@@ -116,6 +122,27 @@ export function CustomScheduleModal({ visible, onSelect, onCancel }: CustomSched
                   style={{ backgroundColor: isActive ? accent.lime : c.buttonBg }}
                 >
                   <Text style={{ color: isActive ? c.textOnAccent : c.text, fontFamily: "Inter_700Bold", fontSize: 13 }}>
+                    {p.label}
+                  </Text>
+                </Pressable>
+              );
+            })}
+          </View>
+
+          <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 10, letterSpacing: 1, marginBottom: 8, textTransform: "uppercase" }}>
+            Extended Fasting
+          </Text>
+          <View className="flex-row gap-2 mb-6">
+            {EXTENDED_PRESETS.map((p) => {
+              const isActive = fasting === p.fasting && eating === p.eating;
+              return (
+                <Pressable
+                  key={p.label}
+                  onPress={() => { setFasting(p.fasting); setEating(p.eating); }}
+                  className="flex-1 py-2.5 rounded-lg items-center"
+                  style={{ backgroundColor: isActive ? accent.coral : c.buttonBg }}
+                >
+                  <Text style={{ color: isActive ? "#FFFFFF" : c.text, fontFamily: "Inter_700Bold", fontSize: 13 }}>
                     {p.label}
                   </Text>
                 </Pressable>

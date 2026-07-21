@@ -800,6 +800,7 @@ See [Building for iOS (Standalone App)](#building-for-ios-standalone-app) above 
 | 80 | **Mutation error feedback** — Added `defaultOptions.mutations.onError` global handler in `_layout.tsx`. Added named `onError` callbacks to all 30 mutations across 11 hook files. Every mutation failure now logs with a clear `[Mutation]` prefix identifier. | Done |
 | 81 | **Haptic feedback on fast/eat complete** — Added `expo-haptics` with success haptic when fast timer reaches zero and warning haptic when eating timer completes. Platform-guarded for web safety. | Done |
 | 82 | **Weight prompt on break fast** — New bottom-sheet modal after confirming break fast, pre-filled with current weight in user's preferred unit. "Log Weight & Break Fast" logs via `useWeightLog` then breaks fast; "Skip" breaks directly. Only shown on manual break (not auto-complete). | Done |
+| 83 | **Extended fasting mode** — Added phases beyond 24h (DEEP AUTOPHAGY → KETONES PEAK → IMMUNE REGENERATION → MAXIMUM REPAIR) in `lib/fasting-phases.ts`. Added collapsible extended presets row (36:2, 48:2, 72:2) on fast tab with coral accent. Extended presets also available in CustomScheduleModal. Custom stepper already allowed up to 48h. | Done |
 
 ### Known Bugs
 | # | Bug | Area | Description |

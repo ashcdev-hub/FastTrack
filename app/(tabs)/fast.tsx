@@ -37,6 +37,12 @@ const PRESETS = [
   { label: "OMAD", fasting: 23, eating: 1 },
 ];
 
+const EXTENDED_PRESETS = [
+  { label: "36:2", fasting: 36, eating: 2 },
+  { label: "48:2", fasting: 48, eating: 2 },
+  { label: "72:2", fasting: 72, eating: 2 },
+];
+
 const MOODS = [
   { value: 4, label: "HAPPY", icon: "emoticon-happy", color: "#c3f400" },
   { value: 3, label: "NEUTRAL", icon: "emoticon-neutral", color: "#00daf3" },
@@ -98,6 +104,7 @@ export default function FastScreen() {
   const [checkInMood, setCheckInMood] = useState<number | null>(null);
   const [checkInNote, setCheckInNote] = useState("");
   const [showCustomModal, setShowCustomModal] = useState(false);
+  const [showExtended, setShowExtended] = useState(false);
   const [showWeightPrompt, setShowWeightPrompt] = useState(false);
   const [weightInput, setWeightInput] = useState("");
   const fastCompletePromptedRef = useRef(false);
@@ -407,6 +414,45 @@ export default function FastScreen() {
                   );
                 })}
               </View>
+
+              {/* Extended Fasting Toggle */}
+              <Pressable
+                onPress={() => setShowExtended((v) => !v)}
+                className="flex-row items-center justify-center py-2 mb-3"
+              >
+                <Text style={{ color: c.textMuted, fontFamily: "SpaceGrotesk_700Bold", fontSize: 10, letterSpacing: 1, textTransform: "uppercase", marginRight: 6 }}>
+                  Extended Fasting
+                </Text>
+                <MaterialCommunityIcons name={showExtended ? "chevron-up" : "chevron-down"} size={14} color={c.textMuted} />
+              </Pressable>
+
+              {showExtended && (
+                <View className="flex-row gap-2 mb-4">
+                  {EXTENDED_PRESETS.map((p) => {
+                    const isActive = selectedSchedule === p.label;
+                    return (
+                      <Pressable
+                        key={p.label}
+                        onPress={() => {
+                          setSelectedSchedule(p.label);
+                          setFastingHours(p.fasting);
+                          setEatingHours(p.eating);
+                          updateFastingSchedule(p.fasting, p.eating);
+                        }}
+                        className="flex-1 py-4 items-center rounded-xl"
+                        style={{ backgroundColor: isActive ? accent.coral : c.cardBgAlt, borderWidth: 1, borderColor: isActive ? accent.coral : c.cardBorder }}
+                      >
+                        <Text numberOfLines={1} style={{ color: isActive ? "#FFFFFF" : c.text, fontFamily: "Inter_700Bold", fontSize: 16 }}>
+                          {p.label}
+                        </Text>
+                        <Text style={{ color: isActive ? "rgba(255,255,255,0.7)" : c.textMuted, fontFamily: "Inter_400Regular", fontSize: 10, marginTop: 4 }}>
+                          {p.fasting}h fast
+                        </Text>
+                      </Pressable>
+                    );
+                  })}
+                </View>
+              )}
 
                 <Pressable
                   onPress={() => { setSelectedSchedule(null); setShowCustomModal(true); }}

@@ -12,6 +12,9 @@ const PHASES = [
   { maxHours: 12, label: "KETOSIS STARTING", description: "Your body is transitioning to fat-burning mode." },
   { maxHours: 16, label: "KETOSIS ACTIVE", description: "Ketone levels are rising. Fat is now the primary fuel source." },
   { maxHours: 24, label: "AUTOPHAGY ACTIVE", description: "Cellular repair and recycling is underway." },
+  { maxHours: 36, label: "DEEP AUTOPHAGY", description: "Enhanced cellular cleanup. Maximum metabolic flexibility." },
+  { maxHours: 48, label: "KETONES PEAK", description: "Ketone levels at their peak. Mental clarity and focus are elevated." },
+  { maxHours: 72, label: "IMMUNE REGENERATION", description: "Stem cell activation and immune cell regeneration in progress." },
 ];
 
 const PHASE_COUNT = PHASES.length + 1;
@@ -36,9 +39,9 @@ export function getFastingPhase(elapsedMinutes: number): FastingPhaseInfo {
   }
 
   return {
-    label: "DEEP AUTOPHAGY",
-    description: "Sustained cellular cleanup. Maximum metabolic flexibility.",
-    progressPct: Math.min(((hours - 24) / 24) * 100, 100),
+    label: "MAXIMUM REPAIR",
+    description: "Peak autophagic activity. Deep cellular renewal and regeneration.",
+    progressPct: Math.min(((hours - 72) / 48) * 100, 100),
     phaseIndex: PHASES.length,
     phaseCount: PHASE_COUNT,
   };
