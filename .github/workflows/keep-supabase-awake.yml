@@ -1,0 +1,39 @@
+name: Keep Supabase Awake
+
+# Free-tier Supabase projects pause after ~1 week of inactivity (no API requests).
+# This workflow pings the project 4x/day so the inactivity timer never expires.
+# Runs on GitHub's servers — independent of the app/phone being in use.
+#
+# NOTE: GitHub disables `schedule`-triggered workflows after 60 days with no repo
+# activity. Keep making commits (or set up an external pinger like UptimeRobot /
+# cron-job.org as a backup) to guarantee this keeps running.
+
+on:
+  schedule:
+    - cron: "0 0 * * *"
+    - cron: "0 6 * * *"
+    - cron: "0 12 * * *"
+    - cron: "0 18 * * *"
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Supabase
+        env:
+          ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+        run: |
+          rest=$(curl -s -o /dev/null -w "%{http_code}" --retry 3 --retry-delay 15 --max-time 60 \
+            "https://zytqfjjvruehnkntojjd.supabase.co/rest/v1/profiles?select=id&limit=1" \
+            -H "apikey: $ANON_KEY" || true)
+          auth=$(curl -s -o /dev/null -w "%{http_code}" --retry 3 --retry-delay 15 --max-time 60 \
+            "https://zytqfjjvruehnkntojjd.supabase.co/auth/v1/health" || true)
+          echo "REST=$rest AUTH=$auth"
+          # Any response (even 4xx/5xx) counts as activity and resets the timer.
+          # Only a hard connection failure (000) means the project is down/paused.
+          if [ "$rest" = "000" ] && [ "$auth" = "000" ]; then
+            echo "::error::Supabase project appears DOWN or PAUSED (no response from REST or Auth)."
+            exit 1
+          fi
+          echo "Supabase is reachable — inactivity timer reset."

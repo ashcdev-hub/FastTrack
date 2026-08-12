@@ -30,6 +30,7 @@ import { useTrackerStore } from "@/store/useTrackerStore";
 import { applyTheme } from "@/lib/dark-mode";
 import { getThemeColors, ACCENT, getAccentColors } from "@/lib/theme-colors";
 import { setupNotifications } from "@/lib/notifications";
+import { registerKeepAwake } from "@/lib/keep-awake";
 import { View, Text, Image } from "react-native";
 import { OfflineBanner } from "@/components/OfflineBanner";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
@@ -111,6 +112,7 @@ function InnerLayout() {
     useFastingStore.getState().restoreTimer();
     useFoodLogStore.getState().loadFromStorage();
     loadTrackers();
+    registerKeepAwake();
   }, []);
 
   useEffect(() => {
