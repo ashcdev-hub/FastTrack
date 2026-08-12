@@ -1,0 +1,10 @@
+name: Diagnostics
+on: workflow_dispatch
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "hello from diagnostic"
+      - run: curl -s -o /dev/null -w "supabase http %{http_code}
+" --max-time 20 "https://zytqfjjvruehnkntojjd.supabase.co/auth/v1/health"
+
