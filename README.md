@@ -111,7 +111,7 @@ Expo's unified codebase reduces the overhead of native development while maintai
 | AI | Groq (`llama-3.3-70b-versatile` + `llama-4-scout-17b-16e-instruct` vision model) via Supabase Edge Functions |
 | Backend | Supabase (PostgreSQL, Auth, Realtime, Edge Functions) |
 | Auth | Supabase Auth + expo-secure-store (native) / localStorage (web) |
-| Native Modules | expo-camera (barcode), expo-notifications, expo-secure-store |
+| Native Modules | expo-camera (barcode), expo-notifications, expo-secure-store, expo-background-fetch (keep-alive) |
 | Icons | MaterialCommunityIcons (`@expo/vector-icons`) |
 | Animations | react-native-reanimated |
 | Charts | react-native-svg |
@@ -150,9 +150,9 @@ EXPO_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 ### Running
 
 ```bash
-npx expo start --web --port 8081    # Web
-npx expo start --ios                 # iOS
-npx expo start --android             # Android
+npm run web                      # Web (http://localhost:3000)
+npx expo start --ios             # iOS
+npx expo start --android         # Android
 ```
 
 ### Building for iPhone (Standalone App)
@@ -192,8 +192,10 @@ FastTrack/
 │   └── (onboarding)/       # Onboarding wizard
 ├── components/             # 30 reusable components
 ├── hooks/                  # 15 custom hooks
-├── lib/                    # Utilities, types, theme, offline support
+├── lib/                    # Utilities, types, theme, offline support, keep-awake.ts
 ├── store/                  # Zustand stores
+├── scripts/                # keep-supabase-awake.sh + launchd plist (Mac keep-alive)
+├── .github/workflows/      # keep-supabase-awake.yml (server-side keep-alive cron)
 └── supabase/               # Schema, migrations, edge functions
 ```
 
@@ -224,6 +226,33 @@ FastTrack/
 | `workout_groups` | Workout group tables for organizing exercises |
 
 All tables have RLS enabled with `auth.uid() = user_id` policies.
+
+---
+
+## Keeping the Supabase Project Alive
+
+Free-tier Supabase projects **pause after ~1 week of inactivity** (no API requests).
+This project uses layered keep-alive mechanisms so the pause never happens again:
+
+| Layer | Mechanism | Dependency | Status |
+|-------|-----------|------------|--------|
+| 1 — Primary | `.github/workflows/keep-supabase-awake.yml` — GitHub Actions cron pings REST + Auth health 4×/day using the `SUPABASE_ANON_KEY` repo secret. Turns red and emails the owner if the project ever goes down. | GitHub Actions enabled on the account | **Deployed** (currently blocked by a stale GitHub billing-lock on the owner account — see note) |
+| 2 — Backup | `scripts/keep-supabase-awake.sh` + launchd plist — installed to `~/Library/LaunchAgents/`, pings 4×/day (00:30/06:30/12:30/18:30), logs to `~/Library/Logs/keep-supabase-awake.log` | Mac running | **Active** |
+| 3 — Tertiary | `lib/keep-awake.ts` — `expo-background-fetch` pings on-device ~every 4h | App installed, iOS runs the task | Unreliable (best-effort) |
+
+Any response from the API (even a 4xx/401) counts as activity and resets the
+inactivity timer, so the pings do not need to return 200.
+
+**Recommended (not yet set up):** register
+`https://zytqfjjvruehnkntojjd.supabase.co/auth/v1/health` on a free uptime service
+(UptimeRobot, cron-job.org) for a 1–2×/day check — fully independent of GitHub and
+your devices.
+
+> **Note — GitHub Actions billing lock (Aug 2026):** the owner account currently has a
+> stale GitHub-side "billing issue" lock that prevents *any* workflow job from starting,
+> despite the account being Free plan with 0% usage. GitHub support must clear it. Until
+> then, layer 2 (launchd) is the active protection. Full details in
+> [AGENTS.md](AGENTS.md#keeping-the-supabase-project-alive-critical).
 
 ---
 

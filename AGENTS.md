@@ -426,6 +426,7 @@ FastTrack/
 │   ├── offline-mutation.ts      # withOfflineFallback() + isNetworkError() helpers
 │   └── keep-awake.ts            # App-side background-fetch ping (tertiary; see Keep-Alive below)
 ├── .github/workflows/           # keep-supabase-awake.yml — server-side ping (primary)
+├── scripts/                    # keep-supabase-awake.sh + launchd plist — Mac keep-alive backup
 ├── widgets/                    # Home screen widget plans + implementations (deferred)
 ├── supabase/
 │   ├── schema.sql
@@ -654,7 +655,7 @@ EXPO_PUBLIC_SUPABASE_ANON_KEY=eyJ...```
 
 ## Deployment
 
-- **Web**: `npx expo start --web --port 8081`
+- **Web**: `npm run web` (serves at `http://localhost:3000`, matches `package.json` `web` script)
 - **iOS (dev)**: `npx expo run:ios --device` (build + install to plugged-in iPhone)
 - **iOS (OTA)**: `eas update --branch production --message "..."` (JS-only changes, no rebuild)
 - **iOS (App Store)**: `eas build --profile production --platform ios` + `eas submit` (requires Apple Developer Program)
