@@ -467,14 +467,24 @@ Layered protection (all are implemented except the external pinger):
    GitHub emails the owner — that means the project is paused/down.**
    ⚠️ GitHub disables `schedule` workflows after 60 days with NO repo activity. Regular
    commits keep it alive.
-2. **Backup — external pinger (recommended, NOT YET SET UP)**: register the project
+2. **Backup — local launchd cron on the dev Mac** (`scripts/keep-supabase-awake.sh`
+   + `scripts/com.fasttrack.keep-supabase-awake.plist`, installed to
+   `~/Library/LaunchAgents/`): pings REST + Auth health 4×/day (00:30/06:30/12:30/18:30),
+   logs to `~/Library/Logs/keep-supabase-awake.log`. Works while the Mac is on, even if
+   GitHub Actions is locked (billing) or the repo is idle. **Note**: installs only on this
+   machine; a fresh checkout needs `launchctl bootstrap gui/$(id -u)` re-run.
+3. **External pinger (recommended, NOT YET SET UP)**: register the project
    REST URL `https://zytqfjjvruehnkntojjd.supabase.co/rest/v1/profiles?select=id&limit=1`
    (with `apikey` header = anon key) on a free uptime/heartbeat service (UptimeRobot,
    cron-job.org, healthchecks.io) checking 1–2×/day. Fully independent of GitHub and
    devices — guarantees no pause even if the repo goes 60+ days idle.
-3. **Tertiary — app background fetch** (`lib/keep-awake.ts` + `registerKeepAwake()` in
+4. **Tertiary — app background fetch** (`lib/keep-awake.ts` + `registerKeepAwake()` in
    `app/_layout.tsx`): `expo-background-fetch` pings on-device ~every 4h. Unreliable (iOS
    controls timing, app must be installed) — do NOT rely on this as the primary mechanism.
+
+⚠️ **GitHub Actions was locked for a billing issue (Aug 2026)** — the workflow runs only
+after the owner resolves it at https://github.com/settings/billing. Until then the launchd
+job above is the active protection.
 
 If the project pauses again: restore from dashboard (Organizations → FastTrack →
 Resume project), wait for Active status, then run `NOTIFY pgrst, 'reload schema';` in the
