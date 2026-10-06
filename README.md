@@ -1,12 +1,12 @@
 # FastTrack
 
-**Intermittent fasting, workout & macro tracker built with Expo + Supabase.**
+**Intermittent fasting, workout & macro tracker for iOS & Android.
 
-A lightweight, streamlined mobile app for intermittent fasting cycle tracking, workout logging, nutrition and water tracking, period/cycle tracking, and AI-powered coaching — all at zero cost.
+A lightweight, streamlined mobile app for intermittent fasting cycle tracking, workout logging, nutrition and water tracking, period/cycle tracking, and AI-powered coaching.
 
 Existing fasting/fitness tracker apps have become visually cluttered and rely heavily on aggressive monetisation via premium tiers. I built this to escape that model and return to a straightforward, feature-rich experience at zero cost.
 
-Expo's unified codebase reduces the overhead of native development while maintaining a high-performance experience across both iOS and Android.
+Expo's unified codebase reduces the overhead of native development while maintaining a high-performance experience across mobile platforns.
 
 ---
 
