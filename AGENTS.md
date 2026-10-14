@@ -2,6 +2,19 @@
 
 Expo SDK 54 (React Native 0.81) + Supabase + NativeWind + Zustand + TanStack Query.
 
+## ⚠️ Supabase MCP — read before any DB work
+
+The Supabase MCP is a **single, unscoped `supabase` entry** that authenticates as
+**one account at a time**. It only sees/acts on projects in the account it is
+currently logged into — it **cannot switch accounts itself**.
+
+- This repo targets **FastTrack** (`zytqfjjvruehnkntojjd`, account `sabrepulse`).
+  Before DB work here, make sure the MCP is authed to that account:
+  `opencode mcp auth supabase` (opens a browser to log in).
+- To work on a different project (goldarts-triage / Reviewgo), re-auth with that
+  project's account first, then use `list_projects` + the `project_id` argument.
+- Full account identities live in `AGENTS.local.md` (gitignored — this repo is public).
+
 ## Building for iOS (Standalone App)
 
 You can build and install FastTrack as a standalone iPhone app **without enrolling in the Apple Developer Program** ($99/yr), using a free "Personal Team" signing cert that lasts 7 days. Full steps below.
@@ -448,6 +461,14 @@ FastTrack/
 - **Project URL**: `https://zytqfjjvruehnkntojjd.supabase.co`
 - **Project Ref**: `zytqfjjvruehnkntojjd`
 - **CLI**: `supabase login` → `supabase link --project-ref zytqfjjvruehnkntojjd` → `supabase db push --linked`
+- **Account owner**: the `sabrepulse` Supabase account. Full account identities + the
+  other two Supabase accounts in this workspace are recorded in `AGENTS.local.md`
+  (gitignored — this repo is public).
+- **MCP**: a single unscoped `supabase` entry. It authenticates as one account at a
+  time — re-auth (`opencode mcp auth supabase`) to work with a different account
+  (see `AGENTS.local.md`). Unscoped on purpose so account tools (`list_projects`,
+  `pause_project`, `restore_project`) stay available; scope per call via the
+  `project_id` argument.
 
 ## Keeping the Supabase Project Alive (CRITICAL)
 
@@ -458,6 +479,15 @@ pinging the project. It was resumed from the dashboard (restore window is 1 year
 intact), and after resume the PostgREST schema cache can be stale (`404 PGRST205`) for a
 few minutes — it self-heals; `NOTIFY pgrst, 'reload schema';` in the SQL Editor fixes it
 immediately.
+
+The project **paused again ~8–14 Oct 2026**. Root cause: the launchd job stopped firing
+after its last successful ping (Thu 8 Oct 2026, 10:39 BST) — the Mac rebooted and the
+agent was never reloaded (`launchctl list` showed it unloaded). GitHub Actions was still
+billing-locked (failing since 13 Aug 2026), so nothing else was pinging and the 7-day
+inactivity timer expired. Resumed from the dashboard on 14 Oct 2026 (no data loss). Fix:
+reload the launchd agent —
+`launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.fasttrack.keep-supabase-awake.plist`.
+The external pinger (item 3 below) remains the only device/reboot-independent protection.
 
 Layered protection (all are implemented except the external pinger):
 
@@ -849,6 +879,7 @@ See [Building for iOS (Standalone App)](#building-for-ios-standalone-app) above 
 | 84 | **Better empty state for PreviousFasts** — Replaced `return null` with a glass panel showing "No previous fasts yet" message and CTA for new users. | Done |
 | 85 | **Extended fast refeed guidance** — When breaking a 36h+ fast, a lime-tinted guidance card appears in the break confirmation modal with tips about gentle refeeding. | Done |
 | 86 | **Scheduled future start** — Added "Tomorrow" and "+2d" to the start time picker date shortcuts. Only future hours are selectable on today's date. Format label shows "Start Fast from Tomorrow...". Timer, notifications, and session creation already handled future dates correctly. | Done |
+| 87 | **Supabase pause recovery + MCP reconfiguration (ops)** — Resumed the FastTrack project after it paused ~8–14 Oct 2026 (launchd keep-alive stopped firing after the Mac rebooted; GitHub Actions still billing-locked since Aug). Reloaded the launchd agent and verified it pings again. Reconfigured the Supabase MCP from a single entry mis-scoped to `vicnesxanhjqtvfxzvru` (goldarts-triage) to a single **unscoped** `supabase` entry so account tools (`list_projects`, `pause_project`, `restore_project`) are available and any project/account can be targeted via `project_id` (re-auth to switch accounts). Added `AGENTS.local.md` (gitignored) recording the three account identities + refs, plus a top-of-file MCP callout in `AGENTS.md`. | Done |
 
 ### Known Bugs
 | # | Bug | Area | Description |

@@ -40,6 +40,9 @@ yarn-error.*
 # Claude Code local config (regenerated automatically — not project state)
 .claude/
 
+# Local-only notes (account identities, credentials pointers — repo is public)
+AGENTS.local.md
+
 # generated native folders
 /ios
 /android
